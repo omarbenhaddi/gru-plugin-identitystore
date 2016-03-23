@@ -1,0 +1,60 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributekey" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.manage_attributekeys.title">
+        <@headerButtons>
+
+        
+        <form class="form-inline pull-right" method="post" name="manage_attributekeys" action="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
+            <!-- Add pull-right to class1 -->
+            <@actionButtons button1Name="view_createAttributeKey" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_attributekeys.buttonAdd" />
+        </form>
+        
+    </@headerButtons>
+    </@boxHeader>
+    <@boxBody>    
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    
+    <@table>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.manage_attributekeys.columnKeyName}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnKeyDescription}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnKeyType}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list attributekey_list as attributekey >
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <td>
+                ${attributekey.keyName}
+            </td>
+            <td>
+                ${attributekey.keyDescription}
+            </td>
+            <td>
+                ${attributekey.keyType}
+            </td>
+        <td>
+            <a href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp?view=modifyAttributeKey&id=${attributekey.id}"
+               class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
+                <i class="fa fa-pencil"></i>
+            </a>
+
+            <a href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp?action=confirmRemoveAttributeKey&id=${attributekey.id}"
+               class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >
+                <i class="fa fa-trash"></i>
+            </a>
+        </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@rowBox>
+

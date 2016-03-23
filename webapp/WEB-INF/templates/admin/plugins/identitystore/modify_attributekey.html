@@ -1,0 +1,15 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributekey" />
+
+<@rowBoxHeader i18nTitleKey="identitystore.modify_attributekey.title">
+    <form class="form-horizontal" method="post" name="modify_attributekey" action="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
+        <@messages errors=errors />
+        <input type="hidden" id="id" name="id" value="${attributekey.id}"/>
+        
+        <@fieldInputText i18nLabelKey="identitystore.modify_attributekey.labelKeyName" inputName="key_name" mandatory=true value="${attributekey.keyName}" i18nHelpBlockKey="identitystore.modify_attributekey.labelKeyName.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_attributekey.labelKeyDescription" inputName="key_description" mandatory=true value="${attributekey.keyDescription}" i18nHelpBlockKey="identitystore.modify_attributekey.labelKeyDescription.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_attributekey.labelKeyType" inputName="key_type" mandatory=true value="${attributekey.keyType}" i18nHelpBlockKey="identitystore.modify_attributekey.labelKeyType.help" />
+        <@actionButtons button1Name="action_modifyAttributeKey" button2Name="view_manageAttributeKeys"/>
+    </form>
+</@rowBoxHeader>
+

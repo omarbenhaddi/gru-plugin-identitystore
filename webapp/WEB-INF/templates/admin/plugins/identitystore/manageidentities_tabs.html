@@ -1,0 +1,11 @@
+<#macro tabs tab >
+<div>
+    <ul class="nav nav-tabs">
+        <li <#if tab="identity">class="active"</#if>>
+            <a href="jsp/admin/plugins/identitystore/ManageIdentitys.jsp">
+                #i18n{identitystore.manage_identitys.pageTitle}
+            </a>
+        </li>
+    </ul>
+</div>
+</#macro>

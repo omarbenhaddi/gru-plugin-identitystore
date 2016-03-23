@@ -1,0 +1,16 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributecertificate" />
+
+<@rowBoxHeader i18nTitleKey="identitystore.create_attributecertificate.title">
+    <form class="form-horizontal" method="post" name="create_attributecertificate" action="jsp/admin/plugins/identitystore/ManageAttributeCertificates.jsp">
+        <@messages errors=errors />
+        <input type="hidden" id="id" name="id"/>
+        
+        <@fieldInputText i18nLabelKey="identitystore.create_attributecertificate.labelIdCertifier" inputName="id_certifier" mandatory=true value="${attributecertificate.idCertifier!''}" i18nHelpBlockKey="identitystore.create_attributecertificate.labelIdCertifier.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_attributecertificate.labelCertificateDate" inputName="certificate_date" mandatory=true value="${attributecertificate.certificateDate!''}" i18nHelpBlockKey="identitystore.create_attributecertificate.labelCertificateDate.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_attributecertificate.labelCertificateLevel" inputName="certificate_level" mandatory=true value="${attributecertificate.certificateLevel!''}" i18nHelpBlockKey="identitystore.create_attributecertificate.labelCertificateLevel.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_attributecertificate.labelExpirationDate" inputName="expiration_date"  value="${attributecertificate.expirationDate!''}" i18nHelpBlockKey="identitystore.create_attributecertificate.labelExpirationDate.help" />
+        <@actionButtons button1Name="action_createAttributeCertificate" button2Name="view_manageAttributeCertificates"/>
+    </form>
+</@rowBoxHeader>
+

@@ -1,0 +1,64 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributecertificate" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.manage_attributecertificates.title">
+        <@headerButtons>
+
+        
+        <form class="form-inline pull-right" method="post" name="manage_attributecertificates" action="jsp/admin/plugins/identitystore/ManageAttributeCertificates.jsp">
+            <!-- Add pull-right to class1 -->
+            <@actionButtons button1Name="view_createAttributeCertificate" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_attributecertificates.buttonAdd" />
+        </form>
+        
+    </@headerButtons>
+    </@boxHeader>
+    <@boxBody>    
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    
+    <@table>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.manage_attributecertificates.columnIdCertifier}</th>
+            <th>#i18n{identitystore.manage_attributecertificates.columnCertificateDate}</th>
+            <th>#i18n{identitystore.manage_attributecertificates.columnCertificateLevel}</th>
+            <th>#i18n{identitystore.manage_attributecertificates.columnExpirationDate}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list attributecertificate_list as attributecertificate >
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <td>
+                ${attributecertificate.idCertifier}
+            </td>
+            <td>
+                ${attributecertificate.certificateDate}
+            </td>
+            <td>
+                ${attributecertificate.certificateLevel}
+            </td>
+            <td>
+                ${attributecertificate.expirationDate}
+            </td>
+        <td>
+            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertificates.jsp?view=modifyAttributeCertificate&id=${attributecertificate.id}"
+               class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
+                <i class="fa fa-pencil"></i>
+            </a>
+
+            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertificates.jsp?action=confirmRemoveAttributeCertificate&id=${attributecertificate.id}"
+               class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >
+                <i class="fa fa-trash"></i>
+            </a>
+        </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@rowBox>
+
