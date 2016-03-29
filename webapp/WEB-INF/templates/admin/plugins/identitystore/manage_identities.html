@@ -1,14 +1,11 @@
-<#include "manageidentities_tabs.html" />
-<@tabs tab="identity" />
-
 <@rowBox>
-    <@boxHeader i18nTitleKey="identitystore.manage_identitys.title">
+    <@boxHeader i18nTitleKey="identitystore.manage_identities.title">
         <@headerButtons>
 
         
-        <form class="form-inline pull-right" method="post" name="manage_identitys" action="jsp/admin/plugins/identitystore/ManageIdentitys.jsp">
+        <form class="form-inline pull-right" method="post" name="manage_identities" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
             <!-- Add pull-right to class1 -->
-            <@actionButtons button1Name="view_createIdentity" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_identitys.buttonAdd" />
+            <@actionButtons button1Name="view_createIdentity" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_identities.buttonAdd" />
         </form>
         
     </@headerButtons>
@@ -20,17 +17,17 @@
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>#i18n{identitystore.manage_identitys.columnConnectionId}</th>
-            <th>#i18n{identitystore.manage_identitys.columnCustomerId}</th>
-            <th>#i18n{identitystore.manage_identitys.columnGivenName}</th>
-            <th>#i18n{identitystore.manage_identitys.columnFamilyName}</th>
-            <th>#i18n{identitystore.manage_identitys.columnGender}</th>
-            <th>#i18n{identitystore.manage_identitys.columnBirthdate}</th>
-            <th>#i18n{identitystore.manage_identitys.columnBirthplace}</th>
-            <th>#i18n{identitystore.manage_identitys.columnEmail}</th>
-            <th>#i18n{identitystore.manage_identitys.columnPreferredUsername}</th>
-            <th>#i18n{identitystore.manage_identitys.columnAddress}</th>
-            <th>#i18n{identitystore.manage_identitys.columnPhone}</th>
+            <th>#i18n{identitystore.manage_identities.columnConnectionId}</th>
+            <th>#i18n{identitystore.manage_identities.columnCustomerId}</th>
+            <th>#i18n{identitystore.manage_identities.columnGivenName}</th>
+            <th>#i18n{identitystore.manage_identities.columnFamilyName}</th>
+            <th>#i18n{identitystore.manage_identities.columnGender}</th>
+            <th>#i18n{identitystore.manage_identities.columnBirthdate}</th>
+            <th>#i18n{identitystore.manage_identities.columnBirthplace}</th>
+            <th>#i18n{identitystore.manage_identities.columnEmail}</th>
+            <th>#i18n{identitystore.manage_identities.columnPreferredUsername}</th>
+            <th>#i18n{identitystore.manage_identities.columnAddress}</th>
+            <th>#i18n{identitystore.manage_identities.columnPhone}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
@@ -71,12 +68,12 @@
                 ${identity.phone!''}
             </td>
         <td>
-            <a href="jsp/admin/plugins/identitystore/ManageIdentitys.jsp?view=modifyIdentity&id=${identity.id}"
+            <a href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?view=modifyIdentity&id=${identity.id}"
                class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
                 <i class="fa fa-pencil"></i>
             </a>
 
-            <a href="jsp/admin/plugins/identitystore/ManageIdentitys.jsp?action=confirmRemoveIdentity&id=${identity.id}"
+            <a href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?action=confirmRemoveIdentity&id=${identity.id}"
                class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >
                 <i class="fa fa-trash"></i>
             </a>

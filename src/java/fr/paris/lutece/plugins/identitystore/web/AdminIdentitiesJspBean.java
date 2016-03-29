@@ -49,7 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 public abstract class AdminIdentitiesJspBean extends MVCAdminJspBean
 {
     // Rights
-    public static final String RIGHT_ADMINIDENTITIES = "IDENTITYSTORE_MANAGEMENT";
+    public static final String RIGHT_ADMINIDENTITIES = "IDENTITYSTORE_ADMIN_MANAGEMENT";
     
     // Properties
     private static final String PROPERTY_DEFAULT_LIST_ITEM_PER_PAGE = "identitystore.listItems.itemsPerPage";

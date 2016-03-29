@@ -55,7 +55,9 @@ public class AttributeCertifier implements Serializable
     @Size( max = 255 , message = "#i18n{identitystore.validation.attributecertifier.Description.size}" ) 
     private String _strDescription;
     
-    private String _strLogo;
+    private byte[] _logo;
+    private String _strLogoMimeType;
+    
 
     /**
      * Returns the Id
@@ -115,17 +117,37 @@ public class AttributeCertifier implements Serializable
      * Returns the Logo
      * @return The Logo
      */
-    public String getLogo( )
+    public byte[] getLogo( )
     {
-        return _strLogo;
+        return _logo;
     }
 
     /**
      * Sets the Logo
-     * @param strLogo The Logo
+     * @param logo The Logo
      */ 
-    public void setLogo( String strLogo )
+    public void setLogo( byte[] logo )
     {
-        _strLogo = strLogo;
+        _logo = logo;
     }
+    
+    /**
+     * Returns the LogoMimeType
+     * @return The LogoMimeType
+     */
+    public String getLogoMimeType( )
+    {
+        return _strLogoMimeType;
+    }
+
+    /**
+     * Sets the LogoMimeType
+     * @param strLogoMimeType The LogoMimeType
+     */ 
+    public void setLogoMimeType( String strLogoMimeType )
+    {
+        _strLogoMimeType = strLogoMimeType;
+    }
+    
+    
 }

@@ -1,14 +1,9 @@
 <#macro tabs tab >
 <div>
     <ul class="nav nav-tabs">
-        <li <#if tab="attributecertificate">class="active"</#if>>
-            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertificates.jsp">
-                #i18n{identitystore.manage_attributecertificates.pageTitle}
-            </a>
-        </li>
         <li <#if tab="attributecertifier">class="active"</#if>>
             <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp">
-                #i18n{identitystore.manage_attributecertifiers.pageTitle}
+                #i18n{identitystore.manage_certifiers.pageTitle}
             </a>
         </li>
         <li <#if tab="attributekey">class="active"</#if>>

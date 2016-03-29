@@ -48,11 +48,11 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute_certifier ) FROM identitystore_attribute_certifier";
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certifier, name, description, logo FROM identitystore_attribute_certifier WHERE id_attribute_certifier = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certifier ( id_attribute_certifier, name, description, logo ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certifier, name, description, logo_file, logo_mime_type FROM identitystore_attribute_certifier WHERE id_attribute_certifier = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certifier ( id_attribute_certifier, name, description, logo_file, logo_mime_type ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_certifier WHERE id_attribute_certifier = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certifier SET id_attribute_certifier = ?, name = ?, description = ?, logo = ? WHERE id_attribute_certifier = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certifier, name, description, logo FROM identitystore_attribute_certifier";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certifier SET id_attribute_certifier = ?, name = ?, description = ?, logo_file = ?, logo_mime_type = ? WHERE id_attribute_certifier = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certifier, name, description FROM identitystore_attribute_certifier";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certifier FROM identitystore_attribute_certifier";
 
     /**
@@ -79,16 +79,17 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
      * {@inheritDoc }
      */
     @Override
-    public void insert( AttributeCertifier attributeCertifier, Plugin plugin )
+    public void insert( AttributeCertifier certifier, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        attributeCertifier.setId( newPrimaryKey( plugin ) );
+        certifier.setId( newPrimaryKey( plugin ) );
         int nIndex = 1;
         
-        daoUtil.setInt( nIndex++ , attributeCertifier.getId( ) );
-        daoUtil.setString( nIndex++ , attributeCertifier.getName( ) );
-        daoUtil.setString( nIndex++ , attributeCertifier.getDescription( ) );
-        daoUtil.setString( nIndex++ , attributeCertifier.getLogo( ) );
+        daoUtil.setInt( nIndex++ , certifier.getId( ) );
+        daoUtil.setString( nIndex++ , certifier.getName( ) );
+        daoUtil.setString( nIndex++ , certifier.getDescription( ) );
+        daoUtil.setBytes(nIndex++ , certifier.getLogo( ) );
+        daoUtil.setString( nIndex++ , certifier.getLogoMimeType());
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
@@ -103,21 +104,22 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
         daoUtil.setInt( 1 , nKey );
         daoUtil.executeQuery( );
-        AttributeCertifier attributeCertifier = null;
+        AttributeCertifier certifier = null;
 
         if ( daoUtil.next( ) )
         {
-            attributeCertifier = new AttributeCertifier();
+            certifier = new AttributeCertifier();
             int nIndex = 1;
             
-            attributeCertifier.setId( daoUtil.getInt( nIndex++ ) );
-            attributeCertifier.setName( daoUtil.getString( nIndex++ ) );
-            attributeCertifier.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeCertifier.setLogo( daoUtil.getString( nIndex++ ) );
+            certifier.setId( daoUtil.getInt( nIndex++ ) );
+            certifier.setName( daoUtil.getString( nIndex++ ) );
+            certifier.setDescription( daoUtil.getString( nIndex++ ) );
+            certifier.setLogo( daoUtil.getBytes( nIndex++ ) );
+            certifier.setLogoMimeType( daoUtil.getString( nIndex++ ));
         }
 
         daoUtil.free( );
-        return attributeCertifier;
+        return certifier;
     }
 
     /**
@@ -136,16 +138,17 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
      * {@inheritDoc }
      */
     @Override
-    public void store( AttributeCertifier attributeCertifier, Plugin plugin )
+    public void store( AttributeCertifier certifier, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
         int nIndex = 1;
         
-        daoUtil.setInt( nIndex++ , attributeCertifier.getId( ) );
-        daoUtil.setString( nIndex++ , attributeCertifier.getName( ) );
-        daoUtil.setString( nIndex++ , attributeCertifier.getDescription( ) );
-        daoUtil.setString( nIndex++ , attributeCertifier.getLogo( ) );
-        daoUtil.setInt( nIndex , attributeCertifier.getId( ) );
+        daoUtil.setInt( nIndex++ , certifier.getId( ) );
+        daoUtil.setString( nIndex++ , certifier.getName( ) );
+        daoUtil.setString( nIndex++ , certifier.getDescription( ) );
+        daoUtil.setBytes( nIndex++ , certifier.getLogo( ) );
+        daoUtil.setString( nIndex++ , certifier.getLogoMimeType());
+        daoUtil.setInt( nIndex , certifier.getId( ) );
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
@@ -157,25 +160,24 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
     @Override
     public List<AttributeCertifier> selectAttributeCertifiersList( Plugin plugin )
     {
-        List<AttributeCertifier> attributeCertifierList = new ArrayList<>(  );
+        List<AttributeCertifier> certifierList = new ArrayList<>(  );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.executeQuery(  );
 
         while ( daoUtil.next(  ) )
         {
-            AttributeCertifier attributeCertifier = new AttributeCertifier(  );
+            AttributeCertifier certifier = new AttributeCertifier(  );
             int nIndex = 1;
             
-            attributeCertifier.setId( daoUtil.getInt( nIndex++ ) );
-            attributeCertifier.setName( daoUtil.getString( nIndex++ ) );
-            attributeCertifier.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeCertifier.setLogo( daoUtil.getString( nIndex++ ) );
+            certifier.setId( daoUtil.getInt( nIndex++ ) );
+            certifier.setName( daoUtil.getString( nIndex++ ) );
+            certifier.setDescription( daoUtil.getString( nIndex++ ) );
 
-            attributeCertifierList.add( attributeCertifier );
+            certifierList.add( certifier );
         }
 
         daoUtil.free( );
-        return attributeCertifierList;
+        return certifierList;
     }
     
     /**
@@ -184,17 +186,17 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
     @Override
     public List<Integer> selectIdAttributeCertifiersList( Plugin plugin )
     {
-        List<Integer> attributeCertifierList = new ArrayList<>( );
+        List<Integer> certifierList = new ArrayList<>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin );
         daoUtil.executeQuery(  );
 
         while ( daoUtil.next(  ) )
         {
-            attributeCertifierList.add( daoUtil.getInt( 1 ) );
+            certifierList.add( daoUtil.getInt( 1 ) );
         }
 
         daoUtil.free( );
-        return attributeCertifierList;
+        return certifierList;
     }
     
     /**
@@ -203,16 +205,16 @@ public final class AttributeCertifierDAO implements IAttributeCertifierDAO
     @Override
     public ReferenceList selectAttributeCertifiersReferenceList( Plugin plugin )
     {
-        ReferenceList attributeCertifierList = new ReferenceList();
+        ReferenceList certifierList = new ReferenceList();
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.executeQuery(  );
 
         while ( daoUtil.next(  ) )
         {
-            attributeCertifierList.addItem( daoUtil.getInt( 1 ) , daoUtil.getString( 2 ) );
+            certifierList.addItem( daoUtil.getInt( 1 ) , daoUtil.getString( 2 ) );
         }
 
         daoUtil.free( );
-        return attributeCertifierList;
+        return certifierList;
     }
 }

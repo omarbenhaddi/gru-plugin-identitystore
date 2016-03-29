@@ -1,0 +1,60 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributecertifier" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.manage_certifiers.title">
+        <@headerButtons>
+
+        
+        <form class="form-inline pull-right" method="post" name="manage_certifiers" action="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp">
+            <!-- Add pull-right to class1 -->
+            <@actionButtons button1Name="view_createAttributeCertifier" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_certifiers.buttonAdd" />
+        </form>
+        
+    </@headerButtons>
+    </@boxHeader>
+    <@boxBody>    
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    
+    <@table>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.manage_certifiers.columnName}</th>
+            <th>#i18n{identitystore.manage_certifiers.columnDescription}</th>
+            <th>#i18n{identitystore.manage_certifiers.columnLogo}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list attributecertifier_list as certifier >
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <td>
+                ${certifier.name}
+            </td>
+            <td>
+                ${certifier.description}
+            </td>
+            <td>
+                <img src="image?resource_type=certifier_logo&id=${certifier.id}" width="40" height="40" />
+            </td>
+        <td>
+            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?view=modifyAttributeCertifier&id=${certifier.id}"
+               class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
+                <i class="fa fa-pencil"></i>
+            </a>
+
+            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?action=confirmRemoveAttributeCertifier&id=${certifier.id}"
+               class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >
+                <i class="fa fa-trash"></i>
+            </a>
+        </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@rowBox>
+

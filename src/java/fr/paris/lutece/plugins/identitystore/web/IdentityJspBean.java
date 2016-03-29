@@ -49,11 +49,11 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * This class provides the user interface to manage Identity features ( manage, create, modify, remove )
  */
-@Controller( controllerJsp = "ManageIdentitys.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
+@Controller( controllerJsp = "ManageIdentities.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class IdentityJspBean extends ManageIdentitiesJspBean
 {
     // Templates
-    private static final String TEMPLATE_MANAGE_IDENTITYS = "/admin/plugins/identitystore/manage_identitys.html";
+    private static final String TEMPLATE_MANAGE_IDENTITYS = "/admin/plugins/identitystore/manage_identities.html";
     private static final String TEMPLATE_CREATE_IDENTITY = "/admin/plugins/identitystore/create_identity.html";
     private static final String TEMPLATE_MODIFY_IDENTITY = "/admin/plugins/identitystore/modify_identity.html";
 
@@ -61,7 +61,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_ID_IDENTITY = "id";
 
     // Properties for page titles
-    private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS = "identitystore.manage_identitys.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS = "identitystore.manage_identities.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_IDENTITY = "identitystore.modify_identity.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_CREATE_IDENTITY = "identitystore.create_identity.pageTitle";
 
@@ -69,7 +69,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
 
-    private static final String JSP_MANAGE_IDENTITYS = "jsp/admin/plugins/identitystore/ManageIdentitys.jsp";
+    private static final String JSP_MANAGE_IDENTITYS = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
 
     // Properties
     private static final String MESSAGE_CONFIRM_REMOVE_IDENTITY = "identitystore.message.confirmRemoveIdentity";

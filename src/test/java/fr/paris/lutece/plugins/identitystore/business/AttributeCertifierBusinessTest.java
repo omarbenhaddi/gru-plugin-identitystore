@@ -52,24 +52,20 @@ public class AttributeCertifierBusinessTest extends LuteceTestCase
         AttributeCertifier attributeCertifier = new AttributeCertifier();
         attributeCertifier.setName( NAME1 );
         attributeCertifier.setDescription( DESCRIPTION1 );
-        attributeCertifier.setLogo( LOGO1 );
 
         // Create test
         AttributeCertifierHome.create( attributeCertifier );
         AttributeCertifier attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId( ) );
         assertEquals( attributeCertifierStored.getName() , attributeCertifier.getName( ) );
         assertEquals( attributeCertifierStored.getDescription() , attributeCertifier.getDescription( ) );
-        assertEquals( attributeCertifierStored.getLogo() , attributeCertifier.getLogo( ) );
 
         // Update test
         attributeCertifier.setName( NAME2 );
         attributeCertifier.setDescription( DESCRIPTION2 );
-        attributeCertifier.setLogo( LOGO2 );
         AttributeCertifierHome.update( attributeCertifier );
         attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId( ) );
         assertEquals( attributeCertifierStored.getName() , attributeCertifier.getName( ) );
         assertEquals( attributeCertifierStored.getDescription() , attributeCertifier.getDescription( ) );
-        assertEquals( attributeCertifierStored.getLogo() , attributeCertifier.getLogo( ) );
 
         // List test
         AttributeCertifierHome.getAttributeCertifiersList();

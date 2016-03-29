@@ -1,0 +1,17 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributecertifier" />
+
+<@rowBoxHeader i18nTitleKey="identitystore.create_certifier.title">
+    <form class="form-horizontal" method="post" name="create_certifier" action="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp" enctype="multipart/form-data" >
+        <@messages errors=errors />
+        <input type="hidden" id="id" name="id"/>
+        
+        <@fieldInputText i18nLabelKey="identitystore.create_certifier.labelName" inputName="name" mandatory=true value="${attributecertifier.name!''}" i18nHelpBlockKey="identitystore.create_certifier.labelName.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_certifier.labelDescription" inputName="description" mandatory=true value="${attributecertifier.description!''}" i18nHelpBlockKey="identitystore.create_certifier.labelDescription.help" />
+        <@fieldInputWrapper i18nLabelKey="identitystore.create_certifier.labelLogo" inputName="logo_file" >
+            <input type="file" id="logo_file" name="logo_file" />
+        </@fieldInputWrapper>
+        <@actionButtons button1Name="action_createAttributeCertifier" button2Name="view_manageAttributeCertifiers"/>
+    </form>
+</@rowBoxHeader>
+
