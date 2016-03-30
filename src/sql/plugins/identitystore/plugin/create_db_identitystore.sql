@@ -68,7 +68,7 @@ DROP TABLE IF EXISTS identitystore_attribute_certificate;
 CREATE TABLE identitystore_attribute_certificate (
 id_attribute_certificate int(6) NOT NULL,
 id_certifier int(11) NOT NULL default '0',
-certificate_date date NOT NULL,
+certificate_date timestamp NOT NULL,
 certificate_level int(11) NOT NULL default '0',
 expiration_date date NOT NULL,
 PRIMARY KEY (id_attribute_certificate)
