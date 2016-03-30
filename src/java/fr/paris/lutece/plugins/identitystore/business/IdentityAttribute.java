@@ -44,9 +44,6 @@ public class IdentityAttribute implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
-    private int _nId;
-    
     private int _nIdIdentity;
     
     private int _nIdAttribute;
@@ -59,24 +56,6 @@ public class IdentityAttribute implements Serializable
     private AttributeCertificate _certificate;
     
 
-    /**
-     * Returns the Id
-     * @return The Id
-     */
-    public int getId( )
-    {
-        return _nId;
-    }
-
-    /**
-     * Sets the Id
-     * @param nId The Id
-     */ 
-    public void setId( int nId )
-    {
-        _nId = nId;
-    }
-    
     /**
      * Returns the IdIdentity
      * @return The IdIdentity

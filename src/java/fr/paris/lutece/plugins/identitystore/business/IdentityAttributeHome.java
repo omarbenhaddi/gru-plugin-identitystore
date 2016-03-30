@@ -82,21 +82,23 @@ public final class IdentityAttributeHome
 
     /**
      * Remove the identityAttribute whose identifier is specified in parameter
-     * @param nKey The identityAttribute Id
+     * @param nIdentityId The identity ID
+     * @param nAttributeId The Attribute ID
      */
-    public static void remove( int nKey )
+    public static void remove( int nIdentityId , int nAttributeId )
     {
-        _dao.delete( nKey, _plugin );
+        _dao.delete( nIdentityId , nAttributeId, _plugin );
     }
 
     /**
      * Returns an instance of a identityAttribute whose identifier is specified in parameter
-     * @param nKey The identityAttribute primary key
+     * @param nIdentityId The identity ID
+     * @param nAttributeId The Attribute ID
      * @return an instance of IdentityAttribute
      */
-    public static IdentityAttribute findByPrimaryKey( int nKey )
+    public static IdentityAttribute findByPrimaryKey( int nIdentityId , int nAttributeId )
     {
-        return _dao.load( nKey, _plugin);
+        return _dao.load( nIdentityId , nAttributeId, _plugin);
     }
 
     /**
@@ -107,15 +109,6 @@ public final class IdentityAttributeHome
     public static List<Attribute> getAttributesList( int nIdentityId )
     {
         return _dao.selectAttributesList( nIdentityId , _plugin );
-    }
-    
-    /**
-     * Load the id of all the identityAttribute objects and returns them as a list
-     * @return the list which contains the id of all the identityAttribute objects
-     */
-    public static List<Integer> getIdIdentityAttributesList( )
-    {
-        return _dao.selectIdIdentityAttributesList( _plugin );
     }
     
     /**

@@ -1,0 +1,23 @@
+
+
+<h1>${identity.givenName} ${identity.familyName}</h1>
+
+<ul>
+    <#list attributes_list as attribute>
+    <li>
+        ${attribute.key} : ${attribute.value}
+        <#if attribute.certificate ??>
+        <span class="label label-success"> <i class="fa fa-check"></i> information certifi&eacute;e</span>
+            <br>
+            Certifi&eacute; par : <br>
+            <div>
+                <h3><img src="image?resource_type=certifier_logo&amp;id=${attribute.certificate.idCertifier}" height="20" width="20">
+                    ${attribute.certificate.certifier} </h3>
+                Niveau de certification : ${attribute.certificate.certificateLevel}<br>
+                Date de certification :   ${attribute.certificate.certificateDate}<br>
+                Date d'expiration : ${attribute.certificate.expirationDate}
+            </div>
+        </#if>
+    </li>
+    </#list>
+</ul>

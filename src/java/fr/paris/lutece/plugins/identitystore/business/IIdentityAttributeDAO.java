@@ -59,21 +59,23 @@ public interface IIdentityAttributeDAO
 
     /**
      * Delete a record from the table
-     * @param nKey The identifier of the IdentityAttribute to delete
+     * @param nIdentityId The identity ID
+     * @param nAttributeId The Attribute ID
      * @param plugin the Plugin
      */
-    void delete( int nKey, Plugin plugin );
+    void delete( int nIdentityId, int nAttributeId, Plugin plugin );
 
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Load the data from the table
-     * @param nKey The identifier of the identityAttribute
+     * @param nIdentityId The identity ID
+     * @param nAttributeId The Attribute ID
      * @param plugin the Plugin
      * @return The instance of the identityAttribute
      */
-    IdentityAttribute load( int nKey, Plugin plugin );
+    IdentityAttribute load( int nIdentityId, int nAttributeId , Plugin plugin );
 
     /**
      * Load the data of all the identityAttribute objects and returns them as a list
@@ -82,13 +84,6 @@ public interface IIdentityAttributeDAO
      * @return The list which contains the data of all the identityAttribute objects
      */
     List<Attribute> selectAttributesList( int nIdentityId, Plugin plugin );
-    
-    /**
-     * Load the id of all the identityAttribute objects and returns them as a list
-     * @param plugin the Plugin
-     * @return The list which contains the id of all the identityAttribute objects
-     */
-    List<Integer> selectIdIdentityAttributesList( Plugin plugin );
     
     /**
      * Load the data of all the identityAttribute objects and returns them as a referenceList

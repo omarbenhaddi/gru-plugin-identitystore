@@ -47,13 +47,15 @@ import java.util.List;
 public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 {
     // Constants
-    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute_certificate ) FROM identitystore_attibute_certificate";
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certificate, id_certifier, certificate_date, certificate_level, expiration_date FROM identitystore_attibute_certificate WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attibute_certificate ( id_attribute_certificate, id_certifier, certificate_date, certificate_level, expiration_date ) VALUES ( ?, ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attibute_certificate WHERE id_attribute_certificate = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attibute_certificate SET id_attribute_certificate = ?, id_certifier = ?, certificate_date = ?, certificate_level = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, id_certifier, certificate_date, certificate_level, expiration_date FROM identitystore_attibute_certificate";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certificate FROM identitystore_attibute_certificate";
+    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute_certificate ) FROM identitystore_attribute_certificate";
+    private static final String SQL_QUERY_SELECT = "SELECT a.id_attribute_certificate, a.id_certifier, b.name, a.certificate_date, a.certificate_level, a.expiration_date "
+            + " FROM identitystore_attribute_certificate a, identitystore_attribute_certifier b "
+            + " WHERE id_attribute_certificate = ? AND a.id_certifier = b.id_attribute_certifier ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certificate ( id_attribute_certificate, id_certifier, certificate_date, certificate_level, expiration_date ) VALUES ( ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certificate SET id_attribute_certificate = ?, id_certifier = ?, certificate_date = ?, certificate_level = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, id_certifier, certificate_date, certificate_level, expiration_date FROM identitystore_attribute_certificate";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certificate FROM identitystore_attribute_certificate";
 
     /**
      * Generates a new primary key
@@ -87,9 +89,9 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
         
         daoUtil.setInt( nIndex++ , attributeCertificate.getId( ) );
         daoUtil.setInt( nIndex++ , attributeCertificate.getIdCertifier( ) );
-        daoUtil.setDate( nIndex++ , attributeCertificate.getCertificateDate( ) );
+        daoUtil.setTimestamp( nIndex++ , attributeCertificate.getCertificateDate( ) );
         daoUtil.setInt( nIndex++ , attributeCertificate.getCertificateLevel( ) );
-        daoUtil.setDate( nIndex++ , attributeCertificate.getExpirationDate( ) );
+        daoUtil.setTimestamp( nIndex++ , attributeCertificate.getExpirationDate( ) );
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
@@ -113,9 +115,10 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
             
             attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
             attributeCertificate.setIdCertifier( daoUtil.getInt( nIndex++ ) );
-            attributeCertificate.setCertificateDate( daoUtil.getDate( nIndex++ ) );
+            attributeCertificate.setCertifier( daoUtil.getString( nIndex++ ) );
+            attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
             attributeCertificate.setCertificateLevel( daoUtil.getInt( nIndex++ ) );
-            attributeCertificate.setExpirationDate( daoUtil.getDate( nIndex++ ) );
+            attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
         }
 
         daoUtil.free( );
@@ -145,9 +148,9 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
         
         daoUtil.setInt( nIndex++ , attributeCertificate.getId( ) );
         daoUtil.setInt( nIndex++ , attributeCertificate.getIdCertifier( ) );
-        daoUtil.setDate( nIndex++ , attributeCertificate.getCertificateDate( ) );
+        daoUtil.setTimestamp( nIndex++ , attributeCertificate.getCertificateDate( ) );
         daoUtil.setInt( nIndex++ , attributeCertificate.getCertificateLevel( ) );
-        daoUtil.setDate( nIndex++ , attributeCertificate.getExpirationDate( ) );
+        daoUtil.setTimestamp( nIndex++ , attributeCertificate.getExpirationDate( ) );
         daoUtil.setInt( nIndex , attributeCertificate.getId( ) );
 
         daoUtil.executeUpdate( );
@@ -171,9 +174,9 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
             
             attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
             attributeCertificate.setIdCertifier( daoUtil.getInt( nIndex++ ) );
-            attributeCertificate.setCertificateDate( daoUtil.getDate( nIndex++ ) );
+            attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
             attributeCertificate.setCertificateLevel( daoUtil.getInt( nIndex++ ) );
-            attributeCertificate.setExpirationDate( daoUtil.getDate( nIndex++ ) );
+            attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
 
             attributeCertificateList.add( attributeCertificate );
         }

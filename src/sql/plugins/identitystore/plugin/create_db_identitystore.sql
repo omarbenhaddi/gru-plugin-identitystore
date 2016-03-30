@@ -21,11 +21,11 @@ PRIMARY KEY (id_identity)
 );
 
 --
--- Structure for table identitystore_attibutes_key
+-- Structure for table identitystore_attributes_key
 --
 
-DROP TABLE IF EXISTS identitystore_attibutes_key;
-CREATE TABLE identitystore_attibutes_key (
+DROP TABLE IF EXISTS identitystore_attributes_key;
+CREATE TABLE identitystore_attributes_key (
 id_attribute_key int(6) NOT NULL,
 key_name varchar(50) NOT NULL default '',
 key_description long varchar NULL ,
@@ -39,12 +39,11 @@ PRIMARY KEY (id_attribute_key)
 
 DROP TABLE IF EXISTS identitystore_identity_attribute;
 CREATE TABLE identitystore_identity_attribute (
-id_identity_attribute int(6) NOT NULL,
 id_identity int(11) NOT NULL default '0',
 id_attribute int(11) NOT NULL default '0',
 attribute_value varchar(255) NOT NULL default '',
 id_certification int(11) NOT NULL default '0',
-PRIMARY KEY (id_identity_attribute)
+PRIMARY KEY ( id_identity , id_attribute )
 );
 
 --
@@ -62,11 +61,11 @@ PRIMARY KEY (id_attribute_certifier)
 );
 
 --
--- Structure for table identitystore_attibute_certificate
+-- Structure for table identitystore_attribute_certificate
 --
 
-DROP TABLE IF EXISTS identitystore_attibute_certificate;
-CREATE TABLE identitystore_attibute_certificate (
+DROP TABLE IF EXISTS identitystore_attribute_certificate;
+CREATE TABLE identitystore_attribute_certificate (
 id_attribute_certificate int(6) NOT NULL,
 id_certifier int(11) NOT NULL default '0',
 certificate_date date NOT NULL,

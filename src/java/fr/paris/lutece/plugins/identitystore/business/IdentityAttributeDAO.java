@@ -47,36 +47,14 @@ import java.util.List;
 public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 {
     // Constants
-    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_identity_attribute ) FROM identitystore_identity_attribute";
-    private static final String SQL_QUERY_SELECT = "SELECT id_identity_attribute, id_identity, id_attribute, attribute_value, id_certification FROM identitystore_identity_attribute WHERE id_identity_attribute = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute ( id_identity_attribute, id_identity, id_attribute, attribute_value, id_certification ) VALUES ( ?, ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity_attribute = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity_attribute = ?, id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ? WHERE id_identity_attribute = ?";
+    private static final String SQL_QUERY_SELECT = "SELECT id_identity, id_attribute, attribute_value, id_certification FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ? ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute ( id_identity, id_attribute, attribute_value, id_certification ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ?";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ? WHERE id_identity = ? AND id_attribute = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT b.key_name, a.attribute_value, a.id_certification "
-            + " FROM identitystore_identity_attribute a , identitystore_attibutes_key b"
+            + " FROM identitystore_identity_attribute a , identitystore_attributes_key b"
             + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute_key";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_identity_attribute FROM identitystore_identity_attribute";
-
-    /**
-     * Generates a new primary key
-     * @param plugin The Plugin
-     * @return The new primary key
-     */
-    public int newPrimaryKey( Plugin plugin)
-    {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK , plugin  );
-        daoUtil.executeQuery( );
-        int nKey = 1;
-
-        if( daoUtil.next( ) )
-        {
-            nKey = daoUtil.getInt( 1 ) + 1;
-        }
-
-        daoUtil.free();
-        return nKey;
-    }
-
+    
     /**
      * {@inheritDoc }
      */
@@ -84,10 +62,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     public void insert( IdentityAttribute identityAttribute, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        identityAttribute.setId( newPrimaryKey( plugin ) );
         int nIndex = 1;
         
-        daoUtil.setInt( nIndex++ , identityAttribute.getId( ) );
         daoUtil.setInt( nIndex++ , identityAttribute.getIdIdentity( ) );
         daoUtil.setInt( nIndex++ , identityAttribute.getIdAttribute( ) );
         daoUtil.setString( nIndex++ , identityAttribute.getAttributeValue( ) );
@@ -101,10 +77,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public IdentityAttribute load( int nKey, Plugin plugin )
+    public IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1 , nKey );
+        daoUtil.setInt( 1 , nIdentityId );
+        daoUtil.setInt( 2 , nAttributeId );
         daoUtil.executeQuery( );
         IdentityAttribute identityAttribute = null;
 
@@ -113,7 +90,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             identityAttribute = new IdentityAttribute();
             int nIndex = 1;
             
-            identityAttribute.setId( daoUtil.getInt( nIndex++ ) );
             identityAttribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
             identityAttribute.setIdAttribute( daoUtil.getInt( nIndex++ ) );
             identityAttribute.setAttributeValue( daoUtil.getString( nIndex++ ) );
@@ -128,10 +104,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public void delete( int nKey, Plugin plugin )
+    public void delete( int nIdentityId, int nAttributeId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1 , nKey );
+        daoUtil.setInt( 1 , nIdentityId );
+        daoUtil.setInt( 2 , nAttributeId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }
@@ -145,12 +122,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
         int nIndex = 1;
         
-        daoUtil.setInt( nIndex++ , identityAttribute.getId( ) );
         daoUtil.setInt( nIndex++ , identityAttribute.getIdIdentity( ) );
         daoUtil.setInt( nIndex++ , identityAttribute.getIdAttribute( ) );
         daoUtil.setString( nIndex++ , identityAttribute.getAttributeValue( ) );
         daoUtil.setInt( nIndex++ , identityAttribute.getIdCertificate( ) );
-        daoUtil.setInt( nIndex , identityAttribute.getId( ) );
+        daoUtil.setInt( nIndex++ , identityAttribute.getIdIdentity( ) );
+        daoUtil.setInt( nIndex , identityAttribute.getIdAttribute( ) );
 
         daoUtil.executeUpdate( );
         daoUtil.free( );
@@ -191,24 +168,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         return attributesList;
     }
     
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<Integer> selectIdIdentityAttributesList( Plugin plugin )
-    {
-        List<Integer> identityAttributeList = new ArrayList<>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin );
-        daoUtil.executeQuery(  );
-
-        while ( daoUtil.next(  ) )
-        {
-            identityAttributeList.add( daoUtil.getInt( 1 ) );
-        }
-
-        daoUtil.free( );
-        return identityAttributeList;
-    }
     
     /**
      * {@inheritDoc }

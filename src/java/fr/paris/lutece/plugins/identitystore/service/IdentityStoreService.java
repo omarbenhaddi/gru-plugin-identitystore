@@ -10,7 +10,8 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.portal.service.util.AppException;
-import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -73,19 +74,34 @@ public class IdentityStoreService
         }
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
         
-        IdentityAttribute attribute = new IdentityAttribute();
-        attribute.setIdAttribute( nAttributeId );
-        attribute.setIdIdentity( identity.getId());
+        boolean bCreate = false;
+        
+        IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId() , nAttributeId );
+        if( attribute == null )
+        {
+            attribute = new IdentityAttribute();
+            attribute.setIdAttribute( nAttributeId );
+            attribute.setIdIdentity( identity.getId());
+            bCreate = true;
+        }
         if( certifier != null )
         {
             AttributeCertificate certificate = new AttributeCertificate();
-            certificate.setCertificateDate( new Date( (new java.util.Date()).getTime()) );
+            certificate.setCertificateDate( new Timestamp( (new Date()).getTime()) );
+            certificate.setExpirationDate(new Timestamp( (new Date()).getTime() + 80000000000L) ); // FIXME
             certificate.setIdCertifier( certifier.getId() );
-            certificate.setCertificateLevel( 1 );
+            certificate.setCertificateLevel( 2 );  // FIXME 
             AttributeCertificateHome.create( certificate );
             attribute.setIdCertificate( certificate.getId() );
         }
         attribute.setAttributeValue( strValue );
-        IdentityAttributeHome.create( attribute );
+        if( bCreate )
+        {
+            IdentityAttributeHome.create( attribute );
+        }
+        else
+        {
+            IdentityAttributeHome.update( attribute );
+        }
     }
 }

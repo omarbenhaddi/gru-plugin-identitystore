@@ -59,7 +59,7 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
 
         // Create test
         IdentityAttributeHome.create( identityAttribute );
-        IdentityAttribute identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getId( ) );
+        IdentityAttribute identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity() , identityAttribute.getIdAttribute() );
         assertEquals( identityAttributeStored.getIdIdentity() , identityAttribute.getIdIdentity( ) );
         assertEquals( identityAttributeStored.getIdAttribute() , identityAttribute.getIdAttribute( ) );
         assertEquals( identityAttributeStored.getAttributeValue() , identityAttribute.getAttributeValue( ) );
@@ -71,7 +71,7 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         identityAttribute.setAttributeValue( ATTRIBUTEVALUE2 );
         identityAttribute.setIdCertificate( IDCERTIFICATION2 );
         IdentityAttributeHome.update( identityAttribute );
-        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getId( ) );
+        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity() , identityAttribute.getIdAttribute() );
         assertEquals( identityAttributeStored.getIdIdentity() , identityAttribute.getIdIdentity( ) );
         assertEquals( identityAttributeStored.getIdAttribute() , identityAttribute.getIdAttribute( ) );
         assertEquals( identityAttributeStored.getAttributeValue() , identityAttribute.getAttributeValue( ) );
@@ -81,8 +81,8 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         IdentityAttributeHome.getAttributesList( 1 );
 
         // Delete test
-        IdentityAttributeHome.remove( identityAttribute.getId( ) );
-        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getId( ) );
+        IdentityAttributeHome.remove( identityAttribute.getIdIdentity() , identityAttribute.getIdAttribute() );
+        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity() , identityAttribute.getIdAttribute() );
         assertNull( identityAttributeStored );
         
     }

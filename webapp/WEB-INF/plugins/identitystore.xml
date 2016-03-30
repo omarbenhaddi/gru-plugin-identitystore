@@ -41,9 +41,10 @@
 
     <!-- XPages parameters -->
     <applications>
+         <application>
+            <application-id>mobilecertifier</application-id>
+            <application-class>fr.paris.lutece.plugins.identitystore.modules.mobilecertifier.web.MobileCertifierApp</application-class>
+        </application>
     </applications>
 
-    <!-- Portlet parameters -->
-    <portlets>
-   </portlets>
 </plug-in>

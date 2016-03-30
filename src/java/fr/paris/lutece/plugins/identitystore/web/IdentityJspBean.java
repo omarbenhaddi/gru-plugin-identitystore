@@ -33,8 +33,10 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
+import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
@@ -56,6 +58,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String TEMPLATE_MANAGE_IDENTITYS = "/admin/plugins/identitystore/manage_identities.html";
     private static final String TEMPLATE_CREATE_IDENTITY = "/admin/plugins/identitystore/create_identity.html";
     private static final String TEMPLATE_MODIFY_IDENTITY = "/admin/plugins/identitystore/modify_identity.html";
+    private static final String TEMPLATE_VIEW_IDENTITY = "/admin/plugins/identitystore/view_identity.html";
 
     // Parameters
     private static final String PARAMETER_ID_IDENTITY = "id";
@@ -68,6 +71,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Markers
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
+    private static final String MARK_ATTRIBUTES_LIST = "attributes_list";
 
     private static final String JSP_MANAGE_IDENTITYS = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
 
@@ -81,6 +85,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String VIEW_MANAGE_IDENTITYS = "manageIdentitys";
     private static final String VIEW_CREATE_IDENTITY = "createIdentity";
     private static final String VIEW_MODIFY_IDENTITY = "modifyIdentity";
+    private static final String VIEW_IDENTITY = "viewIdentity";
 
     // Actions
     private static final String ACTION_CREATE_IDENTITY = "createIdentity";
@@ -230,4 +235,20 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
     }
+    
+    @View( VIEW_IDENTITY )
+    public String getViewIdentity( HttpServletRequest request )
+    {
+        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
+        
+        Identity identity = IdentityHome.findByPrimaryKey( nId );
+        List<Attribute> listAttributes = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId() );
+        
+        Map<String, Object> model = getModel(  );
+        model.put( MARK_IDENTITY, identity );
+        model.put( MARK_ATTRIBUTES_LIST , listAttributes );
+
+        return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_VIEW_IDENTITY, model );
+    }
+    
 }

@@ -30,119 +30,146 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * License 1.0
- */ 
+ */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import javax.validation.constraints.*;
-import org.hibernate.validator.constraints.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 /**
  * This is the business class for the object AttributeCertificate
- */ 
+ */
 public class AttributeCertificate implements Serializable
 {
+
     private static final long serialVersionUID = 1L;
 
     // Variables declarations 
     private int _nId;
-    
     private int _nIdCertifier;
-    
-    private Date _dateCertificateDate;
-    
+    private String _strCertifier;
+    private Timestamp _dateCertificateDate;
     private int _nCertificateLevel;
-    
-    private Date _dateExpirationDate;
+    private Timestamp _dateExpirationDate;
 
     /**
      * Returns the Id
+     *
      * @return The Id
      */
-    public int getId( )
+    public int getId()
     {
         return _nId;
     }
 
     /**
      * Sets the Id
+     *
      * @param nId The Id
-     */ 
+     */
     public void setId( int nId )
     {
         _nId = nId;
     }
-    
+
     /**
      * Returns the IdCertifier
+     *
      * @return The IdCertifier
      */
-    public int getIdCertifier( )
+    public int getIdCertifier()
     {
         return _nIdCertifier;
     }
 
     /**
      * Sets the IdCertifier
+     *
      * @param nIdCertifier The IdCertifier
-     */ 
+     */
     public void setIdCertifier( int nIdCertifier )
     {
         _nIdCertifier = nIdCertifier;
     }
-    
+
     /**
-     * Returns the CertificateDate
+     * Returns the CertificateTimestamp
+     *
      * @return The CertificateDate
      */
-    public Date getCertificateDate( )
+    public Timestamp getCertificateDate()
     {
         return _dateCertificateDate;
     }
 
     /**
      * Sets the CertificateDate
+     *
      * @param dateCertificateDate The CertificateDate
-     */ 
-    public void setCertificateDate( Date dateCertificateDate )
+     */
+    public void setCertificateDate( Timestamp dateCertificateDate )
     {
         _dateCertificateDate = dateCertificateDate;
     }
-    
+
     /**
      * Returns the CertificateLevel
+     *
      * @return The CertificateLevel
      */
-    public int getCertificateLevel( )
+    public int getCertificateLevel()
     {
         return _nCertificateLevel;
     }
 
     /**
      * Sets the CertificateLevel
+     *
      * @param nCertificateLevel The CertificateLevel
-     */ 
+     */
     public void setCertificateLevel( int nCertificateLevel )
     {
         _nCertificateLevel = nCertificateLevel;
     }
-    
+
     /**
      * Returns the ExpirationDate
+     *
      * @return The ExpirationDate
      */
-    public Date getExpirationDate( )
+    public Timestamp getExpirationDate()
     {
         return _dateExpirationDate;
     }
 
     /**
      * Sets the ExpirationDate
+     *
      * @param dateExpirationDate The ExpirationDate
-     */ 
-    public void setExpirationDate( Date dateExpirationDate )
+     */
+    public void setExpirationDate( Timestamp dateExpirationDate )
     {
         _dateExpirationDate = dateExpirationDate;
     }
+
+    /**
+     * Returns the Certifier
+     *
+     * @return The Certifier
+     */
+    public String getCertifier()
+    {
+        return _strCertifier;
+    }
+
+    /**
+     * Sets the Certifier
+     *
+     * @param strCertifier The Certifier
+     */
+    public void setCertifier( String strCertifier )
+    {
+        _strCertifier = strCertifier;
+    }
+
 }

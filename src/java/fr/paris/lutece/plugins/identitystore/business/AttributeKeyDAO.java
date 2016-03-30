@@ -47,14 +47,14 @@ import java.util.List;
 public final class AttributeKeyDAO implements IAttributeKeyDAO
 {
     // Constants
-    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute_key ) FROM identitystore_attibutes_key";
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_key, key_name, key_description, key_type FROM identitystore_attibutes_key WHERE id_attribute_key = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attibutes_key ( id_attribute_key, key_name, key_description, key_type ) VALUES ( ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attibutes_key WHERE id_attribute_key = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attibutes_key SET id_attribute_key = ?, key_name = ?, key_description = ?, key_type = ? WHERE id_attribute_key = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_key, key_name, key_description, key_type FROM identitystore_attibutes_key";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_key FROM identitystore_attibutes_key";
-    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute_key FROM identitystore_attibutes_key WHERE key_name = ?";
+    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute_key ) FROM identitystore_attributes_key";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_key, key_name, key_description, key_type FROM identitystore_attributes_key WHERE id_attribute_key = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attributes_key ( id_attribute_key, key_name, key_description, key_type ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attributes_key WHERE id_attribute_key = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attributes_key SET id_attribute_key = ?, key_name = ?, key_description = ?, key_type = ? WHERE id_attribute_key = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_key, key_name, key_description, key_type FROM identitystore_attributes_key";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_key FROM identitystore_attributes_key";
+    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute_key FROM identitystore_attributes_key WHERE key_name = ?";
 
     /**
      * Generates a new primary key

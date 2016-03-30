@@ -28,3 +28,5 @@ INSERT INTO core_admin_right (id_right,name,level_right,admin_url,description,is
 DELETE FROM core_user_right WHERE id_right = 'IDENTITYSTORE_ADMIN_MANAGEMENT';
 INSERT INTO core_user_right (id_right,id_user) VALUES ('IDENTITYSTORE_ADMIN_MANAGEMENT',1);
 
+
+INSERT INTO core_datastore ( entity_key , entity_value ) VALUES ( 'core.plugins.status.identitystore.installed' , 'true' );
