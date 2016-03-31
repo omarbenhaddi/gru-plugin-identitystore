@@ -31,11 +31,10 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
+
 
 /**
  * IdentityStorePlugin
@@ -51,5 +50,3 @@ public class IdentityStorePlugin extends PluginDefaultImplementation
         CertifierLogoService.getInstance(  ).register(  );
     }
 }
-
-

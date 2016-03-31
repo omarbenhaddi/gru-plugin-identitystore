@@ -31,89 +31,106 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.business;
+
 
 /**
  * Attribute
  */
-public class Attribute 
+public class Attribute
 {
     // Variables declarations 
     private String _strKey;
+    private String _strName;
     private String _strValue;
     private int _nLevel;
     private AttributeCertificate _certificate;
-    
-    
-       /**
-        * Returns the Key
-        * @return The Key
-        */ 
-    public String getKey()
+
+    /**
+     * Returns the Key
+     * @return The Key
+     */
+    public String getKey(  )
     {
         return _strKey;
     }
-    
-       /**
-        * Sets the Key
-        * @param strKey The Key
-        */ 
+
+    /**
+     * Sets the Key
+     * @param strKey The Key
+     */
     public void setKey( String strKey )
     {
         _strKey = strKey;
     }
-    
-       /**
-        * Returns the Value
-        * @return The Value
-        */ 
-    public String getValue()
+
+    /**
+     * Returns the Name
+     * @return The Name
+     */
+    public String getName(  )
+    {
+        return _strName;
+    }
+
+    /**
+     * Sets the Name
+     * @param strName The Name
+     */
+    public void setName( String strName )
+    {
+        _strName = strName;
+    }
+
+    /**
+     * Returns the Value
+     * @return The Value
+     */
+    public String getValue(  )
     {
         return _strValue;
     }
-    
-       /**
-        * Sets the Value
-        * @param strValue The Value
-        */ 
+
+    /**
+     * Sets the Value
+     * @param strValue The Value
+     */
     public void setValue( String strValue )
     {
         _strValue = strValue;
     }
-    
-       /**
-        * Returns the Level
-        * @return The Level
-        */ 
-    public int getLevel()
+
+    /**
+     * Returns the Level
+     * @return The Level
+     */
+    public int getLevel(  )
     {
         return _nLevel;
     }
-    
-       /**
-        * Sets the Level
-        * @param nLevel The Level
-        */ 
+
+    /**
+     * Sets the Level
+     * @param nLevel The Level
+     */
     public void setLevel( int nLevel )
     {
         _nLevel = nLevel;
     }
-    
-       /**
-        * Returns the Certificate
-        * @return The Certificate
-        */ 
-    public AttributeCertificate getCertificate()
+
+    /**
+     * Returns the Certificate
+     * @return The Certificate
+     */
+    public AttributeCertificate getCertificate(  )
     {
         return _certificate;
     }
-    
-       /**
-        * Sets the Certificate
-        * @param Certificate The Certificate
-        */ 
+
+    /**
+     * Sets the Certificate
+     * @param Certificate The Certificate
+     */
     public void setCertificate( AttributeCertificate Certificate )
     {
         _certificate = Certificate;

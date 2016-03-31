@@ -31,12 +31,13 @@
  *
  * License 1.0
  */
- 
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
+
 import java.util.List;
+
 
 /**
  * IAttributeKeyDAO Interface
@@ -81,14 +82,7 @@ public interface IAttributeKeyDAO
      * @return The list which contains the data of all the attributeKey objects
      */
     List<AttributeKey> selectAttributeKeysList( Plugin plugin );
-    
-    /**
-     * Load the id of all the attributeKey objects and returns them as a list
-     * @param plugin the Plugin
-     * @return The list which contains the id of all the attributeKey objects
-     */
-    List<Integer> selectIdAttributeKeysList( Plugin plugin );
-    
+
     /**
      * Load the data of all the attributeKey objects and returns them as a referenceList
      * @param plugin the Plugin

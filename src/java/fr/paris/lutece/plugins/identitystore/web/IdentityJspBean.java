@@ -46,7 +46,9 @@ import fr.paris.lutece.util.url.UrlItem;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * This class provides the user interface to manage Identity features ( manage, create, modify, remove )
@@ -72,7 +74,6 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
     private static final String MARK_ATTRIBUTES_LIST = "attributes_list";
-
     private static final String JSP_MANAGE_IDENTITYS = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
 
     // Properties
@@ -97,10 +98,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String INFO_IDENTITY_CREATED = "identitystore.info.identity.created";
     private static final String INFO_IDENTITY_UPDATED = "identitystore.info.identity.updated";
     private static final String INFO_IDENTITY_REMOVED = "identitystore.info.identity.removed";
-    
+
     // Session variable to store working values
     private Identity _identity;
-    
+
     /**
      * Build the Manage View
      * @param request The HTTP request
@@ -110,8 +111,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     public String getManageIdentitys( HttpServletRequest request )
     {
         _identity = null;
+
         List<Identity> listIdentitys = IdentityHome.getIdentitysList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentitys, JSP_MANAGE_IDENTITYS );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentitys,
+                JSP_MANAGE_IDENTITYS );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS, TEMPLATE_MANAGE_IDENTITYS, model );
     }
@@ -170,7 +173,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_IDENTITY ) );
         url.addParameter( PARAMETER_ID_IDENTITY, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_IDENTITY, url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_IDENTITY,
+                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -202,7 +206,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
 
-        if ( _identity == null || ( _identity.getId(  ) != nId ))
+        if ( ( _identity == null ) || ( _identity.getId(  ) != nId ) )
         {
             _identity = IdentityHome.findByPrimaryKey( nId );
         }
@@ -227,7 +231,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _identity, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_IDENTITY, PARAMETER_ID_IDENTITY, _identity.getId( ) );
+            return redirect( request, VIEW_MODIFY_IDENTITY, PARAMETER_ID_IDENTITY, _identity.getId(  ) );
         }
 
         IdentityHome.update( _identity );
@@ -235,20 +239,19 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
     }
-    
+
     @View( VIEW_IDENTITY )
     public String getViewIdentity( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
-        
+
         Identity identity = IdentityHome.findByPrimaryKey( nId );
-        List<Attribute> listAttributes = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId() );
-        
+        List<Attribute> listAttributes = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
+
         Map<String, Object> model = getModel(  );
         model.put( MARK_IDENTITY, identity );
-        model.put( MARK_ATTRIBUTES_LIST , listAttributes );
+        model.put( MARK_ATTRIBUTES_LIST, listAttributes );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_VIEW_IDENTITY, model );
     }
-    
 }

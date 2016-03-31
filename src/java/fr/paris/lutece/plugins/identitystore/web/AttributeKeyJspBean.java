@@ -44,7 +44,9 @@ import fr.paris.lutece.util.url.UrlItem;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * This class provides the user interface to manage AttributeKey features ( manage, create, modify, remove )
@@ -68,7 +70,6 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     // Markers
     private static final String MARK_ATTRIBUTEKEY_LIST = "attributekey_list";
     private static final String MARK_ATTRIBUTEKEY = "attributekey";
-
     private static final String JSP_MANAGE_ATTRIBUTEKEYS = "jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp";
 
     // Properties
@@ -92,10 +93,10 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String INFO_ATTRIBUTEKEY_CREATED = "identitystore.info.attributekey.created";
     private static final String INFO_ATTRIBUTEKEY_UPDATED = "identitystore.info.attributekey.updated";
     private static final String INFO_ATTRIBUTEKEY_REMOVED = "identitystore.info.attributekey.removed";
-    
+
     // Session variable to store working values
     private AttributeKey _attributekey;
-    
+
     /**
      * Build the Manage View
      * @param request The HTTP request
@@ -105,8 +106,10 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String getManageAttributeKeys( HttpServletRequest request )
     {
         _attributekey = null;
+
         List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys, JSP_MANAGE_ATTRIBUTEKEYS );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys,
+                JSP_MANAGE_ATTRIBUTEKEYS );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTEKEYS, TEMPLATE_MANAGE_ATTRIBUTEKEYS, model );
     }
@@ -165,7 +168,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_ATTRIBUTEKEY ) );
         url.addParameter( PARAMETER_ID_ATTRIBUTEKEY, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTEKEY, url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTEKEY,
+                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -197,7 +201,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTEKEY ) );
 
-        if ( _attributekey == null || ( _attributekey.getId(  ) != nId ))
+        if ( ( _attributekey == null ) || ( _attributekey.getId(  ) != nId ) )
         {
             _attributekey = AttributeKeyHome.findByPrimaryKey( nId );
         }
@@ -222,7 +226,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _attributekey, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId( ) );
+            return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId(  ) );
         }
 
         AttributeKeyHome.update( _attributekey );

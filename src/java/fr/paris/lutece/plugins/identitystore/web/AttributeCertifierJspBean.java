@@ -44,10 +44,13 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.util.url.UrlItem;
 
+import org.apache.commons.fileupload.FileItem;
+
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.fileupload.FileItem;
+
 
 /**
  * This class provides the user interface to manage AttributeCertifier features ( manage, create, modify, remove )
@@ -72,7 +75,6 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     // Markers
     private static final String MARK_ATTRIBUTECERTIFIER_LIST = "attributecertifier_list";
     private static final String MARK_ATTRIBUTECERTIFIER = "attributecertifier";
-
     private static final String JSP_MANAGE_ATTRIBUTECERTIFIERS = "jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp";
 
     // Properties
@@ -96,10 +98,10 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     private static final String INFO_ATTRIBUTECERTIFIER_CREATED = "identitystore.info.attributecertifier.created";
     private static final String INFO_ATTRIBUTECERTIFIER_UPDATED = "identitystore.info.attributecertifier.updated";
     private static final String INFO_ATTRIBUTECERTIFIER_REMOVED = "identitystore.info.attributecertifier.removed";
-    
+
     // Session variable to store working values
     private AttributeCertifier _certifier;
-    
+
     /**
      * Build the Manage View
      * @param request The HTTP request
@@ -109,8 +111,10 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     public String getManageAttributeCertifiers( HttpServletRequest request )
     {
         _certifier = null;
+
         List<AttributeCertifier> listAttributeCertifiers = AttributeCertifierHome.getAttributeCertifiersList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers, JSP_MANAGE_ATTRIBUTECERTIFIERS );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFIER_LIST,
+                listAttributeCertifiers, JSP_MANAGE_ATTRIBUTECERTIFIERS );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_MANAGE_ATTRIBUTECERTIFIERS, model );
     }
@@ -145,7 +149,6 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
 
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         FileItem fileItem = multipartRequest.getFile( PARAMETER_LOGO_FILE );
-
 
         if ( ( fileItem != null ) && ( fileItem.getName(  ) != null ) && !"".equals( fileItem.getName(  ) ) )
         {
@@ -183,7 +186,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_ATTRIBUTECERTIFIER ) );
         url.addParameter( PARAMETER_ID_ATTRIBUTECERTIFIER, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTECERTIFIER, url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTECERTIFIER,
+                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -215,7 +219,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTECERTIFIER ) );
 
-        if ( _certifier == null || ( _certifier.getId(  ) != nId ))
+        if ( ( _certifier == null ) || ( _certifier.getId(  ) != nId ) )
         {
             _certifier = AttributeCertifierHome.findByPrimaryKey( nId );
         }
@@ -253,7 +257,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _certifier, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_ATTRIBUTECERTIFIER, PARAMETER_ID_ATTRIBUTECERTIFIER, _certifier.getId( ) );
+            return redirect( request, VIEW_MODIFY_ATTRIBUTECERTIFIER, PARAMETER_ID_ATTRIBUTECERTIFIER,
+                _certifier.getId(  ) );
         }
 
         AttributeCertifierHome.update( _certifier );

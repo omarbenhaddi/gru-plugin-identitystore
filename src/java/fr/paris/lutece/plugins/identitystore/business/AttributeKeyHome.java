@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
- package fr.paris.lutece.plugins.identitystore.business;
+package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+
 
 /**
  * This class provides instances management methods (create, find, ...) for AttributeKey objects
@@ -48,7 +49,6 @@ public final class AttributeKeyHome
     // Static variable pointed at the DAO instance
     private static IAttributeKeyDAO _dao = SpringContextService.getBean( "identitystore.attributeKeyDAO" );
     private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
-
 
     /**
      * Private constructor - this class need not be instantiated
@@ -97,7 +97,7 @@ public final class AttributeKeyHome
      */
     public static AttributeKey findByPrimaryKey( int nKey )
     {
-        return _dao.load( nKey, _plugin);
+        return _dao.load( nKey, _plugin );
     }
 
     /**
@@ -107,33 +107,24 @@ public final class AttributeKeyHome
      */
     public static int findByKey( String strKey )
     {
-        return _dao.selectByKey( strKey ,_plugin );
+        return _dao.selectByKey( strKey, _plugin );
     }
+
     /**
      * Load the data of all the attributeKey objects and returns them as a list
      * @return the list which contains the data of all the attributeKey objects
      */
-    public static List<AttributeKey> getAttributeKeysList( )
+    public static List<AttributeKey> getAttributeKeysList(  )
     {
         return _dao.selectAttributeKeysList( _plugin );
     }
-    
-    /**
-     * Load the id of all the attributeKey objects and returns them as a list
-     * @return the list which contains the id of all the attributeKey objects
-     */
-    public static List<Integer> getIdAttributeKeysList( )
-    {
-        return _dao.selectIdAttributeKeysList( _plugin );
-    }
-    
+
     /**
      * Load the data of all the attributeKey objects and returns them as a referenceList
      * @return the referenceList which contains the data of all the attributeKey objects
      */
-    public static ReferenceList getAttributeKeysReferenceList( )
+    public static ReferenceList getAttributeKeysReferenceList(  )
     {
-        return _dao.selectAttributeKeysReferenceList(_plugin );
+        return _dao.selectAttributeKeysReferenceList( _plugin );
     }
 }
-

@@ -6,8 +6,9 @@
         <@messages errors=errors />
         <input type="hidden" id="id" name="id"/>
         
+        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelName" inputName="name" mandatory=true value="${attributekey.name!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyName" inputName="key_name" mandatory=true value="${attributekey.keyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyName.help" />
-        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyDescription" inputName="key_description" mandatory=true value="${attributekey.keyDescription!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyDescription.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelDescription" inputName="description" mandatory=true value="${attributekey.description!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelDescription.help" />
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyType" inputName="key_type" mandatory=true value="${attributekey.keyType!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyType.help" />
         <@actionButtons button1Name="action_createAttributeKey" button2Name="view_manageAttributeKeys"/>
     </form>

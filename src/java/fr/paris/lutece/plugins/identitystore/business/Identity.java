@@ -30,62 +30,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * License 1.0
- */ 
+ */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import javax.validation.constraints.*;
 import org.hibernate.validator.constraints.*;
+
 import java.io.Serializable;
+
 import java.sql.Date;
+
+import javax.validation.constraints.*;
+
 
 /**
  * This is the business class for the object Identity
- */ 
+ */
 public class Identity implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     // Variables declarations 
     private int _nId;
-    
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.ConnectionId.size}" ) 
+    @Size( max = 50, message = "#i18n{identitystore.validation.identity.ConnectionId.size}" )
     private String _strConnectionId;
-    
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.CustomerId.size}" ) 
+    @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
     private String _strCustomerId;
-    
     @NotEmpty( message = "#i18n{identitystore.validation.identity.GivenName.notEmpty}" )
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.GivenName.size}" ) 
+    @Size( max = 50, message = "#i18n{identitystore.validation.identity.GivenName.size}" )
     private String _strGivenName;
-    
     @NotEmpty( message = "#i18n{identitystore.validation.identity.FamilyName.notEmpty}" )
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.FamilyName.size}" ) 
+    @Size( max = 50, message = "#i18n{identitystore.validation.identity.FamilyName.size}" )
     private String _strFamilyName;
-    
-    private int _nGender;
-    
-    private Date _dateBirthdate;
-    
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.Birthplace.size}" ) 
-    private String _strBirthplace;
-    @Email(message = "#i18n{portal.validation.message.email}")
-    @Size( max = 255 , message = "#i18n{identitystore.validation.identity.Email.size}" ) 
-    private String _strEmail;
-    
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.PreferredUsername.size}" ) 
-    private String _strPreferredUsername;
-    
-    @Size( max = 255 , message = "#i18n{identitystore.validation.identity.Address.size}" ) 
-    private String _strAddress;
-    
-    @Size( max = 50 , message = "#i18n{identitystore.validation.identity.Phone.size}" ) 
-    private String _strPhone;
 
     /**
      * Returns the Id
      * @return The Id
      */
-    public int getId( )
+    public int getId(  )
     {
         return _nId;
     }
@@ -93,17 +74,17 @@ public class Identity implements Serializable
     /**
      * Sets the Id
      * @param nId The Id
-     */ 
+     */
     public void setId( int nId )
     {
         _nId = nId;
     }
-    
+
     /**
      * Returns the ConnectionId
      * @return The ConnectionId
      */
-    public String getConnectionId( )
+    public String getConnectionId(  )
     {
         return _strConnectionId;
     }
@@ -111,17 +92,17 @@ public class Identity implements Serializable
     /**
      * Sets the ConnectionId
      * @param strConnectionId The ConnectionId
-     */ 
+     */
     public void setConnectionId( String strConnectionId )
     {
         _strConnectionId = strConnectionId;
     }
-    
+
     /**
      * Returns the CustomerId
      * @return The CustomerId
      */
-    public String getCustomerId( )
+    public String getCustomerId(  )
     {
         return _strCustomerId;
     }
@@ -129,17 +110,17 @@ public class Identity implements Serializable
     /**
      * Sets the CustomerId
      * @param strCustomerId The CustomerId
-     */ 
+     */
     public void setCustomerId( String strCustomerId )
     {
         _strCustomerId = strCustomerId;
     }
-    
+
     /**
      * Returns the GivenName
      * @return The GivenName
      */
-    public String getGivenName( )
+    public String getGivenName(  )
     {
         return _strGivenName;
     }
@@ -147,17 +128,17 @@ public class Identity implements Serializable
     /**
      * Sets the GivenName
      * @param strGivenName The GivenName
-     */ 
+     */
     public void setGivenName( String strGivenName )
     {
         _strGivenName = strGivenName;
     }
-    
+
     /**
      * Returns the FamilyName
      * @return The FamilyName
      */
-    public String getFamilyName( )
+    public String getFamilyName(  )
     {
         return _strFamilyName;
     }
@@ -165,135 +146,9 @@ public class Identity implements Serializable
     /**
      * Sets the FamilyName
      * @param strFamilyName The FamilyName
-     */ 
+     */
     public void setFamilyName( String strFamilyName )
     {
         _strFamilyName = strFamilyName;
-    }
-    
-    /**
-     * Returns the Gender
-     * @return The Gender
-     */
-    public int getGender( )
-    {
-        return _nGender;
-    }
-
-    /**
-     * Sets the Gender
-     * @param nGender The Gender
-     */ 
-    public void setGender( int nGender )
-    {
-        _nGender = nGender;
-    }
-    
-    /**
-     * Returns the Birthdate
-     * @return The Birthdate
-     */
-    public Date getBirthdate( )
-    {
-        return _dateBirthdate;
-    }
-
-    /**
-     * Sets the Birthdate
-     * @param dateBirthdate The Birthdate
-     */ 
-    public void setBirthdate( Date dateBirthdate )
-    {
-        _dateBirthdate = dateBirthdate;
-    }
-    
-    /**
-     * Returns the Birthplace
-     * @return The Birthplace
-     */
-    public String getBirthplace( )
-    {
-        return _strBirthplace;
-    }
-
-    /**
-     * Sets the Birthplace
-     * @param strBirthplace The Birthplace
-     */ 
-    public void setBirthplace( String strBirthplace )
-    {
-        _strBirthplace = strBirthplace;
-    }
-    
-    /**
-     * Returns the Email
-     * @return The Email
-     */
-    public String getEmail( )
-    {
-        return _strEmail;
-    }
-
-    /**
-     * Sets the Email
-     * @param strEmail The Email
-     */ 
-    public void setEmail( String strEmail )
-    {
-        _strEmail = strEmail;
-    }
-    
-    /**
-     * Returns the PreferredUsername
-     * @return The PreferredUsername
-     */
-    public String getPreferredUsername( )
-    {
-        return _strPreferredUsername;
-    }
-
-    /**
-     * Sets the PreferredUsername
-     * @param strPreferredUsername The PreferredUsername
-     */ 
-    public void setPreferredUsername( String strPreferredUsername )
-    {
-        _strPreferredUsername = strPreferredUsername;
-    }
-    
-    /**
-     * Returns the Address
-     * @return The Address
-     */
-    public String getAddress( )
-    {
-        return _strAddress;
-    }
-
-    /**
-     * Sets the Address
-     * @param strAddress The Address
-     */ 
-    public void setAddress( String strAddress )
-    {
-        _strAddress = strAddress;
-    }
-    
-    /**
-     * Returns the Phone
-     * @return The Phone
-     */
-    public String getPhone( )
-    {
-        return _strPhone;
-    }
-
-    /**
-     * Sets the Phone
-     * @param strPhone The Phone
-     */ 
-    public void setPhone( String strPhone )
-    {
-        _strPhone = strPhone;
     }
 }

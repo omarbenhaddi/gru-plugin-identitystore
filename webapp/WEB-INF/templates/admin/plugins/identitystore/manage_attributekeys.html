@@ -16,12 +16,14 @@
     <@boxBody>    
     <@messages infos=infos />
     <@paginationAdmin paginator=paginator combo=1 />
+    <div class="clearfix"></div>
     
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.manage_attributekeys.columnName}</th>
             <th>#i18n{identitystore.manage_attributekeys.columnKeyName}</th>
-            <th>#i18n{identitystore.manage_attributekeys.columnKeyDescription}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnDescription}</th>
             <th>#i18n{identitystore.manage_attributekeys.columnKeyType}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
@@ -30,10 +32,13 @@
         <tr>
             <input type="hidden" id="id" name="id"/>
             <td>
+                ${attributekey.name}
+            </td>
+            <td>
                 ${attributekey.keyName}
             </td>
             <td>
-                ${attributekey.keyDescription}
+                ${attributekey.description}
             </td>
             <td>
                 ${attributekey.keyType}

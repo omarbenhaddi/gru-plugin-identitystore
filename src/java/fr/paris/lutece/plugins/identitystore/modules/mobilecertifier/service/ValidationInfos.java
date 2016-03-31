@@ -31,14 +31,13 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.modules.mobilecertifier.service;
+
 
 /**
  * ValidationInfos
  */
-public class ValidationInfos 
+public class ValidationInfos
 {
     // Variables declarations 
     private String _strMobileNumber;
@@ -46,96 +45,94 @@ public class ValidationInfos
     private String _strValidationCode;
     private long _ExpiresTime;
     private int _nInvalidAttempts;
-    
-    
-       /**
-        * Returns the ValidationCode
-        * @return The ValidationCode
-        */ 
-    public String getValidationCode()
+
+    /**
+     * Returns the ValidationCode
+     * @return The ValidationCode
+     */
+    public String getValidationCode(  )
     {
         return _strValidationCode;
     }
-    
-       /**
-        * Sets the ValidationCode
-        * @param strValidationCode The ValidationCode
-        */ 
+
+    /**
+     * Sets the ValidationCode
+     * @param strValidationCode The ValidationCode
+     */
     public void setValidationCode( String strValidationCode )
     {
         _strValidationCode = strValidationCode;
     }
-    
-       /**
-        * Returns the MobileNumber
-        * @return The MobileNumber
-        */ 
-    public String getMobileNumber()
+
+    /**
+     * Returns the MobileNumber
+     * @return The MobileNumber
+     */
+    public String getMobileNumber(  )
     {
         return _strMobileNumber;
     }
-    
-       /**
-        * Sets the MobileNumber
-        * @param strMobileNumber The MobileNumber
-        */ 
+
+    /**
+     * Sets the MobileNumber
+     * @param strMobileNumber The MobileNumber
+     */
     public void setMobileNumber( String strMobileNumber )
     {
         _strMobileNumber = strMobileNumber;
     }
-    
-       /**
-        * Returns the UserConnectionId
-        * @return The UserConnectionId
-        */ 
-    public String getUserConnectionId()
+
+    /**
+     * Returns the UserConnectionId
+     * @return The UserConnectionId
+     */
+    public String getUserConnectionId(  )
     {
         return _strUserConnectionId;
     }
-    
-       /**
-        * Sets the UserConnectionId
-        * @param strUserConnectionId The UserConnectionId
-        */ 
+
+    /**
+     * Sets the UserConnectionId
+     * @param strUserConnectionId The UserConnectionId
+     */
     public void setUserConnectionId( String strUserConnectionId )
     {
         _strUserConnectionId = strUserConnectionId;
     }
-    
-       /**
-        * Returns the ExpiresTime
-        * @return The ExpiresTime
-        */ 
-    public long getExpiresTime()
+
+    /**
+     * Returns the ExpiresTime
+     * @return The ExpiresTime
+     */
+    public long getExpiresTime(  )
     {
         return _ExpiresTime;
     }
-    
-       /**
-        * Sets the ExpiresTime
-        * @param ExpiresTime The ExpiresTime
-        */ 
+
+    /**
+     * Sets the ExpiresTime
+     * @param ExpiresTime The ExpiresTime
+     */
     public void setExpiresTime( long ExpiresTime )
     {
         _ExpiresTime = ExpiresTime;
     }
-    
-       /**
-        * Returns the InvalidAttempts
-        * @return The InvalidAttempts
-        */ 
-    public int getInvalidAttempts()
+
+    /**
+     * Returns the InvalidAttempts
+     * @return The InvalidAttempts
+     */
+    public int getInvalidAttempts(  )
     {
         return _nInvalidAttempts;
     }
-    
-       /**
-        * Sets the InvalidAttempts
-        * @param nInvalidAttempts The InvalidAttempts
-        */ 
+
+    /**
+     * Sets the InvalidAttempts
+     * @param nInvalidAttempts The InvalidAttempts
+     */
     public void setInvalidAttempts( int nInvalidAttempts )
     {
         _nInvalidAttempts = nInvalidAttempts;
     }
-
 }

@@ -31,8 +31,6 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.modules.mobilecertifier.web;
 
 import fr.paris.lutece.plugins.identitystore.modules.mobilecertifier.service.MobileCertifierService;
@@ -45,9 +43,12 @@ import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
 import fr.paris.lutece.portal.web.l10n.LocaleService;
 import fr.paris.lutece.portal.web.xpages.XPage;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * Mobile Certifier App
@@ -58,20 +59,17 @@ public class MobileCertifierApp extends MVCApplication
     private static final String TEMPLATE_HOME = "skin/plugins/identitystore/modules/mobilecertifier/home.html";
     private static final String TEMPLATE_VALIDATION_CODE = "skin/plugins/identitystore/modules/mobilecertifier/validation_code.html";
     private static final String TEMPLATE_VALIDATION_OK = "skin/plugins/identitystore/modules/mobilecertifier/validation_ok.html";
-    
     private static final String VIEW_HOME = "home";
     private static final String VIEW_VALIDATION_CODE = "validationCode";
     private static final String VIEW_VALIDATION_OK = "validationOK";
     private static final String ACTION_CERTIFY = "certify";
     private static final String ACTION_VALIDATE_CODE = "validateCode";
-    
     private static final String PARAMETER_MOBILE_NUMBER = "mobile_number";
     private static final String PARAMETER_VALIDATION_CODE = "validation_code";
-    
     private static final String PATTERN_PHONE = "(\\d{10})$";
     private static final String PROPERTY_PATTERN = "identitystore.mobilecertifier.numbervalidation.regexp";
     private static final String MESSAGE_KEY_INVALID_NUMBER = "identitystore.mobilecertifier.message.invalidNumber";
-    
+
     /**
      * Gets the Home page
      *
@@ -81,10 +79,9 @@ public class MobileCertifierApp extends MVCApplication
     @View( value = VIEW_HOME, defaultView = true )
     public XPage home( HttpServletRequest request )
     {
-        return getXPage( TEMPLATE_HOME , LocaleService.getDefault() , getModel() );
+        return getXPage( TEMPLATE_HOME, LocaleService.getDefault(  ), getModel(  ) );
     }
-    
-    
+
     /**
      * process the mobile number
      * @param request The HTTP request
@@ -92,19 +89,24 @@ public class MobileCertifierApp extends MVCApplication
      * @throws UserNotSignedException if no user is connected
      */
     @Action( ACTION_CERTIFY )
-    public XPage doCertify( HttpServletRequest request ) throws UserNotSignedException
+    public XPage doCertify( HttpServletRequest request )
+        throws UserNotSignedException
     {
         String strMobileNumber = request.getParameter( PARAMETER_MOBILE_NUMBER );
         String strErrorKey = validateNumber( strMobileNumber );
-        if( strErrorKey != null )
+
+        if ( strErrorKey != null )
         {
-            addError( strErrorKey ,  LocaleService.getDefault() );
-            return redirectView( request, VIEW_HOME  );
+            addError( strErrorKey, LocaleService.getDefault(  ) );
+
+            return redirectView( request, VIEW_HOME );
         }
-        MobileCertifierService.startValidation( request , strMobileNumber );
-        return redirectView( request, VIEW_VALIDATION_CODE  );
+
+        MobileCertifierService.startValidation( request, strMobileNumber );
+
+        return redirectView( request, VIEW_VALIDATION_CODE );
     }
-    
+
     /**
      * Displays Validation code filling page
      * @param request The HTTP request
@@ -113,9 +115,9 @@ public class MobileCertifierApp extends MVCApplication
     @View( VIEW_VALIDATION_CODE )
     public XPage validationCode( HttpServletRequest request )
     {
-        return getXPage( TEMPLATE_VALIDATION_CODE , LocaleService.getDefault() , getModel() );
+        return getXPage( TEMPLATE_VALIDATION_CODE, LocaleService.getDefault(  ), getModel(  ) );
     }
-    
+
     /**
      * process the validation
      * @param request The HTTP request
@@ -126,21 +128,22 @@ public class MobileCertifierApp extends MVCApplication
     {
         String strValidationCode = request.getParameter( PARAMETER_VALIDATION_CODE );
         ValidationResult result = MobileCertifierService.validate( request, strValidationCode );
-        if( result != ValidationResult.OK )
+
+        if ( result != ValidationResult.OK )
         {
-            addError( result.getMessageKey() ,  LocaleService.getDefault() );
-            
-            if( result == ValidationResult.SESSION_EXPIRED )
+            addError( result.getMessageKey(  ), LocaleService.getDefault(  ) );
+
+            if ( result == ValidationResult.SESSION_EXPIRED )
             {
-                return redirectView( request, VIEW_HOME  );
+                return redirectView( request, VIEW_HOME );
             }
-            return redirectView( request, VIEW_VALIDATION_CODE  );
+
+            return redirectView( request, VIEW_VALIDATION_CODE );
         }
-        
-        
-        return redirectView( request, VIEW_VALIDATION_OK  );
+
+        return redirectView( request, VIEW_VALIDATION_OK );
     }
-    
+
     /**
      * Displays Validation OK page
      * @param request The HTTP request
@@ -159,15 +162,15 @@ public class MobileCertifierApp extends MVCApplication
      */
     private String validateNumber( String strMobileNumber )
     {
-        String strPattern = AppPropertiesService.getProperty( PROPERTY_PATTERN , PATTERN_PHONE );
+        String strPattern = AppPropertiesService.getProperty( PROPERTY_PATTERN, PATTERN_PHONE );
         Pattern pattern = Pattern.compile( strPattern );
-        Matcher matcher = pattern.matcher( strMobileNumber.trim() );
-        if( ! matcher.matches())
+        Matcher matcher = pattern.matcher( strMobileNumber.trim(  ) );
+
+        if ( !matcher.matches(  ) )
         {
-           return MESSAGE_KEY_INVALID_NUMBER;
+            return MESSAGE_KEY_INVALID_NUMBER;
         }
+
         return null;
     }
-
-    
 }

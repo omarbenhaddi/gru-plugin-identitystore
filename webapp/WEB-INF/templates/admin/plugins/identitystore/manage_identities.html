@@ -13,21 +13,15 @@
     <@boxBody>    
     <@messages infos=infos />
     <@paginationAdmin paginator=paginator combo=1 />
+    <div class="clearfix"></div>
     
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>#i18n{identitystore.manage_identities.columnConnectionId}</th>
-            <th>#i18n{identitystore.manage_identities.columnCustomerId}</th>
             <th>#i18n{identitystore.manage_identities.columnGivenName}</th>
             <th>#i18n{identitystore.manage_identities.columnFamilyName}</th>
-            <th>#i18n{identitystore.manage_identities.columnGender}</th>
-            <th>#i18n{identitystore.manage_identities.columnBirthdate}</th>
-            <th>#i18n{identitystore.manage_identities.columnBirthplace}</th>
-            <th>#i18n{identitystore.manage_identities.columnEmail}</th>
-            <th>#i18n{identitystore.manage_identities.columnPreferredUsername}</th>
-            <th>#i18n{identitystore.manage_identities.columnAddress}</th>
-            <th>#i18n{identitystore.manage_identities.columnPhone}</th>
+            <th>#i18n{identitystore.manage_identities.columnConnectionId}</th>
+            <th>#i18n{identitystore.manage_identities.columnCustomerId}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
@@ -35,42 +29,21 @@
         <tr>
             <input type="hidden" id="id" name="id"/>
             <td>
-                ${identity.connectionId!''}
-            </td>
-            <td>
-                ${identity.customerId!''}
-            </td>
-            <td>
                 ${identity.givenName!''}
             </td>
             <td>
                 ${identity.familyName!''}
             </td>
             <td>
-                ${identity.gender!''}
+                ${identity.connectionId!''}
             </td>
             <td>
-                ${identity.birthdate!''}
-            </td>
-            <td>
-                ${identity.birthplace!''}
-            </td>
-            <td>
-                ${identity.email!''}
-            </td>
-            <td>
-                ${identity.preferredUsername!''}
-            </td>
-            <td>
-                ${identity.address!''}
-            </td>
-            <td>
-                ${identity.phone!''}
+                ${identity.customerId!''}
             </td>
         <td>
             <a href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?view=viewIdentity&id=${identity.id}"
-               class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
-                <i class="fa fa-pencil"></i>
+               class="btn btn-primary btn-sm" title="#i18n{identitystore.manage_identities.buttonView}">
+                <i class="fa fa-user"></i>
             </a>
 
             <a href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?action=confirmRemoveIdentity&id=${identity.id}"

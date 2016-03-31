@@ -30,37 +30,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * License 1.0
- */ 
+ */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import javax.validation.constraints.*;
 import org.hibernate.validator.constraints.*;
+
 import java.io.Serializable;
+
+import javax.validation.constraints.*;
+
 
 /**
  * This is the business class for the object IdentityAttribute
- */ 
+ */
 public class IdentityAttribute implements Serializable
 {
     private static final long serialVersionUID = 1L;
-
     private int _nIdIdentity;
-    
     private int _nIdAttribute;
-    
     @NotEmpty( message = "#i18n{identitystore.validation.identityattribute.AttributeValue.notEmpty}" )
-    @Size( max = 255 , message = "#i18n{identitystore.validation.identityattribute.AttributeValue.size}" ) 
+    @Size( max = 255, message = "#i18n{identitystore.validation.identityattribute.AttributeValue.size}" )
     private String _strAttributeValue;
-    
     private int _nIdCertificate;
     private AttributeCertificate _certificate;
-    
 
     /**
      * Returns the IdIdentity
      * @return The IdIdentity
      */
-    public int getIdIdentity( )
+    public int getIdIdentity(  )
     {
         return _nIdIdentity;
     }
@@ -68,17 +66,17 @@ public class IdentityAttribute implements Serializable
     /**
      * Sets the IdIdentity
      * @param nIdIdentity The IdIdentity
-     */ 
+     */
     public void setIdIdentity( int nIdIdentity )
     {
         _nIdIdentity = nIdIdentity;
     }
-    
+
     /**
      * Returns the IdAttribute
      * @return The IdAttribute
      */
-    public int getIdAttribute( )
+    public int getIdAttribute(  )
     {
         return _nIdAttribute;
     }
@@ -86,17 +84,17 @@ public class IdentityAttribute implements Serializable
     /**
      * Sets the IdAttribute
      * @param nIdAttribute The IdAttribute
-     */ 
+     */
     public void setIdAttribute( int nIdAttribute )
     {
         _nIdAttribute = nIdAttribute;
     }
-    
+
     /**
      * Returns the AttributeValue
      * @return The AttributeValue
      */
-    public String getAttributeValue( )
+    public String getAttributeValue(  )
     {
         return _strAttributeValue;
     }
@@ -104,17 +102,17 @@ public class IdentityAttribute implements Serializable
     /**
      * Sets the AttributeValue
      * @param strAttributeValue The AttributeValue
-     */ 
+     */
     public void setAttributeValue( String strAttributeValue )
     {
         _strAttributeValue = strAttributeValue;
     }
-    
+
     /**
      * Returns the IdCertification
      * @return The IdCertification
      */
-    public int getIdCertificate( )
+    public int getIdCertificate(  )
     {
         return _nIdCertificate;
     }
@@ -122,7 +120,7 @@ public class IdentityAttribute implements Serializable
     /**
      * Sets the IdCertification
      * @param nIdCertificate The IdCertification
-     */ 
+     */
     public void setIdCertificate( int nIdCertificate )
     {
         _nIdCertificate = nIdCertificate;

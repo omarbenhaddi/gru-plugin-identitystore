@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
- package fr.paris.lutece.plugins.identitystore.business;
+package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+
 
 /**
  * This class provides instances management methods (create, find, ...) for Identity objects
@@ -96,7 +97,7 @@ public final class IdentityHome
      */
     public static Identity findByPrimaryKey( int nKey )
     {
-        return _dao.load( nKey, _plugin);
+        return _dao.load( nKey, _plugin );
     }
 
     /**
@@ -106,34 +107,24 @@ public final class IdentityHome
      */
     public static Identity findByConnectionId( String strConnectionId )
     {
-        return _dao.selectByConnectionId( strConnectionId , _plugin );
+        return _dao.selectByConnectionId( strConnectionId, _plugin );
     }
 
     /**
      * Load the data of all the identity objects and returns them as a list
      * @return the list which contains the data of all the identity objects
      */
-    public static List<Identity> getIdentitysList( )
+    public static List<Identity> getIdentitysList(  )
     {
         return _dao.selectIdentitysList( _plugin );
     }
-    
-    /**
-     * Load the id of all the identity objects and returns them as a list
-     * @return the list which contains the id of all the identity objects
-     */
-    public static List<Integer> getIdIdentitysList( )
-    {
-        return _dao.selectIdIdentitysList( _plugin );
-    }
-    
+
     /**
      * Load the data of all the identity objects and returns them as a referenceList
      * @return the referenceList which contains the data of all the identity objects
      */
-    public static ReferenceList getIdentitysReferenceList( )
+    public static ReferenceList getIdentitysReferenceList(  )
     {
-        return _dao.selectIdentitysReferenceList(_plugin );
+        return _dao.selectIdentitysReferenceList( _plugin );
     }
 }
-

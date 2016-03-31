@@ -31,12 +31,13 @@
  *
  * License 1.0
  */
- 
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
+
 import java.util.List;
+
 
 /**
  * IIdentityDAO Interface
@@ -81,14 +82,7 @@ public interface IIdentityDAO
      * @return The list which contains the data of all the identity objects
      */
     List<Identity> selectIdentitysList( Plugin plugin );
-    
-    /**
-     * Load the id of all the identity objects and returns them as a list
-     * @param plugin the Plugin
-     * @return The list which contains the id of all the identity objects
-     */
-    List<Integer> selectIdIdentitysList( Plugin plugin );
-    
+
     /**
      * Load the data of all the identity objects and returns them as a referenceList
      * @param plugin the Plugin

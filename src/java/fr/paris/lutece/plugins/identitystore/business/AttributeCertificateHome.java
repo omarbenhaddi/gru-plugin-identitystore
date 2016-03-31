@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
- package fr.paris.lutece.plugins.identitystore.business;
+package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -40,13 +40,15 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
+
 /**
  * This class provides instances management methods (create, find, ...) for AttributeCertificate objects
  */
 public final class AttributeCertificateHome
 {
     // Static variable pointed at the DAO instance
-    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( "identitystore.attributeCertificateDAO" );
+    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( 
+            "identitystore.attributeCertificateDAO" );
     private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
 
     /**
@@ -96,34 +98,33 @@ public final class AttributeCertificateHome
      */
     public static AttributeCertificate findByPrimaryKey( int nKey )
     {
-        return _dao.load( nKey, _plugin);
+        return _dao.load( nKey, _plugin );
     }
 
     /**
      * Load the data of all the attributeCertificate objects and returns them as a list
      * @return the list which contains the data of all the attributeCertificate objects
      */
-    public static List<AttributeCertificate> getAttributeCertificatesList( )
+    public static List<AttributeCertificate> getAttributeCertificatesList(  )
     {
         return _dao.selectAttributeCertificatesList( _plugin );
     }
-    
+
     /**
      * Load the id of all the attributeCertificate objects and returns them as a list
      * @return the list which contains the id of all the attributeCertificate objects
      */
-    public static List<Integer> getIdAttributeCertificatesList( )
+    public static List<Integer> getIdAttributeCertificatesList(  )
     {
         return _dao.selectIdAttributeCertificatesList( _plugin );
     }
-    
+
     /**
      * Load the data of all the attributeCertificate objects and returns them as a referenceList
      * @return the referenceList which contains the data of all the attributeCertificate objects
      */
-    public static ReferenceList getAttributeCertificatesReferenceList( )
+    public static ReferenceList getAttributeCertificatesReferenceList(  )
     {
-        return _dao.selectAttributeCertificatesReferenceList(_plugin );
+        return _dao.selectAttributeCertificatesReferenceList( _plugin );
     }
 }
-

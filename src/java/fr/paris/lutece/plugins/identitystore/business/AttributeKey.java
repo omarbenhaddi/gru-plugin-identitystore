@@ -30,37 +30,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * License 1.0
- */ 
+ */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import javax.validation.constraints.*;
 import org.hibernate.validator.constraints.*;
+
 import java.io.Serializable;
+
+import javax.validation.constraints.*;
+
 
 /**
  * This is the business class for the object AttributeKey
- */ 
+ */
 public class AttributeKey implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     // Variables declarations 
     private int _nId;
-    
+    @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Name.notEmpty}" )
+    @Size( max = 50, message = "#i18n{identitystore.validation.attributekey.Name.size}" )
+    private String _strName;
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.KeyName.notEmpty}" )
-    @Size( max = 50 , message = "#i18n{identitystore.validation.attributekey.KeyName.size}" ) 
+    @Size( max = 50, message = "#i18n{identitystore.validation.attributekey.KeyName.size}" )
     private String _strKeyName;
-    
-    @NotEmpty( message = "#i18n{identitystore.validation.attributekey.KeyDescription.notEmpty}" )
-    private String _strKeyDescription;
-    
+    @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Description.notEmpty}" )
+    private String _strDescription;
     private int _nKeyType;
 
     /**
      * Returns the Id
      * @return The Id
      */
-    public int getId( )
+    public int getId(  )
     {
         return _nId;
     }
@@ -68,17 +71,35 @@ public class AttributeKey implements Serializable
     /**
      * Sets the Id
      * @param nId The Id
-     */ 
+     */
     public void setId( int nId )
     {
         _nId = nId;
     }
-    
+
+    /**
+     * Returns the Name
+     * @return The Name
+     */
+    public String getName(  )
+    {
+        return _strName;
+    }
+
+    /**
+     * Sets the Name
+     * @param strName The Name
+     */
+    public void setName( String strName )
+    {
+        _strName = strName;
+    }
+
     /**
      * Returns the KeyName
      * @return The KeyName
      */
-    public String getKeyName( )
+    public String getKeyName(  )
     {
         return _strKeyName;
     }
@@ -86,35 +107,35 @@ public class AttributeKey implements Serializable
     /**
      * Sets the KeyName
      * @param strKeyName The KeyName
-     */ 
+     */
     public void setKeyName( String strKeyName )
     {
         _strKeyName = strKeyName;
     }
-    
+
     /**
-     * Returns the KeyDescription
-     * @return The KeyDescription
+     * Returns the Description
+     * @return The Description
      */
-    public String getKeyDescription( )
+    public String getDescription(  )
     {
-        return _strKeyDescription;
+        return _strDescription;
     }
 
     /**
-     * Sets the KeyDescription
-     * @param strKeyDescription The KeyDescription
-     */ 
-    public void setKeyDescription( String strKeyDescription )
+     * Sets the Description
+     * @param strDescription The Description
+     */
+    public void setDescription( String strDescription )
     {
-        _strKeyDescription = strKeyDescription;
+        _strDescription = strDescription;
     }
-    
+
     /**
      * Returns the KeyType
      * @return The KeyType
      */
-    public int getKeyType( )
+    public int getKeyType(  )
     {
         return _nKeyType;
     }
@@ -122,7 +143,7 @@ public class AttributeKey implements Serializable
     /**
      * Sets the KeyType
      * @param nKeyType The KeyType
-     */ 
+     */
     public void setKeyType( int nKeyType )
     {
         _nKeyType = nKeyType;

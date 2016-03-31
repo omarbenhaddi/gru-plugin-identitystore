@@ -31,8 +31,6 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
@@ -42,6 +40,7 @@ import fr.paris.lutece.portal.service.image.ImageResourceManager;
 import fr.paris.lutece.portal.service.image.ImageResourceProvider;
 import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.util.url.UrlItem;
+
 
 /**
  * CertifierLogoService
@@ -73,10 +72,11 @@ public class CertifierLogoService implements ImageResourceProvider
      */
     public static synchronized CertifierLogoService getInstance(  )
     {
-        if( _singleton == null )
+        if ( _singleton == null )
         {
             _singleton = new CertifierLogoService(  );
         }
+
         return _singleton;
     }
 
@@ -93,8 +93,8 @@ public class CertifierLogoService implements ImageResourceProvider
         if ( certifier != null )
         {
             ImageResource imageResource = new ImageResource(  );
-            imageResource.setImage( certifier.getLogo() );
-            imageResource.setMimeType( certifier.getLogoMimeType() );
+            imageResource.setImage( certifier.getLogo(  ) );
+            imageResource.setMimeType( certifier.getLogoMimeType(  ) );
 
             return imageResource;
         }

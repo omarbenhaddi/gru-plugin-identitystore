@@ -21,16 +21,17 @@ PRIMARY KEY (id_identity)
 );
 
 --
--- Structure for table identitystore_attributes_key
+-- Structure for table identitystore_attribute
 --
 
-DROP TABLE IF EXISTS identitystore_attributes_key;
-CREATE TABLE identitystore_attributes_key (
-id_attribute_key int(6) NOT NULL,
+DROP TABLE IF EXISTS identitystore_attribute;
+CREATE TABLE identitystore_attribute (
+id_attribute int(6) NOT NULL,
+name varchar(50) NOT NULL default '',
 key_name varchar(50) NOT NULL default '',
-key_description long varchar NULL ,
+description long varchar NULL ,
 key_type int(11) NOT NULL default '0',
-PRIMARY KEY (id_attribute_key)
+PRIMARY KEY (id_attribute)
 );
 
 --
@@ -54,10 +55,12 @@ DROP TABLE IF EXISTS identitystore_attribute_certifier;
 CREATE TABLE identitystore_attribute_certifier (
 id_attribute_certifier int(6) NOT NULL,
 name varchar(50) NOT NULL default '',
+code varchar(50) NOT NULL default '',
 description varchar(255) NOT NULL default '',
 logo_file LONG VARBINARY NULL,
 logo_mime_type VARCHAR(50) DEFAULT NULL,
-PRIMARY KEY (id_attribute_certifier)
+PRIMARY KEY ( id_attribute_certifier ),
+INDEX( code )
 );
 
 --

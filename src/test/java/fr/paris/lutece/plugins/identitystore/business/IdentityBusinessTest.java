@@ -31,12 +31,12 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
 import java.sql.Date;
+
 
 public class IdentityBusinessTest extends LuteceTestCase
 {
@@ -50,8 +50,8 @@ public class IdentityBusinessTest extends LuteceTestCase
     private final static String FAMILYNAME2 = "FamilyName2";
     private final static int GENDER1 = 1;
     private final static int GENDER2 = 2;
-	private final static Date BIRTHDATE1 = new Date( 1000000l );
-    private final static Date BIRTHDATE2 = new Date( 2000000l );
+    private final static Date BIRTHDATE1 = new Date( 1000000L );
+    private final static Date BIRTHDATE2 = new Date( 2000000L );
     private final static String BIRTHPLACE1 = "Birthplace1";
     private final static String BIRTHPLACE2 = "Birthplace2";
     private final static String EMAIL1 = "Email1";
@@ -66,68 +66,39 @@ public class IdentityBusinessTest extends LuteceTestCase
     public void testBusiness(  )
     {
         // Initialize an object
-        Identity identity = new Identity();
+        Identity identity = new Identity(  );
         identity.setConnectionId( CONNECTIONID1 );
         identity.setCustomerId( CUSTOMERID1 );
         identity.setGivenName( GIVENNAME1 );
         identity.setFamilyName( FAMILYNAME1 );
-        identity.setGender( GENDER1 );
-        identity.setBirthdate( BIRTHDATE1 );
-        identity.setBirthplace( BIRTHPLACE1 );
-        identity.setEmail( EMAIL1 );
-        identity.setPreferredUsername( PREFERREDUSERNAME1 );
-        identity.setAddress( ADDRESS1 );
-        identity.setPhone( PHONE1 );
 
         // Create test
         IdentityHome.create( identity );
-        Identity identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
-        assertEquals( identityStored.getConnectionId() , identity.getConnectionId( ) );
-        assertEquals( identityStored.getCustomerId() , identity.getCustomerId( ) );
-        assertEquals( identityStored.getGivenName() , identity.getGivenName( ) );
-        assertEquals( identityStored.getFamilyName() , identity.getFamilyName( ) );
-        assertEquals( identityStored.getGender() , identity.getGender( ) );
-        assertEquals( identityStored.getBirthdate() , identity.getBirthdate( ) );
-        assertEquals( identityStored.getBirthplace() , identity.getBirthplace( ) );
-        assertEquals( identityStored.getEmail() , identity.getEmail( ) );
-        assertEquals( identityStored.getPreferredUsername() , identity.getPreferredUsername( ) );
-        assertEquals( identityStored.getAddress() , identity.getAddress( ) );
-        assertEquals( identityStored.getPhone() , identity.getPhone( ) );
+
+        Identity identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
+        assertEquals( identityStored.getConnectionId(  ), identity.getConnectionId(  ) );
+        assertEquals( identityStored.getCustomerId(  ), identity.getCustomerId(  ) );
+        assertEquals( identityStored.getGivenName(  ), identity.getGivenName(  ) );
+        assertEquals( identityStored.getFamilyName(  ), identity.getFamilyName(  ) );
 
         // Update test
         identity.setConnectionId( CONNECTIONID2 );
         identity.setCustomerId( CUSTOMERID2 );
         identity.setGivenName( GIVENNAME2 );
         identity.setFamilyName( FAMILYNAME2 );
-        identity.setGender( GENDER2 );
-        identity.setBirthdate( BIRTHDATE2 );
-        identity.setBirthplace( BIRTHPLACE2 );
-        identity.setEmail( EMAIL2 );
-        identity.setPreferredUsername( PREFERREDUSERNAME2 );
-        identity.setAddress( ADDRESS2 );
-        identity.setPhone( PHONE2 );
         IdentityHome.update( identity );
-        identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
-        assertEquals( identityStored.getConnectionId() , identity.getConnectionId( ) );
-        assertEquals( identityStored.getCustomerId() , identity.getCustomerId( ) );
-        assertEquals( identityStored.getGivenName() , identity.getGivenName( ) );
-        assertEquals( identityStored.getFamilyName() , identity.getFamilyName( ) );
-        assertEquals( identityStored.getGender() , identity.getGender( ) );
-        assertEquals( identityStored.getBirthdate() , identity.getBirthdate( ) );
-        assertEquals( identityStored.getBirthplace() , identity.getBirthplace( ) );
-        assertEquals( identityStored.getEmail() , identity.getEmail( ) );
-        assertEquals( identityStored.getPreferredUsername() , identity.getPreferredUsername( ) );
-        assertEquals( identityStored.getAddress() , identity.getAddress( ) );
-        assertEquals( identityStored.getPhone() , identity.getPhone( ) );
+        identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
+        assertEquals( identityStored.getConnectionId(  ), identity.getConnectionId(  ) );
+        assertEquals( identityStored.getCustomerId(  ), identity.getCustomerId(  ) );
+        assertEquals( identityStored.getGivenName(  ), identity.getGivenName(  ) );
+        assertEquals( identityStored.getFamilyName(  ), identity.getFamilyName(  ) );
 
         // List test
-        IdentityHome.getIdentitysList();
+        IdentityHome.getIdentitysList(  );
 
         // Delete test
-        IdentityHome.remove( identity.getId( ) );
-        identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
+        IdentityHome.remove( identity.getId(  ) );
+        identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
         assertNull( identityStored );
-        
     }
-
 }

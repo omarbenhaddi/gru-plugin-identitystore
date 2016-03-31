@@ -44,7 +44,9 @@ import fr.paris.lutece.util.url.UrlItem;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * This class provides the user interface to manage AttributeCertificate features ( manage, create, modify, remove )
@@ -68,7 +70,6 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     // Markers
     private static final String MARK_ATTRIBUTECERTIFICATE_LIST = "attributecertificate_list";
     private static final String MARK_ATTRIBUTECERTIFICATE = "attributecertificate";
-
     private static final String JSP_MANAGE_ATTRIBUTECERTIFICATES = "jsp/admin/plugins/identitystore/ManageAttributeCertificates.jsp";
 
     // Properties
@@ -92,10 +93,10 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     private static final String INFO_ATTRIBUTECERTIFICATE_CREATED = "identitystore.info.attributecertificate.created";
     private static final String INFO_ATTRIBUTECERTIFICATE_UPDATED = "identitystore.info.attributecertificate.updated";
     private static final String INFO_ATTRIBUTECERTIFICATE_REMOVED = "identitystore.info.attributecertificate.removed";
-    
+
     // Session variable to store working values
     private AttributeCertificate _attributecertificate;
-    
+
     /**
      * Build the Manage View
      * @param request The HTTP request
@@ -105,8 +106,10 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     public String getManageAttributeCertificates( HttpServletRequest request )
     {
         _attributecertificate = null;
+
         List<AttributeCertificate> listAttributeCertificates = AttributeCertificateHome.getAttributeCertificatesList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFICATE_LIST, listAttributeCertificates, JSP_MANAGE_ATTRIBUTECERTIFICATES );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFICATE_LIST,
+                listAttributeCertificates, JSP_MANAGE_ATTRIBUTECERTIFICATES );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFICATES, TEMPLATE_MANAGE_ATTRIBUTECERTIFICATES, model );
     }
@@ -165,7 +168,8 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_ATTRIBUTECERTIFICATE ) );
         url.addParameter( PARAMETER_ID_ATTRIBUTECERTIFICATE, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTECERTIFICATE, url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTECERTIFICATE,
+                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -197,7 +201,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTECERTIFICATE ) );
 
-        if ( _attributecertificate == null || ( _attributecertificate.getId(  ) != nId ))
+        if ( ( _attributecertificate == null ) || ( _attributecertificate.getId(  ) != nId ) )
         {
             _attributecertificate = AttributeCertificateHome.findByPrimaryKey( nId );
         }
@@ -222,7 +226,8 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _attributecertificate, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_ATTRIBUTECERTIFICATE, PARAMETER_ID_ATTRIBUTECERTIFICATE, _attributecertificate.getId( ) );
+            return redirect( request, VIEW_MODIFY_ATTRIBUTECERTIFICATE, PARAMETER_ID_ATTRIBUTECERTIFICATE,
+                _attributecertificate.getId(  ) );
         }
 
         AttributeCertificateHome.update( _attributecertificate );

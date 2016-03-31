@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
- package fr.paris.lutece.plugins.identitystore.business;
+package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+
 
 /**
  * This class provides instances management methods (create, find, ...) for IdentityAttribute objects
@@ -85,9 +86,9 @@ public final class IdentityAttributeHome
      * @param nIdentityId The identity ID
      * @param nAttributeId The Attribute ID
      */
-    public static void remove( int nIdentityId , int nAttributeId )
+    public static void remove( int nIdentityId, int nAttributeId )
     {
-        _dao.delete( nIdentityId , nAttributeId, _plugin );
+        _dao.delete( nIdentityId, nAttributeId, _plugin );
     }
 
     /**
@@ -96,9 +97,9 @@ public final class IdentityAttributeHome
      * @param nAttributeId The Attribute ID
      * @return an instance of IdentityAttribute
      */
-    public static IdentityAttribute findByPrimaryKey( int nIdentityId , int nAttributeId )
+    public static IdentityAttribute findByPrimaryKey( int nIdentityId, int nAttributeId )
     {
-        return _dao.load( nIdentityId , nAttributeId, _plugin);
+        return _dao.load( nIdentityId, nAttributeId, _plugin );
     }
 
     /**
@@ -108,16 +109,15 @@ public final class IdentityAttributeHome
      */
     public static List<Attribute> getAttributesList( int nIdentityId )
     {
-        return _dao.selectAttributesList( nIdentityId , _plugin );
+        return _dao.selectAttributesList( nIdentityId, _plugin );
     }
-    
+
     /**
      * Load the data of all the identityAttribute objects and returns them as a referenceList
      * @return the referenceList which contains the data of all the identityAttribute objects
      */
-    public static ReferenceList getIdentityAttributesReferenceList( )
+    public static ReferenceList getIdentityAttributesReferenceList(  )
     {
-        return _dao.selectIdentityAttributesReferenceList(_plugin );
+        return _dao.selectIdentityAttributesReferenceList( _plugin );
     }
 }
-
