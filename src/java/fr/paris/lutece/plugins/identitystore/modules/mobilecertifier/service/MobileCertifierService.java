@@ -216,7 +216,14 @@ public class MobileCertifierService
      * Enumeration of all validation results
      */
     public enum ValidationResult
-    {private String _strMessageKey;
+    {
+       OK( MESSAGE_CODE_VALIDATION_OK ),
+        INVALID_CODE( MESSAGE_CODE_VALIDATION_INVALID ),
+        SESSION_EXPIRED( MESSAGE_SESSION_EXPIRED ),
+        CODE_EXPIRED( MESSAGE_CODE_EXPIRED ),
+        TOO_MANY_ATTEMPS( MESSAGE_TOO_MANY_ATTEMPS );
+        
+        private String _strMessageKey;
 
         /**
          * Constructor
@@ -235,10 +242,6 @@ public class MobileCertifierService
         {
             return _strMessageKey;
         }
-        OK( MESSAGE_CODE_VALIDATION_OK ),
-        INVALID_CODE( MESSAGE_CODE_VALIDATION_INVALID ),
-        SESSION_EXPIRED( MESSAGE_SESSION_EXPIRED ),
-        CODE_EXPIRED( MESSAGE_CODE_EXPIRED ),
-        TOO_MANY_ATTEMPS( MESSAGE_TOO_MANY_ATTEMPS );
+ 
     }
 }
