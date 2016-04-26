@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.modules.mobilecertifier.service;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
+import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.portal.service.security.LuteceUser;
 import fr.paris.lutece.portal.service.security.SecurityService;
@@ -84,6 +85,8 @@ public class MobileCertifierService
     private static final int CODE_LENGTH = AppPropertiesService.getPropertyInt( PROPERTY_CODE_LENGTH, DEFAULT_LENGTH );
     private static final int MAX_ATTEMPTS = AppPropertiesService.getPropertyInt( PROPERTY_MAX_ATTEMPTS,
             DEFAULT_MAX_ATTEMPTS );
+    private static final String SERVICE_NAME = "Mobile Certifier Service";
+    
     private static Map<String, ValidationInfos> _mapValidationCodes = new HashMap<String, ValidationInfos>(  );
 
     /**
@@ -156,13 +159,28 @@ public class MobileCertifierService
         return ValidationResult.OK;
     }
 
+    /**
+     * Certify the attribute change
+     * @param infos The validation infos
+     */
     private static void certify( ValidationInfos infos )
     {
         AttributeCertifier certifier = AttributeCertifierHome.findByCode( CERTIFIER_CODE );
+        ChangeAuthor author = new ChangeAuthor();
+        author.setApplication( SERVICE_NAME );
+        author.setType( ChangeAuthor.TYPE_USER_OWNER );
+        author.setUserId( infos.getUserConnectionId(  ) );
+        author.setUserName( "Author name not provided" );
         IdentityStoreService.setAttribute( infos.getUserConnectionId(  ), ATTRIBUTE_NAME, infos.getMobileNumber(  ),
-            certifier );
+            author, certifier );
     }
 
+    /**
+     * returns the user connection ID
+     * @param request The HTTP request
+     * @return the user connection ID
+     * @throws UserNotSignedException If no user is connected
+     */
     private static String getUserConnectionId( HttpServletRequest request )
         throws UserNotSignedException
     {

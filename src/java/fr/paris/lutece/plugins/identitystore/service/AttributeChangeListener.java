@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2015, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,47 +32,19 @@
  * License 1.0
  */
 
+
 package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
-import fr.paris.lutece.plugins.identitystore.business.Identity;
-import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
-import fr.paris.lutece.test.LuteceTestCase;
-
-import org.junit.Test;
-
-import java.util.List;
-
+import fr.paris.lutece.portal.service.util.LuteceService;
 
 /**
- *
- * @author levy
+ * AttributeChangeListener
  */
-public class IdentityStoreServiceTest extends LuteceTestCase
+public interface AttributeChangeListener extends LuteceService
 {
     /**
-     * Test of getAttributesByConnectionId method, of class IdentityStoreService.
+     * Process an attribute change
+     * @param change The change
      */
-    @Test
-    public void testGetAttributesByConnectionId(  )
-    {
-        System.out.println( "getAttributesByConnectionId" );
-
-        Identity identity = getIdentity(  );
-        IdentityStoreService.setAttribute( identity.getConnectionId(  ), "email", "john.doe@nowhere.com", null ,null );
-
-        List<Attribute> list = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
-        assertTrue( list.size(  ) == 1 );
-    }
-
-    private Identity getIdentity(  )
-    {
-        Identity identity = new Identity(  );
-        identity.setGivenName( "John" );
-        identity.setFamilyName( "Doe" );
-        identity.setConnectionId( "A45654EF" );
-        IdentityHome.create( identity );
-
-        return identity;
-    }
+    void processAttributeChange( AttributeChange change );
 }

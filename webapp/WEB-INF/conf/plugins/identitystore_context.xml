@@ -9,4 +9,14 @@
     <bean id="identitystore.identityAttributeDAO" class="fr.paris.lutece.plugins.identitystore.business.IdentityAttributeDAO" />  
     <bean id="identitystore.attributeCertifierDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeCertifierDAO" />  
     <bean id="identitystore.attributeCertificateDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeCertificateDAO" />  
+   
+    <bean id="identitystore.listener.logging" class="fr.paris.lutece.plugins.identitystore.service.listeners.LoggingListener" /> 
+    <bean id="identitystore.changelisteners.list" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <ref bean="identitystore.listener.logging" />
+            </list>
+        </constructor-arg>
+    </bean>
+
 </beans>

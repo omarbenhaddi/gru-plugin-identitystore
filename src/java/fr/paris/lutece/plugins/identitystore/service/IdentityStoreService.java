@@ -42,7 +42,9 @@ import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.sql.Timestamp;
 
@@ -89,6 +91,9 @@ import java.util.List;
  */
 public class IdentityStoreService
 {
+    private static final String BEAN_LISTENERS_LIST = "identitystore.changelisteners.list";
+    private static List<AttributeChangeListener> _listListeners;
+    
     public static List<Attribute> getAttributesByConnectionId( String strConnectionId )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
@@ -101,7 +106,15 @@ public class IdentityStoreService
         return null;
     }
 
-    public static void setAttribute( String strConnectionId, String strKey, String strValue,
+    /**
+     * Set an attribute value associated to an identity
+     * @param strConnectionId The connection ID
+     * @param strKey The key to set
+     * @param strValue The value
+     * @param author The author of the change
+     * @param certifier The certifier. May be null
+     */
+    public static void setAttribute( String strConnectionId, String strKey, String strValue, ChangeAuthor author,
         AttributeCertifier certifier )
     {
         int nAttributeId = AttributeKeyHome.findByKey( strKey );
@@ -137,14 +150,51 @@ public class IdentityStoreService
         }
 
         attribute.setAttributeValue( strValue );
-
+        AttributeChange change = new AttributeChange();
+        change.setIdentityId( identity.getConnectionId() );
+        change.setIdentityName( identity.getGivenName() + " " + identity.getFamilyName() );
+        change.setChangedKey( strKey );
+        change.setNewValue( strValue );
+        change.setAuthorName( author.getUserName() );
+        change.setAuthorId( author.getUserId() );
+        change.setAuthorService( author.getApplication() );
+        change.setAuthorType(  author.getType() );
+        change.setDateChange( new Timestamp( (new Date()).getTime() ) );
+                
+        
         if ( bCreate )
         {
             IdentityAttributeHome.create( attribute );
+            change.setChangeType(  AttributeChange.TYPE_CREATE );
         }
         else
         {
             IdentityAttributeHome.update( attribute );
+            change.setChangeType(  AttributeChange.TYPE_UPDATE );
+        }
+        notifyListeners( change );
+    }
+ 
+    /**
+     * Notify a change to all registered listeners
+     * @param change The change
+     */
+    private static void notifyListeners( AttributeChange change )
+    {
+        if( _listListeners == null )
+        {
+            _listListeners = SpringContextService.getBean( BEAN_LISTENERS_LIST );
+            StringBuilder sbLog = new StringBuilder();
+            sbLog.append( "IdentityStore - loading listeners  : " );
+            for( AttributeChangeListener listener : _listListeners )
+            {
+                sbLog.append( "\n\t\t\t\t - " ).append(listener.getName());
+            }
+            AppLogService.info( sbLog.toString() );
+        }
+        for( AttributeChangeListener listener : _listListeners )
+        {
+            listener.processAttributeChange( change );
         }
     }
 }
