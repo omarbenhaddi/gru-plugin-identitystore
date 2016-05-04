@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,14 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
 import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
 import org.apache.log4j.Logger;
+
 
 /**
  * Logging Listener
@@ -48,34 +48,30 @@ public class LoggingListener implements AttributeChangeListener
     private static final String SERVICE_NAME = "Logging AttributeChangeListener";
     private static final String PROPERTY_LOGGER_NAME = "identitystore.changelistener.logging.loggerName";
     private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
-    private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME, DEFAULT_LOGGER_NAME );
-    
+    private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME,
+            DEFAULT_LOGGER_NAME );
     private static Logger _logger = Logger.getLogger( LOGGER_NAME );
-    
+
     /**
      * {@inheritDoc }
      */
     @Override
     public void processAttributeChange( AttributeChange change )
     {
-        StringBuilder sbLog = new StringBuilder();
-        sbLog.append( "Change for identity '" ).append( change.getIdentityName() )
-                .append( "' [ID:" ).append( change.getIdentityId() ).append("] ")
-                .append( " by '").append( change.getAuthorName() )
-                .append( "' [ID:" ).append( change.getAuthorId() ).append( "] " )
-                .append( " via service : '" ).append( change.getAuthorService() )
-                .append( "' on " ).append( change.getDateChange() )
-                .append( " Key changed : '").append( change.getChangedKey())
-                .append( "' New value : '").append( change.getNewValue() ).append( "'" );
-        
-        _logger.info( sbLog.toString() );
-        
+        StringBuilder sbLog = new StringBuilder(  );
+        sbLog.append( "Change for identity '" ).append( change.getIdentityName(  ) ).append( "' [ID:" )
+             .append( change.getIdentityId(  ) ).append( "] " ).append( " by '" ).append( change.getAuthorName(  ) )
+             .append( "' [ID:" ).append( change.getAuthorId(  ) ).append( "] " ).append( " via service : '" )
+             .append( change.getAuthorService(  ) ).append( "' on " ).append( change.getDateChange(  ) )
+             .append( " Key changed : '" ).append( change.getChangedKey(  ) ).append( "' New value : '" )
+             .append( change.getNewValue(  ) ).append( "'" );
+
+        _logger.info( sbLog.toString(  ) );
     }
 
     @Override
-    public String getName()
+    public String getName(  )
     {
         return SERVICE_NAME;
     }
-
 }
