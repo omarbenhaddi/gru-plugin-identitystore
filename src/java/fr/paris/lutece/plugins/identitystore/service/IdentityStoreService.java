@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.util.List;
 
 
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,11 +89,23 @@ import java.util.List;
 /**
  * IdentityStoreService
  */
-public class IdentityStoreService
+public final class IdentityStoreService
 {
     private static final String BEAN_LISTENERS_LIST = "identitystore.changelisteners.list";
     private static List<AttributeChangeListener> _listListeners;
-    
+
+    /**
+     * private constructor
+     */
+    private IdentityStoreService(  )
+    {
+    }
+
+    /**
+     * returns attributes from connection id
+     * @param strConnectionId  connection id
+     * @return full attributes list for user identified by connection id
+     */
     public static List<Attribute> getAttributesByConnectionId( String strConnectionId )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
@@ -101,6 +113,42 @@ public class IdentityStoreService
         if ( identity != null )
         {
             return IdentityAttributeHome.getAttributesList( identity.getId(  ) );
+        }
+
+        return null;
+    }
+
+    /**
+     * returns attributes from connection id
+     * @param strConnectionId  connection id
+     * @param strClientApplicationCode application code who requested attributes
+     * @return attributes list according to application rights  for user identified by connection id
+     */
+    public static List<Attribute> getAttributesByConnectionId( String strConnectionId, String strClientApplicationCode )
+    {
+        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
+
+        if ( identity != null )
+        {
+            return IdentityAttributeHome.getAttributesList( identity.getId(  ), strClientApplicationCode );
+        }
+
+        return null;
+    }
+
+    /**
+     * returns identity from connection id
+     * @param strConnectionId  connection id
+     * @param strClientApplicationCode application code who requested identity
+     * @return identity filled according to application rights  for user identified by connection id
+     */
+    public static Identity getIdentity( String strConnectionId, String strClientApplicationCode )
+    {
+        Identity identity = IdentityHome.findByConnectionId( strConnectionId, strClientApplicationCode );
+
+        if ( identity != null )
+        {
+            return identity;
         }
 
         return null;
@@ -150,49 +198,54 @@ public class IdentityStoreService
         }
 
         attribute.setAttributeValue( strValue );
-        AttributeChange change = new AttributeChange();
-        change.setIdentityId( identity.getConnectionId() );
-        change.setIdentityName( identity.getGivenName() + " " + identity.getFamilyName() );
+
+        AttributeChange change = new AttributeChange(  );
+        change.setIdentityId( identity.getConnectionId(  ) );
+        change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
         change.setChangedKey( strKey );
         change.setNewValue( strValue );
-        change.setAuthorName( author.getUserName() );
-        change.setAuthorId( author.getUserId() );
-        change.setAuthorService( author.getApplication() );
-        change.setAuthorType(  author.getType() );
-        change.setDateChange( new Timestamp( (new Date()).getTime() ) );
-                
-        
+        change.setAuthorName( author.getUserName(  ) );
+        change.setAuthorId( author.getUserId(  ) );
+        change.setAuthorService( author.getApplication(  ) );
+        change.setAuthorType( author.getType(  ) );
+        change.setDateChange( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+
         if ( bCreate )
         {
             IdentityAttributeHome.create( attribute );
-            change.setChangeType(  AttributeChange.TYPE_CREATE );
+            change.setChangeType( AttributeChange.TYPE_CREATE );
         }
         else
         {
             IdentityAttributeHome.update( attribute );
-            change.setChangeType(  AttributeChange.TYPE_UPDATE );
+            change.setChangeType( AttributeChange.TYPE_UPDATE );
         }
+
         notifyListeners( change );
     }
- 
+
     /**
      * Notify a change to all registered listeners
      * @param change The change
      */
     private static void notifyListeners( AttributeChange change )
     {
-        if( _listListeners == null )
+        if ( _listListeners == null )
         {
             _listListeners = SpringContextService.getBean( BEAN_LISTENERS_LIST );
-            StringBuilder sbLog = new StringBuilder();
+
+            StringBuilder sbLog = new StringBuilder(  );
             sbLog.append( "IdentityStore - loading listeners  : " );
-            for( AttributeChangeListener listener : _listListeners )
+
+            for ( AttributeChangeListener listener : _listListeners )
             {
-                sbLog.append( "\n\t\t\t\t - " ).append(listener.getName());
+                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName(  ) );
             }
-            AppLogService.info( sbLog.toString() );
+
+            AppLogService.info( sbLog.toString(  ) );
         }
-        for( AttributeChangeListener listener : _listListeners )
+
+        for ( AttributeChangeListener listener : _listListeners )
         {
             listener.processAttributeChange( change );
         }

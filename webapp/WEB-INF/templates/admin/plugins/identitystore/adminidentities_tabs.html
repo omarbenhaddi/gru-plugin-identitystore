@@ -1,16 +1,21 @@
 <#macro tabs tab >
-<div>
-    <ul class="nav nav-tabs">
-        <li <#if tab="attributecertifier">class="active"</#if>>
-            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp">
-                #i18n{identitystore.manage_certifiers.pageTitle}
-            </a>
-        </li>
-        <li <#if tab="attributekey">class="active"</#if>>
-            <a href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
-                #i18n{identitystore.manage_attributekeys.pageTitle}
-            </a>
-        </li>
-    </ul>
-</div>
+    <div>
+        <ul class="nav nav-tabs">
+            <li <#if tab="attributecertifier">class="active"</#if>>
+                <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp">
+                    #i18n{identitystore.manage_certifiers.pageTitle}
+                </a>
+            </li>
+            <li <#if tab="attributekey">class="active"</#if>>
+                <a href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
+                    #i18n{identitystore.manage_attributekeys.pageTitle}
+                </a>
+            </li>
+            <li <#if tab="clientapplication">class="active"</#if>>
+                <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp">
+                    #i18n{identitystore.manage_clientapplications.pageTitle}
+                </a>
+            </li>
+        </ul>
+    </div>
 </#macro>

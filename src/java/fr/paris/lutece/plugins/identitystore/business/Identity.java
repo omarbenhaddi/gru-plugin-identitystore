@@ -33,13 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import org.hibernate.validator.constraints.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 
-import java.sql.Date;
+import java.util.List;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Size;
 
 
 /**
@@ -61,6 +61,7 @@ public class Identity implements Serializable
     @NotEmpty( message = "#i18n{identitystore.validation.identity.FamilyName.notEmpty}" )
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.FamilyName.size}" )
     private String _strFamilyName;
+    private List<Attribute> _lstAttributes;
 
     /**
      * Returns the Id
@@ -150,5 +151,21 @@ public class Identity implements Serializable
     public void setFamilyName( String strFamilyName )
     {
         _strFamilyName = strFamilyName;
+    }
+
+    /**
+     * @return the _lstAttributes
+     */
+    public List<Attribute> getAttributes(  )
+    {
+        return _lstAttributes;
+    }
+
+    /**
+     * @param lstAttributes the lstAttributes to set
+     */
+    public void setAttributes( List<Attribute> lstAttributes )
+    {
+        this._lstAttributes = lstAttributes;
     }
 }

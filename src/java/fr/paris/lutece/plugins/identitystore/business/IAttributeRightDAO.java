@@ -34,72 +34,44 @@
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
 
 /**
- * IIdentityAttributeDAO Interface
+ * IAttributeRightDAO Interface
  */
-public interface IIdentityAttributeDAO
+public interface IAttributeRightDAO
 {
     /**
      * Insert a new record in the table.
-     * @param identityAttribute instance of the IdentityAttribute object to insert
+     * @param attributeRight instance of the AttributeRight object to insert
      * @param plugin the Plugin
      */
-    void insert( IdentityAttribute identityAttribute, Plugin plugin );
+    void insert( AttributeRight attributeRight, Plugin plugin );
 
     /**
      * Update the record in the table
-     * @param identityAttribute the reference of the IdentityAttribute
+     * @param attributeRight the reference of the AttributeRight
      * @param plugin the Plugin
      */
-    void store( IdentityAttribute identityAttribute, Plugin plugin );
-
-    /**
-     * Delete a record from the table
-     * @param nIdentityId The identity ID
-     * @param nAttributeId The Attribute ID
-     * @param plugin the Plugin
-     */
-    void delete( int nIdentityId, int nAttributeId, Plugin plugin );
+    void store( AttributeRight attributeRight, Plugin plugin );
 
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
-     * Load the data from the table
-     * @param nIdentityId The identity ID
-     * @param nAttributeId The Attribute ID
+     * retrieve all attributes and its rights for provided application
+     * @param clientApp application
      * @param plugin the Plugin
-     * @return The instance of the identityAttribute
+     * @return list of all attributes with rights for provided application
      */
-    IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin );
+    List<AttributeRight> selectAttributeRights( ClientApplication clientApp, Plugin plugin );
 
     /**
-     * Load the data of all the identityAttribute objects and returns them as a list
-     * @param nIdentityId The Identity ID
+     * remove all rights for provided application
+     * @param clientApp application
      * @param plugin the Plugin
-     * @return The list which contains the data of all the identityAttribute objects
      */
-    List<Attribute> selectAttributesList( int nIdentityId, Plugin plugin );
-
-    /**
-     * Load the data of all attributes for a given identity ID which are alowed for
-     * the client application provided
-     * @param nIdentityId The identity ID
-     * @param strApplicationCode code of client application
-     * @param plugin the Plugin
-     * @return the list which contains the data of all the identityAttribute objects
-     */
-    List<Attribute> selectAttributesList( int nIdentityId, String strApplicationCode, Plugin plugin );
-
-    /**
-     * Load the data of all the identityAttribute objects and returns them as a referenceList
-     * @param plugin the Plugin
-     * @return The referenceList which contains the data of all the identityAttribute objects
-     */
-    ReferenceList selectIdentityAttributesReferenceList( Plugin plugin );
+    void removeApplicationRights( ClientApplication clientApp, Plugin plugin );
 }

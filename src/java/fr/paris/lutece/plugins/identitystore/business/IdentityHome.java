@@ -111,6 +111,24 @@ public final class IdentityHome
     }
 
     /**
+     * Find by connection ID
+     * @param strConnectionId The connection ID
+     * @param strClientAppCode code of application client which requires infos
+     * @return The Identity
+     */
+    public static Identity findByConnectionId( String strConnectionId, String strClientAppCode )
+    {
+        Identity identity = _dao.selectByConnectionId( strConnectionId, _plugin );
+
+        if ( identity != null )
+        {
+            identity.setAttributes( IdentityAttributeHome.getAttributesList( identity.getId(  ), strClientAppCode ) );
+        }
+
+        return identity;
+    }
+
+    /**
      * Load the data of all the identity objects and returns them as a list
      * @return the list which contains the data of all the identity objects
      */

@@ -103,7 +103,20 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of all attributes for a given identity ID
+     * Load the data of all attributes for a given identity ID which are alowed for
+     * the client application provided
+     * @param nIdentityId The identity ID
+     * @param strApplicationCode code of client application
+     * @return the list which contains the data of all the identityAttribute objects
+     */
+    public static List<Attribute> getAttributesList( int nIdentityId, String strApplicationCode )
+    {
+        return _dao.selectAttributesList( nIdentityId, strApplicationCode, _plugin );
+    }
+
+    /**
+     * Load the data of all attributes for a given identity ID which are alowed for
+     * the client application provided
      * @param nIdentityId The identity ID
      * @return the list which contains the data of all the identityAttribute objects
      */

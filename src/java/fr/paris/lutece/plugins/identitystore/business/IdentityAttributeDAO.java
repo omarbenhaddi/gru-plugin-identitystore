@@ -54,6 +54,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECTALL = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b" +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute";
+    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification " +
+        " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
+        " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
 
     /**
      * {@inheritDoc }
@@ -145,6 +148,44 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         List<Attribute> attributesList = new ArrayList<Attribute>(  );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.setInt( 1, nIdentityId );
+        daoUtil.executeQuery(  );
+
+        while ( daoUtil.next(  ) )
+        {
+            Attribute attribute = new Attribute(  );
+            int nIndex = 1;
+
+            attribute.setKey( daoUtil.getString( nIndex++ ) );
+            attribute.setName( daoUtil.getString( nIndex++ ) );
+            attribute.setValue( daoUtil.getString( nIndex++ ) );
+
+            int nCertificateId = daoUtil.getInt( nIndex++ );
+
+            if ( nCertificateId != 0 )
+            {
+                AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
+                attribute.setCertificate( certificate );
+                attribute.setLevel( certificate.getCertificateLevel(  ) );
+            }
+
+            attributesList.add( attribute );
+        }
+
+        daoUtil.free(  );
+
+        return attributesList;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Attribute> selectAttributesList( int nIdentityId, String strApplicationCode, Plugin plugin )
+    {
+        List<Attribute> attributesList = new ArrayList<Attribute>(  );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin );
+        daoUtil.setInt( 1, nIdentityId );
+        daoUtil.setString( 2, strApplicationCode );
         daoUtil.executeQuery(  );
 
         while ( daoUtil.next(  ) )

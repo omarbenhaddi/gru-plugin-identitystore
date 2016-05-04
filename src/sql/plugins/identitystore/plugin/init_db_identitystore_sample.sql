@@ -14,3 +14,20 @@ INSERT INTO identitystore_attribute_certifier (id_attribute_certifier, name, cod
 
 INSERT INTO identitystore_identity (id_identity, connection_id, customer_id, given_name, family_name) VALUES
 	(1, 'azerty', '123', 'John', 'Doe' );
+
+INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_value,id_certification) VALUES
+(1, 1, 'M', 0),
+(1, 2, 'john.doe@gmail.com', 0),
+(1, 3, '11/10/1970', 0),
+(1, 4, 'Paris', 0),
+(1, 5, '0623457896', 0),
+(1, 6, '0123457896', 0),
+(1, 7, '0123457896', 0),
+(1, 8, 'Joe', 0),
+(1, 9, 'Bd Marechal Joffre', 0);
+
+INSERT INTO identitystore_client_application(id_client_app,name,code,public_key) VALUES
+(1,'My Dashboard','MyDashboard', NULL);
+
+INSERT INTO identitystore_attribute_right(id_client_app,id_attribute,readable,writable,certifiable) VALUES
+(1,2,1,1,1);

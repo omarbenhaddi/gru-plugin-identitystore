@@ -173,14 +173,7 @@ public final class IdentityDAO implements IIdentityDAO
         while ( daoUtil.next(  ) )
         {
             Identity identity = new Identity(  );
-            int nIndex = 1;
-
-            identity.setId( daoUtil.getInt( nIndex++ ) );
-            identity.setConnectionId( daoUtil.getString( nIndex++ ) );
-            identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-            identity.setGivenName( daoUtil.getString( nIndex++ ) );
-            identity.setFamilyName( daoUtil.getString( nIndex++ ) );
-
+            identity = getIdentityFromQuery( daoUtil );
             identityList.add( identity );
         }
 
@@ -220,18 +213,30 @@ public final class IdentityDAO implements IIdentityDAO
 
         if ( daoUtil.next(  ) )
         {
-            identity = new Identity(  );
-
-            int nIndex = 1;
-
-            identity.setId( daoUtil.getInt( nIndex++ ) );
-            identity.setConnectionId( daoUtil.getString( nIndex++ ) );
-            identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-            identity.setGivenName( daoUtil.getString( nIndex++ ) );
-            identity.setFamilyName( daoUtil.getString( nIndex++ ) );
+            identity = getIdentityFromQuery( daoUtil );
         }
 
         daoUtil.free(  );
+
+        return identity;
+    }
+
+    /**
+     * return Identity object from select query
+     * @param daoUtil daoUtil initialized with select query
+     * @return Identity load from result
+     */
+    private Identity getIdentityFromQuery( DAOUtil daoUtil )
+    {
+        Identity identity = new Identity(  );
+
+        int nIndex = 1;
+
+        identity.setId( daoUtil.getInt( nIndex++ ) );
+        identity.setConnectionId( daoUtil.getString( nIndex++ ) );
+        identity.setCustomerId( daoUtil.getString( nIndex++ ) );
+        identity.setGivenName( daoUtil.getString( nIndex++ ) );
+        identity.setFamilyName( daoUtil.getString( nIndex++ ) );
 
         return identity;
     }

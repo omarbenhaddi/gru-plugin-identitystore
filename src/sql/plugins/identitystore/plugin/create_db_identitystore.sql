@@ -76,3 +76,31 @@ certificate_level int(11) NOT NULL default '0',
 expiration_date date NOT NULL,
 PRIMARY KEY (id_attribute_certificate)
 );
+
+--
+-- Structure for table identitystore_client_application
+--
+
+DROP TABLE IF EXISTS identitystore_client_application;
+CREATE TABLE identitystore_client_application (
+id_client_app int(6) NOT NULL,
+name varchar(50) NOT NULL,
+code varchar(50) NOT NULL,
+PRIMARY KEY (id_client_app)
+);
+
+--
+-- Structure for table identitystore_client_access_control_list
+--
+
+DROP TABLE IF EXISTS identitystore_attribute_right;
+CREATE TABLE identitystore_attribute_right (
+id_client_app int(6) NOT NULL,
+id_attribute int(6) NOT NULL,
+readable int(1) NOT NULL  default '0',
+writable int(1) NOT NULL  default '0',
+certifiable int(1) NOT NULL default '0',
+PRIMARY KEY (id_client_app, id_attribute)
+);
+
+

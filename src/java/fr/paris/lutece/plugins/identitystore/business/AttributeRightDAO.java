@@ -1,0 +1,151 @@
+/*
+ * Copyright (c) 2002-2016, Mairie de Paris
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice
+ *     and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice
+ *     and the following disclaimer in the documentation and/or other materials
+ *     provided with the distribution.
+ *
+ *  3. Neither the name of 'Mairie de Paris' nor 'Lutece' nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * License 1.0
+ */
+package fr.paris.lutece.plugins.identitystore.business;
+
+import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.util.sql.DAOUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * This class provides rights Access methods for Attribute objects
+ */
+public final class AttributeRightDAO implements IAttributeRightDAO
+{
+    // Constants
+    private static final String SQL_QUERY_DELETE_ALL_BY_CLIENT = "DELETE FROM identitystore_attribute_right WHERE id_client_app = ? ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_right ( id_attribute, id_client_app, readable, writable, certifiable ) VALUES ( ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_right SET readable = ?, writable = ?, certifiable = ? WHERE id_attribute = ? AND id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CLIENT = "SELECT a.id_attribute, b.readable, b.writable, b.certifiable FROM (identitystore_attribute a) LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_client_app = ?";
+    private static final int CONST_INT_TRUE = 1;
+    private static final int CONST_INT_FALSE = 0;
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void insert( AttributeRight attributeRight, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+
+        int nIndex = 1;
+        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey(  ).getId(  ) );
+        daoUtil.setInt( nIndex++, attributeRight.getClientApplication(  ).getId(  ) );
+        daoUtil.setInt( nIndex++, attributeRight.isReadable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isWritable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isCertifiable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.executeUpdate(  );
+        daoUtil.free(  );
+    }
+
+    /**
+     * returns AttributeRight from request results
+     * @param daoUtil daoUtil which contains results
+     * @param clientApp client application who requests rights
+     * @return AttributeRight
+     */
+    private AttributeRight getRightFromQuery( DAOUtil daoUtil, ClientApplication clientApp )
+    {
+        AttributeRight attributeRight = new AttributeRight(  );
+
+        int nIndex = 1;
+
+        int nIdAttribute = daoUtil.getInt( nIndex++ );
+        attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nIdAttribute ) );
+        attributeRight.setClientApplication( clientApp );
+        attributeRight.setReadable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+        attributeRight.setWritable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+        attributeRight.setCertifiable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+
+        return attributeRight;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void store( AttributeRight attributeRight, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
+        int nIndex = 1;
+
+        daoUtil.setInt( nIndex++, attributeRight.isReadable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isWritable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isCertifiable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey(  ).getId(  ) );
+        daoUtil.setInt( nIndex++, attributeRight.getClientApplication(  ).getId(  ) );
+
+        daoUtil.executeUpdate(  );
+        daoUtil.free(  );
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<AttributeRight> selectAttributeRights( ClientApplication clientApp, Plugin plugin )
+    {
+        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>(  );
+
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_CLIENT, plugin );
+        daoUtil.setInt( 1, clientApp.getId(  ) );
+        daoUtil.executeQuery(  );
+
+        AttributeRight attributeRight = null;
+
+        while ( daoUtil.next(  ) )
+        {
+            attributeRight = getRightFromQuery( daoUtil, clientApp );
+            lstAttributeRights.add( attributeRight );
+        }
+
+        daoUtil.free(  );
+
+        return lstAttributeRights;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void removeApplicationRights( ClientApplication clientApp, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_BY_CLIENT, plugin );
+        daoUtil.setInt( 1, clientApp.getId(  ) );
+        daoUtil.executeUpdate(  );
+        daoUtil.free(  );
+    }
+}

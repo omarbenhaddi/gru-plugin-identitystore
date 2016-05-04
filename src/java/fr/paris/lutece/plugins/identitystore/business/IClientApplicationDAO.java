@@ -40,66 +40,68 @@ import java.util.List;
 
 
 /**
- * IIdentityAttributeDAO Interface
+ * IClientApplicationDAO Interface
  */
-public interface IIdentityAttributeDAO
+public interface IClientApplicationDAO
 {
     /**
      * Insert a new record in the table.
-     * @param identityAttribute instance of the IdentityAttribute object to insert
+     * @param clientApp instance of the ClientApplication object to insert
      * @param plugin the Plugin
      */
-    void insert( IdentityAttribute identityAttribute, Plugin plugin );
+    void insert( ClientApplication clientApp, Plugin plugin );
 
     /**
      * Update the record in the table
-     * @param identityAttribute the reference of the IdentityAttribute
+     * @param clientApp the reference of the ClientApplication
      * @param plugin the Plugin
      */
-    void store( IdentityAttribute identityAttribute, Plugin plugin );
+    void store( ClientApplication clientApp, Plugin plugin );
 
     /**
      * Delete a record from the table
-     * @param nIdentityId The identity ID
-     * @param nAttributeId The Attribute ID
+     * @param nKey The identifier of the ClientApplication to delete
      * @param plugin the Plugin
      */
-    void delete( int nIdentityId, int nAttributeId, Plugin plugin );
+    void delete( int nKey, Plugin plugin );
 
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Load the data from the table
-     * @param nIdentityId The identity ID
-     * @param nAttributeId The Attribute ID
+     * @param nKey The identifier of the ClientApplication
      * @param plugin the Plugin
-     * @return The instance of the identityAttribute
+     * @return The instance of the ClientApplication
      */
-    IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin );
+    ClientApplication load( int nKey, Plugin plugin );
 
     /**
-     * Load the data of all the identityAttribute objects and returns them as a list
-     * @param nIdentityId The Identity ID
+     * Load the data of all the ClientApplication objects and returns them as a list
      * @param plugin the Plugin
-     * @return The list which contains the data of all the identityAttribute objects
+     * @return The list which contains the data of all the ClientApplication objects
      */
-    List<Attribute> selectAttributesList( int nIdentityId, Plugin plugin );
+    List<ClientApplication> selectClientApplicationList( Plugin plugin );
 
     /**
-     * Load the data of all attributes for a given identity ID which are alowed for
-     * the client application provided
-     * @param nIdentityId The identity ID
-     * @param strApplicationCode code of client application
+     * Load the id of all the ClientApplication objects and returns them as a list
      * @param plugin the Plugin
-     * @return the list which contains the data of all the identityAttribute objects
+     * @return The list which contains the id of all the ClientApplication objects
      */
-    List<Attribute> selectAttributesList( int nIdentityId, String strApplicationCode, Plugin plugin );
+    List<Integer> selectIdClientApplicationList( Plugin plugin );
 
     /**
-     * Load the data of all the identityAttribute objects and returns them as a referenceList
+     * Load the data of all the ClientApplication objects and returns them as a referenceList
      * @param plugin the Plugin
-     * @return The referenceList which contains the data of all the identityAttribute objects
+     * @return The referenceList which contains the data of all the ClientApplication objects
      */
-    ReferenceList selectIdentityAttributesReferenceList( Plugin plugin );
+    ReferenceList selectClientApplicationReferenceList( Plugin plugin );
+
+    /**
+     * Select a ClientApplication by its code
+     * @param strCode The code
+     * @param plugin The plugin
+     * @return The ClientApplication
+     */
+    ClientApplication selectByCode( String strCode, Plugin plugin );
 }
