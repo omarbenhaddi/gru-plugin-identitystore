@@ -31,7 +31,6 @@
  *
  * License 1.0
  */
-
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
@@ -59,7 +58,7 @@ public class IdentityStoreServiceTest extends LuteceTestCase
         System.out.println( "getAttributesByConnectionId" );
 
         Identity identity = getIdentity(  );
-        IdentityStoreService.setAttribute( identity.getConnectionId(  ), "email", "john.doe@nowhere.com", null ,null );
+        IdentityStoreService.setAttribute( identity.getConnectionId(  ), "email", "john.doe@nowhere.com", null, null );
 
         List<Attribute> list = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
         assertTrue( list.size(  ) == 1 );

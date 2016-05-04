@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,93 +31,91 @@
  *
  * License 1.0
  */
-
-
 package fr.paris.lutece.plugins.identitystore.service;
+
 
 /**
  * ChangeAuthor
  */
-public class ChangeAuthor 
+public class ChangeAuthor
 {
     public static final int TYPE_APPLICATION = 0;
     public static final int TYPE_USER_OWNER = 1;
     public static final int TYPE_USER_ADMINISTRATOR = 2;
-    
+
     // Variables declarations 
     private String _strApplication;
     private String _strUserName;
     private String _strUserId;
     private int _nType;
-    
-    
-       /**
-        * Returns the Application
-        * @return The Application
-        */ 
-    public String getApplication()
+
+    /**
+     * Returns the Application
+     * @return The Application
+     */
+    public String getApplication(  )
     {
         return _strApplication;
     }
-    
-       /**
-        * Sets the Application
-        * @param strApplication The Application
-        */ 
+
+    /**
+     * Sets the Application
+     * @param strApplication The Application
+     */
     public void setApplication( String strApplication )
     {
         _strApplication = strApplication;
     }
-    
-       /**
-        * Returns the UserName
-        * @return The UserName
-        */ 
-    public String getUserName()
+
+    /**
+     * Returns the UserName
+     * @return The UserName
+     */
+    public String getUserName(  )
     {
         return _strUserName;
     }
-    
-       /**
-        * Sets the UserName
-        * @param strUserName The UserName
-        */ 
+
+    /**
+     * Sets the UserName
+     * @param strUserName The UserName
+     */
     public void setUserName( String strUserName )
     {
         _strUserName = strUserName;
     }
-    
-       /**
-        * Returns the UserId
-        * @return The UserId
-        */ 
-    public String getUserId()
+
+    /**
+     * Returns the UserId
+     * @return The UserId
+     */
+    public String getUserId(  )
     {
         return _strUserId;
     }
-    
-       /**
-        * Sets the UserId
-        * @param strUserId The UserId
-        */ 
+
+    /**
+     * Sets the UserId
+     * @param strUserId The UserId
+     */
     public void setUserId( String strUserId )
     {
         _strUserId = strUserId;
     }
-    
-       /**
-        * Returns the Type
-        * @return The Type
-        */ 
-    public int getType()
+
+    /**
+     * Returns the Type
+     * @return The Type
+     */
+    public int getType(  )
     {
         return _nType;
     }
-    
-       /**
-        * Sets the Type
-        * @param nType The Type
-        */ 
+
+    /**
+     * Sets the Type
+     * @param nType The Type
+     */
     public void setType( int nType )
     {
         _nType = nType;

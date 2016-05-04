@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,12 @@ package fr.paris.lutece.plugins.identitystore.service;
 
 import java.sql.Timestamp;
 
+
 /**
  * AttributeChange
  */
 public class AttributeChange
 {
-
     public static final int TYPE_CREATE = 0;
     public static final int TYPE_UPDATE = 1;
     public static final int TYPE_DELETE = 2;
@@ -64,7 +64,7 @@ public class AttributeChange
      *
      * @return The DateChange
      */
-    public Timestamp getDateChange()
+    public Timestamp getDateChange(  )
     {
         return _DateChange;
     }
@@ -84,7 +84,7 @@ public class AttributeChange
      *
      * @return The AuthorId
      */
-    public String getAuthorId()
+    public String getAuthorId(  )
     {
         return _strAuthorId;
     }
@@ -104,7 +104,7 @@ public class AttributeChange
      *
      * @return The AuthorName
      */
-    public String getAuthorName()
+    public String getAuthorName(  )
     {
         return _strAuthorName;
     }
@@ -124,7 +124,7 @@ public class AttributeChange
      *
      * @return The AuthorService
      */
-    public String getAuthorService()
+    public String getAuthorService(  )
     {
         return _strAuthorService;
     }
@@ -144,7 +144,7 @@ public class AttributeChange
      *
      * @return The AuthorType
      */
-    public int getAuthorType()
+    public int getAuthorType(  )
     {
         return _nAuthorType;
     }
@@ -164,7 +164,7 @@ public class AttributeChange
      *
      * @return The IdentityId
      */
-    public String getIdentityId()
+    public String getIdentityId(  )
     {
         return _strIdentityId;
     }
@@ -184,7 +184,7 @@ public class AttributeChange
      *
      * @return The IdentityName
      */
-    public String getIdentityName()
+    public String getIdentityName(  )
     {
         return _strIdentityName;
     }
@@ -204,7 +204,7 @@ public class AttributeChange
      *
      * @return The ChangedKey
      */
-    public String getChangedKey()
+    public String getChangedKey(  )
     {
         return _strChangedKey;
     }
@@ -224,7 +224,7 @@ public class AttributeChange
      *
      * @return The OldValue
      */
-    public String getOldValue()
+    public String getOldValue(  )
     {
         return _strOldValue;
     }
@@ -244,7 +244,7 @@ public class AttributeChange
      *
      * @return The NewValue
      */
-    public String getNewValue()
+    public String getNewValue(  )
     {
         return _strNewValue;
     }
@@ -264,7 +264,7 @@ public class AttributeChange
      *
      * @return The Certifier
      */
-    public String getCertifier()
+    public String getCertifier(  )
     {
         return _strCertifier;
     }
@@ -284,7 +284,7 @@ public class AttributeChange
      *
      * @return The ChangeType
      */
-    public int getChangeType()
+    public int getChangeType(  )
     {
         return _nChangeType;
     }
@@ -298,5 +298,4 @@ public class AttributeChange
     {
         _nChangeType = nChangeType;
     }
-
 }

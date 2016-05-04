@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,10 +129,10 @@ public class Attribute
 
     /**
      * Sets the Certificate
-     * @param Certificate The Certificate
+     * @param certificate The certificate
      */
-    public void setCertificate( AttributeCertificate Certificate )
+    public void setCertificate( AttributeCertificate certificate )
     {
-        _certificate = Certificate;
+        _certificate = certificate;
     }
 }

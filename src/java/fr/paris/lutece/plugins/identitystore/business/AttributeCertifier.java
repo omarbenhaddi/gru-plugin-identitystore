@@ -33,11 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import org.hibernate.validator.constraints.*;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Size;
 
 
 /**

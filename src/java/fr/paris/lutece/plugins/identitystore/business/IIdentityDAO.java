@@ -91,7 +91,7 @@ public interface IIdentityDAO
     ReferenceList selectIdentitysReferenceList( Plugin plugin );
 
     /**
-     * Finf by connection ID
+     * Find by connection ID
      * @param strConnectionId The connection ID
      * @param plugin The plugin
      * @return The identity
