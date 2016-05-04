@@ -35,35 +35,35 @@ package fr.paris.lutece.plugins.identitystore.service.formatter.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.formatter.FormatConstants;
 import fr.paris.lutece.plugins.identitystore.service.formatter.IIdentityFormatter;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
 import fr.paris.lutece.util.xml.XmlUtil;
 
 import java.util.List;
 
 
 /**
- * XML formatter for identity resource
+ * XML formatter for resposne  resource
  *
  */
-public class IdentityFormatterXml implements IIdentityFormatter<IdentityDto>
+public class ResponseFormatterXml implements IIdentityFormatter<ResponseDto>
 {
     @Override
-    public String format( IdentityDto identityDto )
+    public String format( ResponseDto responseDto )
     {
         StringBuffer sbXML = new StringBuffer(  );
 
-        if ( identityDto != null )
+        if ( responseDto != null )
         {
             sbXML.append( FormatConstants.XML_HEADER );
-            add( sbXML, identityDto );
+            XmlUtil.addElement( sbXML, FormatConstants.KEY_STATUS, responseDto.getStatus(  ) );
+            XmlUtil.addElement( sbXML, FormatConstants.KEY_MESSAGE, responseDto.getMessage(  ) );
         }
 
         return sbXML.toString(  );
     }
 
     @Override
-    public String format( List<IdentityDto> listIdentities )
+    public String format( List<ResponseDto> listIdentities )
     {
         return null;
     }
@@ -75,25 +75,8 @@ public class IdentityFormatterXml implements IIdentityFormatter<IdentityDto>
     }
 
     @Override
-    public String formatResponse( IdentityDto identity )
+    public String formatResponse( ResponseDto identity )
     {
         return format( identity );
-    }
-
-    /**
-     * Write a identity into a buffer
-     * @param sbXML The buffer
-     * @param identityDto The identity
-     */
-    private void add( StringBuffer sbXML, IdentityDto identityDto )
-    {
-        XmlUtil.beginElement( sbXML, FormatConstants.KEY_IDENTITY );
-
-        for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
-        {
-            XmlUtil.addElement( sbXML, attributeDto.getKey(  ), attributeDto.getValue(  ) );
-        }
-
-        XmlUtil.endElement( sbXML, FormatConstants.KEY_IDENTITY );
     }
 }

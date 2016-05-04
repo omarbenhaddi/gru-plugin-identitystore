@@ -52,6 +52,7 @@ public final class Constants
     public static final String PARAM_CERTIFIER_ID = "certifier_id";
     public static final String ERROR_FIELD_MISSING = "FIELD_MISSING";
     public static final String ERROR_FIELD_PERMISSION = "FIELD_PERMISION_ERROR";
+    public static final String RESPONSE_OK = "OK";
 
     /**
      * Default constructor

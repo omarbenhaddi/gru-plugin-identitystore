@@ -34,7 +34,9 @@
 package fr.paris.lutece.plugins.identitystore.service.formatter;
 
 import fr.paris.lutece.plugins.identitystore.service.formatter.identity.IdentityFormatterXml;
+import fr.paris.lutece.plugins.identitystore.service.formatter.identity.ResponseFormatterXml;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +57,7 @@ public class FormatterXmlFactory implements IFormatterFactory
     {
         _formatters = new HashMap<Class<?>, IIdentityFormatter<?>>(  );
         _formatters.put( IdentityDto.class, new IdentityFormatterXml(  ) );
+        _formatters.put( ResponseDto.class, new ResponseFormatterXml(  ) );
         _restFormatter = new RestFormatterXml(  );
     }
 

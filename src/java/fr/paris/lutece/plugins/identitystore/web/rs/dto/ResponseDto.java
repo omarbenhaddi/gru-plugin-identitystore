@@ -31,34 +31,48 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.formatter;
-
-import net.sf.json.JSONObject;
+package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
 
 /**
- * This class provides constants for formatting
+ *
+ * Response Dto
  *
  */
-public final class FormatConstants
+public class ResponseDto
 {
-    public static final String KEY_IDENTITY = "identity";
-    public static final String KEY_ATTRIBUTES = "attributes";
-    public static final String KEY_ATTRIBUTE_KEY = "key";
-    public static final String KEY_ATTRIBUTE_VALUE = "value";
-    public static final String KEY_ID = "id";
-    public static final String KEY_LABEL = "label";
-    public static final String KEY_ERRORS = "errors";
-    public static final String KEY_ERROR = "error";
-    public static final String KEY_STATUS = "status";
-    public static final String KEY_MESSAGE = "message";
-    public static final int INDENT = 4;
-    public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+    private String _strStatus;
+    private String _strMessage;
 
     /**
-     * Private constructor
+     * @return the _strStatus
      */
-    private FormatConstants(  )
+    public String getStatus(  )
     {
+        return _strStatus;
+    }
+
+    /**
+     * @param strStatus the _strStatus to set
+     */
+    public void setStatus( String strStatus )
+    {
+        this._strStatus = strStatus;
+    }
+
+    /**
+     * @return the _strMessage
+     */
+    public String getMessage(  )
+    {
+        return _strMessage;
+    }
+
+    /**
+     * @param strMessage the strMessage to set
+     */
+    public void setMessage( String strMessage )
+    {
+        this._strMessage = strMessage;
     }
 }

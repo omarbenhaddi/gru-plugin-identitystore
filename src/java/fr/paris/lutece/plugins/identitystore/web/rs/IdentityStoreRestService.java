@@ -48,6 +48,7 @@ import fr.paris.lutece.plugins.identitystore.service.formatter.IFormatterFactory
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.JsonIdentityParser;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.util.AppException;
 
@@ -124,15 +125,14 @@ public class IdentityStoreRestService
     @POST
     @Consumes( MediaType.APPLICATION_JSON )
     @Path( "{" + Constants.PARAM_ID_CONNECTION + "}" )
-    public Response putAttributesByConnectionId( 
-        @HeaderParam( HttpHeaders.ACCEPT )
-    @PathParam( Constants.PARAM_ID_CONNECTION )
+    public Response putAttributesByConnectionId( @PathParam( Constants.PARAM_ID_CONNECTION )
     String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
     String strClientAppCode, @QueryParam( Constants.PARAM_USER_ID )
     String strUserId, @QueryParam( Constants.PARAM_CERTIFIER_ID )
     String strCertifierCode, String strJsonContent )
     {
         IdentityDto identityDto;
+        IFormatterFactory formatterFactory = _formatterFactories.get( MediaType.APPLICATION_JSON );
 
         try
         {
@@ -140,7 +140,12 @@ public class IdentityStoreRestService
         }
         catch ( AppException appException )
         {
-            return Response.status( Status.BAD_REQUEST ).entity( appException.getMessage(  ) ).build(  );
+            ResponseDto responseDto = new ResponseDto(  );
+            responseDto.setStatus( String.valueOf( Status.BAD_REQUEST ) );
+            responseDto.setMessage( appException.getMessage( ) );
+            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
+
+            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
         }
 
         //TODO
@@ -154,9 +159,11 @@ public class IdentityStoreRestService
             certifier = AttributeCertifierHome.findByCode( strCertifierCode );
         }
 
-        updateAttributes( identityDto, strConnectionId, author, certifier );
+        ResponseDto responseDto = updateAttributes( identityDto, strConnectionId, author, certifier );
 
-        return Response.ok(  ).entity( "Update done" ).build(  );
+        String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
+
+        return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
     }
 
     /**
@@ -191,6 +198,11 @@ public class IdentityStoreRestService
         //Identity identityPrevious = IdentityStoreService.getIdentity( strConnectionId, strClientAppCode );
         IdentityDto identityDto = JsonIdentityParser.parse( strJsonContent );
 
+        if ( ( identityDto.getAttributes(  ) == null ) || ( identityDto.getAttributes(  ).size(  ) == 0 ) )
+        {
+            throw new AppException( "no attribute to update" );
+        }
+
         for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
         {
             if ( !isWritable( attributeDto, strClientAppCode ) )
@@ -208,17 +220,27 @@ public class IdentityStoreRestService
      * @param strConnectionId connectionId of identity which will be updated
      * @param author author responsible for modification
      * @param certifier certfier responsible for modification
+     * @return responseDto response containings updated fields
      *
      */
-    private void updateAttributes( IdentityDto identityDto, String strConnectionId, ChangeAuthor author,
+    private ResponseDto updateAttributes( IdentityDto identityDto, String strConnectionId, ChangeAuthor author,
         AttributeCertifier certifier )
     {
+        StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
+
         //Remove all attributes ?
         for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
         {
             IdentityStoreService.setAttribute( strConnectionId, attributeDto.getKey(  ), attributeDto.getValue(  ),
                 author, certifier );
+            sb.append( attributeDto.getKey(  ) + "," );
         }
+
+        ResponseDto response = new ResponseDto(  );
+        response.setStatus( Constants.RESPONSE_OK );
+        response.setMessage( sb.substring( 0, sb.length(  ) - 1 ) );
+
+        return response;
     }
 
     /**

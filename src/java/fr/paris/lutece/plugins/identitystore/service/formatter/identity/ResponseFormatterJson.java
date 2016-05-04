@@ -35,37 +35,35 @@ package fr.paris.lutece.plugins.identitystore.service.formatter.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.formatter.FormatConstants;
 import fr.paris.lutece.plugins.identitystore.service.formatter.IIdentityFormatter;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
-import fr.paris.lutece.util.xml.XmlUtil;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
 
 /**
- * XML formatter for identity resource
+ * JSON formatter for response resource
  *
  */
-public class IdentityFormatterXml implements IIdentityFormatter<IdentityDto>
+public class ResponseFormatterJson implements IIdentityFormatter<ResponseDto>
 {
     @Override
-    public String format( IdentityDto identityDto )
+    public String format( ResponseDto responseDto )
     {
-        StringBuffer sbXML = new StringBuffer(  );
+        JSONObject json = new JSONObject(  );
+        String strJson = StringUtils.EMPTY;
 
-        if ( identityDto != null )
+        if ( responseDto != null )
         {
-            sbXML.append( FormatConstants.XML_HEADER );
-            add( sbXML, identityDto );
+            json.accumulate( FormatConstants.KEY_STATUS, responseDto.getStatus(  ) );
+            json.accumulate( FormatConstants.KEY_MESSAGE, responseDto.getMessage(  ) );
+            strJson = json.toString(  );
         }
 
-        return sbXML.toString(  );
-    }
-
-    @Override
-    public String format( List<IdentityDto> listIdentities )
-    {
-        return null;
+        return strJson;
     }
 
     @Override
@@ -75,25 +73,15 @@ public class IdentityFormatterXml implements IIdentityFormatter<IdentityDto>
     }
 
     @Override
-    public String formatResponse( IdentityDto identity )
+    public String formatResponse( ResponseDto identity )
     {
         return format( identity );
     }
 
-    /**
-     * Write a identity into a buffer
-     * @param sbXML The buffer
-     * @param identityDto The identity
-     */
-    private void add( StringBuffer sbXML, IdentityDto identityDto )
+    @Override
+    public String format( List<ResponseDto> arg0 )
     {
-        XmlUtil.beginElement( sbXML, FormatConstants.KEY_IDENTITY );
-
-        for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
-        {
-            XmlUtil.addElement( sbXML, attributeDto.getKey(  ), attributeDto.getValue(  ) );
-        }
-
-        XmlUtil.endElement( sbXML, FormatConstants.KEY_IDENTITY );
+        // TODO Auto-generated method stub
+        return null;
     }
 }
