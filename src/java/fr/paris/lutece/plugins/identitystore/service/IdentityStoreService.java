@@ -37,19 +37,24 @@ import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.business.KeyType;
+import fr.paris.lutece.portal.business.file.File;
+import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.sql.Timestamp;
-
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 
 /*
@@ -165,9 +170,24 @@ public final class IdentityStoreService
     public static void setAttribute( String strConnectionId, String strKey, String strValue, ChangeAuthor author,
         AttributeCertifier certifier )
     {
-        int nAttributeId = AttributeKeyHome.findByKey( strKey );
+        setAttribute( strConnectionId, strKey, strValue, null, author, certifier );
+    }
 
-        if ( nAttributeId < 0 )
+    /**
+     * Set an attribute value associated to an identity
+     * @param strConnectionId The connection ID
+     * @param strKey The key to set
+     * @param strValue The value
+     * @param file  file to upload, null if attribute type is not file
+     * @param author The author of the change
+     * @param certifier The certifier. May be null
+     */
+    public static void setAttribute( String strConnectionId, String strKey, String strValue, File file,
+        ChangeAuthor author, AttributeCertifier certifier )
+    {
+        AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
+
+        if ( attributeKey == null )
         {
             throw new AppException( "Invalid attribute key : " + strKey );
         }
@@ -176,12 +196,12 @@ public final class IdentityStoreService
 
         boolean bCreate = false;
 
-        IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId(  ), nAttributeId );
+        IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId(  ), attributeKey.getId(  ) );
 
         if ( attribute == null )
         {
             attribute = new IdentityAttribute(  );
-            attribute.setIdAttribute( nAttributeId );
+            attribute.setIdAttribute( attributeKey.getId(  ) );
             attribute.setIdIdentity( identity.getId(  ) );
             bCreate = true;
         }
@@ -198,6 +218,32 @@ public final class IdentityStoreService
         }
 
         attribute.setAttributeValue( strValue );
+
+        //file attribute management
+        if ( attributeKey.getKeyType(  ) == KeyType.FILE )
+        {
+            if ( file != null )
+            {
+                if ( attribute.getFile(  ) != null )
+                {
+                    FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+                }
+
+                file.setIdFile( FileHome.create( file ) );
+                attribute.setFile( file );
+                attribute.setAttributeValue( file.getTitle(  ) );
+            }
+            else
+            {
+                // remove file
+                if ( attribute.getFile(  ) != null )
+                {
+                    FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+                }
+                attribute.setFile( null );
+                attribute.setAttributeValue( StringUtils.EMPTY );
+            }
+        }
 
         AttributeChange change = new AttributeChange(  );
         change.setIdentityId( identity.getConnectionId(  ) );

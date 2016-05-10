@@ -26,8 +26,8 @@ INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_
 (1, 8, 'Joe', 0),
 (1, 9, 'Bd Marechal Joffre', 0);
 
-INSERT INTO identitystore_client_application(id_client_app,name,code,public_key) VALUES
-(1,'My Dashboard','MyDashboard', NULL);
+INSERT INTO identitystore_client_application(id_client_app,name,code) VALUES
+(1,'My Dashboard','MyDashboard');
 
 INSERT INTO identitystore_attribute_right(id_client_app,id_attribute,readable,writable,certifiable) VALUES
 (1,2,1,1,1);

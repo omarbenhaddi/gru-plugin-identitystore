@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.portal.business.file.File;
+
 
 /**
  * Attribute
@@ -45,6 +47,7 @@ public class Attribute
     private String _strValue;
     private int _nLevel;
     private AttributeCertificate _certificate;
+    private File _file;
 
     /**
      * Returns the Key
@@ -134,5 +137,21 @@ public class Attribute
     public void setCertificate( AttributeCertificate certificate )
     {
         _certificate = certificate;
+    }
+
+    /**
+     * @return the file
+     */
+    public File getFile(  )
+    {
+        return _file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile( File file )
+    {
+        this._file = file;
     }
 }

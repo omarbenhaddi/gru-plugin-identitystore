@@ -44,6 +44,7 @@ id_identity int(11) NOT NULL default '0',
 id_attribute int(11) NOT NULL default '0',
 attribute_value varchar(255) NOT NULL default '',
 id_certification int(11) NOT NULL default '0',
+id_file int(11) default '0',
 PRIMARY KEY ( id_identity , id_attribute )
 );
 

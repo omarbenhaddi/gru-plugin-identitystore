@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -47,14 +48,14 @@ import java.util.List;
 public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_identity, id_attribute, attribute_value, id_certification FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ? ";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute ( id_identity, id_attribute, attribute_value, id_certification ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_identity, id_attribute, attribute_value, id_certification, id_file FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ? ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute ( id_identity, id_attribute, attribute_value, id_certification, id_file ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ?";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ? WHERE id_identity = ? AND id_attribute = ? ";
-    private static final String SQL_QUERY_SELECTALL = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification " +
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ? WHERE id_identity = ? AND id_attribute = ? ";
+    private static final String SQL_QUERY_SELECTALL = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b" +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute";
-    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification " +
+    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
 
@@ -71,6 +72,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.setInt( nIndex++, identityAttribute.getIdAttribute(  ) );
         daoUtil.setString( nIndex++, identityAttribute.getAttributeValue(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
+        daoUtil.setInt( nIndex++,
+            ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -99,6 +102,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             identityAttribute.setIdAttribute( daoUtil.getInt( nIndex++ ) );
             identityAttribute.setAttributeValue( daoUtil.getString( nIndex++ ) );
             identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
+
+            int nIdFile = daoUtil.getInt( nIndex++ );
+
+            if ( nIdFile > 0 )
+            {
+                identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
+            }
         }
 
         daoUtil.free(  );
@@ -132,6 +142,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.setInt( nIndex++, identityAttribute.getIdAttribute(  ) );
         daoUtil.setString( nIndex++, identityAttribute.getAttributeValue(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
+        daoUtil.setInt( nIndex++,
+            ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
         daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
         daoUtil.setInt( nIndex, identityAttribute.getIdAttribute(  ) );
 
@@ -166,6 +178,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
                 attribute.setLevel( certificate.getCertificateLevel(  ) );
+            }
+
+            int nIdFile = daoUtil.getInt( nIndex++ );
+
+            if ( nIdFile > 0 )
+            {
+                attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
 
             attributesList.add( attribute );
@@ -204,6 +223,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
                 attribute.setLevel( certificate.getCertificateLevel(  ) );
+            }
+
+            int nIdFile = daoUtil.getInt( nIndex++ );
+
+            if ( nIdFile > 0 )
+            {
+                attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
 
             attributesList.add( attribute );

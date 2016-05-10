@@ -34,9 +34,11 @@
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.core.header.ContentDisposition;
+import com.sun.jersey.multipart.BodyPart;
+import com.sun.jersey.multipart.FormDataMultiPart;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
@@ -50,9 +52,14 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.JsonIdentityParser;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
+import fr.paris.lutece.portal.business.file.File;
+import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.service.util.AppException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.InputStream;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +85,7 @@ import javax.ws.rs.core.Response;
 public class IdentityStoreRestService
 {
     protected static final Map<String, IFormatterFactory> _formatterFactories = new HashMap<String, IFormatterFactory>(  );
+    private static final String PARAM_FILE_KEY_NAME = "name";
 
     static
     {
@@ -114,56 +122,118 @@ public class IdentityStoreRestService
     }
 
     /**
-     * Update identity
-     * @param strConnectionId connection ID
-     * @param strClientAppCode client code of the application which update attributes
-     * @param strUserId userId of the user which update attributes
-     * @param strCertifierCode certfierCode  which certifies modification
-     * @param strJsonContent attributes to update
-     * @return http 200 if update is ok
+     *
+     * @param formParams form params, bodypars used for files upload
+     * @param strConnectionId connectionId
+     * @param strClientAppCode clientAppCode
+     * @param strUserId user Id
+     * @param strCertifierCode certifier code
+     * @return http 200 if update is ok with ResponseDto
      */
     @POST
-    @Consumes( MediaType.APPLICATION_JSON )
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
     @Path( "{" + Constants.PARAM_ID_CONNECTION + "}" )
-    public Response putAttributesByConnectionId( @PathParam( Constants.PARAM_ID_CONNECTION )
+    public Response setAttributesByConnectionId( FormDataMultiPart formParams,
+        @PathParam( Constants.PARAM_ID_CONNECTION )
     String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
     String strClientAppCode, @QueryParam( Constants.PARAM_USER_ID )
     String strUserId, @QueryParam( Constants.PARAM_CERTIFIER_ID )
-    String strCertifierCode, String strJsonContent )
+    String strCertifierCode )
     {
-        IdentityDto identityDto;
+        IdentityDto identityDto = null;
         IFormatterFactory formatterFactory = _formatterFactories.get( MediaType.APPLICATION_JSON );
-
-        try
-        {
-            identityDto = getIdentityFromRequest( strConnectionId, strClientAppCode, strUserId, strJsonContent );
-        }
-        catch ( AppException appException )
-        {
-            ResponseDto responseDto = new ResponseDto(  );
-            responseDto.setStatus( String.valueOf( Status.BAD_REQUEST ) );
-            responseDto.setMessage( appException.getMessage( ) );
-            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
-
-            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
-        }
+        String strBody = StringUtils.EMPTY;
 
         //TODO
         ChangeAuthor author = null;
         author = new ChangeAuthor(  );
 
+        Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
         AttributeCertifier certifier = null;
 
-        if ( StringUtils.isNotBlank( strCertifierCode ) )
+        try
         {
-            certifier = AttributeCertifierHome.findByCode( strCertifierCode );
+            for ( BodyPart part : formParams.getBodyParts(  ) )
+            {
+                InputStream inputStream = part.getEntityAs( InputStream.class );
+                ContentDisposition contentDispo = part.getContentDisposition(  );
+
+                if ( contentDispo == null )
+                {
+                    //content-body of request
+                    strBody = IOUtils.toString( inputStream );
+                    identityDto = getIdentityFromRequest( strConnectionId, strClientAppCode, strUserId, strBody );
+                }
+                else
+                {
+                    //attachment file
+                    PhysicalFile physicalFile = new PhysicalFile(  );
+                    physicalFile.setValue( IOUtils.toByteArray( inputStream ) );
+                    
+                    fr.paris.lutece.portal.business.file.File file = new fr.paris.lutece.portal.business.file.File(  );
+                    file.setPhysicalFile( physicalFile );
+                    file.setMimeType( part.getMediaType( ).getType( ) + "/" + part.getMediaType( ).getSubtype( ) );
+                    file.setSize( physicalFile.getValue( ).length );
+                    file.setTitle( contentDispo.getFileName(  ) );
+
+                    String strAttributeKey = contentDispo.getParameters(  ).get( PARAM_FILE_KEY_NAME );
+                    mapAttachedFiles.put( strAttributeKey, file );
+                }
+            }
+
+            checkAttachedFiles( identityDto, mapAttachedFiles );
+
+            ResponseDto responseDto = updateAttributes( identityDto, strConnectionId, author, certifier,
+                    mapAttachedFiles );
+            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
+
+            return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
         }
+        catch ( Exception e )
+        {
+            ResponseDto responseDto = new ResponseDto(  );
+            responseDto.setStatus( String.valueOf( Status.BAD_REQUEST ) );
+            responseDto.setMessage( e.getMessage(  ) );
 
-        ResponseDto responseDto = updateAttributes( identityDto, strConnectionId, author, certifier );
+            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
 
-        String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
+            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+        }
+    }
 
-        return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
+    /**
+     * check attached files are present in identity Dto
+     * @param identityDto identityDto with list of attributes
+     * @param mapAttachedFiles map of attached files
+     * @throws AppException thrown if a file is attached without its attribute
+     */
+    private void checkAttachedFiles( IdentityDto identityDto, Map<String, File> mapAttachedFiles )
+        throws AppException
+    {
+        if ( ( mapAttachedFiles != null ) && !mapAttachedFiles.isEmpty(  ) )
+        {
+            //check if input files is present in identity DTO attributes
+            for ( Map.Entry<String, File> entry : mapAttachedFiles.entrySet(  ) )
+            {
+                boolean bFound = false;
+
+                for ( AttributeDto attribute : identityDto.getAttributes(  ) )
+                {
+                    if ( attribute.getKey(  ).equals( entry.getKey(  ) ) )
+                    {
+                        bFound = true;
+
+                        break;
+                    }
+                }
+
+                if ( !bFound )
+                {
+                    throw new AppException( Constants.PARAM_FILE + " " + entry.getKey(  ) +
+                        " is provided but its attribute is missing" );
+                }
+            }
+        }
     }
 
     /**
@@ -220,11 +290,12 @@ public class IdentityStoreRestService
      * @param strConnectionId connectionId of identity which will be updated
      * @param author author responsible for modification
      * @param certifier certfier responsible for modification
+     * @param mapAttachedFiles map containing File matching key attribute name
      * @return responseDto response containings updated fields
      *
      */
     private ResponseDto updateAttributes( IdentityDto identityDto, String strConnectionId, ChangeAuthor author,
-        AttributeCertifier certifier )
+        AttributeCertifier certifier, Map<String, File> mapAttachedFiles )
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
 
@@ -232,7 +303,7 @@ public class IdentityStoreRestService
         for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
         {
             IdentityStoreService.setAttribute( strConnectionId, attributeDto.getKey(  ), attributeDto.getValue(  ),
-                author, certifier );
+                mapAttachedFiles.get( attributeDto.getKey(  ) ), author, certifier );
             sb.append( attributeDto.getKey(  ) + "," );
         }
 

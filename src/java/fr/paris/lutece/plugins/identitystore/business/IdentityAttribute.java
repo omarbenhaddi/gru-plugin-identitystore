@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.portal.business.file.File;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
@@ -52,6 +54,7 @@ public class IdentityAttribute implements Serializable
     @Size( max = 255, message = "#i18n{identitystore.validation.identityattribute.AttributeValue.size}" )
     private String _strAttributeValue;
     private int _nIdCertificate;
+    private File _file;
     private AttributeCertificate _certificate;
 
     /**
@@ -124,5 +127,21 @@ public class IdentityAttribute implements Serializable
     public void setIdCertificate( int nIdCertificate )
     {
         _nIdCertificate = nIdCertificate;
+    }
+
+    /**
+     * @return the file
+     */
+    public File getFile(  )
+    {
+        return _file;
+    }
+
+    /**
+     * @param file the file to set
+     */
+    public void setFile( File file )
+    {
+        this._file = file;
     }
 }

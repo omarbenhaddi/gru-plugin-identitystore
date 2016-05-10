@@ -101,11 +101,11 @@ public final class AttributeKeyHome
     }
 
     /**
-     * Find the attribute id by its key
+     * Find the attribute by its key
      * @param strKey The key The key
-     * @return the ID
+     * @return the AttributeKey
      */
-    public static int findByKey( String strKey )
+    public static AttributeKey findByKey( String strKey )
     {
         return _dao.selectByKey( strKey, _plugin );
     }
