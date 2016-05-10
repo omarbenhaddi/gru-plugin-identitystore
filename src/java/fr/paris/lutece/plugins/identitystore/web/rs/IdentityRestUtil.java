@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
@@ -74,6 +75,7 @@ public final class IdentityRestUtil
                 AttributeDto attrDto = new AttributeDto(  );
                 attrDto.setKey( attribute.getKey(  ) );
                 attrDto.setValue( attribute.getValue(  ) );
+                attrDto.setType( AttributeKeyHome.findByKey( attribute.getKey(  ) ).getKeyType(  ).getCode(  ) );
                 lstAttributeDto.add( attrDto );
             }
 

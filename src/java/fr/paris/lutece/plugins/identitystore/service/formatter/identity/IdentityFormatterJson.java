@@ -95,6 +95,7 @@ public class IdentityFormatterJson implements IIdentityFormatter<IdentityDto>
                 JSONObject jsonAttribute = new JSONObject(  );
                 jsonAttribute.accumulate( FormatConstants.KEY_ATTRIBUTE_KEY, attribute.getKey(  ) );
                 jsonAttribute.accumulate( FormatConstants.KEY_ATTRIBUTE_VALUE, attribute.getValue(  ) );
+                jsonAttribute.accumulate( FormatConstants.KEY_ATTRIBUTE_TYPE, attribute.getType(  ) );
                 jsonAttributes.add( jsonAttribute );
             }
         }

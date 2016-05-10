@@ -91,7 +91,9 @@ public class IdentityFormatterXml implements IIdentityFormatter<IdentityDto>
 
         for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
         {
-            XmlUtil.addElement( sbXML, attributeDto.getKey(  ), attributeDto.getValue(  ) );
+            XmlUtil.addElement( sbXML, FormatConstants.KEY_ATTRIBUTE_KEY, attributeDto.getKey(  ) );
+            XmlUtil.addElement( sbXML, FormatConstants.KEY_ATTRIBUTE_VALUE, attributeDto.getValue(  ) );
+            XmlUtil.addElement( sbXML, FormatConstants.KEY_ATTRIBUTE_TYPE, attributeDto.getType(  ) );
         }
 
         XmlUtil.endElement( sbXML, FormatConstants.KEY_IDENTITY );

@@ -50,6 +50,7 @@ public class AttributeDto implements Serializable
     private static final long serialVersionUID = 1L;
     private String _strKey;
     private String _strValue;
+    private String _strType;
 
     /**
      * @return the _strName
@@ -83,5 +84,21 @@ public class AttributeDto implements Serializable
     public void setValue( String strValue )
     {
         this._strValue = strValue;
+    }
+
+    /**
+     * @return the _strType
+     */
+    public String getType(  )
+    {
+        return _strType;
+    }
+
+    /**
+     * @param strType the _strType to set
+     */
+    public void setType( String strType )
+    {
+        this._strType = strType;
     }
 }

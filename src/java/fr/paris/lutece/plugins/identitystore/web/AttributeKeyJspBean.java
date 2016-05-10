@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
@@ -61,6 +62,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
     // Parameters
     private static final String PARAMETER_ID_ATTRIBUTEKEY = "id";
+    private static final String PARAMETER_ID_KEY_TYPE = "id_keytype";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTEKEYS = "identitystore.manage_attributekeys.pageTitle";
@@ -70,6 +72,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     // Markers
     private static final String MARK_ATTRIBUTEKEY_LIST = "attributekey_list";
     private static final String MARK_ATTRIBUTEKEY = "attributekey";
+    private static final String MARK_KEYTYPE_LIST = "keytype_list";
     private static final String JSP_MANAGE_ATTRIBUTEKEYS = "jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp";
 
     // Properties
@@ -127,6 +130,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
         Map<String, Object> model = getModel(  );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
+        model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale(  ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_ATTRIBUTEKEY, TEMPLATE_CREATE_ATTRIBUTEKEY, model );
     }
@@ -147,6 +151,11 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         {
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
+
+        String strIdKeyType = request.getParameter( PARAMETER_ID_KEY_TYPE );
+        int nKeyType = Integer.parseInt( strIdKeyType );
+        KeyType keyType = KeyType.valueOf( nKeyType );
+        _attributekey.setKeyType( keyType );
 
         AttributeKeyHome.create( _attributekey );
         addInfo( INFO_ATTRIBUTEKEY_CREATED, getLocale(  ) );
@@ -208,6 +217,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
         Map<String, Object> model = getModel(  );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
+        model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale(  ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_ATTRIBUTEKEY, TEMPLATE_MODIFY_ATTRIBUTEKEY, model );
     }
@@ -228,6 +238,11 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         {
             return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId(  ) );
         }
+
+        String strIdKeyType = request.getParameter( PARAMETER_ID_KEY_TYPE );
+        int nKeyType = Integer.parseInt( strIdKeyType );
+        KeyType keyType = KeyType.valueOf( nKeyType );
+        _attributekey.setKeyType( keyType );
 
         AttributeKeyHome.update( _attributekey );
         addInfo( INFO_ATTRIBUTEKEY_UPDATED, getLocale(  ) );

@@ -91,10 +91,10 @@ public interface IAttributeKeyDAO
     ReferenceList selectAttributeKeysReferenceList( Plugin plugin );
 
     /**
-     * Find the attribute id by its key
+     * Find the attribute by its key
      * @param strKey The key The key
      * @param plugin The plugin
-     * @return the ID
+     * @return the attributeKey matching key, null if no attributes matches
      */
-    int selectByKey( String strKey, Plugin plugin );
+    AttributeKey selectByKey( String strKey, Plugin plugin );
 }

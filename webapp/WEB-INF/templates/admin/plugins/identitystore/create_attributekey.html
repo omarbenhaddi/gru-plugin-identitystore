@@ -9,7 +9,12 @@
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelName" inputName="name" mandatory=true value="${attributekey.name!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyName" inputName="key_name" mandatory=true value="${attributekey.keyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyName.help" />
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelDescription" inputName="description" mandatory=true value="${attributekey.description!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelDescription.help" />
-        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyType" inputName="key_type" mandatory=true value="${attributekey.keyType!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyType.help" />
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-3 col-md-3 col-lg-3 control-label" for="id_key_type">#i18n{identitystore.create_attributekey.labelKeyType} * : </label>
+			<div class="col-xs-12 col-sm-9 col-md-6 col-lg-6">
+			 <@comboWithParams name="id_keytype" default_value="" additionalParameters=" class=\"form-control\" id=\"id_keytype\" " items=keytype_list />
+            </div>
+		</div>
         <@actionButtons button1Name="action_createAttributeKey" button2Name="view_manageAttributeKeys"/>
     </form>
 </@rowBoxHeader>

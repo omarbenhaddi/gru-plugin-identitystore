@@ -33,8 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.formatter;
 
-import net.sf.json.JSONObject;
-
 
 /**
  * This class provides constants for formatting
@@ -46,6 +44,7 @@ public final class FormatConstants
     public static final String KEY_ATTRIBUTES = "attributes";
     public static final String KEY_ATTRIBUTE_KEY = "key";
     public static final String KEY_ATTRIBUTE_VALUE = "value";
+    public static final String KEY_ATTRIBUTE_TYPE = "type";
     public static final String KEY_ID = "id";
     public static final String KEY_LABEL = "label";
     public static final String KEY_ERRORS = "errors";

@@ -57,7 +57,7 @@ public class AttributeKey implements Serializable
     private String _strKeyName;
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Description.notEmpty}" )
     private String _strDescription;
-    private int _nKeyType;
+    private KeyType _keyType;
 
     /**
      * Returns the Id
@@ -135,17 +135,17 @@ public class AttributeKey implements Serializable
      * Returns the KeyType
      * @return The KeyType
      */
-    public int getKeyType(  )
+    public KeyType getKeyType(  )
     {
-        return _nKeyType;
+        return _keyType;
     }
 
     /**
      * Sets the KeyType
-     * @param nKeyType The KeyType
+     * @param keyType The KeyType
      */
-    public void setKeyType( int nKeyType )
+    public void setKeyType( KeyType keyType )
     {
-        _nKeyType = nKeyType;
+        _keyType = keyType;
     }
 }

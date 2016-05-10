@@ -53,7 +53,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute WHERE id_attribute = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute SET id_attribute = ?, name = ?, key_name = ?, description = ?, key_type = ? WHERE id_attribute = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, description, key_type FROM identitystore_attribute";
-    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute FROM identitystore_attribute WHERE key_name = ?";
+    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, description, key_type FROM identitystore_attribute WHERE key_name = ?";
 
     /**
      * Generates a new primary key
@@ -92,7 +92,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         daoUtil.setString( nIndex++, attributeKey.getName(  ) );
         daoUtil.setString( nIndex++, attributeKey.getKeyName(  ) );
         daoUtil.setString( nIndex++, attributeKey.getDescription(  ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyType(  ) );
+        daoUtil.setInt( nIndex++, attributeKey.getKeyType(  ).getId(  ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -120,7 +120,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
         }
 
         daoUtil.free(  );
@@ -153,7 +153,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         daoUtil.setString( nIndex++, attributeKey.getName(  ) );
         daoUtil.setString( nIndex++, attributeKey.getKeyName(  ) );
         daoUtil.setString( nIndex++, attributeKey.getDescription(  ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyType(  ) );
+        daoUtil.setInt( nIndex++, attributeKey.getKeyType(  ).getId(  ) );
         daoUtil.setInt( nIndex, attributeKey.getId(  ) );
 
         daoUtil.executeUpdate(  );
@@ -179,7 +179,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
             attributeKeyList.add( attributeKey );
         }
@@ -213,19 +213,29 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
      * {@inheritDoc }
      */
     @Override
-    public int selectByKey( String strKey, Plugin plugin )
+    public AttributeKey selectByKey( String strKey, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY, plugin );
         daoUtil.setString( 1, strKey );
         daoUtil.executeQuery(  );
 
+        AttributeKey attributeKey = null;
+
         if ( daoUtil.next(  ) )
         {
-            return daoUtil.getInt( 1 );
+            attributeKey = new AttributeKey(  );
+
+            int nIndex = 1;
+
+            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
         }
 
         daoUtil.free(  );
 
-        return -1;
+        return attributeKey;
     }
 }
