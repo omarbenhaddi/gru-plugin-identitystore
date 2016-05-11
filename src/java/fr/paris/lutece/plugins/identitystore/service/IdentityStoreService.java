@@ -50,11 +50,12 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.sql.Timestamp;
+
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 
 /*
@@ -136,6 +137,26 @@ public final class IdentityStoreService
         if ( identity != null )
         {
             return IdentityAttributeHome.getAttributesList( identity.getId(  ), strClientApplicationCode );
+        }
+
+        return null;
+    }
+
+    /**
+     * returns attributes from connection id
+     * @param strConnectionId  connection id
+     * @param strAttributeKey attribute key
+     * @param strClientApplicationCode application code who requested attributes
+     * @return attributes list according to application rights  for user identified by connection id
+     */
+    public static Attribute getAttribute( String strConnectionId, String strAttributeKey,
+        String strClientApplicationCode )
+    {
+        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
+
+        if ( identity != null )
+        {
+            return IdentityAttributeHome.getAttribute( identity.getId(  ), strAttributeKey, strClientApplicationCode );
         }
 
         return null;
@@ -240,6 +261,7 @@ public final class IdentityStoreService
                 {
                     FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
                 }
+
                 attribute.setFile( null );
                 attribute.setAttributeValue( StringUtils.EMPTY );
             }

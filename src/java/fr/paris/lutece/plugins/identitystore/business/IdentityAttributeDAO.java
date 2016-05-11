@@ -58,6 +58,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
+    private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file " +
+        " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
+        " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
 
     /**
      * {@inheritDoc }
@@ -258,5 +261,51 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.free(  );
 
         return identityAttributeList;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode,
+        Plugin plugin )
+    {
+        Attribute attribute = null;
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin );
+        daoUtil.setInt( 1, nIdentityId );
+        daoUtil.setString( 2, strApplicationCode );
+        daoUtil.setString( 3, strAttributeKey );
+        daoUtil.executeQuery(  );
+
+        if ( daoUtil.next(  ) )
+        {
+            attribute = new Attribute(  );
+
+            int nIndex = 1;
+
+            attribute.setKey( daoUtil.getString( nIndex++ ) );
+            attribute.setName( daoUtil.getString( nIndex++ ) );
+            attribute.setValue( daoUtil.getString( nIndex++ ) );
+
+            int nCertificateId = daoUtil.getInt( nIndex++ );
+
+            if ( nCertificateId != 0 )
+            {
+                AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
+                attribute.setCertificate( certificate );
+                attribute.setLevel( certificate.getCertificateLevel(  ) );
+            }
+
+            int nIdFile = daoUtil.getInt( nIndex++ );
+
+            if ( nIdFile > 0 )
+            {
+                attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
+            }
+        }
+
+        daoUtil.free(  );
+
+        return attribute;
     }
 }

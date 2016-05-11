@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -103,7 +104,7 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of all attributes for a given identity ID which are alowed for
+     * Load the data of all attributes for a given identity ID which are allowed for
      * the client application provided
      * @param nIdentityId The identity ID
      * @param strApplicationCode code of client application
@@ -115,7 +116,7 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of all attributes for a given identity ID which are alowed for
+     * Load the data of all attributes for a given identity ID which are allowed for
      * the client application provided
      * @param nIdentityId The identity ID
      * @return the list which contains the data of all the identityAttribute objects
@@ -123,6 +124,19 @@ public final class IdentityAttributeHome
     public static List<Attribute> getAttributesList( int nIdentityId )
     {
         return _dao.selectAttributesList( nIdentityId, _plugin );
+    }
+
+    /**
+     * Load the data of an attribute for a given identity ID and attribute key which is allowed for
+     * the client application provided
+     * @param nIdentityId The identity ID
+     * @param strApplicationCode code of client application
+     * @param strAttributeKey attribute key
+     * @return the list which contains the data of all the identityAttribute objects
+     */
+    public static Attribute getAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode )
+    {
+        return _dao.selectAttribute( nIdentityId, strAttributeKey, strApplicationCode, _plugin );
     }
 
     /**

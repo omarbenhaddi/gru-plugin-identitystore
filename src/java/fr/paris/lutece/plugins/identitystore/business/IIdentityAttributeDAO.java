@@ -102,4 +102,15 @@ public interface IIdentityAttributeDAO
      * @return The referenceList which contains the data of all the identityAttribute objects
      */
     ReferenceList selectIdentityAttributesReferenceList( Plugin plugin );
+
+    /**
+     * Load the data of an attribute for a given identity ID and attribute key which is allowed for
+     * the client application provided
+     * @param nIdentityId The identity ID
+     * @param strApplicationCode code of client application
+     * @param strAttributeKey attribute key
+     * @param plugin the Plugin
+     * @return the list which contains the data of all the identityAttribute objects
+     */
+    Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin );
 }

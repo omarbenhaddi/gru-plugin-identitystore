@@ -51,6 +51,7 @@ public final class Constants
     public static final String PARAM_USER_ID = "user_id";
     public static final String PARAM_CERTIFIER_ID = "certifier_id";
     public static final String PARAM_FILE = "file";
+    public static final String PARAM_ATTRIBUTE_KEY = "attribute_key";
     public static final String ERROR_FIELD_MISSING = "FIELD_MISSING";
     public static final String ERROR_FIELD_PERMISSION = "FIELD_PERMISION_ERROR";
     public static final String RESPONSE_OK = "OK";

@@ -38,6 +38,7 @@ import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
+import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
@@ -54,6 +55,7 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
+import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 
 import org.apache.commons.io.IOUtils;
@@ -75,6 +77,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 
 /**
@@ -86,6 +89,7 @@ public class IdentityStoreRestService
 {
     protected static final Map<String, IFormatterFactory> _formatterFactories = new HashMap<String, IFormatterFactory>(  );
     private static final String PARAM_FILE_KEY_NAME = "name";
+    private static final String DOWNLOAD_FILE_PATH = "/file/";
 
     static
     {
@@ -169,11 +173,11 @@ public class IdentityStoreRestService
                     //attachment file
                     PhysicalFile physicalFile = new PhysicalFile(  );
                     physicalFile.setValue( IOUtils.toByteArray( inputStream ) );
-                    
+
                     fr.paris.lutece.portal.business.file.File file = new fr.paris.lutece.portal.business.file.File(  );
                     file.setPhysicalFile( physicalFile );
-                    file.setMimeType( part.getMediaType( ).getType( ) + "/" + part.getMediaType( ).getSubtype( ) );
-                    file.setSize( physicalFile.getValue( ).length );
+                    file.setMimeType( part.getMediaType(  ).getType(  ) + "/" + part.getMediaType(  ).getSubtype(  ) );
+                    file.setSize( physicalFile.getValue(  ).length );
                     file.setTitle( contentDispo.getFileName(  ) );
 
                     String strAttributeKey = contentDispo.getParameters(  ).get( PARAM_FILE_KEY_NAME );
@@ -199,6 +203,83 @@ public class IdentityStoreRestService
 
             return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
         }
+    }
+
+    /**
+     * returns requested file matching attributeKey / connectionId if application is authorized
+     * @param strConnectionId connectionId (must not be empty)
+     * @param strClientCode client application code (must not be empty)
+     * @param strAttributeKey attribute key containing file (must not be empty)
+     * @return http 200 Response containing requested file, http 400 otherwise
+     */
+    @GET
+    @Path( DOWNLOAD_FILE_PATH + "{" + Constants.PARAM_ID_CONNECTION + "}" )
+    public Response downloadFileAttribute( @PathParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
+    String strClientCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY )
+    String strAttributeKey )
+    {
+        File file = null;
+
+        try
+        {
+            file = getFileAttribute( strConnectionId, strClientCode, strAttributeKey );
+        }
+        catch ( AppException appEx )
+        {
+            IFormatterFactory formatterFactory = _formatterFactories.get( MediaType.APPLICATION_JSON );
+            ResponseDto responseDto = new ResponseDto(  );
+            responseDto.setStatus( String.valueOf( Status.BAD_REQUEST ) );
+            responseDto.setMessage( appEx.getMessage(  ) );
+
+            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
+
+            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+        }
+
+        ResponseBuilder response = Response.ok( (Object) PhysicalFileHome.findByPrimaryKey( 
+                    file.getPhysicalFile(  ).getIdPhysicalFile(  ) ).getValue(  ) );
+        response.header( "Content-Disposition", "attachment; filename=" + file.getTitle(  ) );
+        response.header( "Content-Type", file.getMimeType(  ) );
+
+        return response.build(  );
+    }
+
+    /**
+     * @param strConnectionId connectionId (must not be empty)
+     * @param strClientCode client application code (must not be empty)
+     * @param strAttributeKey attribute key containing file (must not be empty)
+     * @return File matching connectionId/attribute key if readable for client application code
+     * @throws AppException thrown if input parameters are invalid or no file is found
+     */
+    private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey )
+        throws AppException
+    {
+        if ( StringUtils.isBlank( strConnectionId ) )
+        {
+            throw new AppException( Constants.PARAM_ID_CONNECTION + " is null or empty" );
+        }
+
+        if ( StringUtils.isBlank( strClientCode ) )
+        {
+            throw new AppException( Constants.PARAM_CLIENT_CODE + " is null or empty" );
+        }
+
+        if ( StringUtils.isBlank( strAttributeKey ) )
+        {
+            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " is null or empty" );
+        }
+
+        Attribute attribute = IdentityStoreService.getAttribute( strConnectionId, strAttributeKey, strClientCode );
+
+        if ( ( attribute == null ) || ( attribute.getFile(  ) == null ) )
+        {
+            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + strAttributeKey +
+                " attribute not found for " + Constants.PARAM_ID_CONNECTION + "=" + strConnectionId + "  " +
+                Constants.PARAM_CLIENT_CODE + "=" + strClientCode );
+        }
+
+        return attribute.getFile(  );
     }
 
     /**
