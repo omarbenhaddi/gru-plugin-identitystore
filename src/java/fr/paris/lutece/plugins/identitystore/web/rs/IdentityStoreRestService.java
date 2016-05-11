@@ -40,9 +40,12 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.formatter.FormatterJsonFactory;
@@ -179,9 +182,7 @@ public class IdentityStoreRestService
                     file.setMimeType( part.getMediaType(  ).getType(  ) + "/" + part.getMediaType(  ).getSubtype(  ) );
                     file.setSize( physicalFile.getValue(  ).length );
                     file.setTitle( contentDispo.getFileName(  ) );
-
-                    String strAttributeKey = contentDispo.getParameters(  ).get( PARAM_FILE_KEY_NAME );
-                    mapAttachedFiles.put( strAttributeKey, file );
+                    mapAttachedFiles.put( contentDispo.getFileName(  ), file );
                 }
             }
 
@@ -300,7 +301,12 @@ public class IdentityStoreRestService
 
                 for ( AttributeDto attribute : identityDto.getAttributes(  ) )
                 {
-                    if ( attribute.getKey(  ).equals( entry.getKey(  ) ) )
+                    AttributeKey attributeKey = AttributeKeyHome.findByKey( attribute.getKey(  ) );
+
+                    //check that attribute is file type and that its name is matching 
+                    if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
+                            StringUtils.isNotBlank( attribute.getValue(  ) ) &&
+                            attribute.getValue(  ).equals( entry.getKey(  ) ) )
                     {
                         bFound = true;
 
@@ -312,6 +318,23 @@ public class IdentityStoreRestService
                 {
                     throw new AppException( Constants.PARAM_FILE + " " + entry.getKey(  ) +
                         " is provided but its attribute is missing" );
+                }
+            }
+        }
+
+        if ( identityDto.getAttributes(  ) != null )
+        {
+            //check that all file attribute type provided with filename in dto have matching attachements  
+            for ( AttributeDto attribute : identityDto.getAttributes(  ) )
+            {
+                AttributeKey attributeKey = AttributeKeyHome.findByKey( attribute.getKey(  ) );
+
+                if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
+                        StringUtils.isNotBlank( attribute.getValue(  ) ) &&
+                        ( ( mapAttachedFiles == null ) || ( mapAttachedFiles.get( attribute.getValue(  ) ) == null ) ) )
+                {
+                    throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName(  ) +
+                        " is provided with filename=" + attribute.getValue(  ) + " but no file is attached" );
                 }
             }
         }
@@ -345,7 +368,7 @@ public class IdentityStoreRestService
             throw new AppException( Constants.PARAM_USER_ID + " is missing" );
         }
 
-        //TODO check previous identities
+        //TODO check previous identities ?
         //Identity identityPrevious = IdentityStoreService.getIdentity( strConnectionId, strClientAppCode );
         IdentityDto identityDto = JsonIdentityParser.parse( strJsonContent );
 
@@ -380,11 +403,19 @@ public class IdentityStoreRestService
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
 
-        //Remove all attributes ?
         for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
         {
+            File file = null;
+            AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
+
+            if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
+                    StringUtils.isNotBlank( attributeDto.getValue(  ) ) )
+            {
+                file = mapAttachedFiles.get( attributeDto.getValue(  ) );
+            }
+
             IdentityStoreService.setAttribute( strConnectionId, attributeDto.getKey(  ), attributeDto.getValue(  ),
-                mapAttachedFiles.get( attributeDto.getKey(  ) ), author, certifier );
+                file, author, certifier );
             sb.append( attributeDto.getKey(  ) + "," );
         }
 
