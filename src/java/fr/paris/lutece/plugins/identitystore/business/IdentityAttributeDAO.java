@@ -267,8 +267,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode,
-        Plugin plugin )
+    public Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin )
     {
         Attribute attribute = null;
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin );
