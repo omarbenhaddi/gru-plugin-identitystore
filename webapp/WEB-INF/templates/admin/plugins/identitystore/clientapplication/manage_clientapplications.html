@@ -20,9 +20,10 @@
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>#i18n{identitystore.manage_clientapplications.columnIdClientApplication}</th>
+            <th>#i18n{identitystore.manage_clientapplications.columnId}</th>
             <th>#i18n{identitystore.manage_clientapplications.columnName}</th>
             <th>#i18n{identitystore.manage_clientapplications.columnCode}</th>
+            <th>#i18n{identitystore.manage_clientapplications.columnHash}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
@@ -37,6 +38,9 @@
             </td>
             <td>
                 ${clientapplication.code}
+            </td>
+            <td>
+                ${clientapplication.hash}
             </td>
         <td>
             <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=modifyClientApplication&id=${clientapplication.id}"

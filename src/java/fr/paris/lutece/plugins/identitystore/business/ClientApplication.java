@@ -57,6 +57,9 @@ public class ClientApplication implements Serializable
     @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Code.notEmpty}" )
     @Size( max = 50, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
     private String _strCode;
+    @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Hash.notEmpty}" )
+    @Size( max = 250, message = "#i18n{identitystore.validation.clientapplication.Hash.size}" )
+    private String _strHash;
 
     /**
      * Returns the Id
@@ -110,5 +113,21 @@ public class ClientApplication implements Serializable
     public void setCode( String strCode )
     {
         _strCode = strCode;
+    }
+
+    /**
+     * @return the _strHash
+     */
+    public String getHash(  )
+    {
+        return _strHash;
+    }
+
+    /**
+     * @param strHash the _strHash to set
+     */
+    public void setHash( String strHash )
+    {
+        this._strHash = strHash;
     }
 }

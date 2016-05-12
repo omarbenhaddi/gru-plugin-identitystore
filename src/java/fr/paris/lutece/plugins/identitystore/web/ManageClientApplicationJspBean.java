@@ -72,7 +72,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_RIGHT_CERTIFIABLE = "certifiable";
 
     // Properties for page titles
-    private static final String PROPERTY_PAGE_TITLE_MANAGE_CLIENTAPPLICATIONS = "identitystore.manage_clientapplication.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_MANAGE_CLIENTAPPLICATIONS = "identitystore.manage_clientapplications.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_CLIENTAPPLICATION = "identitystore.modify_clientapplication.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_CREATE_CLIENTAPPLICATION = "identitystore.create_clientapplication.pageTitle";
 

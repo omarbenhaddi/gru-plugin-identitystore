@@ -42,8 +42,6 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
     private final static String KEYNAME2 = "KeyName2";
     private final static String KEYDESCRIPTION1 = "KeyDescription1";
     private final static String KEYDESCRIPTION2 = "KeyDescription2";
-    private final static int KEYTYPE1 = 1;
-    private final static int KEYTYPE2 = 2;
 
     public void testBusiness(  )
     {
@@ -51,7 +49,7 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
         AttributeKey attributeKey = new AttributeKey(  );
         attributeKey.setKeyName( KEYNAME1 );
         attributeKey.setDescription( KEYDESCRIPTION1 );
-        attributeKey.setKeyType( KEYTYPE1 );
+        attributeKey.setKeyType( KeyType.STRING );
 
         // Create test
         AttributeKeyHome.create( attributeKey );
@@ -64,7 +62,7 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
         // Update test
         attributeKey.setKeyName( KEYNAME2 );
         attributeKey.setDescription( KEYDESCRIPTION2 );
-        attributeKey.setKeyType( KEYTYPE2 );
+        attributeKey.setKeyType( KeyType.STRING );
         AttributeKeyHome.update( attributeKey );
         attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId(  ) );
         assertEquals( attributeKeyStored.getKeyName(  ), attributeKey.getKeyName(  ) );
