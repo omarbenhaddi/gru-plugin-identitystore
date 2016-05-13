@@ -207,6 +207,7 @@ public final class IdentityStoreService
         ChangeAuthor author, AttributeCertifier certifier )
     {
         AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
+        boolean bValueUnchanged = false;
 
         if ( attributeKey == null )
         {
@@ -226,70 +227,82 @@ public final class IdentityStoreService
             attribute.setIdIdentity( identity.getId(  ) );
             bCreate = true;
         }
-
-        if ( certifier != null )
+        else
         {
-            AttributeCertificate certificate = new AttributeCertificate(  );
-            certificate.setCertificateDate( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
-            certificate.setExpirationDate( new Timestamp( ( new Date(  ) ).getTime(  ) + 80000000000L ) ); // FIXME
-            certificate.setIdCertifier( certifier.getId(  ) );
-            certificate.setCertificateLevel( 2 ); // FIXME 
-            AttributeCertificateHome.create( certificate );
-            attribute.setIdCertificate( certificate.getId(  ) );
+            if ( attribute.getAttributeValue(  ).equals( strValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
+            {
+                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strValue +
+                    " for connectionId=" + strConnectionId );
+                bValueUnchanged = true;
+            }
         }
 
-        attribute.setAttributeValue( strValue );
-
-        //file attribute management
-        if ( attributeKey.getKeyType(  ) == KeyType.FILE )
+        if ( !bValueUnchanged )
         {
-            if ( file != null )
+            if ( certifier != null )
             {
-                if ( attribute.getFile(  ) != null )
-                {
-                    FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
-                }
+                AttributeCertificate certificate = new AttributeCertificate(  );
+                certificate.setCertificateDate( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+                certificate.setExpirationDate( new Timestamp( ( new Date(  ) ).getTime(  ) + 80000000000L ) ); // FIXME
+                certificate.setIdCertifier( certifier.getId(  ) );
+                certificate.setCertificateLevel( 2 ); // FIXME 
+                AttributeCertificateHome.create( certificate );
+                attribute.setIdCertificate( certificate.getId(  ) );
+            }
 
-                file.setIdFile( FileHome.create( file ) );
-                attribute.setFile( file );
-                attribute.setAttributeValue( file.getTitle(  ) );
+            attribute.setAttributeValue( strValue );
+
+            //file attribute management
+            if ( attributeKey.getKeyType(  ) == KeyType.FILE )
+            {
+                if ( file != null )
+                {
+                    if ( attribute.getFile(  ) != null )
+                    {
+                        FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+                    }
+
+                    file.setIdFile( FileHome.create( file ) );
+                    attribute.setFile( file );
+                    attribute.setAttributeValue( file.getTitle(  ) );
+                }
+                else
+                {
+                    // remove file
+                    if ( attribute.getFile(  ) != null )
+                    {
+                        FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+                    }
+
+                    attribute.setFile( null );
+                    attribute.setAttributeValue( StringUtils.EMPTY );
+                }
+            }
+
+            AttributeChange change = new AttributeChange(  );
+            change.setIdentityId( identity.getConnectionId(  ) );
+            change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
+            change.setChangedKey( strKey );
+            change.setNewValue( strValue );
+            change.setAuthorName( author.getUserName(  ) );
+            change.setAuthorId( author.getUserId(  ) );
+            change.setAuthorService( author.getApplication(  ) );
+            change.setAuthorType( author.getType(  ) );
+            change.setDateChange( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+
+            if ( bCreate )
+            {
+                IdentityAttributeHome.create( attribute );
+                change.setChangeType( AttributeChange.TYPE_CREATE );
             }
             else
             {
-                // remove file
-                if ( attribute.getFile(  ) != null )
-                {
-                    FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
-                }
-
-                attribute.setFile( null );
-                attribute.setAttributeValue( StringUtils.EMPTY );
+                IdentityAttributeHome.update( attribute );
+                change.setChangeType( AttributeChange.TYPE_UPDATE );
             }
-        }
 
-        AttributeChange change = new AttributeChange(  );
-        change.setIdentityId( identity.getConnectionId(  ) );
-        change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
-        change.setChangedKey( strKey );
-        change.setNewValue( strValue );
-        change.setAuthorName( author.getUserName(  ) );
-        change.setAuthorId( author.getUserId(  ) );
-        change.setAuthorService( author.getApplication(  ) );
-        change.setAuthorType( author.getType(  ) );
-        change.setDateChange( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
-
-        if ( bCreate )
-        {
-            IdentityAttributeHome.create( attribute );
-            change.setChangeType( AttributeChange.TYPE_CREATE );
+            notifyListeners( change );
         }
-        else
-        {
-            IdentityAttributeHome.update( attribute );
-            change.setChangeType( AttributeChange.TYPE_UPDATE );
-        }
-
-        notifyListeners( change );
     }
 
     /**
