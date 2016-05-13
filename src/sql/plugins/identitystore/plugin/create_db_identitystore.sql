@@ -8,15 +8,6 @@ CREATE TABLE identitystore_identity (
 id_identity int(6) NOT NULL,
 connection_id varchar(50) NULL,
 customer_id varchar(50) NULL,
-given_name varchar(50) NOT NULL default '',
-family_name varchar(50) NOT NULL default '',
-gender int(11) NOT NULL default '0',
-birthdate date NULL,
-birthplace varchar(50) NULL,
-email varchar(255) NULL,
-preferred_username varchar(50) NULL,
-address varchar(255) NULL ,
-phone varchar(50) NULL,
 PRIMARY KEY (id_identity)
 );
 

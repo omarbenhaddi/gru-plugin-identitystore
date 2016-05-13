@@ -69,8 +69,6 @@ public class IdentityBusinessTest extends LuteceTestCase
         Identity identity = new Identity(  );
         identity.setConnectionId( CONNECTIONID1 );
         identity.setCustomerId( CUSTOMERID1 );
-        identity.setGivenName( GIVENNAME1 );
-        identity.setFamilyName( FAMILYNAME1 );
 
         // Create test
         IdentityHome.create( identity );
@@ -84,8 +82,6 @@ public class IdentityBusinessTest extends LuteceTestCase
         // Update test
         identity.setConnectionId( CONNECTIONID2 );
         identity.setCustomerId( CUSTOMERID2 );
-        identity.setGivenName( GIVENNAME2 );
-        identity.setFamilyName( FAMILYNAME2 );
         IdentityHome.update( identity );
         identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
         assertEquals( identityStored.getConnectionId(  ), identity.getConnectionId(  ) );

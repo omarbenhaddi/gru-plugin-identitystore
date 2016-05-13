@@ -33,7 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 
@@ -55,12 +57,6 @@ public class Identity implements Serializable
     private String _strConnectionId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
     private String _strCustomerId;
-    @NotEmpty( message = "#i18n{identitystore.validation.identity.GivenName.notEmpty}" )
-    @Size( max = 50, message = "#i18n{identitystore.validation.identity.GivenName.size}" )
-    private String _strGivenName;
-    @NotEmpty( message = "#i18n{identitystore.validation.identity.FamilyName.notEmpty}" )
-    @Size( max = 50, message = "#i18n{identitystore.validation.identity.FamilyName.size}" )
-    private String _strFamilyName;
     private List<Attribute> _lstAttributes;
 
     /**
@@ -118,42 +114,6 @@ public class Identity implements Serializable
     }
 
     /**
-     * Returns the GivenName
-     * @return The GivenName
-     */
-    public String getGivenName(  )
-    {
-        return _strGivenName;
-    }
-
-    /**
-     * Sets the GivenName
-     * @param strGivenName The GivenName
-     */
-    public void setGivenName( String strGivenName )
-    {
-        _strGivenName = strGivenName;
-    }
-
-    /**
-     * Returns the FamilyName
-     * @return The FamilyName
-     */
-    public String getFamilyName(  )
-    {
-        return _strFamilyName;
-    }
-
-    /**
-     * Sets the FamilyName
-     * @param strFamilyName The FamilyName
-     */
-    public void setFamilyName( String strFamilyName )
-    {
-        _strFamilyName = strFamilyName;
-    }
-
-    /**
      * @return the _lstAttributes
      */
     public List<Attribute> getAttributes(  )
@@ -167,5 +127,57 @@ public class Identity implements Serializable
     public void setAttributes( List<Attribute> lstAttributes )
     {
         this._lstAttributes = lstAttributes;
+    }
+
+    /**
+     * returns family name retrieve from attributes
+     * @return familyName
+     */
+    public String getFamilyName(  )
+    {
+        String strFamilyName = StringUtils.EMPTY;
+
+        if ( _lstAttributes != null )
+        {
+            for ( Attribute attribute : _lstAttributes )
+            {
+                if ( attribute.getKey(  )
+                                  .equals( AppPropertiesService.getProperty( 
+                                IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) )
+                {
+                    strFamilyName = attribute.getValue(  );
+
+                    break;
+                }
+            }
+        }
+
+        return strFamilyName;
+    }
+
+    /**
+     * returns given name retrieve from attributes
+     * @return given name
+     */
+    public String getGivenName(  )
+    {
+        String strGivenName = StringUtils.EMPTY;
+
+        if ( _lstAttributes != null )
+        {
+            for ( Attribute attribute : _lstAttributes )
+            {
+                if ( attribute.getKey(  )
+                                  .equals( AppPropertiesService.getProperty( 
+                                IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) )
+                {
+                    strGivenName = attribute.getValue(  );
+
+                    break;
+                }
+            }
+        }
+
+        return strGivenName;
     }
 }

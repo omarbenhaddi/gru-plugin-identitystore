@@ -34,11 +34,18 @@
 package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.business.IdentityConstants;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.portal.business.user.attribute.AttributeHome;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
@@ -64,6 +71,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     // Parameters
     private static final String PARAMETER_ID_IDENTITY = "id";
+    private static final String PARAMETER_GIVEN_NAME = "given_name";
+    private static final String PARAMETER_FAMILY_NAME = "family_name";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS = "identitystore.manage_identities.pageTitle";
@@ -101,6 +110,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     // Session variable to store working values
     private Identity _identity;
+    private AttributeKey _attrKeyFirstName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( 
+                IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) );
+    private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( 
+                IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) );
 
     /**
      * Build the Manage View
@@ -154,9 +167,37 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         }
 
         IdentityHome.create( _identity );
+        saveFirstNameAttribute( request.getParameter( PARAMETER_GIVEN_NAME ) );
+        saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
         addInfo( INFO_IDENTITY_CREATED, getLocale(  ) );
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
+    }
+
+    /**
+     * save firstname in attribute s table
+     * @param strFirstName firstname to save
+     */
+    private void saveFirstNameAttribute( String strFirstName )
+    {
+        IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
+        idAttrFirstName.setAttributeValue( strFirstName );
+        idAttrFirstName.setIdAttribute( _attrKeyFirstName.getId(  ) );
+        idAttrFirstName.setIdIdentity( _identity.getId(  ) );
+        IdentityAttributeHome.create( idAttrFirstName );
+    }
+
+    /**
+     * save lastname in attribute s table
+     * @param strLastName lastname to save
+     */
+    private void saveLastNameAttribute( String strLastName )
+    {
+        IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
+        idAttrFirstName.setAttributeValue( strLastName );
+        idAttrFirstName.setIdAttribute( _attrKeyLastName.getId(  ) );
+        idAttrFirstName.setIdIdentity( _identity.getId(  ) );
+        IdentityAttributeHome.create( idAttrFirstName );
     }
 
     /**
@@ -235,22 +276,27 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         }
 
         IdentityHome.update( _identity );
+        saveFirstNameAttribute( request.getParameter( PARAMETER_GIVEN_NAME ) );
+        saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
         addInfo( INFO_IDENTITY_UPDATED, getLocale(  ) );
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
     }
 
+    /**
+     * view identity
+     * @param request http request
+     * @return The HTML form to view info
+     */
     @View( VIEW_IDENTITY )
     public String getViewIdentity( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
 
         Identity identity = IdentityHome.findByPrimaryKey( nId );
-        List<Attribute> listAttributes = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
 
         Map<String, Object> model = getModel(  );
         model.put( MARK_IDENTITY, identity );
-        model.put( MARK_ATTRIBUTES_LIST, listAttributes );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_VIEW_IDENTITY, model );
     }
