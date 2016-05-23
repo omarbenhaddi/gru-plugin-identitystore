@@ -33,27 +33,33 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.jersey.multipart.FormDataParam;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.service.formatter.FormatterJsonFactory;
-import fr.paris.lutece.plugins.identitystore.service.formatter.FormatterXmlFactory;
-import fr.paris.lutece.plugins.identitystore.service.formatter.IFormatterFactory;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.JsonIdentityParser;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.business.file.File;
@@ -61,9 +67,12 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 
+import net.sf.json.util.JSONUtils;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.HashMap;
@@ -72,12 +81,11 @@ import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -88,44 +96,65 @@ import javax.ws.rs.core.Response.ResponseBuilder;
  *
  */
 @Path( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.IDENTITY_PATH )
-public class IdentityStoreRestService
+public final class IdentityStoreRestService
 {
-    protected static final Map<String, IFormatterFactory> _formatterFactories = new HashMap<String, IFormatterFactory>(  );
-    private static final String PARAM_FILE_KEY_NAME = "name";
     private static final String DOWNLOAD_FILE_PATH = "/file/";
+    private ObjectMapper _objectMapper;
 
-    static
+    /**
+     * private constructor
+     */
+    private IdentityStoreRestService(  )
     {
-        _formatterFactories.put( MediaType.APPLICATION_JSON, new FormatterJsonFactory(  ) );
-        _formatterFactories.put( MediaType.APPLICATION_XML, new FormatterXmlFactory(  ) );
+        _objectMapper = new ObjectMapper(  );
+        _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
+        _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
+        _objectMapper.enable( DeserializationFeature.UNWRAP_ROOT_VALUE );
     }
 
     /**
      * Gives Identity
-     * @param accept the accepted format
-     * @param format the format
      * @param strConnectionId connection ID
-     * @param strClientCode client code
+     * @param strClientAppCode client code
      * @return the identity
      */
     @GET
-    @Path( "{" + Constants.PARAM_ID_CONNECTION + "}" )
-    public Response getAttributesByConnectionId( @HeaderParam( HttpHeaders.ACCEPT )
-    String accept, @PathParam( Constants.PARAM_ID_CONNECTION )
-    String strConnectionId, @QueryParam( Constants.FORMAT_QUERY )
-    String format, @QueryParam( Constants.PARAM_CLIENT_CODE )
-    String strClientCode )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response getAttributesByConnectionId( @QueryParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
+    String strClientAppCode )
     {
-        String strMediaType = getMediaType( accept, format );
+        String strJsonResponse;
 
-        IFormatterFactory formatterFactory = _formatterFactories.get( strMediaType );
+        try
+        {
+            checkClientApplicationCode( strClientAppCode );
 
-        Identity identity = IdentityStoreService.getIdentity( strConnectionId, strClientCode );
+            Identity identity = IdentityStoreService.getIdentity( strConnectionId, strClientAppCode );
 
-        String strResponse = formatterFactory.createFormatter( IdentityDto.class )
-                                             .format( IdentityRestUtil.convertToDto( identity ) );
+            //TODO check if rule is correct
+            if ( identity == null )
+            {
+                ResponseDto response = new ResponseDto(  );
+                response.setMessage( "no identity found for connectionId=" + strConnectionId );
+                response.setStatus( String.valueOf( Status.NOT_FOUND ) );
 
-        return Response.ok( strResponse, strMediaType ).build(  );
+                String strResponse;
+                strResponse = _objectMapper.writeValueAsString( response );
+
+                return Response.status( Status.NOT_FOUND ).type( MediaType.APPLICATION_JSON ).entity( strResponse )
+                               .build(  );
+            }
+
+            strJsonResponse = _objectMapper.writeValueAsString( IdentityDtoUtil.convertToDto( identity, strClientAppCode ) );
+
+            return Response.ok( strJsonResponse ).build(  );
+        }
+        catch ( Exception exception )
+        {
+            return getErrorResponse( exception );
+        }
     }
 
     /**
@@ -139,16 +168,14 @@ public class IdentityStoreRestService
      */
     @POST
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    @Path( "{" + Constants.PARAM_ID_CONNECTION + "}" )
     public Response setAttributesByConnectionId( FormDataMultiPart formParams,
-        @PathParam( Constants.PARAM_ID_CONNECTION )
-    String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
-    String strClientAppCode, @QueryParam( Constants.PARAM_USER_ID )
-    String strUserId, @QueryParam( Constants.PARAM_CERTIFIER_ID )
+        @FormDataParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @FormDataParam( Constants.PARAM_CLIENT_CODE )
+    String strClientAppCode, @FormDataParam( Constants.PARAM_USER_ID )
+    String strUserId, @FormDataParam( Constants.PARAM_CERTIFIER_ID )
     String strCertifierCode )
     {
         IdentityDto identityDto = null;
-        IFormatterFactory formatterFactory = _formatterFactories.get( MediaType.APPLICATION_JSON );
         String strBody = StringUtils.EMPTY;
 
         //TODO
@@ -160,6 +187,8 @@ public class IdentityStoreRestService
 
         try
         {
+            checkSetAttributeParams( strConnectionId, strClientAppCode, strUserId );
+
             for ( BodyPart part : formParams.getBodyParts(  ) )
             {
                 InputStream inputStream = part.getEntityAs( InputStream.class );
@@ -169,9 +198,17 @@ public class IdentityStoreRestService
                 {
                     //content-body of request
                     strBody = IOUtils.toString( inputStream );
-                    identityDto = getIdentityFromRequest( strConnectionId, strClientAppCode, strUserId, strBody );
+
+                    if ( JSONUtils.mayBeJSON( strBody ) )
+                    {
+                        identityDto = getIdentityFromJson( strBody );
+                    }
+                    else
+                    {
+                        throw new AppException( "Error parsing json request " + strBody );
+                    }
                 }
-                else
+                else if ( StringUtils.isNotBlank( contentDispo.getFileName(  ) ) )
                 {
                     //attachment file
                     PhysicalFile physicalFile = new PhysicalFile(  );
@@ -186,56 +223,45 @@ public class IdentityStoreRestService
                 }
             }
 
-            checkAttachedFiles( identityDto, mapAttachedFiles );
+            checkAttributes( identityDto, strClientAppCode, mapAttachedFiles );
 
             ResponseDto responseDto = updateAttributes( identityDto, strConnectionId, author, certifier,
                     mapAttachedFiles );
-            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
+
+            String strResponse = _objectMapper.writeValueAsString( responseDto );
 
             return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
         }
-        catch ( Exception e )
+        catch ( Exception exception )
         {
-            ResponseDto responseDto = new ResponseDto(  );
-            responseDto.setStatus( String.valueOf( Status.BAD_REQUEST ) );
-            responseDto.setMessage( e.getMessage(  ) );
-
-            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
-
-            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+            return getErrorResponse( exception );
         }
     }
 
     /**
      * returns requested file matching attributeKey / connectionId if application is authorized
      * @param strConnectionId connectionId (must not be empty)
-     * @param strClientCode client application code (must not be empty)
+     * @param strClientAppCode client application code (must not be empty)
      * @param strAttributeKey attribute key containing file (must not be empty)
      * @return http 200 Response containing requested file, http 400 otherwise
      */
     @GET
-    @Path( DOWNLOAD_FILE_PATH + "{" + Constants.PARAM_ID_CONNECTION + "}" )
-    public Response downloadFileAttribute( @PathParam( Constants.PARAM_ID_CONNECTION )
+    @Path( DOWNLOAD_FILE_PATH )
+    public Response downloadFileAttribute( @QueryParam( Constants.PARAM_ID_CONNECTION )
     String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
-    String strClientCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY )
+    String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY )
     String strAttributeKey )
     {
         File file = null;
 
         try
         {
-            file = getFileAttribute( strConnectionId, strClientCode, strAttributeKey );
+            checkDownloadFileAttributeParams( strConnectionId, strClientAppCode, strAttributeKey );
+            file = getFileAttribute( strConnectionId, strClientAppCode, strAttributeKey );
         }
-        catch ( AppException appEx )
+        catch ( Exception exception )
         {
-            IFormatterFactory formatterFactory = _formatterFactories.get( MediaType.APPLICATION_JSON );
-            ResponseDto responseDto = new ResponseDto(  );
-            responseDto.setStatus( String.valueOf( Status.BAD_REQUEST ) );
-            responseDto.setMessage( appEx.getMessage(  ) );
-
-            String strResponse = formatterFactory.createFormatter( ResponseDto.class ).format( responseDto );
-
-            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+            return getErrorResponse( exception );
         }
 
         ResponseBuilder response = Response.ok( (Object) PhysicalFileHome.findByPrimaryKey( 
@@ -247,15 +273,85 @@ public class IdentityStoreRestService
     }
 
     /**
+     * check that client application code exists in identitystore
+     * @param strClientCode client application code
+     * @throws AppException thrown if null
+     */
+    private void checkClientApplicationCode( String strClientCode )
+        throws AppException
+    {
+        ClientApplication clientApp = ClientApplicationHome.findByCode( strClientCode );
+
+        if ( clientApp == null )
+        {
+            throw new AppException( Constants.PARAM_CLIENT_CODE + " : " + strClientCode + " is unknown " );
+        }
+    }
+
+    /**
+     * check input parameters
+     * @param strConnectionId connection id of identity to update
+     * @param strClientAppCode client application code asking for modif
+     * @param strUserId user id which makes modification
+     * @throws AppException if request is not correct
+     */
+    private void checkSetAttributeParams( String strConnectionId, String strClientAppCode, String strUserId )
+        throws AppException
+    {
+        if ( StringUtils.isBlank( strConnectionId ) )
+        {
+            throw new AppException( Constants.PARAM_ID_CONNECTION + " is missing" );
+        }
+
+        if ( StringUtils.isBlank( strClientAppCode ) )
+        {
+            throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
+        }
+
+        checkClientApplicationCode( strClientAppCode );
+
+        if ( StringUtils.isBlank( strUserId ) )
+        {
+            throw new AppException( Constants.PARAM_USER_ID + " is missing" );
+        }
+    }
+
+    /**
+     * build error response from exception
+     * @param e exception
+     * @return ResponseDto from exception
+     */
+    private Response getErrorResponse( Exception e )
+    {
+        ResponseDto response = new ResponseDto(  );
+        response.setMessage( e.getMessage(  ) );
+        response.setStatus( String.valueOf( Status.BAD_REQUEST ) );
+
+        String strResponse;
+
+        try
+        {
+            strResponse = _objectMapper.writeValueAsString( response );
+
+            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+        }
+        catch ( JsonProcessingException jpe )
+        {
+            return Response.status( Status.BAD_REQUEST ).type( MediaType.TEXT_PLAIN ).entity( e.getMessage(  ) ).build(  );
+        }
+    }
+
+    /**
      * @param strConnectionId connectionId (must not be empty)
      * @param strClientCode client application code (must not be empty)
      * @param strAttributeKey attribute key containing file (must not be empty)
-     * @return File matching connectionId/attribute key if readable for client application code
      * @throws AppException thrown if input parameters are invalid or no file is found
      */
-    private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey )
+    private void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey )
         throws AppException
     {
+        checkClientApplicationCode( strClientCode );
+
         if ( StringUtils.isBlank( strConnectionId ) )
         {
             throw new AppException( Constants.PARAM_ID_CONNECTION + " is null or empty" );
@@ -270,7 +366,18 @@ public class IdentityStoreRestService
         {
             throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " is null or empty" );
         }
+    }
 
+    /**
+     * @param strConnectionId connectionId (must not be empty)
+     * @param strClientCode client application code (must not be empty)
+     * @param strAttributeKey attribute key containing file (must not be empty)
+     * @return File matching connectionId/attribute key if readable for client application code
+     * @throws AppException thrown if input parameters are invalid or no file is found
+     */
+    private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey )
+        throws AppException
+    {
         Attribute attribute = IdentityStoreService.getAttribute( strConnectionId, strAttributeKey, strClientCode );
 
         if ( ( attribute == null ) || ( attribute.getFile(  ) == null ) )
@@ -284,12 +391,14 @@ public class IdentityStoreRestService
     }
 
     /**
-     * check attached files are present in identity Dto
+     * check attached files are present in identity Dto and that attributes to update
+     * exist and are writable (or not writable AND unchanged)
      * @param identityDto identityDto with list of attributes
+     * @param strClientAppCode application code to check right
      * @param mapAttachedFiles map of attached files
-     * @throws AppException thrown if a file is attached without its attribute
+     * @throws AppException thrown if provided attributes are not valid
      */
-    private void checkAttachedFiles( IdentityDto identityDto, Map<String, File> mapAttachedFiles )
+    private void checkAttributes( IdentityDto identityDto, String strClientAppCode, Map<String, File> mapAttachedFiles )
         throws AppException
     {
         if ( ( mapAttachedFiles != null ) && !mapAttachedFiles.isEmpty(  ) )
@@ -299,14 +408,14 @@ public class IdentityStoreRestService
             {
                 boolean bFound = false;
 
-                for ( AttributeDto attribute : identityDto.getAttributes(  ) )
+                for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
                 {
-                    AttributeKey attributeKey = AttributeKeyHome.findByKey( attribute.getKey(  ) );
+                    AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
 
                     //check that attribute is file type and that its name is matching 
                     if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
-                            StringUtils.isNotBlank( attribute.getValue(  ) ) &&
-                            attribute.getValue(  ).equals( entry.getKey(  ) ) )
+                            StringUtils.isNotBlank( attributeDto.getValue(  ) ) &&
+                            attributeDto.getValue(  ).equals( entry.getKey(  ) ) )
                     {
                         bFound = true;
 
@@ -324,17 +433,46 @@ public class IdentityStoreRestService
 
         if ( identityDto.getAttributes(  ) != null )
         {
+            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
+                        strClientAppCode ) );
+
             //check that all file attribute type provided with filename in dto have matching attachements  
-            for ( AttributeDto attribute : identityDto.getAttributes(  ) )
+            for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
             {
-                AttributeKey attributeKey = AttributeKeyHome.findByKey( attribute.getKey(  ) );
+                AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
+
+                if ( attributeKey == null )
+                {
+                    throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey(  ) +
+                        " is provided but does not exist" );
+                }
+
+                for ( AttributeRight attRight : lstRights )
+                {
+                    Attribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),
+                            attRight.getAttributeKey(  ).getKeyName(  ), strClientAppCode );
+
+                    if ( attRight.getAttributeKey(  ).getId(  ) == attributeKey.getId(  ) )
+                    {
+                        //if provided attribute is writable, or if no change => ok
+                        if ( attRight.isWritable(  ) || attributeDto.getValue(  ).equals( attribute.getValue(  ) ) )
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName(  ) +
+                                " is provided but is not writable" );
+                        }
+                    }
+                }
 
                 if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
-                        StringUtils.isNotBlank( attribute.getValue(  ) ) &&
-                        ( ( mapAttachedFiles == null ) || ( mapAttachedFiles.get( attribute.getValue(  ) ) == null ) ) )
+                        StringUtils.isNotBlank( attributeDto.getValue(  ) ) &&
+                        ( ( mapAttachedFiles == null ) || ( mapAttachedFiles.get( attributeDto.getValue(  ) ) == null ) ) )
                 {
                     throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName(  ) +
-                        " is provided with filename=" + attribute.getValue(  ) + " but no file is attached" );
+                        " is provided with filename=" + attributeDto.getValue(  ) + " but no file is attached" );
                 }
             }
         }
@@ -342,47 +480,22 @@ public class IdentityStoreRestService
 
     /**
      * check input parameters
-     * @param strConnectionId connection id of identity to update
-     * @param strClientAppCode client application code asking for modif
-     * @param strUserId user id which makes modification
      * @param strJsonContent json content of request
      * @return identityDto parsed identityDto
      * @throws AppException if request is not correct
+     * @throws IOException if error occurs while parsing json
+     * @throws JsonMappingException if error occurs while parsing json
+     * @throws JsonParseException if error occurs while parsing json
      *
      */
-    private IdentityDto getIdentityFromRequest( String strConnectionId, String strClientAppCode, String strUserId,
-        String strJsonContent ) throws AppException
+    private IdentityDto getIdentityFromJson( String strJsonContent )
+        throws AppException, JsonParseException, JsonMappingException, IOException
     {
-        if ( StringUtils.isBlank( strConnectionId ) )
-        {
-            throw new AppException( Constants.PARAM_ID_CONNECTION + " is missing" );
-        }
-
-        if ( StringUtils.isBlank( strClientAppCode ) )
-        {
-            throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
-        }
-
-        if ( StringUtils.isBlank( strUserId ) )
-        {
-            throw new AppException( Constants.PARAM_USER_ID + " is missing" );
-        }
-
-        //TODO check previous identities ?
-        //Identity identityPrevious = IdentityStoreService.getIdentity( strConnectionId, strClientAppCode );
-        IdentityDto identityDto = JsonIdentityParser.parse( strJsonContent );
+        IdentityDto identityDto = _objectMapper.readValue( strJsonContent, IdentityDto.class );
 
         if ( ( identityDto.getAttributes(  ) == null ) || ( identityDto.getAttributes(  ).size(  ) == 0 ) )
         {
             throw new AppException( "no attribute to update" );
-        }
-
-        for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
-        {
-            if ( !isWritable( attributeDto, strClientAppCode ) )
-            {
-                throw new AppException( attributeDto.getKey(  ) + " not writable" );
-            }
         }
 
         return identityDto;
@@ -403,7 +516,17 @@ public class IdentityStoreRestService
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
 
-        for ( AttributeDto attributeDto : identityDto.getAttributes(  ) )
+        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
+
+        if ( identity == null )
+        {
+            identity = new Identity(  );
+            identity.setConnectionId( identityDto.getConnectionId(  ) );
+            identity.setCustomerId( identityDto.getCustomerId(  ) );
+            IdentityHome.create( identity );
+        }
+
+        for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
         {
             File file = null;
             AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
@@ -424,54 +547,5 @@ public class IdentityStoreRestService
         response.setMessage( sb.substring( 0, sb.length(  ) - 1 ) );
 
         return response;
-    }
-
-    /**
-     * check if attribute is writable for provided client
-     * @param attributeDto attribute
-     * @param strClientAppCode client application code
-     * @return true if attribute is writable
-     */
-    private boolean isWritable( AttributeDto attributeDto, String strClientAppCode )
-    {
-        boolean isAuthorized = false;
-        List<AttributeRight> lstAppRight = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
-                    strClientAppCode ) );
-
-        for ( AttributeRight attrRight : lstAppRight )
-        {
-            if ( attrRight.getAttributeKey(  ).getKeyName(  ).equals( attributeDto.getKey(  ) ) &&
-                    attrRight.isWritable(  ) )
-            {
-                isAuthorized = true;
-
-                break;
-            }
-        }
-
-        return isAuthorized;
-    }
-
-    /**
-     * Gives the media type depending on the specified parameters
-     * @param accept the accepted format
-     * @param format the format
-     * @return the media type
-     */
-    protected String getMediaType( String accept, String format )
-    {
-        String strMediaType;
-
-        if ( ( ( accept != null ) && accept.contains( MediaType.APPLICATION_JSON ) ) ||
-                ( ( format != null ) && format.equals( Constants.MEDIA_TYPE_JSON ) ) )
-        {
-            strMediaType = MediaType.APPLICATION_JSON;
-        }
-        else
-        {
-            strMediaType = MediaType.APPLICATION_XML;
-        }
-
-        return strMediaType;
     }
 }

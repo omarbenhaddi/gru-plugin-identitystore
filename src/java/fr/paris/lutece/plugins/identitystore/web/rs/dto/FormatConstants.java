@@ -31,20 +31,40 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.formatter;
+package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
 
 /**
- * Interface to format a REST response
+ * This class provides constants for formatting
  *
- * @param <T> the resource used to format the REST response
  */
-public interface IIdentityFormatter<T> extends fr.paris.lutece.plugins.rest.service.formatters.IFormatter<T>
+public final class FormatConstants
 {
+    public static final String KEY_IDENTITY = "identity";
+    public static final String KEY_ATTRIBUTES = "attributes";
+    public static final String KEY_ATTRIBUTE = "attribute";
+    public static final String KEY_ATTRIBUTE_KEY = "key";
+    public static final String KEY_ATTRIBUTE_VALUE = "value";
+    public static final String KEY_ATTRIBUTE_TYPE = "type";
+    public static final String KEY_ATTRIBUTE_WRITABLE = "readable";
+    public static final String KEY_ATTRIBUTE_READABLE = "writable";
+    public static final String KEY_ATTRIBUTE_CERTIFIABLE = "certifiable";
+    public static final String KEY_CONNECTION_ID = "connection_id";
+    public static final String KEY_CUSTOMER_ID = "customer_id";
+    public static final String KEY_ID = "id";
+    public static final String KEY_LABEL = "label";
+    public static final String KEY_ERRORS = "errors";
+    public static final String KEY_ERROR = "error";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_MESSAGE = "message";
+    public static final String KEY_RESPONSE = "response";
+    public static final int INDENT = 4;
+    public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+
     /**
-     * Formats the REST response by using the specified resource
-     * @param object the resource
-     * @return the formatting REST response
+     * Private constructor
      */
-    String formatResponse( T object );
+    private FormatConstants(  )
+    {
+    }
 }

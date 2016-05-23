@@ -42,10 +42,6 @@ public final class Constants
 {
     public static final String IDENTITY_PATH = "identity/";
     public static final String PLUGIN_PATH = "identitystore/";
-    public static final String ID_PATH = "id";
-    public static final String ALL_PATH = "s";
-    public static final String FORMAT_QUERY = "format";
-    public static final String MEDIA_TYPE_JSON = "json";
     public static final String PARAM_ID_CONNECTION = "connection_id";
     public static final String PARAM_CLIENT_CODE = "client_code";
     public static final String PARAM_USER_ID = "user_id";

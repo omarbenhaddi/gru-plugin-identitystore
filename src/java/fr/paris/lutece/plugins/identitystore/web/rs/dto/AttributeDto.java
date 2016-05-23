@@ -33,15 +33,26 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-import javax.xml.bind.annotation.XmlElement;
+import java.io.Serializable;
 
 
 /**
  *
  *
  */
+@JsonRootName( value = FormatConstants.KEY_ATTRIBUTES )
+@JsonPropertyOrder( {FormatConstants.KEY_ATTRIBUTE_KEY,
+    FormatConstants.KEY_ATTRIBUTE_TYPE,
+    FormatConstants.KEY_ATTRIBUTE_VALUE,
+    FormatConstants.KEY_ATTRIBUTE_READABLE,
+    FormatConstants.KEY_ATTRIBUTE_WRITABLE,
+    FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE
+} )
 public class AttributeDto implements Serializable
 {
     /**
@@ -51,10 +62,14 @@ public class AttributeDto implements Serializable
     private String _strKey;
     private String _strValue;
     private String _strType;
+    private boolean _bWritable;
+    private boolean _bReadable;
+    private boolean _bCertfiable;
 
     /**
      * @return the _strName
      */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_KEY )
     public String getKey(  )
     {
         return _strKey;
@@ -63,7 +78,7 @@ public class AttributeDto implements Serializable
     /**
      * @param strKey the strName to set
      */
-    @XmlElement
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_KEY )
     public void setKey( String strKey )
     {
         this._strKey = strKey;
@@ -72,6 +87,7 @@ public class AttributeDto implements Serializable
     /**
      * @return the _strValue
      */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_VALUE )
     public String getValue(  )
     {
         return _strValue;
@@ -80,7 +96,7 @@ public class AttributeDto implements Serializable
     /**
      * @param strValue the strValue to set
      */
-    @XmlElement
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_VALUE )
     public void setValue( String strValue )
     {
         this._strValue = strValue;
@@ -89,6 +105,7 @@ public class AttributeDto implements Serializable
     /**
      * @return the _strType
      */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_TYPE )
     public String getType(  )
     {
         return _strType;
@@ -97,8 +114,90 @@ public class AttributeDto implements Serializable
     /**
      * @param strType the _strType to set
      */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_TYPE )
     public void setType( String strType )
     {
         this._strType = strType;
+    }
+
+    /**
+     * @return the _bWritable
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_WRITABLE )
+    public boolean isWritable(  )
+    {
+        return _bWritable;
+    }
+
+    /**
+     * @return the _bWritable
+     */
+    @JsonIgnore
+    public boolean getWritable(  )
+    {
+        return _bWritable;
+    }
+
+    /**
+     * @param bWritable the bWritable to set
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_WRITABLE )
+    public void setWritable( boolean bWritable )
+    {
+        this._bWritable = bWritable;
+    }
+
+    /**
+     * @return the _bReadable
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_READABLE )
+    public boolean isReadable(  )
+    {
+        return _bReadable;
+    }
+
+    /**
+     * @return the _bReadable
+     */
+    @JsonIgnore
+    public boolean getReadable(  )
+    {
+        return _bReadable;
+    }
+
+    /**
+     * @param bReadable the bReadable to set
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_READABLE )
+    public void setReadable( boolean bReadable )
+    {
+        this._bReadable = bReadable;
+    }
+
+    /**
+     * @return the _bCertfiable
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE )
+    public boolean isCertfiable(  )
+    {
+        return _bCertfiable;
+    }
+
+    /**
+     * @return the _bCertfiable
+     */
+    @JsonIgnore
+    public boolean getCertfiable(  )
+    {
+        return _bCertfiable;
+    }
+
+    /**
+     * @param bCertfiable the bCertfiable to set
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE )
+    public void setCertfiable( boolean bCertfiable )
+    {
+        this._bCertfiable = bCertfiable;
     }
 }

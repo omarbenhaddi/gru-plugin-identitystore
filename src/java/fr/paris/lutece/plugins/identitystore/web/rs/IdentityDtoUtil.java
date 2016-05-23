@@ -35,12 +35,15 @@ package fr.paris.lutece.plugins.identitystore.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -48,38 +51,56 @@ import java.util.List;
  * class to help managing rest feature
  *
  */
-public final class IdentityRestUtil
+public final class IdentityDtoUtil
 {
     /**
      * private constructor
      */
-    private IdentityRestUtil(  )
+    private IdentityDtoUtil(  )
     {
     }
 
     /**
      * returns a identityDto initialized from provided identity
      * @param identity business identity to convert
+     * @param strClientAppCode client app code
      * @return identityDto initialized from provided identity
      */
-    public static IdentityDto convertToDto( Identity identity )
+    public static IdentityDto convertToDto( Identity identity, String strClientAppCode )
     {
         IdentityDto identityDto = new IdentityDto(  );
+        identityDto.setConnectionId( identity.getConnectionId(  ) );
+        identityDto.setCustomerId( identity.getCustomerId(  ) );
 
         if ( identity.getAttributes(  ) != null )
         {
-            List<AttributeDto> lstAttributeDto = new ArrayList<AttributeDto>(  );
+            Map<String, AttributeDto> mapAttributeDto = new HashMap<String, AttributeDto>(  );
+            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
+                        strClientAppCode ) );
 
-            for ( Attribute attribute : identity.getAttributes(  ) )
+            for ( Attribute attribute : identity.getAttributes(  ).values(  ) )
             {
                 AttributeDto attrDto = new AttributeDto(  );
                 attrDto.setKey( attribute.getKey(  ) );
                 attrDto.setValue( attribute.getValue(  ) );
                 attrDto.setType( AttributeKeyHome.findByKey( attribute.getKey(  ) ).getKeyType(  ).getCode(  ) );
-                lstAttributeDto.add( attrDto );
+
+                for ( AttributeRight attRight : lstRights )
+                {
+                    if ( attRight.getAttributeKey(  ).getKeyName(  ).equals( attribute.getKey(  ) ) )
+                    {
+                        attrDto.setReadable( attRight.isReadable(  ) );
+                        attrDto.setWritable( attRight.isWritable(  ) );
+                        attrDto.setCertfiable( attRight.isCertifiable(  ) );
+
+                        break;
+                    }
+                }
+
+                mapAttributeDto.put( attrDto.getKey(  ), attrDto );
             }
 
-            identityDto.setAttributes( lstAttributeDto );
+            identityDto.setAttributes( mapAttributeDto );
         }
 
         return identityDto;
