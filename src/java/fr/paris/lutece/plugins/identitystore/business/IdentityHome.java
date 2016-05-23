@@ -122,7 +122,7 @@ public final class IdentityHome
 
         if ( identity != null )
         {
-            identity.setAttributes( IdentityAttributeHome.getAttributesList( identity.getId(  ), strClientAppCode ) );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ), strClientAppCode ) );
         }
 
         return identity;

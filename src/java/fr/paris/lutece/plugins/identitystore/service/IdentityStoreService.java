@@ -56,6 +56,7 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /*
@@ -108,17 +109,26 @@ public final class IdentityStoreService
     }
 
     /**
+     * create identity
+     * @param identity  identity to create
+     */
+    public static void createIdentity( Identity identity )
+    {
+        IdentityHome.create( identity );
+    }
+
+    /**
      * returns attributes from connection id
      * @param strConnectionId  connection id
      * @return full attributes list for user identified by connection id
      */
-    public static List<Attribute> getAttributesByConnectionId( String strConnectionId )
+    public static Map<String, Attribute> getAttributesByConnectionId( String strConnectionId )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
 
         if ( identity != null )
         {
-            return IdentityAttributeHome.getAttributesList( identity.getId(  ) );
+            return IdentityAttributeHome.getAttributes( identity.getId(  ) );
         }
 
         return null;
@@ -130,13 +140,14 @@ public final class IdentityStoreService
      * @param strClientApplicationCode application code who requested attributes
      * @return attributes list according to application rights  for user identified by connection id
      */
-    public static List<Attribute> getAttributesByConnectionId( String strConnectionId, String strClientApplicationCode )
+    public static Map<String, Attribute> getAttributesByConnectionId( String strConnectionId,
+        String strClientApplicationCode )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
 
         if ( identity != null )
         {
-            return IdentityAttributeHome.getAttributesList( identity.getId(  ), strClientApplicationCode );
+            return IdentityAttributeHome.getAttributes( identity.getId(  ), strClientApplicationCode );
         }
 
         return null;

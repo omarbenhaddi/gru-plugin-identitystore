@@ -39,7 +39,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 
-import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.Size;
 
@@ -57,7 +57,7 @@ public class Identity implements Serializable
     private String _strConnectionId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
     private String _strCustomerId;
-    private List<Attribute> _lstAttributes;
+    private Map<String, Attribute> _mapAttributes;
 
     /**
      * Returns the Id
@@ -114,19 +114,19 @@ public class Identity implements Serializable
     }
 
     /**
-     * @return the _lstAttributes
+     * @return the _mapAttributes
      */
-    public List<Attribute> getAttributes(  )
+    public Map<String, Attribute> getAttributes(  )
     {
-        return _lstAttributes;
+        return _mapAttributes;
     }
 
     /**
-     * @param lstAttributes the lstAttributes to set
+     * @param mapAttributes the mapAttributes to set
      */
-    public void setAttributes( List<Attribute> lstAttributes )
+    public void setAttributes( Map<String, Attribute> mapAttributes )
     {
-        this._lstAttributes = lstAttributes;
+        this._mapAttributes = mapAttributes;
     }
 
     /**
@@ -137,19 +137,12 @@ public class Identity implements Serializable
     {
         String strFamilyName = StringUtils.EMPTY;
 
-        if ( _lstAttributes != null )
+        if ( ( _mapAttributes != null ) &&
+                ( _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) != null ) )
         {
-            for ( Attribute attribute : _lstAttributes )
-            {
-                if ( attribute.getKey(  )
-                                  .equals( AppPropertiesService.getProperty( 
-                                IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) )
-                {
-                    strFamilyName = attribute.getValue(  );
-
-                    break;
-                }
-            }
+            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ).getValue(  );
         }
 
         return strFamilyName;
@@ -163,19 +156,12 @@ public class Identity implements Serializable
     {
         String strGivenName = StringUtils.EMPTY;
 
-        if ( _lstAttributes != null )
+        if ( ( _mapAttributes != null ) &&
+                ( _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) != null ) )
         {
-            for ( Attribute attribute : _lstAttributes )
-            {
-                if ( attribute.getKey(  )
-                                  .equals( AppPropertiesService.getProperty( 
-                                IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) )
-                {
-                    strGivenName = attribute.getValue(  );
-
-                    break;
-                }
-            }
+            strGivenName = _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ).getValue(  );
         }
 
         return strGivenName;

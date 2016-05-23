@@ -33,59 +33,85 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import java.io.Serializable;
 
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 
 /**
  *
  *
  */
-@XmlRootElement
+@JsonRootName( value = FormatConstants.KEY_IDENTITY )
+@JsonPropertyOrder( {FormatConstants.KEY_CONNECTION_ID,
+    FormatConstants.KEY_CUSTOMER_ID,
+    FormatConstants.KEY_ATTRIBUTES
+} )
 public class IdentityDto implements Serializable
 {
     /**
      *
      */
     private static final long serialVersionUID = 1L;
-    private List<AttributeDto> _lstAttributes;
-    private String _clientAppCode;
+    private Map<String, AttributeDto> _mapAttributes;
+    private String _strConnectionId;
+    private String _strCustomerId;
 
     /**
-     * @return the _lstAttributes
+     * @return the _mapAttributes
      */
-    public List<AttributeDto> getAttributes(  )
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTES )
+    public Map<String, AttributeDto> getAttributes(  )
     {
-        return _lstAttributes;
+        return _mapAttributes;
     }
 
     /**
-     * @param lstAttributes the lstAttributes to set
+     * @param mapAttributes the lstAttributes to set
      */
-    @XmlElement
-    public void setAttributes( List<AttributeDto> lstAttributes )
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTES )
+    public void setAttributes( Map<String, AttributeDto> mapAttributes )
     {
-        this._lstAttributes = lstAttributes;
+        this._mapAttributes = mapAttributes;
     }
 
     /**
-     * @return the _clientAppCode
+     * @return the _connectionId
      */
-    public String getClientAppCode(  )
+    @JsonProperty( FormatConstants.KEY_CONNECTION_ID )
+    public String getConnectionId(  )
     {
-        return _clientAppCode;
+        return _strConnectionId;
     }
 
     /**
-     * @param clientAppCode the clientAppCode to set
+     * @param connectionId the connectionId to set
      */
-    @XmlElement
-    public void setClientAppCode( String clientAppCode )
+    @JsonProperty( FormatConstants.KEY_CONNECTION_ID )
+    public void setConnectionId( String connectionId )
     {
-        this._clientAppCode = clientAppCode;
+        this._strConnectionId = connectionId;
+    }
+
+    /**
+     * @return the _customerId
+     */
+    @JsonProperty( FormatConstants.KEY_CUSTOMER_ID )
+    public String getCustomerId(  )
+    {
+        return _strCustomerId;
+    }
+
+    /**
+     * @param strCustomerId the strCustomerId to set
+     */
+    @JsonProperty( FormatConstants.KEY_CUSTOMER_ID )
+    public void setCustomerId( String strCustomerId )
+    {
+        this._strCustomerId = strCustomerId;
     }
 }

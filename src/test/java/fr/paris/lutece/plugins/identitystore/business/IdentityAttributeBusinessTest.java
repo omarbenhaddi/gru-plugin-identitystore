@@ -80,7 +80,7 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
 
         // List test
-        IdentityAttributeHome.getAttributesList( 1 );
+        IdentityAttributeHome.getAttributes( 1 );
 
         // Delete test
         IdentityAttributeHome.remove( identityAttribute.getIdIdentity(  ), identityAttribute.getIdAttribute(  ) );

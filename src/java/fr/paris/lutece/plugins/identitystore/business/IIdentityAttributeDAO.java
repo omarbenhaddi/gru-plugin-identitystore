@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.identitystore.business;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
-import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -82,9 +82,9 @@ public interface IIdentityAttributeDAO
      * Load the data of all the identityAttribute objects and returns them as a list
      * @param nIdentityId The Identity ID
      * @param plugin the Plugin
-     * @return The list which contains the data of all the identityAttribute objects
+     * @return The map which contains the data of all the identityAttribute objects
      */
-    List<Attribute> selectAttributesList( int nIdentityId, Plugin plugin );
+    Map<String, Attribute> selectAttributes( int nIdentityId, Plugin plugin );
 
     /**
      * Load the data of all attributes for a given identity ID which are alowed for
@@ -92,9 +92,9 @@ public interface IIdentityAttributeDAO
      * @param nIdentityId The identity ID
      * @param strApplicationCode code of client application
      * @param plugin the Plugin
-     * @return the list which contains the data of all the identityAttribute objects
+     * @return the map which contains the data of all the identityAttribute objects
      */
-    List<Attribute> selectAttributesList( int nIdentityId, String strApplicationCode, Plugin plugin );
+    Map<String, Attribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin );
 
     /**
      * Load the data of all the identityAttribute objects and returns them as a referenceList

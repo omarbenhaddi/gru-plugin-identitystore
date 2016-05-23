@@ -40,7 +40,7 @@ import fr.paris.lutece.test.LuteceTestCase;
 
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -60,8 +60,8 @@ public class IdentityStoreServiceTest extends LuteceTestCase
         Identity identity = getIdentity(  );
         IdentityStoreService.setAttribute( identity.getConnectionId(  ), "email", "john.doe@nowhere.com", null, null );
 
-        List<Attribute> list = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
-        assertTrue( list.size(  ) == 1 );
+        Map<String, Attribute> map = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
+        assertTrue( map.size(  ) == 1 );
     }
 
     private Identity getIdentity(  )

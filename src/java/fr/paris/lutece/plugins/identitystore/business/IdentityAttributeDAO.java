@@ -38,8 +38,8 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -158,9 +158,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public List<Attribute> selectAttributesList( int nIdentityId, Plugin plugin )
+    public Map<String, Attribute> selectAttributes( int nIdentityId, Plugin plugin )
     {
-        List<Attribute> attributesList = new ArrayList<Attribute>(  );
+        Map<String, Attribute> attributesMap = new HashMap<String, Attribute>(  );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeQuery(  );
@@ -190,21 +190,21 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
 
-            attributesList.add( attribute );
+            attributesMap.put( attribute.getKey(  ), attribute );
         }
 
         daoUtil.free(  );
 
-        return attributesList;
+        return attributesMap;
     }
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public List<Attribute> selectAttributesList( int nIdentityId, String strApplicationCode, Plugin plugin )
+    public Map<String, Attribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin )
     {
-        List<Attribute> attributesList = new ArrayList<Attribute>(  );
+        Map<String, Attribute> attributesMap = new HashMap<String, Attribute>(  );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setString( 2, strApplicationCode );
@@ -235,12 +235,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
 
-            attributesList.add( attribute );
+            attributesMap.put( attribute.getKey(  ), attribute );
         }
 
         daoUtil.free(  );
 
-        return attributesList;
+        return attributesMap;
     }
 
     /**

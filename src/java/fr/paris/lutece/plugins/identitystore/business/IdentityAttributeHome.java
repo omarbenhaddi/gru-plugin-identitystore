@@ -33,13 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
-import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -110,20 +109,20 @@ public final class IdentityAttributeHome
      * @param strApplicationCode code of client application
      * @return the list which contains the data of all the identityAttribute objects
      */
-    public static List<Attribute> getAttributesList( int nIdentityId, String strApplicationCode )
+    public static Map<String, Attribute> getAttributes( int nIdentityId, String strApplicationCode )
     {
-        return _dao.selectAttributesList( nIdentityId, strApplicationCode, _plugin );
+        return _dao.selectAttributes( nIdentityId, strApplicationCode, _plugin );
     }
 
     /**
      * Load the data of all attributes for a given identity ID which are allowed for
      * the client application provided
      * @param nIdentityId The identity ID
-     * @return the list which contains the data of all the identityAttribute objects
+     * @return the map which contains the data of all the identityAttribute objects
      */
-    public static List<Attribute> getAttributesList( int nIdentityId )
+    public static Map<String, Attribute> getAttributes( int nIdentityId )
     {
-        return _dao.selectAttributesList( nIdentityId, _plugin );
+        return _dao.selectAttributes( nIdentityId, _plugin );
     }
 
     /**

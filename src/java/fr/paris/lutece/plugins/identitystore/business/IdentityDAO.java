@@ -117,7 +117,7 @@ public final class IdentityDAO implements IIdentityDAO
             identity.setId( daoUtil.getInt( nIndex++ ) );
             identity.setConnectionId( daoUtil.getString( nIndex++ ) );
             identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-            identity.setAttributes( IdentityAttributeHome.getAttributesList( identity.getId(  ) ) );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
         }
 
         daoUtil.free(  );
@@ -170,7 +170,7 @@ public final class IdentityDAO implements IIdentityDAO
             Identity identity = new Identity(  );
             identity = getIdentityFromQuery( daoUtil );
             identityList.add( identity );
-            identity.setAttributes( IdentityAttributeHome.getAttributesList( identity.getId(  ) ) );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
         }
 
         daoUtil.free(  );
@@ -210,7 +210,7 @@ public final class IdentityDAO implements IIdentityDAO
         if ( daoUtil.next(  ) )
         {
             identity = getIdentityFromQuery( daoUtil );
-            identity.setAttributes( IdentityAttributeHome.getAttributesList( identity.getId(  ) ) );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
         }
 
         daoUtil.free(  );
@@ -232,7 +232,7 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setId( daoUtil.getInt( nIndex++ ) );
         identity.setConnectionId( daoUtil.getString( nIndex++ ) );
         identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-        identity.setAttributes( IdentityAttributeHome.getAttributesList( identity.getId(  ) ) );
+        identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
 
         return identity;
     }
