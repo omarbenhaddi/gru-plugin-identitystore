@@ -13,7 +13,7 @@
             <th>Derni&egrave;re mise &agrave; jour</th>
             <th>Certification</th>
         </tr>    
-        <#list identity.attributes as attribute>
+        <#list identity.attributes?values as attribute>
         <tbody>
         <tr>
             <td> ${attribute.name} </td>
