@@ -411,7 +411,11 @@ public final class IdentityStoreRestService
                 for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
                 {
                     AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
-
+                    if ( attributeKey == null )
+                    {
+                        throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey(  ) +
+                            " is provided but does not exist" );
+                    }
                     //check that attribute is file type and that its name is matching 
                     if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
                             StringUtils.isNotBlank( attributeDto.getValue(  ) ) &&
@@ -440,13 +444,11 @@ public final class IdentityStoreRestService
             for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
             {
                 AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
-
                 if ( attributeKey == null )
                 {
                     throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey(  ) +
                         " is provided but does not exist" );
                 }
-
                 for ( AttributeRight attRight : lstRights )
                 {
                     Attribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),
