@@ -83,11 +83,12 @@ public final class IdentityHome
 
     /**
      * Remove the identity whose identifier is specified in parameter
-     * @param nKey The identity Id
+     * @param nIdentityId The identity Id
      */
-    public static void remove( int nKey )
+    public static void remove( int nIdentityId )
     {
-        _dao.delete( nKey, _plugin );
+        IdentityAttributeHome.removeAllAttributes( nIdentityId );
+        _dao.delete( nIdentityId, _plugin );
     }
 
     /**

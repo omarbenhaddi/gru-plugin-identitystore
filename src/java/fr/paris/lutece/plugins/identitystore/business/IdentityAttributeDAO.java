@@ -51,6 +51,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECT = "SELECT id_identity, id_attribute, attribute_value, id_certification, id_file FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ? ";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute ( id_identity, id_attribute, attribute_value, id_certification, id_file ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ?";
+    private static final String SQL_QUERY_DELETE_ALL_ATTR = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ?";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ? WHERE id_identity = ? AND id_attribute = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b" +
@@ -306,5 +307,15 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.free(  );
 
         return attribute;
+    }
+
+    @Override
+    public void deleteAllAttributes( int nIdentityId, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin );
+        daoUtil.setInt( 1, nIdentityId );
+        daoUtil.executeUpdate(  );
+        daoUtil.free(  );
+        
     }
 }

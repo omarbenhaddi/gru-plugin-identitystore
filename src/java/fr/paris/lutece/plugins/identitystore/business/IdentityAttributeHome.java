@@ -92,6 +92,15 @@ public final class IdentityAttributeHome
     }
 
     /**
+     * Remove all the identityAttribute of an identity
+     * @param nIdentityId The identity ID
+     */
+    public static void removeAllAttributes( int nIdentityId )
+    {
+        _dao.deleteAllAttributes( nIdentityId, _plugin );
+    }
+    
+    /**
      * Returns an instance of a identityAttribute whose identifier is specified in parameter
      * @param nIdentityId The identity ID
      * @param nAttributeId The Attribute ID
