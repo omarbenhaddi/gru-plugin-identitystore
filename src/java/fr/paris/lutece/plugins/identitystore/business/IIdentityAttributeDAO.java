@@ -113,12 +113,11 @@ public interface IIdentityAttributeDAO
      * @return the list which contains the data of all the identityAttribute objects
      */
     Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin );
-    
+
     /**
      * Delete all attributes matching the provided identityId
      * @param nIdentityId The identity ID
      * @param plugin the Plugin
      */
     void deleteAllAttributes( int nIdentityId, Plugin plugin );
-
 }

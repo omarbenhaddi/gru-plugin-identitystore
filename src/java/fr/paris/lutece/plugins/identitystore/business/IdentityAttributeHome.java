@@ -99,7 +99,7 @@ public final class IdentityAttributeHome
     {
         _dao.deleteAllAttributes( nIdentityId, _plugin );
     }
-    
+
     /**
      * Returns an instance of a identityAttribute whose identifier is specified in parameter
      * @param nIdentityId The identity ID

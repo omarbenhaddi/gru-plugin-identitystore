@@ -83,7 +83,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -411,11 +410,13 @@ public final class IdentityStoreRestService
                 for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
                 {
                     AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
+
                     if ( attributeKey == null )
                     {
                         throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey(  ) +
                             " is provided but does not exist" );
                     }
+
                     //check that attribute is file type and that its name is matching 
                     if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
                             StringUtils.isNotBlank( attributeDto.getValue(  ) ) &&
@@ -444,11 +445,13 @@ public final class IdentityStoreRestService
             for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
             {
                 AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
+
                 if ( attributeKey == null )
                 {
                     throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey(  ) +
                         " is provided but does not exist" );
                 }
+
                 for ( AttributeRight attRight : lstRights )
                 {
                     Attribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),

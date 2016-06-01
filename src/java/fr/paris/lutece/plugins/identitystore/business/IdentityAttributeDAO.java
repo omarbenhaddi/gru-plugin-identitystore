@@ -316,6 +316,5 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
-        
     }
 }
