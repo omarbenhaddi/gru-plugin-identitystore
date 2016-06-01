@@ -49,6 +49,7 @@ import java.io.Serializable;
 @JsonPropertyOrder( {FormatConstants.KEY_ATTRIBUTE_KEY,
     FormatConstants.KEY_ATTRIBUTE_TYPE,
     FormatConstants.KEY_ATTRIBUTE_VALUE,
+    FormatConstants.KEY_ATTRIBUTE_CERTIFIED,
     FormatConstants.KEY_ATTRIBUTE_READABLE,
     FormatConstants.KEY_ATTRIBUTE_WRITABLE,
     FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE
@@ -62,9 +63,10 @@ public class AttributeDto implements Serializable
     private String _strKey;
     private String _strValue;
     private String _strType;
+    private boolean _bCertified;
     private boolean _bWritable;
     private boolean _bReadable;
-    private boolean _bCertfiable;
+    private boolean _bCertifiable;
 
     /**
      * @return the _strName
@@ -175,29 +177,56 @@ public class AttributeDto implements Serializable
     }
 
     /**
-     * @return the _bCertfiable
-     */
-    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE )
-    public boolean isCertfiable(  )
-    {
-        return _bCertfiable;
-    }
-
-    /**
-     * @return the _bCertfiable
+     * @return the _bCertifiable
      */
     @JsonIgnore
     public boolean getCertfiable(  )
     {
-        return _bCertfiable;
+        return _bCertifiable;
     }
 
     /**
      * @param bCertfiable the bCertfiable to set
      */
     @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE )
-    public void setCertfiable( boolean bCertfiable )
+    public void setCertifiable( boolean bCertfiable )
     {
-        this._bCertfiable = bCertfiable;
+        this._bCertifiable = bCertfiable;
+    }
+
+    /**
+     * @return the _bCertifiable
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIABLE )
+    public boolean isCertifiable(  )
+    {
+        return _bCertifiable;
+    }
+
+    /**
+     * @return the _bCertified
+     */
+    @JsonIgnore
+    public boolean getCertified(  )
+    {
+        return _bCertified;
+    }
+
+    /**
+     * @param bCertified the bCertified to set
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIED )
+    public void setCertified( boolean bCertified )
+    {
+        this._bCertified = bCertified;
+    }
+
+    /**
+     * @return the _bCertified
+     */
+    @JsonProperty( FormatConstants.KEY_ATTRIBUTE_CERTIFIED )
+    public boolean isCertified(  )
+    {
+        return _bCertified;
     }
 }

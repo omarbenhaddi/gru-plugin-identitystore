@@ -49,6 +49,7 @@ public final class FormatConstants
     public static final String KEY_ATTRIBUTE_WRITABLE = "readable";
     public static final String KEY_ATTRIBUTE_READABLE = "writable";
     public static final String KEY_ATTRIBUTE_CERTIFIABLE = "certifiable";
+    public static final String KEY_ATTRIBUTE_CERTIFIED = "certified";
     public static final String KEY_CONNECTION_ID = "connection_id";
     public static final String KEY_CUSTOMER_ID = "customer_id";
     public static final String KEY_ID = "id";

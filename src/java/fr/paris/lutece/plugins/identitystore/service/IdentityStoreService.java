@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
+import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
@@ -248,7 +249,17 @@ public final class IdentityStoreService
             }
         }
 
-        if ( !bValueUnchanged )
+        AttributeCertificate attributeCertifPrev = null;
+
+        if ( attribute.getIdCertificate(  ) != 0 )
+        {
+            attributeCertifPrev = AttributeCertificateHome.findByPrimaryKey( attribute.getIdCertificate(  ) );
+        }
+
+        //attribute value changed or new certification   
+        if ( !bValueUnchanged ||
+                ( ( certifier != null ) &&
+                ( ( attributeCertifPrev == null ) || ( certifier.getId(  ) != attributeCertifPrev.getIdCertifier(  ) ) ) ) )
         {
             if ( certifier != null )
             {
@@ -259,6 +270,14 @@ public final class IdentityStoreService
                 certificate.setCertificateLevel( 2 ); // FIXME 
                 AttributeCertificateHome.create( certificate );
                 attribute.setIdCertificate( certificate.getId(  ) );
+            }
+            else
+            {
+                if ( attributeCertifPrev != null )
+                {
+                    attribute.setIdCertificate( 0 );
+                    AttributeCertificateHome.remove( attributeCertifPrev.getId(  ) );
+                }
             }
 
             attribute.setAttributeValue( strValue );

@@ -91,7 +91,8 @@ public final class IdentityDtoUtil
                     {
                         attrDto.setReadable( attRight.isReadable(  ) );
                         attrDto.setWritable( attRight.isWritable(  ) );
-                        attrDto.setCertfiable( attRight.isCertifiable(  ) );
+                        attrDto.setCertifiable( attRight.isCertifiable(  ) );
+                        attrDto.setCertified( attribute.getCertificate(  ) != null );
 
                         break;
                     }
