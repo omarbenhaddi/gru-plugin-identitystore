@@ -45,13 +45,14 @@ public class AttributeChange
     public static final int TYPE_UPDATE = 1;
     public static final int TYPE_DELETE = 2;
 
+    // Variables declarations
+    private Timestamp _dateChange;
     // Variables declarations 
-    private Timestamp _DateChange;
     private String _strAuthorId;
     private String _strAuthorName;
     private String _strAuthorService;
     private int _nAuthorType;
-    private String _strIdentityId;
+    private String _strIdentityConnectionId;
     private String _strIdentityName;
     private String _strChangedKey;
     private String _strOldValue;
@@ -66,17 +67,18 @@ public class AttributeChange
      */
     public Timestamp getDateChange(  )
     {
-        return _DateChange;
+        return _dateChange;
     }
 
     /**
      * Sets the DateChange
      *
-     * @param DateChange The DateChange
+     * @param DateChange
+     *          The DateChange
      */
     public void setDateChange( Timestamp DateChange )
     {
-        _DateChange = DateChange;
+        _dateChange = DateChange;
     }
 
     /**
@@ -164,19 +166,20 @@ public class AttributeChange
      *
      * @return The IdentityId
      */
-    public String getIdentityId(  )
+    public String getIdentityConnectionId(  )
     {
-        return _strIdentityId;
+        return _strIdentityConnectionId;
     }
 
     /**
      * Sets the IdentityId
      *
-     * @param strIdentityId The IdentityId
+     * @param strIdentityId
+     *          The IdentityId
      */
-    public void setIdentityId( String strIdentityId )
+    public void setIdentityConnectionId( String strIdentityId )
     {
-        _strIdentityId = strIdentityId;
+        _strIdentityConnectionId = strIdentityId;
     }
 
     /**

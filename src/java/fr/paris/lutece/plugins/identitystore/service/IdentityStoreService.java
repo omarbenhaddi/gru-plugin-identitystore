@@ -231,6 +231,7 @@ public final class IdentityStoreService
         boolean bCreate = false;
 
         IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId(  ), attributeKey.getId(  ) );
+        String strAttrOldValue = StringUtils.EMPTY;
 
         if ( attribute == null )
         {
@@ -241,6 +242,7 @@ public final class IdentityStoreService
         }
         else
         {
+            strAttrOldValue = attribute.getAttributeValue(  );
             if ( attribute.getAttributeValue(  ).equals( strValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
             {
                 AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strValue +
@@ -263,11 +265,6 @@ public final class IdentityStoreService
         {
             if ( certifier != null )
             {
-                AttributeCertificate certificate = new AttributeCertificate(  );
-                certificate.setCertificateDate( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
-                certificate.setExpirationDate( new Timestamp( ( new Date(  ) ).getTime(  ) + 80000000000L ) ); // FIXME
-                certificate.setIdCertifier( certifier.getId(  ) );
-                certificate.setCertificateLevel( 2 ); // FIXME 
                 AttributeCertificateHome.create( certificate );
                 attribute.setIdCertificate( certificate.getId(  ) );
             }
@@ -309,26 +306,16 @@ public final class IdentityStoreService
                 }
             }
 
-            AttributeChange change = new AttributeChange(  );
-            change.setIdentityId( identity.getConnectionId(  ) );
-            change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
-            change.setChangedKey( strKey );
-            change.setNewValue( strValue );
-            change.setAuthorName( author.getUserName(  ) );
-            change.setAuthorId( author.getUserId(  ) );
-            change.setAuthorService( author.getApplication(  ) );
-            change.setAuthorType( author.getType(  ) );
-            change.setDateChange( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+            AttributeChange change = getAttributeChange( identity, strKey, strValue, strAttrOldValue, author,
+                    certificate, bCreate );
 
             if ( bCreate )
             {
                 IdentityAttributeHome.create( attribute );
-                change.setChangeType( AttributeChange.TYPE_CREATE );
             }
             else
             {
                 IdentityAttributeHome.update( attribute );
-                change.setChangeType( AttributeChange.TYPE_UPDATE );
             }
 
             notifyListeners( change );
@@ -336,6 +323,55 @@ public final class IdentityStoreService
     }
 
     /**
+     * create and return an AttributeChange from input params
+     *
+     * @param identity
+     *          modified identity
+     * @param strKey
+     *          attribute key which is modified
+     * @param strValue
+     *          attribute new value
+     * @param strOldValue
+     *          attribute old value
+     * @param author
+     *          author of change
+     * @param certificate
+     *          attribute certificate if it s a certification case
+     * @param bIsCreation
+     *          true if attribute is a new one, false if it s an update
+     * @return AttributeChange from input params
+     */
+    private static AttributeChange getAttributeChange( Identity identity, String strKey, String strValue,
+        String strOldValue, ChangeAuthor author, AttributeCertificate certificate, boolean bIsCreation )
+    {
+        AttributeChange change = new AttributeChange(  );
+        change.setIdentityConnectionId( identity.getConnectionId(  ) );
+        change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
+        change.setChangedKey( strKey );
+        change.setOldValue( strOldValue );
+        change.setNewValue( strValue );
+        change.setAuthorName( author.getUserName(  ) );
+        change.setAuthorId( author.getEmail(  ) );
+        change.setAuthorService( author.getApplication(  ) );
+        change.setAuthorType( author.getType(  ) );
+        change.setDateChange( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+
+        if ( certificate != null )
+        {
+            change.setCertifier( certificate.getCertifier(  ) );
+        }
+
+        if ( bIsCreation )
+        {
+            change.setChangeType( AttributeChange.TYPE_CREATE );
+        }
+        else
+        {
+            change.setChangeType( AttributeChange.TYPE_UPDATE );
+        }
+
+        return change;
+    }
      * Notify a change to all registered listeners
      * @param change The change
      */

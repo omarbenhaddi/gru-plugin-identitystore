@@ -155,4 +155,15 @@ public final class IdentityAttributeHome
     {
         return _dao.selectIdentityAttributesReferenceList( _plugin );
     }
+
+    /**
+     * add an attribute change event in history table
+     *
+     * @param attributeChange
+     *          attribute change event
+     */
+    public static void addAttributeChangeHistory( AttributeChange attributeChange )
+    {
+        _dao.addAttributeChangeHistory( attributeChange, _plugin );
+    }
 }

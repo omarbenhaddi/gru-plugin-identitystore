@@ -36,6 +36,7 @@ id_attribute int(11) NOT NULL default '0',
 attribute_value varchar(255) NOT NULL default '',
 id_certification int(11) NOT NULL default '0',
 id_file int(11) default '0',
+lastupdate_date timestamp NOT NULL default CURRENT_TIMESTAMP,
 PRIMARY KEY ( id_identity , id_attribute )
 );
 
@@ -65,7 +66,7 @@ id_attribute_certificate int(6) NOT NULL,
 id_certifier int(11) NOT NULL default '0',
 certificate_date timestamp NOT NULL,
 certificate_level int(11) NOT NULL default '0',
-expiration_date date NOT NULL,
+expiration_date timestamp,
 PRIMARY KEY (id_attribute_certificate)
 );
 
@@ -96,4 +97,24 @@ certifiable int(1) NOT NULL default '0',
 PRIMARY KEY (id_client_app, id_attribute)
 );
 
+--
+-- Structure for table identitystore_history_identity_attribute
+--
 
+DROP TABLE IF EXISTS identitystore_history_identity_attribute;
+CREATE TABLE identitystore_history_identity_attribute (
+id_history int(11) NOT NULL,
+change_type int(3) NOT NULL,
+identity_connection_id varchar(50) NOT NULL,
+identity_name varchar(50) NOT NULL default '',
+attribute_key varchar(50) NOT NULL default '',
+attribute_new_value varchar(255) NOT NULL default '',
+attribute_old_value varchar(255) NOT NULL default '',
+author_id varchar(255),
+author_email varchar(255),
+author_type int(2) NOT NULL,
+author_service varchar(255), 
+certifier_name varchar(255),
+modification_date timestamp NOT NULL default CURRENT_TIMESTAMP,
+PRIMARY KEY ( id_history )
+);

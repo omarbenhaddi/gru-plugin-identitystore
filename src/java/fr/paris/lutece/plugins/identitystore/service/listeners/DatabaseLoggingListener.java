@@ -31,92 +31,32 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service;
+package fr.paris.lutece.plugins.identitystore.service.listeners;
+
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
 
 
 /**
- * ChangeAuthor
+ * Database Logging Listener
  */
-public class ChangeAuthor
+public class DatabaseLoggingListener implements AttributeChangeListener
 {
-    // Variables declarations
-    private String _strApplication;
-    private String _strUserName;
-    private String _strEmail;
-    private int _nType;
+    private static final String SERVICE_NAME = "Database logging AttributeChangeListener";
 
     /**
-     * Returns the Application
-     * @return The Application
+     * {@inheritDoc }
      */
-    public String getApplication(  )
+    @Override
+    public void processAttributeChange( AttributeChange attributeChange )
     {
-        return _strApplication;
+        IdentityAttributeHome.addAttributeChangeHistory( attributeChange );
     }
 
-    /**
-     * Sets the Application
-     * @param strApplication The Application
-     */
-    public void setApplication( String strApplication )
+    @Override
+    public String getName(  )
     {
-        _strApplication = strApplication;
-    }
-
-    /**
-     * Returns the UserName
-     * @return The UserName
-     */
-    public String getUserName(  )
-    {
-        return _strUserName;
-    }
-
-    /**
-     * Sets the UserName
-     * @param strUserName The UserName
-     */
-    public void setUserName( String strUserName )
-    {
-        _strUserName = strUserName;
-    }
-
-    /**
-     * Returns the strEmail
-     *
-     * @return The strEmail
-     */
-    public String getEmail(  )
-    {
-        return _strEmail;
-    }
-
-    /**
-     * Sets the strEmail
-     *
-     * @param strEmail
-     *          The email
-     */
-    public void setEmail( String strEmail )
-    {
-        _strEmail = strEmail;
-    }
-
-    /**
-     * Returns the Type
-     * @return The Type
-     */
-    public int getType(  )
-    {
-        return _nType;
-    }
-
-    /**
-     * Sets the Type
-     * @param nType The Type
-     */
-    public void setType( int nType )
-    {
-        _nType = nType;
+        return SERVICE_NAME;
     }
 }

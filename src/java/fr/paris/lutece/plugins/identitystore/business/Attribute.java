@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.portal.business.file.File;
 
+import java.sql.Timestamp;
+
 
 /**
  * Attribute
@@ -48,6 +50,7 @@ public class Attribute
     private int _nLevel;
     private AttributeCertificate _certificate;
     private File _file;
+    private Timestamp _dateLastUpdateDate;
 
     /**
      * Returns the Key
@@ -153,5 +156,22 @@ public class Attribute
     public void setFile( File file )
     {
         this._file = file;
+    }
+
+    /**
+     * @return the _dateLastUpdateDate
+     */
+    public Timestamp getLastUpdateDate(  )
+    {
+        return _dateLastUpdateDate;
+    }
+
+    /**
+     * @param dateLastUpdateDate
+     *          the _dateLastUpdateDate to set
+     */
+    public void setLastUpdateDate( Timestamp dateLastUpdateDate )
+    {
+        this._dateLastUpdateDate = dateLastUpdateDate;
     }
 }

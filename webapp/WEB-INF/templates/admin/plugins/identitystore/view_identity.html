@@ -9,8 +9,9 @@
             <th>Attribut</th>
             <th>Code</th>
             <th>Valeur</th>
+			<th>Derni&egrave;re mise &agrave; jour</th>
             <th>Niveau de confiance</th>
-            <th>Derni&egrave;re mise &agrave; jour</th>
+            <th>Derni&egrave;re mise &agrave; jour du certificat</th>
             <th>Certification</th>
         </tr>    
         <#list identity.attributes?values as attribute>
@@ -19,6 +20,7 @@
             <td> ${attribute.name} </td>
             <td> ${attribute.key} </td>
             <td><strong> ${attribute.value} </strong></td>
+			<td><strong> ${attribute.lastUpdateDate!} </strong></td>
             <td>
                 <#if attribute.certificate ??>
                     <span class="badge">${attribute.certificate.certificateLevel}</span>
@@ -35,7 +37,7 @@
                 
                     <img src="image?resource_type=certifier_logo&amp;id=${attribute.certificate.idCertifier}" height="20" width="20">
                     <strong> ${attribute.certificate.certifier} </strong><br>
-                    <small>Date d'expiration : ${attribute.certificate.expirationDate}</small>
+                    <small>Date d'expiration : ${attribute.certificate.expirationDate!}</small>
                 </#if>
             </td>
         </tr>

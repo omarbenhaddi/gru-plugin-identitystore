@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -120,4 +121,14 @@ public interface IIdentityAttributeDAO
      * @param plugin the Plugin
      */
     void deleteAllAttributes( int nIdentityId, Plugin plugin );
+
+    /**
+     * add an historical change attribute entry
+     *
+     * @param attributeChange
+     *          attribute change desc object
+     * @param plugin
+     *          the Plugin
+     */
+    void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin );
 }
