@@ -54,6 +54,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity SET id_identity = ?, connection_id = ?, customer_id = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE connection_id = ?";
+    private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE customer_id = ?";
 
     /**
      * Generates a new primary key
@@ -218,6 +219,25 @@ public final class IdentityDAO implements IIdentityDAO
         return identity;
     }
 
+    @Override
+    public Identity selectByCustomerId( String strCustomerId, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CUSTOMER_ID, plugin );
+        daoUtil.setString( 1, strCustomerId );
+        daoUtil.executeQuery(  );
+
+        Identity identity = null;
+
+        if ( daoUtil.next(  ) )
+        {
+            identity = getIdentityFromQuery( daoUtil );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
+        }
+
+        daoUtil.free(  );
+
+        return identity;
+    }
     /**
      * return Identity object from select query
      * @param daoUtil daoUtil initialized with select query

@@ -180,7 +180,7 @@ public final class IdentityStoreService
      * @param strClientApplicationCode application code who requested identity
      * @return identity filled according to application rights  for user identified by connection id
      */
-    public static Identity getIdentity( String strConnectionId, String strClientApplicationCode )
+    public static Identity getIdentityByConnectionId( String strConnectionId, String strClientApplicationCode )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId, strClientApplicationCode );
 
@@ -193,6 +193,26 @@ public final class IdentityStoreService
     }
 
     /**
+     * returns identity from customer id
+     *
+     * @param strCustomerId
+     *          customer id
+     * @param strClientApplicationCode
+     *          application code who requested identity
+     * @return identity filled according to application rights for user identified
+     *         by connection id
+     */
+    public static Identity getIdentityByCustomerId( String strCustomerId, String strClientApplicationCode )
+    {
+        Identity identity = IdentityHome.findByCustomerId( strCustomerId, strClientApplicationCode );
+
+        if ( identity != null )
+        {
+            return identity;
+        }
+
+        return null;
+    }
      * Set an attribute value associated to an identity
      * @param strConnectionId The connection ID
      * @param strKey The key to set
@@ -216,7 +236,7 @@ public final class IdentityStoreService
      * @param certifier The certifier. May be null
      */
     public static void setAttribute( String strConnectionId, String strKey, String strValue, File file,
-        ChangeAuthor author, AttributeCertifier certifier )
+        ChangeAuthor author, AttributeCertificate certificate )
     {
         AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
         boolean bValueUnchanged = false;
@@ -258,12 +278,13 @@ public final class IdentityStoreService
             attributeCertifPrev = AttributeCertificateHome.findByPrimaryKey( attribute.getIdCertificate(  ) );
         }
 
-        //attribute value changed or new certification   
+        // attribute value changed or attribute has new certification
         if ( !bValueUnchanged ||
-                ( ( certifier != null ) &&
-                ( ( attributeCertifPrev == null ) || ( certifier.getId(  ) != attributeCertifPrev.getIdCertifier(  ) ) ) ) )
+                ( ( certificate != null ) &&
+                ( ( attributeCertifPrev == null ) ||
+                ( certificate.getIdCertifier(  ) != attributeCertifPrev.getIdCertifier(  ) ) ) ) )
         {
-            if ( certifier != null )
+            if ( certificate != null )
             {
                 AttributeCertificateHome.create( certificate );
                 attribute.setIdCertificate( certificate.getId(  ) );
@@ -279,31 +300,9 @@ public final class IdentityStoreService
 
             attribute.setAttributeValue( strValue );
 
-            //file attribute management
             if ( attributeKey.getKeyType(  ) == KeyType.FILE )
             {
-                if ( file != null )
-                {
-                    if ( attribute.getFile(  ) != null )
-                    {
-                        FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
-                    }
-
-                    file.setIdFile( FileHome.create( file ) );
-                    attribute.setFile( file );
-                    attribute.setAttributeValue( file.getTitle(  ) );
-                }
-                else
-                {
-                    // remove file
-                    if ( attribute.getFile(  ) != null )
-                    {
-                        FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
-                    }
-
-                    attribute.setFile( null );
-                    attribute.setAttributeValue( StringUtils.EMPTY );
-                }
+                handleFile( attribute, file );
             }
 
             AttributeChange change = getAttributeChange( identity, strKey, strValue, strAttrOldValue, author,
@@ -371,6 +370,40 @@ public final class IdentityStoreService
         }
 
         return change;
+    }
+    /**
+     * handle file param
+     *
+     * @param attribute
+     *          attribute describing file
+     * @param file
+     *          uploaded file
+     *
+     */
+    private static void handleFile( IdentityAttribute attribute, File file )
+    {
+        if ( file != null )
+        {
+            if ( attribute.getFile(  ) != null )
+            {
+                FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+            }
+
+            file.setIdFile( FileHome.create( file ) );
+            attribute.setFile( file );
+            attribute.setAttributeValue( file.getTitle(  ) );
+        }
+        else
+        {
+            // remove file
+            if ( attribute.getFile(  ) != null )
+            {
+                FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+            }
+
+            attribute.setFile( null );
+            attribute.setAttributeValue( StringUtils.EMPTY );
+        }
     }
      * Notify a change to all registered listeners
      * @param change The change

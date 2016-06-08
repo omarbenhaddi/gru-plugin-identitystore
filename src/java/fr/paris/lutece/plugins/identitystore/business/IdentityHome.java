@@ -130,6 +130,25 @@ public final class IdentityHome
     }
 
     /**
+     * Find by customer ID
+     *
+     * @param strCustomerId
+     *          The customer ID
+     * @param strClientAppCode
+     *          code of application client which requires infos
+     * @return The Identity
+     */
+    public static Identity findByCustomerId( String strCustomerId, String strClientAppCode )
+    {
+        Identity identity = _dao.selectByCustomerId( strCustomerId, _plugin );
+
+        if ( identity != null )
+        {
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ), strClientAppCode ) );
+        }
+
+        return identity;
+    }
      * Load the data of all the identity objects and returns them as a list
      * @return the list which contains the data of all the identity objects
      */

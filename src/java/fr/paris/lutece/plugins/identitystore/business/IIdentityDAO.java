@@ -97,4 +97,15 @@ public interface IIdentityDAO
      * @return The identity
      */
     Identity selectByConnectionId( String strConnectionId, Plugin plugin );
+
+    /**
+     * Find by customer ID
+     *
+     * @param strCustomerId
+     *          The customerID
+     * @param plugin
+     *          The plugin
+     * @return The identity
+     */
+    Identity selectByCustomerId( String strCustomerId, Plugin plugin );
 }
