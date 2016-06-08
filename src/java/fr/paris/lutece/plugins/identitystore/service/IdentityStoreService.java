@@ -36,8 +36,6 @@ package fr.paris.lutece.plugins.identitystore.service;
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
@@ -111,7 +109,9 @@ public final class IdentityStoreService
 
     /**
      * create identity
-     * @param identity  identity to create
+     *
+     * @param identity
+     *          identity to create
      */
     public static void createIdentity( Identity identity )
     {
@@ -120,7 +120,9 @@ public final class IdentityStoreService
 
     /**
      * returns attributes from connection id
-     * @param strConnectionId  connection id
+     *
+     * @param strConnectionId
+     *          connection id
      * @return full attributes list for user identified by connection id
      */
     public static Map<String, Attribute> getAttributesByConnectionId( String strConnectionId )
@@ -137,9 +139,13 @@ public final class IdentityStoreService
 
     /**
      * returns attributes from connection id
-     * @param strConnectionId  connection id
-     * @param strClientApplicationCode application code who requested attributes
-     * @return attributes list according to application rights  for user identified by connection id
+     *
+     * @param strConnectionId
+     *          connection id
+     * @param strClientApplicationCode
+     *          application code who requested attributes
+     * @return attributes list according to application rights for user identified
+     *         by connection id
      */
     public static Map<String, Attribute> getAttributesByConnectionId( String strConnectionId,
         String strClientApplicationCode )
@@ -156,10 +162,15 @@ public final class IdentityStoreService
 
     /**
      * returns attributes from connection id
-     * @param strConnectionId  connection id
-     * @param strAttributeKey attribute key
-     * @param strClientApplicationCode application code who requested attributes
-     * @return attributes list according to application rights  for user identified by connection id
+     *
+     * @param strConnectionId
+     *          connection id
+     * @param strAttributeKey
+     *          attribute key
+     * @param strClientApplicationCode
+     *          application code who requested attributes
+     * @return attributes list according to application rights for user identified
+     *         by connection id
      */
     public static Attribute getAttribute( String strConnectionId, String strAttributeKey,
         String strClientApplicationCode )
@@ -176,9 +187,13 @@ public final class IdentityStoreService
 
     /**
      * returns identity from connection id
-     * @param strConnectionId  connection id
-     * @param strClientApplicationCode application code who requested identity
-     * @return identity filled according to application rights  for user identified by connection id
+     *
+     * @param strConnectionId
+     *          connection id
+     * @param strClientApplicationCode
+     *          application code who requested identity
+     * @return identity filled according to application rights for user identified
+     *         by connection id
      */
     public static Identity getIdentityByConnectionId( String strConnectionId, String strClientApplicationCode )
     {
@@ -213,27 +228,42 @@ public final class IdentityStoreService
 
         return null;
     }
+
+    /**
      * Set an attribute value associated to an identity
-     * @param strConnectionId The connection ID
-     * @param strKey The key to set
-     * @param strValue The value
-     * @param author The author of the change
-     * @param certifier The certifier. May be null
+     *
+     * @param strConnectionId
+     *          The connection ID
+     * @param strKey
+     *          The key to set
+     * @param strValue
+     *          The value
+     * @param author
+     *          The author of the change
+     * @param certificate
+     *          The certificate. May be null
      */
     public static void setAttribute( String strConnectionId, String strKey, String strValue, ChangeAuthor author,
-        AttributeCertifier certifier )
+        AttributeCertificate certificate )
     {
-        setAttribute( strConnectionId, strKey, strValue, null, author, certifier );
+        setAttribute( strConnectionId, strKey, strValue, null, author, certificate );
     }
 
     /**
      * Set an attribute value associated to an identity
-     * @param strConnectionId The connection ID
-     * @param strKey The key to set
-     * @param strValue The value
-     * @param file  file to upload, null if attribute type is not file
-     * @param author The author of the change
-     * @param certifier The certifier. May be null
+     *
+     * @param strConnectionId
+     *          The connection ID
+     * @param strKey
+     *          The key to set
+     * @param strValue
+     *          The value
+     * @param file
+     *          file to upload, null if attribute type is not file
+     * @param author
+     *          The author of the change
+     * @param certificate
+     *          The certificate. May be null
      */
     public static void setAttribute( String strConnectionId, String strKey, String strValue, File file,
         ChangeAuthor author, AttributeCertificate certificate )
@@ -263,6 +293,7 @@ public final class IdentityStoreService
         else
         {
             strAttrOldValue = attribute.getAttributeValue(  );
+
             if ( attribute.getAttributeValue(  ).equals( strValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
             {
                 AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strValue +
@@ -371,6 +402,7 @@ public final class IdentityStoreService
 
         return change;
     }
+
     /**
      * handle file param
      *
@@ -405,8 +437,12 @@ public final class IdentityStoreService
             attribute.setAttributeValue( StringUtils.EMPTY );
         }
     }
+
+    /**
      * Notify a change to all registered listeners
-     * @param change The change
+     *
+     * @param change
+     *          The change
      */
     private static void notifyListeners( AttributeChange change )
     {

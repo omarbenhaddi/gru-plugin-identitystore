@@ -58,7 +58,9 @@ public final class IdentityDAO implements IIdentityDAO
 
     /**
      * Generates a new primary key
-     * @param plugin The Plugin
+     *
+     * @param plugin
+     *          The Plugin
      * @return The new primary key
      */
     public int newPrimaryKey( Plugin plugin )
@@ -238,9 +240,12 @@ public final class IdentityDAO implements IIdentityDAO
 
         return identity;
     }
+
     /**
      * return Identity object from select query
-     * @param daoUtil daoUtil initialized with select query
+     *
+     * @param daoUtil
+     *          daoUtil initialized with select query
      * @return Identity load from result
      */
     private Identity getIdentityFromQuery( DAOUtil daoUtil )

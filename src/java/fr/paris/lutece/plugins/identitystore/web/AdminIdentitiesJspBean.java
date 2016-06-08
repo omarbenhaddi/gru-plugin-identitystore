@@ -63,17 +63,22 @@ public abstract class AdminIdentitiesJspBean extends MVCAdminJspBean
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
 
-    //Variables
+    // Variables
     private int _nDefaultItemsPerPage;
     private String _strCurrentPageIndex;
     private int _nItemsPerPage;
 
     /**
      * Return a model that contains the list and paginator infos
-     * @param request The HTTP request
-     * @param strBookmark The bookmark
-     * @param list The list of item
-     * @param strManageJsp The JSP
+     *
+     * @param request
+     *          The HTTP request
+     * @param strBookmark
+     *          The bookmark
+     * @param list
+     *          The list of item
+     * @param strManageJsp
+     *          The JSP
      * @return The model
      */
     protected Map<String, Object> getPaginatedListModel( HttpServletRequest request, String strBookmark, List list,

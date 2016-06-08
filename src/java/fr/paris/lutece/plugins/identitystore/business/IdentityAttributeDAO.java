@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -93,6 +94,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         return nKey;
     }
+
     /**
      * {@inheritDoc }
      */
@@ -334,6 +336,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             {
                 attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
+
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
         }
 

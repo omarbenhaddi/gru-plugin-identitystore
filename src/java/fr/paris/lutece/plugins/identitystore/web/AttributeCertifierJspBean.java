@@ -53,7 +53,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * This class provides the user interface to manage AttributeCertifier features ( manage, create, modify, remove )
+ * This class provides the user interface to manage AttributeCertifier features
+ * ( manage, create, modify, remove )
  */
 @Controller( controllerJsp = "ManageAttributeCertifiers.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
@@ -104,7 +105,9 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
 
     /**
      * Build the Manage View
-     * @param request The HTTP request
+     *
+     * @param request
+     *          The HTTP request
      * @return The page
      */
     @View( value = VIEW_MANAGE_ATTRIBUTECERTIFIERS, defaultView = true )
@@ -122,7 +125,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     /**
      * Returns the form to create a attributecertifier
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code of the attributecertifier form
      */
     @View( VIEW_CREATE_ATTRIBUTECERTIFIER )
@@ -139,7 +143,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     /**
      * Process the data capture form of a new attributecertifier
      *
-     * @param request The Http Request
+     * @param request
+     *          The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_ATTRIBUTECERTIFIER )
@@ -173,10 +178,11 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     }
 
     /**
-     * Manages the removal form of a attributecertifier whose identifier is in the http
-     * request
+     * Manages the removal form of a attributecertifier whose identifier is in the
+     * http request
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code to confirm
      */
     @Action( ACTION_CONFIRM_REMOVE_ATTRIBUTECERTIFIER )
@@ -195,7 +201,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     /**
      * Handles the removal form of a attributecertifier
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the jsp URL to display the form to manage attributecertifiers
      */
     @Action( ACTION_REMOVE_ATTRIBUTECERTIFIER )
@@ -211,7 +218,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     /**
      * Returns the form to update info about a attributecertifier
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The HTML form to update info
      */
     @View( VIEW_MODIFY_ATTRIBUTECERTIFIER )
@@ -233,7 +241,8 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     /**
      * Process the change form of a attributecertifier
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_MODIFY_ATTRIBUTECERTIFIER )

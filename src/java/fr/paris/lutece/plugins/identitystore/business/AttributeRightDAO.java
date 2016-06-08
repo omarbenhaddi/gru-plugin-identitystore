@@ -73,8 +73,11 @@ public final class AttributeRightDAO implements IAttributeRightDAO
 
     /**
      * returns AttributeRight from request results
-     * @param daoUtil daoUtil which contains results
-     * @param clientApp client application who requests rights
+     *
+     * @param daoUtil
+     *          daoUtil which contains results
+     * @param clientApp
+     *          client application who requests rights
      * @return AttributeRight
      */
     private AttributeRight getRightFromQuery( DAOUtil daoUtil, ClientApplication clientApp )

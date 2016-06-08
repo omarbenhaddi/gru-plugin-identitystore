@@ -43,7 +43,7 @@ import java.sql.Timestamp;
  */
 public class Attribute
 {
-    // Variables declarations 
+    // Variables declarations
     private String _strKey;
     private String _strName;
     private String _strValue;
@@ -54,6 +54,7 @@ public class Attribute
 
     /**
      * Returns the Key
+     *
      * @return The Key
      */
     public String getKey(  )
@@ -63,7 +64,9 @@ public class Attribute
 
     /**
      * Sets the Key
-     * @param strKey The Key
+     *
+     * @param strKey
+     *          The Key
      */
     public void setKey( String strKey )
     {
@@ -72,6 +75,7 @@ public class Attribute
 
     /**
      * Returns the Name
+     *
      * @return The Name
      */
     public String getName(  )
@@ -81,7 +85,9 @@ public class Attribute
 
     /**
      * Sets the Name
-     * @param strName The Name
+     *
+     * @param strName
+     *          The Name
      */
     public void setName( String strName )
     {
@@ -90,6 +96,7 @@ public class Attribute
 
     /**
      * Returns the Value
+     *
      * @return The Value
      */
     public String getValue(  )
@@ -99,7 +106,9 @@ public class Attribute
 
     /**
      * Sets the Value
-     * @param strValue The Value
+     *
+     * @param strValue
+     *          The Value
      */
     public void setValue( String strValue )
     {
@@ -108,6 +117,7 @@ public class Attribute
 
     /**
      * Returns the Level
+     *
      * @return The Level
      */
     public int getLevel(  )
@@ -117,7 +127,9 @@ public class Attribute
 
     /**
      * Sets the Level
-     * @param nLevel The Level
+     *
+     * @param nLevel
+     *          The Level
      */
     public void setLevel( int nLevel )
     {
@@ -126,6 +138,7 @@ public class Attribute
 
     /**
      * Returns the Certificate
+     *
      * @return The Certificate
      */
     public AttributeCertificate getCertificate(  )
@@ -135,7 +148,9 @@ public class Attribute
 
     /**
      * Sets the Certificate
-     * @param certificate The certificate
+     *
+     * @param certificate
+     *          The certificate
      */
     public void setCertificate( AttributeCertificate certificate )
     {
@@ -151,7 +166,8 @@ public class Attribute
     }
 
     /**
-     * @param file the file to set
+     * @param file
+     *          the file to set
      */
     public void setFile( File file )
     {

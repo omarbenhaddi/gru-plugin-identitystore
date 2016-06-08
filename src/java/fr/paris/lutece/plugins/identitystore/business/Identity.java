@@ -51,7 +51,7 @@ public class Identity implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
+    // Variables declarations
     private int _nId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.ConnectionId.size}" )
     private String _strConnectionId;
@@ -61,6 +61,7 @@ public class Identity implements Serializable
 
     /**
      * Returns the Id
+     *
      * @return The Id
      */
     public int getId(  )
@@ -70,7 +71,9 @@ public class Identity implements Serializable
 
     /**
      * Sets the Id
-     * @param nId The Id
+     *
+     * @param nId
+     *          The Id
      */
     public void setId( int nId )
     {
@@ -79,6 +82,7 @@ public class Identity implements Serializable
 
     /**
      * Returns the ConnectionId
+     *
      * @return The ConnectionId
      */
     public String getConnectionId(  )
@@ -88,7 +92,9 @@ public class Identity implements Serializable
 
     /**
      * Sets the ConnectionId
-     * @param strConnectionId The ConnectionId
+     *
+     * @param strConnectionId
+     *          The ConnectionId
      */
     public void setConnectionId( String strConnectionId )
     {
@@ -97,6 +103,7 @@ public class Identity implements Serializable
 
     /**
      * Returns the CustomerId
+     *
      * @return The CustomerId
      */
     public String getCustomerId(  )
@@ -106,7 +113,9 @@ public class Identity implements Serializable
 
     /**
      * Sets the CustomerId
-     * @param strCustomerId The CustomerId
+     *
+     * @param strCustomerId
+     *          The CustomerId
      */
     public void setCustomerId( String strCustomerId )
     {
@@ -122,7 +131,8 @@ public class Identity implements Serializable
     }
 
     /**
-     * @param mapAttributes the mapAttributes to set
+     * @param mapAttributes
+     *          the mapAttributes to set
      */
     public void setAttributes( Map<String, Attribute> mapAttributes )
     {
@@ -131,6 +141,7 @@ public class Identity implements Serializable
 
     /**
      * returns family name retrieve from attributes
+     *
      * @return familyName
      */
     public String getFamilyName(  )
@@ -150,6 +161,7 @@ public class Identity implements Serializable
 
     /**
      * returns given name retrieve from attributes
+     *
      * @return given name
      */
     public String getGivenName(  )

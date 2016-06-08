@@ -59,7 +59,8 @@ public class AttributeRight implements Serializable
     }
 
     /**
-     * @param clientApplication the clientApplication to set
+     * @param clientApplication
+     *          the clientApplication to set
      */
     public void setClientApplication( ClientApplication clientApplication )
     {
@@ -75,7 +76,8 @@ public class AttributeRight implements Serializable
     }
 
     /**
-     * @param bReadable the bReadable to set
+     * @param bReadable
+     *          the bReadable to set
      */
     public void setReadable( boolean bReadable )
     {
@@ -91,7 +93,8 @@ public class AttributeRight implements Serializable
     }
 
     /**
-     * @param bWritable the bWritable to set
+     * @param bWritable
+     *          the bWritable to set
      */
     public void setWritable( boolean bWritable )
     {
@@ -107,7 +110,8 @@ public class AttributeRight implements Serializable
     }
 
     /**
-     * @param bCertifiable the bCertifiable to set
+     * @param bCertifiable
+     *          the bCertifiable to set
      */
     public void setCertifiable( boolean bCertifiable )
     {
@@ -123,7 +127,8 @@ public class AttributeRight implements Serializable
     }
 
     /**
-     * @param attributeKey the attributeKey to set
+     * @param attributeKey
+     *          the attributeKey to set
      */
     public void setAttributeKey( AttributeKey attributeKey )
     {

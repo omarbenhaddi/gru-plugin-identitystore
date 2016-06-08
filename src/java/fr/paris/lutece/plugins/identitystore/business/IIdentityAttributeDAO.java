@@ -47,78 +47,115 @@ public interface IIdentityAttributeDAO
 {
     /**
      * Insert a new record in the table.
-     * @param identityAttribute instance of the IdentityAttribute object to insert
-     * @param plugin the Plugin
+     *
+     * @param identityAttribute
+     *          instance of the IdentityAttribute object to insert
+     * @param plugin
+     *          the Plugin
      */
     void insert( IdentityAttribute identityAttribute, Plugin plugin );
 
     /**
      * Update the record in the table
-     * @param identityAttribute the reference of the IdentityAttribute
-     * @param plugin the Plugin
+     *
+     * @param identityAttribute
+     *          the reference of the IdentityAttribute
+     * @param plugin
+     *          the Plugin
      */
     void store( IdentityAttribute identityAttribute, Plugin plugin );
 
     /**
      * Delete a record from the table
-     * @param nIdentityId The identity ID
-     * @param nAttributeId The Attribute ID
-     * @param plugin the Plugin
+     *
+     * @param nIdentityId
+     *          The identity ID
+     * @param nAttributeId
+     *          The Attribute ID
+     * @param plugin
+     *          the Plugin
      */
     void delete( int nIdentityId, int nAttributeId, Plugin plugin );
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Load the data from the table
-     * @param nIdentityId The identity ID
-     * @param nAttributeId The Attribute ID
-     * @param plugin the Plugin
+     *
+     * @param nIdentityId
+     *          The identity ID
+     * @param nAttributeId
+     *          The Attribute ID
+     * @param plugin
+     *          the Plugin
      * @return The instance of the identityAttribute
      */
     IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin );
 
     /**
-     * Load the data of all the identityAttribute objects and returns them as a list
-     * @param nIdentityId The Identity ID
-     * @param plugin the Plugin
-     * @return The map which contains the data of all the identityAttribute objects
+     * Load the data of all the identityAttribute objects and returns them as a
+     * list
+     *
+     * @param nIdentityId
+     *          The Identity ID
+     * @param plugin
+     *          the Plugin
+     * @return The map which contains the data of all the identityAttribute
+     *         objects
      */
     Map<String, Attribute> selectAttributes( int nIdentityId, Plugin plugin );
 
     /**
-     * Load the data of all attributes for a given identity ID which are alowed for
-     * the client application provided
-     * @param nIdentityId The identity ID
-     * @param strApplicationCode code of client application
-     * @param plugin the Plugin
-     * @return the map which contains the data of all the identityAttribute objects
+     * Load the data of all attributes for a given identity ID which are alowed
+     * for the client application provided
+     *
+     * @param nIdentityId
+     *          The identity ID
+     * @param strApplicationCode
+     *          code of client application
+     * @param plugin
+     *          the Plugin
+     * @return the map which contains the data of all the identityAttribute
+     *         objects
      */
     Map<String, Attribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin );
 
     /**
-     * Load the data of all the identityAttribute objects and returns them as a referenceList
-     * @param plugin the Plugin
-     * @return The referenceList which contains the data of all the identityAttribute objects
+     * Load the data of all the identityAttribute objects and returns them as a
+     * referenceList
+     *
+     * @param plugin
+     *          the Plugin
+     * @return The referenceList which contains the data of all the
+     *         identityAttribute objects
      */
     ReferenceList selectIdentityAttributesReferenceList( Plugin plugin );
 
     /**
-     * Load the data of an attribute for a given identity ID and attribute key which is allowed for
-     * the client application provided
-     * @param nIdentityId The identity ID
-     * @param strApplicationCode code of client application
-     * @param strAttributeKey attribute key
-     * @param plugin the Plugin
-     * @return the list which contains the data of all the identityAttribute objects
+     * Load the data of an attribute for a given identity ID and attribute key
+     * which is allowed for the client application provided
+     *
+     * @param nIdentityId
+     *          The identity ID
+     * @param strApplicationCode
+     *          code of client application
+     * @param strAttributeKey
+     *          attribute key
+     * @param plugin
+     *          the Plugin
+     * @return the list which contains the data of all the identityAttribute
+     *         objects
      */
     Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin );
 
     /**
      * Delete all attributes matching the provided identityId
-     * @param nIdentityId The identity ID
-     * @param plugin the Plugin
+     *
+     * @param nIdentityId
+     *          The identity ID
+     * @param plugin
+     *          the Plugin
      */
     void deleteAllAttributes( int nIdentityId, Plugin plugin );
 

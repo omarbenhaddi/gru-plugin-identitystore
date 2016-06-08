@@ -50,7 +50,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * This class provides the user interface to manage AttributeKey features ( manage, create, modify, remove )
+ * This class provides the user interface to manage AttributeKey features (
+ * manage, create, modify, remove )
  */
 @Controller( controllerJsp = "ManageAttributeKeys.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class AttributeKeyJspBean extends AdminIdentitiesJspBean
@@ -102,7 +103,9 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
     /**
      * Build the Manage View
-     * @param request The HTTP request
+     *
+     * @param request
+     *          The HTTP request
      * @return The page
      */
     @View( value = VIEW_MANAGE_ATTRIBUTEKEYS, defaultView = true )
@@ -120,7 +123,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     /**
      * Returns the form to create a attributekey
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code of the attributekey form
      */
     @View( VIEW_CREATE_ATTRIBUTEKEY )
@@ -138,7 +142,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     /**
      * Process the data capture form of a new attributekey
      *
-     * @param request The Http Request
+     * @param request
+     *          The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_ATTRIBUTEKEY )
@@ -167,7 +172,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
      * Manages the removal form of a attributekey whose identifier is in the http
      * request
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code to confirm
      */
     @Action( ACTION_CONFIRM_REMOVE_ATTRIBUTEKEY )
@@ -186,7 +192,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     /**
      * Handles the removal form of a attributekey
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the jsp URL to display the form to manage attributekeys
      */
     @Action( ACTION_REMOVE_ATTRIBUTEKEY )
@@ -202,7 +209,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     /**
      * Returns the form to update info about a attributekey
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The HTML form to update info
      */
     @View( VIEW_MODIFY_ATTRIBUTEKEY )
@@ -225,7 +233,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     /**
      * Process the change form of a attributekey
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_MODIFY_ATTRIBUTEKEY )

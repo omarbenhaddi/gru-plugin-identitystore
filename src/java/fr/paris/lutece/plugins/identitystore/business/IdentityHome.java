@@ -42,7 +42,8 @@ import java.util.List;
 
 
 /**
- * This class provides instances management methods (create, find, ...) for Identity objects
+ * This class provides instances management methods (create, find, ...) for
+ * Identity objects
  */
 public final class IdentityHome
 {
@@ -59,8 +60,12 @@ public final class IdentityHome
 
     /**
      * Create an instance of the identity class
-     * @param identity The instance of the Identity which contains the informations to store
-     * @return The  instance of identity which has been created with its primary key.
+     *
+     * @param identity
+     *          The instance of the Identity which contains the informations to
+     *          store
+     * @return The instance of identity which has been created with its primary
+     *         key.
      */
     public static Identity create( Identity identity )
     {
@@ -71,8 +76,10 @@ public final class IdentityHome
 
     /**
      * Update of the identity which is specified in parameter
-     * @param identity The instance of the Identity which contains the data to store
-     * @return The instance of the  identity which has been updated
+     *
+     * @param identity
+     *          The instance of the Identity which contains the data to store
+     * @return The instance of the identity which has been updated
      */
     public static Identity update( Identity identity )
     {
@@ -83,7 +90,9 @@ public final class IdentityHome
 
     /**
      * Remove the identity whose identifier is specified in parameter
-     * @param nIdentityId The identity Id
+     *
+     * @param nIdentityId
+     *          The identity Id
      */
     public static void remove( int nIdentityId )
     {
@@ -92,8 +101,11 @@ public final class IdentityHome
     }
 
     /**
-     * Returns an instance of a identity whose identifier is specified in parameter
-     * @param nKey The identity primary key
+     * Returns an instance of a identity whose identifier is specified in
+     * parameter
+     *
+     * @param nKey
+     *          The identity primary key
      * @return an instance of Identity
      */
     public static Identity findByPrimaryKey( int nKey )
@@ -103,7 +115,9 @@ public final class IdentityHome
 
     /**
      * Find by connection ID
-     * @param strConnectionId The connection ID
+     *
+     * @param strConnectionId
+     *          The connection ID
      * @return The Identity
      */
     public static Identity findByConnectionId( String strConnectionId )
@@ -113,8 +127,11 @@ public final class IdentityHome
 
     /**
      * Find by connection ID
-     * @param strConnectionId The connection ID
-     * @param strClientAppCode code of application client which requires infos
+     *
+     * @param strConnectionId
+     *          The connection ID
+     * @param strClientAppCode
+     *          code of application client which requires infos
      * @return The Identity
      */
     public static Identity findByConnectionId( String strConnectionId, String strClientAppCode )
@@ -149,7 +166,10 @@ public final class IdentityHome
 
         return identity;
     }
+
+    /**
      * Load the data of all the identity objects and returns them as a list
+     *
      * @return the list which contains the data of all the identity objects
      */
     public static List<Identity> getIdentitysList(  )
@@ -158,8 +178,11 @@ public final class IdentityHome
     }
 
     /**
-     * Load the data of all the identity objects and returns them as a referenceList
-     * @return the referenceList which contains the data of all the identity objects
+     * Load the data of all the identity objects and returns them as a
+     * referenceList
+     *
+     * @return the referenceList which contains the data of all the identity
+     *         objects
      */
     public static ReferenceList getIdentitysReferenceList(  )
     {

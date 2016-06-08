@@ -47,7 +47,7 @@ public class AttributeCertifier implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
+    // Variables declarations
     private int _nId;
     @NotEmpty( message = "#i18n{identitystore.validation.attributecertifier.Name.notEmpty}" )
     @Size( max = 50, message = "#i18n{identitystore.validation.attributecertifier.Name.size}" )
@@ -63,6 +63,7 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Returns the Id
+     *
      * @return The Id
      */
     public int getId(  )
@@ -72,7 +73,9 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Sets the Id
-     * @param nId The Id
+     *
+     * @param nId
+     *          The Id
      */
     public void setId( int nId )
     {
@@ -81,6 +84,7 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Returns the Name
+     *
      * @return The Name
      */
     public String getName(  )
@@ -90,7 +94,9 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Sets the Name
-     * @param strName The Name
+     *
+     * @param strName
+     *          The Name
      */
     public void setName( String strName )
     {
@@ -99,6 +105,7 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Returns the Code
+     *
      * @return The Code
      */
     public String getCode(  )
@@ -108,7 +115,9 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Sets the Code
-     * @param strCode The Code
+     *
+     * @param strCode
+     *          The Code
      */
     public void setCode( String strCode )
     {
@@ -117,6 +126,7 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Returns the Description
+     *
      * @return The Description
      */
     public String getDescription(  )
@@ -126,7 +136,9 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Sets the Description
-     * @param strDescription The Description
+     *
+     * @param strDescription
+     *          The Description
      */
     public void setDescription( String strDescription )
     {
@@ -135,6 +147,7 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Returns the Logo
+     *
      * @return The Logo
      */
     public byte[] getLogo(  )
@@ -144,7 +157,9 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Sets the Logo
-     * @param logo The Logo
+     *
+     * @param logo
+     *          The Logo
      */
     public void setLogo( byte[] logo )
     {
@@ -153,6 +168,7 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Returns the LogoMimeType
+     *
      * @return The LogoMimeType
      */
     public String getLogoMimeType(  )
@@ -162,7 +178,9 @@ public class AttributeCertifier implements Serializable
 
     /**
      * Sets the LogoMimeType
-     * @param strLogoMimeType The LogoMimeType
+     *
+     * @param strLogoMimeType
+     *          The LogoMimeType
      */
     public void setLogoMimeType( String strLogoMimeType )
     {

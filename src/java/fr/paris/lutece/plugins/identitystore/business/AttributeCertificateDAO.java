@@ -59,7 +59,9 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 
     /**
      * Generates a new primary key
-     * @param plugin The Plugin
+     *
+     * @param plugin
+     *          The Plugin
      * @return The new primary key
      */
     public int newPrimaryKey( Plugin plugin )

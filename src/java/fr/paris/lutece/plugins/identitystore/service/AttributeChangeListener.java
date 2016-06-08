@@ -43,7 +43,9 @@ public interface AttributeChangeListener extends LuteceService
 {
     /**
      * Process an attribute change
-     * @param change The change
+     *
+     * @param change
+     *          The change
      */
     void processAttributeChange( AttributeChange change );
 }

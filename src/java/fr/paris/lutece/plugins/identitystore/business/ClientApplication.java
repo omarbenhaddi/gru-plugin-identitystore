@@ -49,7 +49,7 @@ public class ClientApplication implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
+    // Variables declarations
     private int _nId;
     @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Name.notEmpty}" )
     @Size( max = 50, message = "#i18n{identitystore.validation.clientapplication.Name.size}" )
@@ -63,6 +63,7 @@ public class ClientApplication implements Serializable
 
     /**
      * Returns the Id
+     *
      * @return The Id
      */
     public int getId(  )
@@ -72,7 +73,9 @@ public class ClientApplication implements Serializable
 
     /**
      * Sets the Id
-     * @param nId The Id
+     *
+     * @param nId
+     *          The Id
      */
     public void setId( int nId )
     {
@@ -81,6 +84,7 @@ public class ClientApplication implements Serializable
 
     /**
      * Returns the Name
+     *
      * @return The Name
      */
     public String getName(  )
@@ -90,7 +94,9 @@ public class ClientApplication implements Serializable
 
     /**
      * Sets the Name
-     * @param strName The Name
+     *
+     * @param strName
+     *          The Name
      */
     public void setName( String strName )
     {
@@ -99,6 +105,7 @@ public class ClientApplication implements Serializable
 
     /**
      * Returns the Code
+     *
      * @return The Code
      */
     public String getCode(  )
@@ -108,7 +115,9 @@ public class ClientApplication implements Serializable
 
     /**
      * Sets the Code
-     * @param strCode The Code
+     *
+     * @param strCode
+     *          The Code
      */
     public void setCode( String strCode )
     {
@@ -124,7 +133,8 @@ public class ClientApplication implements Serializable
     }
 
     /**
-     * @param strHash the _strHash to set
+     * @param strHash
+     *          the _strHash to set
      */
     public void setHash( String strHash )
     {

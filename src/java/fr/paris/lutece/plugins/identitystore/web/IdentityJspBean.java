@@ -58,7 +58,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * This class provides the user interface to manage Identity features ( manage, create, modify, remove )
+ * This class provides the user interface to manage Identity features ( manage,
+ * create, modify, remove )
  */
 @Controller( controllerJsp = "ManageIdentities.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class IdentityJspBean extends ManageIdentitiesJspBean
@@ -117,7 +118,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     /**
      * Build the Manage View
-     * @param request The HTTP request
+     *
+     * @param request
+     *          The HTTP request
      * @return The page
      */
     @View( value = VIEW_MANAGE_IDENTITYS, defaultView = true )
@@ -135,7 +138,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     /**
      * Returns the form to create a identity
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code of the identity form
      */
     @View( VIEW_CREATE_IDENTITY )
@@ -152,7 +156,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     /**
      * Process the data capture form of a new identity
      *
-     * @param request The Http Request
+     * @param request
+     *          The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_IDENTITY )
@@ -176,7 +181,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     /**
      * save firstname in attribute s table
-     * @param strFirstName firstname to save
+     *
+     * @param strFirstName
+     *          firstname to save
      */
     private void saveFirstNameAttribute( String strFirstName )
     {
@@ -189,7 +196,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     /**
      * save lastname in attribute s table
-     * @param strLastName lastname to save
+     *
+     * @param strLastName
+     *          lastname to save
      */
     private void saveLastNameAttribute( String strLastName )
     {
@@ -204,7 +213,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
      * Manages the removal form of a identity whose identifier is in the http
      * request
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code to confirm
      */
     @Action( ACTION_CONFIRM_REMOVE_IDENTITY )
@@ -223,7 +233,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     /**
      * Handles the removal form of a identity
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the jsp URL to display the form to manage identitys
      */
     @Action( ACTION_REMOVE_IDENTITY )
@@ -239,7 +250,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     /**
      * Returns the form to update info about a identity
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The HTML form to update info
      */
     @View( VIEW_MODIFY_IDENTITY )
@@ -261,7 +273,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     /**
      * Process the change form of a identity
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_MODIFY_IDENTITY )
@@ -285,7 +298,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     /**
      * view identity
-     * @param request http request
+     *
+     * @param request
+     *          http request
      * @return The HTML form to view info
      */
     @View( VIEW_IDENTITY )

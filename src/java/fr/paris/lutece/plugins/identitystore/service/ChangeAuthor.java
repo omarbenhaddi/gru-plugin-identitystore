@@ -47,6 +47,7 @@ public class ChangeAuthor
 
     /**
      * Returns the Application
+     *
      * @return The Application
      */
     public String getApplication(  )
@@ -56,7 +57,9 @@ public class ChangeAuthor
 
     /**
      * Sets the Application
-     * @param strApplication The Application
+     *
+     * @param strApplication
+     *          The Application
      */
     public void setApplication( String strApplication )
     {
@@ -65,6 +68,7 @@ public class ChangeAuthor
 
     /**
      * Returns the UserName
+     *
      * @return The UserName
      */
     public String getUserName(  )
@@ -74,7 +78,9 @@ public class ChangeAuthor
 
     /**
      * Sets the UserName
-     * @param strUserName The UserName
+     *
+     * @param strUserName
+     *          The UserName
      */
     public void setUserName( String strUserName )
     {
@@ -104,6 +110,7 @@ public class ChangeAuthor
 
     /**
      * Returns the Type
+     *
      * @return The Type
      */
     public int getType(  )
@@ -113,7 +120,9 @@ public class ChangeAuthor
 
     /**
      * Sets the Type
-     * @param nType The Type
+     *
+     * @param nType
+     *          The Type
      */
     public void setType( int nType )
     {

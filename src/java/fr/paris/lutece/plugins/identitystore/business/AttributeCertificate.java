@@ -45,7 +45,7 @@ public class AttributeCertificate implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
+    // Variables declarations
     private int _nId;
     private int _nIdCertifier;
     private String _strCertifier;
@@ -66,7 +66,8 @@ public class AttributeCertificate implements Serializable
     /**
      * Sets the Id
      *
-     * @param nId The Id
+     * @param nId
+     *          The Id
      */
     public void setId( int nId )
     {
@@ -86,7 +87,8 @@ public class AttributeCertificate implements Serializable
     /**
      * Sets the IdCertifier
      *
-     * @param nIdCertifier The IdCertifier
+     * @param nIdCertifier
+     *          The IdCertifier
      */
     public void setIdCertifier( int nIdCertifier )
     {
@@ -106,7 +108,8 @@ public class AttributeCertificate implements Serializable
     /**
      * Sets the CertificateDate
      *
-     * @param dateCertificateDate The CertificateDate
+     * @param dateCertificateDate
+     *          The CertificateDate
      */
     public void setCertificateDate( Timestamp dateCertificateDate )
     {
@@ -126,7 +129,8 @@ public class AttributeCertificate implements Serializable
     /**
      * Sets the CertificateLevel
      *
-     * @param nCertificateLevel The CertificateLevel
+     * @param nCertificateLevel
+     *          The CertificateLevel
      */
     public void setCertificateLevel( int nCertificateLevel )
     {
@@ -146,7 +150,8 @@ public class AttributeCertificate implements Serializable
     /**
      * Sets the ExpirationDate
      *
-     * @param dateExpirationDate The ExpirationDate
+     * @param dateExpirationDate
+     *          The ExpirationDate
      */
     public void setExpirationDate( Timestamp dateExpirationDate )
     {
@@ -166,7 +171,8 @@ public class AttributeCertificate implements Serializable
     /**
      * Sets the Certifier
      *
-     * @param strCertifier The Certifier
+     * @param strCertifier
+     *          The Certifier
      */
     public void setCertifier( String strCertifier )
     {

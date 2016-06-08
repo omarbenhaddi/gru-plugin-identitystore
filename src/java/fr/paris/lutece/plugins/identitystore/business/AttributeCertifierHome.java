@@ -42,7 +42,8 @@ import java.util.List;
 
 
 /**
- * This class provides instances management methods (create, find, ...) for AttributeCertifier objects
+ * This class provides instances management methods (create, find, ...) for
+ * AttributeCertifier objects
  */
 public final class AttributeCertifierHome
 {
@@ -59,8 +60,12 @@ public final class AttributeCertifierHome
 
     /**
      * Create an instance of the attributeCertifier class
-     * @param attributeCertifier The instance of the AttributeCertifier which contains the informations to store
-     * @return The  instance of attributeCertifier which has been created with its primary key.
+     *
+     * @param attributeCertifier
+     *          The instance of the AttributeCertifier which contains the
+     *          informations to store
+     * @return The instance of attributeCertifier which has been created with its
+     *         primary key.
      */
     public static AttributeCertifier create( AttributeCertifier attributeCertifier )
     {
@@ -71,8 +76,11 @@ public final class AttributeCertifierHome
 
     /**
      * Update of the attributeCertifier which is specified in parameter
-     * @param attributeCertifier The instance of the AttributeCertifier which contains the data to store
-     * @return The instance of the  attributeCertifier which has been updated
+     *
+     * @param attributeCertifier
+     *          The instance of the AttributeCertifier which contains the data to
+     *          store
+     * @return The instance of the attributeCertifier which has been updated
      */
     public static AttributeCertifier update( AttributeCertifier attributeCertifier )
     {
@@ -83,7 +91,9 @@ public final class AttributeCertifierHome
 
     /**
      * Remove the attributeCertifier whose identifier is specified in parameter
-     * @param nKey The attributeCertifier Id
+     *
+     * @param nKey
+     *          The attributeCertifier Id
      */
     public static void remove( int nKey )
     {
@@ -91,8 +101,11 @@ public final class AttributeCertifierHome
     }
 
     /**
-     * Returns an instance of a attributeCertifier whose identifier is specified in parameter
-     * @param nKey The attributeCertifier primary key
+     * Returns an instance of a attributeCertifier whose identifier is specified
+     * in parameter
+     *
+     * @param nKey
+     *          The attributeCertifier primary key
      * @return an instance of AttributeCertifier
      */
     public static AttributeCertifier findByPrimaryKey( int nKey )
@@ -101,8 +114,11 @@ public final class AttributeCertifierHome
     }
 
     /**
-     * Returns an instance of a attributeCertifier whose identifier is specified in parameter
-     * @param strCode The attributeCertifier code
+     * Returns an instance of a attributeCertifier whose identifier is specified
+     * in parameter
+     *
+     * @param strCode
+     *          The attributeCertifier code
      * @return an instance of AttributeCertifier
      */
     public static AttributeCertifier findByCode( String strCode )
@@ -111,8 +127,11 @@ public final class AttributeCertifierHome
     }
 
     /**
-     * Load the data of all the attributeCertifier objects and returns them as a list
-     * @return the list which contains the data of all the attributeCertifier objects
+     * Load the data of all the attributeCertifier objects and returns them as a
+     * list
+     *
+     * @return the list which contains the data of all the attributeCertifier
+     *         objects
      */
     public static List<AttributeCertifier> getAttributeCertifiersList(  )
     {
@@ -120,8 +139,11 @@ public final class AttributeCertifierHome
     }
 
     /**
-     * Load the id of all the attributeCertifier objects and returns them as a list
-     * @return the list which contains the id of all the attributeCertifier objects
+     * Load the id of all the attributeCertifier objects and returns them as a
+     * list
+     *
+     * @return the list which contains the id of all the attributeCertifier
+     *         objects
      */
     public static List<Integer> getIdAttributeCertifiersList(  )
     {
@@ -129,8 +151,11 @@ public final class AttributeCertifierHome
     }
 
     /**
-     * Load the data of all the attributeCertifier objects and returns them as a referenceList
-     * @return the referenceList which contains the data of all the attributeCertifier objects
+     * Load the data of all the attributeCertifier objects and returns them as a
+     * referenceList
+     *
+     * @return the referenceList which contains the data of all the
+     *         attributeCertifier objects
      */
     public static ReferenceList getAttributeCertifiersReferenceList(  )
     {

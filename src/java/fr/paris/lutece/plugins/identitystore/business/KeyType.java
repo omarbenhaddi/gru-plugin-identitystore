@@ -59,8 +59,11 @@ public enum KeyType
 
     /**
      * private constructor
-     * @param nId id
-     * @param strCode code
+     *
+     * @param nId
+     *          id
+     * @param strCode
+     *          code
      */
     KeyType( int nId, String strCode )
     {
@@ -78,6 +81,7 @@ public enum KeyType
 
     /**
      * returns id
+     *
      * @return id
      */
     public int getId(  )
@@ -87,6 +91,7 @@ public enum KeyType
 
     /**
      * returns code
+     *
      * @return code
      */
     public String getCode(  )
@@ -96,6 +101,7 @@ public enum KeyType
 
     /**
      * returns label
+     *
      * @return label
      */
     public String getDefaultLabel(  )
@@ -105,7 +111,9 @@ public enum KeyType
 
     /**
      * returns KeyType enum for id
-     * @param nId id of KeyType
+     *
+     * @param nId
+     *          id of KeyType
      * @return KeyType enum
      */
     public static KeyType valueOf( int nId )
@@ -115,7 +123,9 @@ public enum KeyType
 
     /**
      * returns level label
-     * @param locale the locale used to retrieve the localized messages
+     *
+     * @param locale
+     *          the locale used to retrieve the localized messages
      * @return the message
      */
     public String getLocalizedMessage( Locale locale )
@@ -125,7 +135,9 @@ public enum KeyType
 
     /**
      * Builds a RefenrenceList object containing all the SupportLevel objects
-     * @param locale the locale used to retrieve the localized messages
+     *
+     * @param locale
+     *          the locale used to retrieve the localized messages
      * @return the ReferenceList object
      */
     public static ReferenceList getReferenceList( Locale locale )

@@ -46,61 +46,86 @@ public interface IClientApplicationDAO
 {
     /**
      * Insert a new record in the table.
-     * @param clientApp instance of the ClientApplication object to insert
-     * @param plugin the Plugin
+     *
+     * @param clientApp
+     *          instance of the ClientApplication object to insert
+     * @param plugin
+     *          the Plugin
      */
     void insert( ClientApplication clientApp, Plugin plugin );
 
     /**
      * Update the record in the table
-     * @param clientApp the reference of the ClientApplication
-     * @param plugin the Plugin
+     *
+     * @param clientApp
+     *          the reference of the ClientApplication
+     * @param plugin
+     *          the Plugin
      */
     void store( ClientApplication clientApp, Plugin plugin );
 
     /**
      * Delete a record from the table
-     * @param nKey The identifier of the ClientApplication to delete
-     * @param plugin the Plugin
+     *
+     * @param nKey
+     *          The identifier of the ClientApplication to delete
+     * @param plugin
+     *          the Plugin
      */
     void delete( int nKey, Plugin plugin );
 
-    ///////////////////////////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////////////////////////
     // Finders
 
     /**
      * Load the data from the table
-     * @param nKey The identifier of the ClientApplication
-     * @param plugin the Plugin
+     *
+     * @param nKey
+     *          The identifier of the ClientApplication
+     * @param plugin
+     *          the Plugin
      * @return The instance of the ClientApplication
      */
     ClientApplication load( int nKey, Plugin plugin );
 
     /**
-     * Load the data of all the ClientApplication objects and returns them as a list
-     * @param plugin the Plugin
-     * @return The list which contains the data of all the ClientApplication objects
+     * Load the data of all the ClientApplication objects and returns them as a
+     * list
+     *
+     * @param plugin
+     *          the Plugin
+     * @return The list which contains the data of all the ClientApplication
+     *         objects
      */
     List<ClientApplication> selectClientApplicationList( Plugin plugin );
 
     /**
      * Load the id of all the ClientApplication objects and returns them as a list
-     * @param plugin the Plugin
+     *
+     * @param plugin
+     *          the Plugin
      * @return The list which contains the id of all the ClientApplication objects
      */
     List<Integer> selectIdClientApplicationList( Plugin plugin );
 
     /**
-     * Load the data of all the ClientApplication objects and returns them as a referenceList
-     * @param plugin the Plugin
-     * @return The referenceList which contains the data of all the ClientApplication objects
+     * Load the data of all the ClientApplication objects and returns them as a
+     * referenceList
+     *
+     * @param plugin
+     *          the Plugin
+     * @return The referenceList which contains the data of all the
+     *         ClientApplication objects
      */
     ReferenceList selectClientApplicationReferenceList( Plugin plugin );
 
     /**
      * Select a ClientApplication by its code
-     * @param strCode The code
-     * @param plugin The plugin
+     *
+     * @param strCode
+     *          The code
+     * @param plugin
+     *          The plugin
      * @return The ClientApplication
      */
     ClientApplication selectByCode( String strCode, Plugin plugin );

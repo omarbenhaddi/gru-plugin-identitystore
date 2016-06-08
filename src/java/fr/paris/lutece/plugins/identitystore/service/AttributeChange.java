@@ -47,7 +47,6 @@ public class AttributeChange
 
     // Variables declarations
     private Timestamp _dateChange;
-    // Variables declarations 
     private String _strAuthorId;
     private String _strAuthorName;
     private String _strAuthorService;
@@ -94,7 +93,8 @@ public class AttributeChange
     /**
      * Sets the AuthorId
      *
-     * @param strAuthorId The AuthorId
+     * @param strAuthorId
+     *          The AuthorId
      */
     public void setAuthorId( String strAuthorId )
     {
@@ -114,7 +114,8 @@ public class AttributeChange
     /**
      * Sets the AuthorName
      *
-     * @param strAuthorName The AuthorName
+     * @param strAuthorName
+     *          The AuthorName
      */
     public void setAuthorName( String strAuthorName )
     {
@@ -134,7 +135,8 @@ public class AttributeChange
     /**
      * Sets the AuthorService
      *
-     * @param strAuthorService The AuthorService
+     * @param strAuthorService
+     *          The AuthorService
      */
     public void setAuthorService( String strAuthorService )
     {
@@ -154,7 +156,8 @@ public class AttributeChange
     /**
      * Sets the AuthorType
      *
-     * @param nAuthorType The AuthorType
+     * @param nAuthorType
+     *          The AuthorType
      */
     public void setAuthorType( int nAuthorType )
     {
@@ -195,7 +198,8 @@ public class AttributeChange
     /**
      * Sets the IdentityName
      *
-     * @param strIdentityName The IdentityName
+     * @param strIdentityName
+     *          The IdentityName
      */
     public void setIdentityName( String strIdentityName )
     {
@@ -215,7 +219,8 @@ public class AttributeChange
     /**
      * Sets the ChangedKey
      *
-     * @param strChangedKey The ChangedKey
+     * @param strChangedKey
+     *          The ChangedKey
      */
     public void setChangedKey( String strChangedKey )
     {
@@ -235,7 +240,8 @@ public class AttributeChange
     /**
      * Sets the OldValue
      *
-     * @param strOldValue The OldValue
+     * @param strOldValue
+     *          The OldValue
      */
     public void setOldValue( String strOldValue )
     {
@@ -255,7 +261,8 @@ public class AttributeChange
     /**
      * Sets the NewValue
      *
-     * @param strNewValue The NewValue
+     * @param strNewValue
+     *          The NewValue
      */
     public void setNewValue( String strNewValue )
     {
@@ -275,7 +282,8 @@ public class AttributeChange
     /**
      * Sets the Certifier
      *
-     * @param strCertifier The Certifier
+     * @param strCertifier
+     *          The Certifier
      */
     public void setCertifier( String strCertifier )
     {
@@ -295,7 +303,8 @@ public class AttributeChange
     /**
      * Sets the ChangeType
      *
-     * @param nChangeType The ChangeType
+     * @param nChangeType
+     *          The ChangeType
      */
     public void setChangeType( int nChangeType )
     {

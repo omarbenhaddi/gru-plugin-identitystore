@@ -81,10 +81,12 @@ public class CertifierLogoService implements ImageResourceProvider
     }
 
     /**
-    * Return the Resource id
-    * @param nIdResource The resource identifier
-    * @return The Resource Image
-    */
+     * Return the Resource id
+     *
+     * @param nIdResource
+     *          The resource identifier
+     * @return The Resource Image
+     */
     @Override
     public ImageResource getImageResource( int nIdResource )
     {
@@ -104,6 +106,7 @@ public class CertifierLogoService implements ImageResourceProvider
 
     /**
      * Return the Resource Type id
+     *
      * @return The Resource Type Id
      */
     @Override
@@ -114,7 +117,9 @@ public class CertifierLogoService implements ImageResourceProvider
 
     /**
      * Management of the image associated to the {@link EntryUrl}
-     * @param nEntryUrl The {@link EntryUrl} identifier
+     *
+     * @param nEntryUrl
+     *          The {@link EntryUrl} identifier
      * @return The url of the resource
      */
     public static String getResourceImageEntryUrl( int nEntryUrl )

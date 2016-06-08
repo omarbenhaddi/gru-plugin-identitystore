@@ -47,7 +47,7 @@ public class AttributeKey implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // Variables declarations 
+    // Variables declarations
     private int _nId;
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Name.notEmpty}" )
     @Size( max = 50, message = "#i18n{identitystore.validation.attributekey.Name.size}" )
@@ -61,6 +61,7 @@ public class AttributeKey implements Serializable
 
     /**
      * Returns the Id
+     *
      * @return The Id
      */
     public int getId(  )
@@ -70,7 +71,9 @@ public class AttributeKey implements Serializable
 
     /**
      * Sets the Id
-     * @param nId The Id
+     *
+     * @param nId
+     *          The Id
      */
     public void setId( int nId )
     {
@@ -79,6 +82,7 @@ public class AttributeKey implements Serializable
 
     /**
      * Returns the Name
+     *
      * @return The Name
      */
     public String getName(  )
@@ -88,7 +92,9 @@ public class AttributeKey implements Serializable
 
     /**
      * Sets the Name
-     * @param strName The Name
+     *
+     * @param strName
+     *          The Name
      */
     public void setName( String strName )
     {
@@ -97,6 +103,7 @@ public class AttributeKey implements Serializable
 
     /**
      * Returns the KeyName
+     *
      * @return The KeyName
      */
     public String getKeyName(  )
@@ -106,7 +113,9 @@ public class AttributeKey implements Serializable
 
     /**
      * Sets the KeyName
-     * @param strKeyName The KeyName
+     *
+     * @param strKeyName
+     *          The KeyName
      */
     public void setKeyName( String strKeyName )
     {
@@ -115,6 +124,7 @@ public class AttributeKey implements Serializable
 
     /**
      * Returns the Description
+     *
      * @return The Description
      */
     public String getDescription(  )
@@ -124,7 +134,9 @@ public class AttributeKey implements Serializable
 
     /**
      * Sets the Description
-     * @param strDescription The Description
+     *
+     * @param strDescription
+     *          The Description
      */
     public void setDescription( String strDescription )
     {
@@ -133,6 +145,7 @@ public class AttributeKey implements Serializable
 
     /**
      * Returns the KeyType
+     *
      * @return The KeyType
      */
     public KeyType getKeyType(  )
@@ -142,7 +155,9 @@ public class AttributeKey implements Serializable
 
     /**
      * Sets the KeyType
-     * @param keyType The KeyType
+     *
+     * @param keyType
+     *          The KeyType
      */
     public void setKeyType( KeyType keyType )
     {

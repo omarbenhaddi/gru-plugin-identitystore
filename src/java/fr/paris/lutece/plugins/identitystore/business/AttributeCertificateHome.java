@@ -42,7 +42,8 @@ import java.util.List;
 
 
 /**
- * This class provides instances management methods (create, find, ...) for AttributeCertificate objects
+ * This class provides instances management methods (create, find, ...) for
+ * AttributeCertificate objects
  */
 public final class AttributeCertificateHome
 {
@@ -60,8 +61,12 @@ public final class AttributeCertificateHome
 
     /**
      * Create an instance of the attributeCertificate class
-     * @param attributeCertificate The instance of the AttributeCertificate which contains the informations to store
-     * @return The  instance of attributeCertificate which has been created with its primary key.
+     *
+     * @param attributeCertificate
+     *          The instance of the AttributeCertificate which contains the
+     *          informations to store
+     * @return The instance of attributeCertificate which has been created with
+     *         its primary key.
      */
     public static AttributeCertificate create( AttributeCertificate attributeCertificate )
     {
@@ -72,8 +77,11 @@ public final class AttributeCertificateHome
 
     /**
      * Update of the attributeCertificate which is specified in parameter
-     * @param attributeCertificate The instance of the AttributeCertificate which contains the data to store
-     * @return The instance of the  attributeCertificate which has been updated
+     *
+     * @param attributeCertificate
+     *          The instance of the AttributeCertificate which contains the data
+     *          to store
+     * @return The instance of the attributeCertificate which has been updated
      */
     public static AttributeCertificate update( AttributeCertificate attributeCertificate )
     {
@@ -84,7 +92,9 @@ public final class AttributeCertificateHome
 
     /**
      * Remove the attributeCertificate whose identifier is specified in parameter
-     * @param nKey The attributeCertificate Id
+     *
+     * @param nKey
+     *          The attributeCertificate Id
      */
     public static void remove( int nKey )
     {
@@ -92,8 +102,11 @@ public final class AttributeCertificateHome
     }
 
     /**
-     * Returns an instance of a attributeCertificate whose identifier is specified in parameter
-     * @param nKey The attributeCertificate primary key
+     * Returns an instance of a attributeCertificate whose identifier is specified
+     * in parameter
+     *
+     * @param nKey
+     *          The attributeCertificate primary key
      * @return an instance of AttributeCertificate
      */
     public static AttributeCertificate findByPrimaryKey( int nKey )
@@ -102,8 +115,11 @@ public final class AttributeCertificateHome
     }
 
     /**
-     * Load the data of all the attributeCertificate objects and returns them as a list
-     * @return the list which contains the data of all the attributeCertificate objects
+     * Load the data of all the attributeCertificate objects and returns them as a
+     * list
+     *
+     * @return the list which contains the data of all the attributeCertificate
+     *         objects
      */
     public static List<AttributeCertificate> getAttributeCertificatesList(  )
     {
@@ -111,8 +127,11 @@ public final class AttributeCertificateHome
     }
 
     /**
-     * Load the id of all the attributeCertificate objects and returns them as a list
-     * @return the list which contains the id of all the attributeCertificate objects
+     * Load the id of all the attributeCertificate objects and returns them as a
+     * list
+     *
+     * @return the list which contains the id of all the attributeCertificate
+     *         objects
      */
     public static List<Integer> getIdAttributeCertificatesList(  )
     {
@@ -120,8 +139,11 @@ public final class AttributeCertificateHome
     }
 
     /**
-     * Load the data of all the attributeCertificate objects and returns them as a referenceList
-     * @return the referenceList which contains the data of all the attributeCertificate objects
+     * Load the data of all the attributeCertificate objects and returns them as a
+     * referenceList
+     *
+     * @return the referenceList which contains the data of all the
+     *         attributeCertificate objects
      */
     public static ReferenceList getAttributeCertificatesReferenceList(  )
     {

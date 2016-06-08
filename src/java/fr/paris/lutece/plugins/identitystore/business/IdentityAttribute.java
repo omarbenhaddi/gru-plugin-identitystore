@@ -59,6 +59,7 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Returns the IdIdentity
+     *
      * @return The IdIdentity
      */
     public int getIdIdentity(  )
@@ -68,7 +69,9 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Sets the IdIdentity
-     * @param nIdIdentity The IdIdentity
+     *
+     * @param nIdIdentity
+     *          The IdIdentity
      */
     public void setIdIdentity( int nIdIdentity )
     {
@@ -77,6 +80,7 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Returns the IdAttribute
+     *
      * @return The IdAttribute
      */
     public int getIdAttribute(  )
@@ -86,7 +90,9 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Sets the IdAttribute
-     * @param nIdAttribute The IdAttribute
+     *
+     * @param nIdAttribute
+     *          The IdAttribute
      */
     public void setIdAttribute( int nIdAttribute )
     {
@@ -95,6 +101,7 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Returns the AttributeValue
+     *
      * @return The AttributeValue
      */
     public String getAttributeValue(  )
@@ -104,7 +111,9 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Sets the AttributeValue
-     * @param strAttributeValue The AttributeValue
+     *
+     * @param strAttributeValue
+     *          The AttributeValue
      */
     public void setAttributeValue( String strAttributeValue )
     {
@@ -113,6 +122,7 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Returns the IdCertification
+     *
      * @return The IdCertification
      */
     public int getIdCertificate(  )
@@ -122,7 +132,9 @@ public class IdentityAttribute implements Serializable
 
     /**
      * Sets the IdCertification
-     * @param nIdCertificate The IdCertification
+     *
+     * @param nIdCertificate
+     *          The IdCertification
      */
     public void setIdCertificate( int nIdCertificate )
     {
@@ -138,7 +150,8 @@ public class IdentityAttribute implements Serializable
     }
 
     /**
-     * @param file the file to set
+     * @param file
+     *          the file to set
      */
     public void setFile( File file )
     {

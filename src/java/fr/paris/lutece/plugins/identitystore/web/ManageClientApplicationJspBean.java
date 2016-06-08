@@ -53,7 +53,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * This class provides the user interface to manage ClientApplication management features ( manage, create, modify, remove )
+ * This class provides the user interface to manage ClientApplication management
+ * features ( manage, create, modify, remove )
  */
 @Controller( controllerJsp = "ManageClientApplications.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
@@ -109,7 +110,9 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
     /**
      * Build the Manage View
-     * @param request The HTTP request
+     *
+     * @param request
+     *          The HTTP request
      * @return The page
      */
     @View( value = VIEW_MANAGE_CLIENTAPPLICATIONS, defaultView = true )
@@ -127,7 +130,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     /**
      * Returns the form to create a clientapplication
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code of the clientapplication form
      */
     @View( VIEW_CREATE_CLIENTAPPLICATION )
@@ -146,7 +150,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     /**
      * Process the data capture form of a new clientapplication
      *
-     * @param request The Http Request
+     * @param request
+     *          The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_CLIENTAPPLICATION )
@@ -172,10 +177,11 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     }
 
     /**
-     * Manages the removal form of a clientapplication whose identifier is in the http
-     * request
+     * Manages the removal form of a clientapplication whose identifier is in the
+     * http request
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the html code to confirm
      */
     @Action( ACTION_CONFIRM_REMOVE_CLIENTAPPLICATION )
@@ -194,7 +200,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     /**
      * Handles the removal form of a clientapplication
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return the jsp URL to display the form to manage clientapplications
      */
     @Action( ACTION_REMOVE_CLIENTAPPLICATION )
@@ -210,7 +217,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     /**
      * Returns the form to update info about a clientapplication
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The HTML form to update info
      */
     @View( VIEW_MODIFY_CLIENTAPPLICATION )
@@ -234,7 +242,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     /**
      * Process the change form of a clientapplication
      *
-     * @param request The Http request
+     * @param request
+     *          The Http request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_MODIFY_CLIENTAPPLICATION )
@@ -249,10 +258,10 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
                 _clientApplication.getId(  ) );
         }
 
-        //remove all formers rights
+        // remove all formers rights
         ClientApplicationHome.removeApplicationRights( _clientApplication );
 
-        //add new ones
+        // add new ones
         List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( getAttributesRightsFromRequest( 
                     request ).values(  ) );
         ClientApplicationHome.addAttributeRights( lstAttributeRights );
@@ -265,7 +274,9 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
     /**
      * get AttributeRights to set from httprequest
-     * @param request http request
+     *
+     * @param request
+     *          http request
      * @return AttributeRights to set from httprequest
      */
     private Map<String, AttributeRight> getAttributesRightsFromRequest( HttpServletRequest request )
