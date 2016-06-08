@@ -44,10 +44,9 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
-import com.sun.jersey.multipart.FormDataParam;
 
 import fr.paris.lutece.plugins.identitystore.business.Attribute;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
+import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
@@ -59,8 +58,10 @@ import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.service.Constants;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
@@ -74,6 +75,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import java.nio.charset.StandardCharsets;
 
 import java.util.HashMap;
 import java.util.List;
@@ -112,31 +115,56 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * Gives Identity
-     * @param strConnectionId connection ID
-     * @param strClientAppCode client code
+     * Gives Identity from a connectionId or customerID either connectionId or
+     * customerId must be provided if connectionId AND customerId are provided,
+     * they must be consistent otherwise an AppException is thrown
+     *
+     * @param strConnectionId
+     *          connection ID
+     * @param strCustomerId
+     *          customerID
+     * @param strClientAppCode
+     *          client code
      * @return the identity
      */
     @GET
-    @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.APPLICATION_JSON )
-    public Response getAttributesByConnectionId( @QueryParam( Constants.PARAM_ID_CONNECTION )
-    String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
+    public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @QueryParam( Constants.PARAM_ID_CUSTOMER )
+    String strCustomerId, @QueryParam( Constants.PARAM_CLIENT_CODE )
     String strClientAppCode )
     {
         String strJsonResponse;
 
         try
         {
-            checkClientApplicationCode( strClientAppCode );
+            checkInputParams( strConnectionId, strCustomerId, strClientAppCode );
 
-            Identity identity = IdentityStoreService.getIdentity( strConnectionId, strClientAppCode );
+            Identity identity = null;
 
-            //TODO check if rule is correct
+            if ( StringUtils.isNotBlank( strConnectionId ) )
+            {
+                identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
+
+                if ( ( identity != null ) && StringUtils.isNotBlank( strCustomerId ) &&
+                        !strCustomerId.equals( identity.getCustomerId(  ) ) )
+                {
+                    throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId +
+                        ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" + " params provided " );
+                }
+            }
+            else
+            {
+                identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
+            }
+
+            // TODO check if rule is correct
             if ( identity == null )
             {
+                // no identity found
                 ResponseDto response = new ResponseDto(  );
-                response.setMessage( "no identity found for connectionId=" + strConnectionId );
+                response.setMessage( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId +
+                    ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
                 response.setStatus( String.valueOf( Status.NOT_FOUND ) );
 
                 String strResponse;
@@ -146,7 +174,7 @@ public final class IdentityStoreRestService
                                .build(  );
             }
 
-            strJsonResponse = _objectMapper.writeValueAsString( IdentityDtoUtil.convertToDto( identity, strClientAppCode ) );
+            strJsonResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
 
             return Response.ok( strJsonResponse ).build(  );
         }
@@ -157,37 +185,23 @@ public final class IdentityStoreRestService
     }
 
     /**
+     * update identity method
      *
-     * @param formParams form params, bodypars used for files upload
-     * @param strConnectionId connectionId
-     * @param strClientAppCode clientAppCode
-     * @param strUserId user Id
-     * @param strCertifierCode certifier code
+     * @param formParams
+     *          form params, bodypars used for files upload
      * @return http 200 if update is ok with ResponseDto
      */
     @POST
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response setAttributesByConnectionId( FormDataMultiPart formParams,
-        @FormDataParam( Constants.PARAM_ID_CONNECTION )
-    String strConnectionId, @FormDataParam( Constants.PARAM_CLIENT_CODE )
-    String strClientAppCode, @FormDataParam( Constants.PARAM_USER_ID )
-    String strUserId, @FormDataParam( Constants.PARAM_CERTIFIER_ID )
-    String strCertifierCode )
+    public Response updateIdentity( FormDataMultiPart formParams )
     {
-        IdentityDto identityDto = null;
+        IdentityChangeDto identityChangeDto = null;
         String strBody = StringUtils.EMPTY;
 
-        //TODO
-        ChangeAuthor author = null;
-        author = new ChangeAuthor(  );
-
         Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
-        AttributeCertifier certifier = null;
 
         try
         {
-            checkSetAttributeParams( strConnectionId, strClientAppCode, strUserId );
-
             for ( BodyPart part : formParams.getBodyParts(  ) )
             {
                 InputStream inputStream = part.getEntityAs( InputStream.class );
@@ -195,12 +209,13 @@ public final class IdentityStoreRestService
 
                 if ( contentDispo == null )
                 {
-                    //content-body of request
-                    strBody = IOUtils.toString( inputStream );
+                    // content-body of request
+                    strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString(  ) );
 
                     if ( JSONUtils.mayBeJSON( strBody ) )
                     {
-                        identityDto = getIdentityFromJson( strBody );
+                        identityChangeDto = getIdentityChangeFromJson( strBody );
+                        checkInputParams( identityChangeDto );
                     }
                     else
                     {
@@ -209,7 +224,7 @@ public final class IdentityStoreRestService
                 }
                 else if ( StringUtils.isNotBlank( contentDispo.getFileName(  ) ) )
                 {
-                    //attachment file
+                    // attachment file
                     PhysicalFile physicalFile = new PhysicalFile(  );
                     physicalFile.setValue( IOUtils.toByteArray( inputStream ) );
 
@@ -222,10 +237,12 @@ public final class IdentityStoreRestService
                 }
             }
 
-            checkAttributes( identityDto, strClientAppCode, mapAttachedFiles );
+            checkAttributes( identityChangeDto.getIdentity(  ), identityChangeDto.getAuthor(  ).getApplicationCode(  ),
+                mapAttachedFiles );
 
-            ResponseDto responseDto = updateAttributes( identityDto, strConnectionId, author, certifier,
-                    mapAttachedFiles );
+            ChangeAuthor author = DtoConverter.getAuthor( identityChangeDto.getAuthor(  ) );
+            ResponseDto responseDto = updateAttributes( identityChangeDto.getIdentity(  ),
+                    identityChangeDto.getIdentity(  ).getConnectionId(  ), author, mapAttachedFiles );
 
             String strResponse = _objectMapper.writeValueAsString( responseDto );
 
@@ -238,10 +255,15 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * returns requested file matching attributeKey / connectionId if application is authorized
-     * @param strConnectionId connectionId (must not be empty)
-     * @param strClientAppCode client application code (must not be empty)
-     * @param strAttributeKey attribute key containing file (must not be empty)
+     * returns requested file matching attributeKey / connectionId if application
+     * is authorized
+     *
+     * @param strConnectionId
+     *          connectionId (must not be empty)
+     * @param strClientAppCode
+     *          client application code (must not be empty)
+     * @param strAttributeKey
+     *          attribute key containing file (must not be empty)
      * @return http 200 Response containing requested file, http 400 otherwise
      */
     @GET
@@ -273,8 +295,11 @@ public final class IdentityStoreRestService
 
     /**
      * check that client application code exists in identitystore
-     * @param strClientCode client application code
-     * @throws AppException thrown if null
+     *
+     * @param strClientCode
+     *          client application code
+     * @throws AppException
+     *           thrown if null
      */
     private void checkClientApplicationCode( String strClientCode )
         throws AppException
@@ -289,17 +314,23 @@ public final class IdentityStoreRestService
 
     /**
      * check input parameters
-     * @param strConnectionId connection id of identity to update
-     * @param strClientAppCode client application code asking for modif
-     * @param strUserId user id which makes modification
-     * @throws AppException if request is not correct
+     *
+     * @param strConnectionId
+     *          connection id of identity to update
+     * @param strCustomerId
+     *          customerId
+     * @param strClientAppCode
+     *          client application code asking for modif
+     * @throws AppException
+     *           if request is not correct
      */
-    private void checkSetAttributeParams( String strConnectionId, String strClientAppCode, String strUserId )
+    private void checkInputParams( String strConnectionId, String strCustomerId, String strClientAppCode )
         throws AppException
     {
-        if ( StringUtils.isBlank( strConnectionId ) )
+        if ( StringUtils.isBlank( strConnectionId ) && StringUtils.isBlank( strCustomerId ) )
         {
-            throw new AppException( Constants.PARAM_ID_CONNECTION + " is missing" );
+            throw new AppException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER +
+                " are missing, at least one must be provided" );
         }
 
         if ( StringUtils.isBlank( strClientAppCode ) )
@@ -308,16 +339,32 @@ public final class IdentityStoreRestService
         }
 
         checkClientApplicationCode( strClientAppCode );
+    }
 
-        if ( StringUtils.isBlank( strUserId ) )
+    /**
+     * check input parameters
+     *
+     * @param identityChange
+     * @throws AppException
+     *           if request is not correct
+     */
+    private void checkInputParams( IdentityChangeDto identityChange )
+        throws AppException
+    {
+        if ( ( identityChange == null ) || ( identityChange.getIdentity(  ) == null ) )
         {
-            throw new AppException( Constants.PARAM_USER_ID + " is missing" );
+            throw new AppException( "Provided IdentityChange / Identity is null" );
         }
+
+        checkInputParams( identityChange.getIdentity(  ).getConnectionId(  ),
+            identityChange.getIdentity(  ).getCustomerId(  ), identityChange.getAuthor(  ).getApplicationCode(  ) );
     }
 
     /**
      * build error response from exception
-     * @param e exception
+     *
+     * @param e
+     *          exception
      * @return ResponseDto from exception
      */
     private Response getErrorResponse( Exception e )
@@ -341,10 +388,14 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * @param strConnectionId connectionId (must not be empty)
-     * @param strClientCode client application code (must not be empty)
-     * @param strAttributeKey attribute key containing file (must not be empty)
-     * @throws AppException thrown if input parameters are invalid or no file is found
+     * @param strConnectionId
+     *          connectionId (must not be empty)
+     * @param strClientCode
+     *          client application code (must not be empty)
+     * @param strAttributeKey
+     *          attribute key containing file (must not be empty)
+     * @throws AppException
+     *           thrown if input parameters are invalid or no file is found
      */
     private void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey )
         throws AppException
@@ -368,11 +419,16 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * @param strConnectionId connectionId (must not be empty)
-     * @param strClientCode client application code (must not be empty)
-     * @param strAttributeKey attribute key containing file (must not be empty)
-     * @return File matching connectionId/attribute key if readable for client application code
-     * @throws AppException thrown if input parameters are invalid or no file is found
+     * @param strConnectionId
+     *          connectionId (must not be empty)
+     * @param strClientCode
+     *          client application code (must not be empty)
+     * @param strAttributeKey
+     *          attribute key containing file (must not be empty)
+     * @return File matching connectionId/attribute key if readable for client
+     *         application code
+     * @throws AppException
+     *           thrown if input parameters are invalid or no file is found
      */
     private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey )
         throws AppException
@@ -390,19 +446,24 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * check attached files are present in identity Dto and that attributes to update
-     * exist and are writable (or not writable AND unchanged)
-     * @param identityDto identityDto with list of attributes
-     * @param strClientAppCode application code to check right
-     * @param mapAttachedFiles map of attached files
-     * @throws AppException thrown if provided attributes are not valid
+     * check attached files are present in identity Dto and that attributes to
+     * update exist and are writable (or not writable AND unchanged)
+     *
+     * @param identityDto
+     *          identityDto with list of attributes
+     * @param strClientAppCode
+     *          application code to check right
+     * @param mapAttachedFiles
+     *          map of attached files
+     * @throws AppException
+     *           thrown if provided attributes are not valid
      */
     private void checkAttributes( IdentityDto identityDto, String strClientAppCode, Map<String, File> mapAttachedFiles )
         throws AppException
     {
         if ( ( mapAttachedFiles != null ) && !mapAttachedFiles.isEmpty(  ) )
         {
-            //check if input files is present in identity DTO attributes
+            // check if input files is present in identity DTO attributes
             for ( Map.Entry<String, File> entry : mapAttachedFiles.entrySet(  ) )
             {
                 boolean bFound = false;
@@ -417,7 +478,7 @@ public final class IdentityStoreRestService
                             " is provided but does not exist" );
                     }
 
-                    //check that attribute is file type and that its name is matching 
+                    // check that attribute is file type and that its name is matching
                     if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
                             StringUtils.isNotBlank( attributeDto.getValue(  ) ) &&
                             attributeDto.getValue(  ).equals( entry.getKey(  ) ) )
@@ -441,7 +502,8 @@ public final class IdentityStoreRestService
             List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
                         strClientAppCode ) );
 
-            //check that all file attribute type provided with filename in dto have matching attachements  
+            // check that all file attribute type provided with filename in dto have
+            // matching attachements
             for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
             {
                 AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
@@ -459,7 +521,7 @@ public final class IdentityStoreRestService
 
                     if ( attRight.getAttributeKey(  ).getId(  ) == attributeKey.getId(  ) )
                     {
-                        //if provided attribute is writable, or if no change => ok
+                        // if provided attribute is writable, or if no change => ok
                         if ( attRight.isWritable(  ) || attributeDto.getValue(  ).equals( attribute.getValue(  ) ) )
                         {
                             break;
@@ -484,40 +546,51 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * check input parameters
-     * @param strJsonContent json content of request
-     * @return identityDto parsed identityDto
-     * @throws AppException if request is not correct
-     * @throws IOException if error occurs while parsing json
-     * @throws JsonMappingException if error occurs while parsing json
-     * @throws JsonParseException if error occurs while parsing json
+     * returns IdentityChangeDto from jsonContent
+     *
+     * @param strJsonContent
+     *          json content of request
+     * @return IdentityChangeDto parsed identityDto
+     * @throws AppException
+     *           if request is not correct
+     * @throws IOException
+     *           if error occurs while parsing json
+     * @throws JsonMappingException
+     *           if error occurs while parsing json
+     * @throws JsonParseException
+     *           if error occurs while parsing json
      *
      */
-    private IdentityDto getIdentityFromJson( String strJsonContent )
+    private IdentityChangeDto getIdentityChangeFromJson( String strJsonContent )
         throws AppException, JsonParseException, JsonMappingException, IOException
     {
-        IdentityDto identityDto = _objectMapper.readValue( strJsonContent, IdentityDto.class );
+        IdentityChangeDto identityChangeDto = _objectMapper.readValue( strJsonContent, IdentityChangeDto.class );
 
-        if ( ( identityDto.getAttributes(  ) == null ) || ( identityDto.getAttributes(  ).size(  ) == 0 ) )
+        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity(  ).getAttributes(  ) == null ) ||
+                ( identityChangeDto.getIdentity(  ).getAttributes(  ).size(  ) == 0 ) )
         {
             throw new AppException( "no attribute to update" );
         }
 
-        return identityDto;
+        return identityChangeDto;
     }
 
     /**
      * check if new identity attributes have errors and returns them
-     * @param identityDto new identity to update
-     * @param strConnectionId connectionId of identity which will be updated
-     * @param author author responsible for modification
-     * @param certifier certfier responsible for modification
-     * @param mapAttachedFiles map containing File matching key attribute name
+     *
+     * @param identityDto
+     *          new identity to update
+     * @param strConnectionId
+     *          connectionId of identity which will be updated
+     * @param author
+     *          author responsible for modification
+     * @param mapAttachedFiles
+     *          map containing File matching key attribute name
      * @return responseDto response containings updated fields
      *
      */
     private ResponseDto updateAttributes( IdentityDto identityDto, String strConnectionId, ChangeAuthor author,
-        AttributeCertifier certifier, Map<String, File> mapAttachedFiles )
+        Map<String, File> mapAttachedFiles )
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
 
@@ -542,8 +615,9 @@ public final class IdentityStoreRestService
                 file = mapAttachedFiles.get( attributeDto.getValue(  ) );
             }
 
+            AttributeCertificate certificate = DtoConverter.getCertificate( attributeDto.getCertificate(  ) );
             IdentityStoreService.setAttribute( strConnectionId, attributeDto.getKey(  ), attributeDto.getValue(  ),
-                file, author, certifier );
+                file, author, certificate );
             sb.append( attributeDto.getKey(  ) + "," );
         }
 
