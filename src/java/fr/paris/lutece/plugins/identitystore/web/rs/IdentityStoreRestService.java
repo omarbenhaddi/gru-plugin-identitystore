@@ -39,7 +39,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
@@ -67,7 +66,7 @@ import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
-
+import fr.paris.lutece.portal.service.util.AppLogService;
 import net.sf.json.util.JSONUtils;
 
 import org.apache.commons.io.IOUtils;
@@ -75,15 +74,14 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.nio.charset.StandardCharsets;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -125,6 +123,8 @@ public final class IdentityStoreRestService
      *          customerID
      * @param strClientAppCode
      *          client code
+     * @param strClientAppHash
+     *          client application hash
      * @return the identity
      */
     @GET
@@ -132,13 +132,13 @@ public final class IdentityStoreRestService
     public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION )
     String strConnectionId, @QueryParam( Constants.PARAM_ID_CUSTOMER )
     String strCustomerId, @QueryParam( Constants.PARAM_CLIENT_CODE )
-    String strClientAppCode )
-    {
+    String strClientAppCode, @HeaderParam( Constants.PARAM_CLIENT_APP_HASH ) 
+    String strClientAppHash )
+    {   
         String strJsonResponse;
-
         try
         {
-            checkInputParams( strConnectionId, strCustomerId, strClientAppCode );
+            checkInputParams( strConnectionId, strCustomerId, strClientAppCode, strClientAppHash );
 
             Identity identity = null;
 
@@ -158,15 +158,13 @@ public final class IdentityStoreRestService
                 identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
             }
 
-            // TODO check if rule is correct
+
             if ( identity == null )
             {
-                // no identity found
                 ResponseDto response = new ResponseDto(  );
                 response.setMessage( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId +
                     ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
                 response.setStatus( String.valueOf( Status.NOT_FOUND ) );
-
                 String strResponse;
                 strResponse = _objectMapper.writeValueAsString( response );
 
@@ -189,11 +187,14 @@ public final class IdentityStoreRestService
      *
      * @param formParams
      *          form params, bodypars used for files upload
+     * @param strClientAppHash
+     *          client application hash
      * @return http 200 if update is ok with ResponseDto
      */
     @POST
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response updateIdentity( FormDataMultiPart formParams )
+    public Response updateIdentity( FormDataMultiPart formParams , 
+            @HeaderParam( Constants.PARAM_CLIENT_APP_HASH ) String strClientAppHash )
     {
         IdentityChangeDto identityChangeDto = null;
         String strBody = StringUtils.EMPTY;
@@ -215,7 +216,7 @@ public final class IdentityStoreRestService
                     if ( JSONUtils.mayBeJSON( strBody ) )
                     {
                         identityChangeDto = getIdentityChangeFromJson( strBody );
-                        checkInputParams( identityChangeDto );
+                        checkInputParams( identityChangeDto, strClientAppHash );
                     }
                     else
                     {
@@ -264,6 +265,8 @@ public final class IdentityStoreRestService
      *          client application code (must not be empty)
      * @param strAttributeKey
      *          attribute key containing file (must not be empty)
+     * @param strClientAppHash
+     *          client application hash
      * @return http 200 Response containing requested file, http 400 otherwise
      */
     @GET
@@ -271,13 +274,14 @@ public final class IdentityStoreRestService
     public Response downloadFileAttribute( @QueryParam( Constants.PARAM_ID_CONNECTION )
     String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
     String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY )
-    String strAttributeKey )
+    String strAttributeKey, @HeaderParam( Constants.PARAM_CLIENT_APP_HASH ) 
+    String strClientAppHash )
     {
         File file = null;
 
         try
         {
-            checkDownloadFileAttributeParams( strConnectionId, strClientAppCode, strAttributeKey );
+            checkDownloadFileAttributeParams( strConnectionId, strClientAppCode, strAttributeKey, strClientAppHash );
             file = getFileAttribute( strConnectionId, strClientAppCode, strAttributeKey );
         }
         catch ( Exception exception )
@@ -298,10 +302,12 @@ public final class IdentityStoreRestService
      *
      * @param strClientCode
      *          client application code
+     * @param strClientAppHash
+     *          client application hash
      * @throws AppException
      *           thrown if null
      */
-    private void checkClientApplicationCode( String strClientCode )
+    private void checkClientApplication( String strClientCode, String strClientAppHash  )
         throws AppException
     {
         ClientApplication clientApp = ClientApplicationHome.findByCode( strClientCode );
@@ -309,6 +315,12 @@ public final class IdentityStoreRestService
         if ( clientApp == null )
         {
             throw new AppException( Constants.PARAM_CLIENT_CODE + " : " + strClientCode + " is unknown " );
+        }
+        if ( StringUtils.isEmpty( clientApp.getHash( ) ) || StringUtils.isEmpty( strClientAppHash ) 
+                || !strClientAppHash.equals( clientApp.getHash( ) ) )
+        {
+            AppLogService.debug( Constants.PARAM_CLIENT_APP_HASH + " is incorrect - provided=" + strClientAppHash +" expected=" + clientApp.getHash( ) );
+            throw new AppException( Constants.PARAM_CLIENT_APP_HASH + " is incorrect " );
         }
     }
 
@@ -321,10 +333,12 @@ public final class IdentityStoreRestService
      *          customerId
      * @param strClientAppCode
      *          client application code asking for modif
+     * @param strClientAppHash
+     *          client application hash
      * @throws AppException
      *           if request is not correct
      */
-    private void checkInputParams( String strConnectionId, String strCustomerId, String strClientAppCode )
+    private void checkInputParams( String strConnectionId, String strCustomerId, String strClientAppCode, String strClientAppHash )
         throws AppException
     {
         if ( StringUtils.isBlank( strConnectionId ) && StringUtils.isBlank( strCustomerId ) )
@@ -338,26 +352,32 @@ public final class IdentityStoreRestService
             throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
         }
 
-        checkClientApplicationCode( strClientAppCode );
+        checkClientApplication( strClientAppCode, strClientAppHash );
     }
 
     /**
      * check input parameters
      *
-     * @param identityChange
+     * @param identityChange identity change 
+     * @param strClientAppHash
+     *          client application hash
      * @throws AppException
      *           if request is not correct
      */
-    private void checkInputParams( IdentityChangeDto identityChange )
+    private void checkInputParams( IdentityChangeDto identityChange, String strClientAppHash )
         throws AppException
     {
         if ( ( identityChange == null ) || ( identityChange.getIdentity(  ) == null ) )
         {
             throw new AppException( "Provided IdentityChange / Identity is null" );
         }
+        if ( identityChange.getAuthor( ) == null )
+        {
+            throw new AppException( "Provided Author is null" );
+        }
 
         checkInputParams( identityChange.getIdentity(  ).getConnectionId(  ),
-            identityChange.getIdentity(  ).getCustomerId(  ), identityChange.getAuthor(  ).getApplicationCode(  ) );
+            identityChange.getIdentity(  ).getCustomerId(  ), identityChange.getAuthor(  ).getApplicationCode(  ), strClientAppHash );
     }
 
     /**
@@ -394,13 +414,15 @@ public final class IdentityStoreRestService
      *          client application code (must not be empty)
      * @param strAttributeKey
      *          attribute key containing file (must not be empty)
+     * @param strClientAppHash
+     *          client application hash
      * @throws AppException
      *           thrown if input parameters are invalid or no file is found
      */
-    private void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey )
+    private void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey, String strClientAppHash )
         throws AppException
     {
-        checkClientApplicationCode( strClientCode );
+        checkClientApplication( strClientCode, strClientAppHash );
 
         if ( StringUtils.isBlank( strConnectionId ) )
         {
