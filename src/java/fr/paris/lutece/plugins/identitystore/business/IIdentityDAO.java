@@ -122,11 +122,11 @@ public interface IIdentityDAO
     /**
      * Find by customer ID
      *
-     * @param strCustomerId
+     * @param nCustomerId
      *          The customerID
      * @param plugin
      *          The plugin
      * @return The identity
      */
-    Identity selectByCustomerId( String strCustomerId, Plugin plugin );
+    Identity selectByCustomerId( int nCustomerId, Plugin plugin );
 }

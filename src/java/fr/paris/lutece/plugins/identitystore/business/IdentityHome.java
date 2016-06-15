@@ -149,15 +149,15 @@ public final class IdentityHome
     /**
      * Find by customer ID
      *
-     * @param strCustomerId
+     * @param nCustomerId
      *          The customer ID
      * @param strClientAppCode
      *          code of application client which requires infos
      * @return The Identity
      */
-    public static Identity findByCustomerId( String strCustomerId, String strClientAppCode )
+    public static Identity findByCustomerId( int nCustomerId, String strClientAppCode )
     {
-        Identity identity = _dao.selectByCustomerId( strCustomerId, _plugin );
+        Identity identity = _dao.selectByCustomerId( nCustomerId, _plugin );
 
         if ( identity != null )
         {

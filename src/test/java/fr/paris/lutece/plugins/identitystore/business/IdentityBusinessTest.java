@@ -42,8 +42,8 @@ public class IdentityBusinessTest extends LuteceTestCase
 {
     private final static String CONNECTIONID1 = "ConnectionId1";
     private final static String CONNECTIONID2 = "ConnectionId2";
-    private final static String CUSTOMERID1 = "CustomerId1";
-    private final static String CUSTOMERID2 = "CustomerId2";
+    private final static int CUSTOMERID1 = 1;
+    private final static int CUSTOMERID2 = 2;
     private final static String GIVENNAME1 = "GivenName1";
     private final static String GIVENNAME2 = "GivenName2";
     private final static String FAMILYNAME1 = "FamilyName1";

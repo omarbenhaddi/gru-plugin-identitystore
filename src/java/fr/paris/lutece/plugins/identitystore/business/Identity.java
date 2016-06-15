@@ -56,7 +56,7 @@ public class Identity implements Serializable
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.ConnectionId.size}" )
     private String _strConnectionId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
-    private String _strCustomerId;
+    private int _nCustomerId;
     private Map<String, Attribute> _mapAttributes;
 
     /**
@@ -106,20 +106,20 @@ public class Identity implements Serializable
      *
      * @return The CustomerId
      */
-    public String getCustomerId(  )
+    public int getCustomerId(  )
     {
-        return _strCustomerId;
+        return _nCustomerId;
     }
 
     /**
      * Sets the CustomerId
      *
-     * @param strCustomerId
+     * @param nCustomerId
      *          The CustomerId
      */
-    public void setCustomerId( String strCustomerId )
+    public void setCustomerId( int nCustomerId )
     {
-        _strCustomerId = strCustomerId;
+        _nCustomerId = nCustomerId;
     }
 
     /**

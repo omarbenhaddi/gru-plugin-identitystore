@@ -5,9 +5,9 @@
 
 DROP TABLE IF EXISTS identitystore_identity;
 CREATE TABLE identitystore_identity (
-id_identity int(6) NOT NULL,
+id_identity int(11) NOT NULL,
 connection_id varchar(50) NULL,
-customer_id varchar(50) NULL,
+customer_id int (11) NULL,
 PRIMARY KEY (id_identity)
 );
 

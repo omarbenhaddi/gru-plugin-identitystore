@@ -210,16 +210,16 @@ public final class IdentityStoreService
     /**
      * returns identity from customer id
      *
-     * @param strCustomerId
+     * @param nCustomerId
      *          customer id
      * @param strClientApplicationCode
      *          application code who requested identity
      * @return identity filled according to application rights for user identified
      *         by connection id
      */
-    public static Identity getIdentityByCustomerId( String strCustomerId, String strClientApplicationCode )
+    public static Identity getIdentityByCustomerId( int nCustomerId, String strClientApplicationCode )
     {
-        Identity identity = IdentityHome.findByCustomerId( strCustomerId, strClientApplicationCode );
+        Identity identity = IdentityHome.findByCustomerId( nCustomerId, strClientApplicationCode );
 
         if ( identity != null )
         {
@@ -375,6 +375,7 @@ public final class IdentityStoreService
         String strOldValue, ChangeAuthor author, AttributeCertificate certificate, boolean bIsCreation )
     {
         AttributeChange change = new AttributeChange(  );
+        change.setIdentityId( identity.getId(  ) );
         change.setIdentityConnectionId( identity.getConnectionId(  ) );
         change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
         change.setChangedKey( strKey );
