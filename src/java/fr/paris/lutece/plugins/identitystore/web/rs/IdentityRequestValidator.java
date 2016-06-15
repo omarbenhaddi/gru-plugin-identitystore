@@ -143,7 +143,7 @@ public final class IdentityRequestValidator
     public void checkInputParams( String strConnectionId, int nCustomerId, String strClientAppCode,
         String strAuthenticationKey ) throws AppException
     {
-        if ( StringUtils.isBlank( strConnectionId ) && ( nCustomerId != 0 ) )
+        if ( StringUtils.isBlank( strConnectionId ) && ( nCustomerId == 0 ) )
         {
             throw new AppException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER +
                 " are missing, at least one must be provided" );
