@@ -9,7 +9,7 @@
             <th>Attribut</th>
             <th>Code</th>
             <th>Valeur</th>
-			<th>Derni&egrave;re mise &agrave; jour</th>
+            <th>Derni&egrave;re mise &agrave; jour</th>
             <th>Niveau de confiance</th>
             <th>Derni&egrave;re mise &agrave; jour du certificat</th>
             <th>Certification</th>
@@ -18,9 +18,9 @@
         <tbody>
         <tr>
             <td> ${attribute.name} </td>
-            <td> ${attribute.key} </td>
+            <td> <a target="_blank" href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?view=viewAttributeHistory&attribute_key=${attribute.key}">${attribute.key} </a> </td>
             <td><strong> ${attribute.value} </strong></td>
-			<td><strong> ${attribute.lastUpdateDate!} </strong></td>
+            <td><strong> ${attribute.lastUpdateDate!} </strong></td>
             <td>
                 <#if attribute.certificate ??>
                     <span class="badge">${attribute.certificate.certificateLevel}</span>

@@ -106,7 +106,8 @@ DROP TABLE IF EXISTS identitystore_history_identity_attribute;
 CREATE TABLE identitystore_history_identity_attribute (
 id_history int(11) NOT NULL,
 change_type int(3) NOT NULL,
-identity_connection_id varchar(50) NOT NULL,
+id_identity int(11) NOT NULL,
+identity_connection_id varchar(50),
 identity_name varchar(50) NOT NULL default '',
 attribute_key varchar(50) NOT NULL default '',
 attribute_new_value varchar(255) NOT NULL default '',

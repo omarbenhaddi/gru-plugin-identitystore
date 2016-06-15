@@ -48,6 +48,7 @@ public final class IdentityDAO implements IIdentityDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_identity ) FROM identitystore_identity";
+    private static final String SQL_QUERY_NEW_CUSTOMER_ID_KEY = "SELECT max( customer_id ) FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE id_identity = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity ( id_identity, connection_id, customer_id ) VALUES ( ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity WHERE id_identity = ? ";
@@ -81,6 +82,30 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     /**
+     * Generates a new customerId key
+     *
+     * @param plugin
+     *          The Plugin
+     * @return The new primary key
+     */
+    public int newCustomerIdKey( Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_CUSTOMER_ID_KEY, plugin );
+        daoUtil.executeQuery(  );
+
+        int nKey = 1;
+
+        if ( daoUtil.next(  ) )
+        {
+            nKey = daoUtil.getInt( 1 ) + 1;
+        }
+
+        daoUtil.free(  );
+
+        return nKey;
+    }
+
+    /**
      * {@inheritDoc }
      */
     @Override
@@ -90,10 +115,10 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setId( newPrimaryKey( plugin ) );
 
         int nIndex = 1;
-
+        identity.setCustomerId( newCustomerIdKey( plugin ) );
         daoUtil.setInt( nIndex++, identity.getId(  ) );
         daoUtil.setString( nIndex++, identity.getConnectionId(  ) );
-        daoUtil.setString( nIndex++, identity.getCustomerId(  ) );
+        daoUtil.setInt( nIndex++, identity.getCustomerId(  ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -119,7 +144,7 @@ public final class IdentityDAO implements IIdentityDAO
 
             identity.setId( daoUtil.getInt( nIndex++ ) );
             identity.setConnectionId( daoUtil.getString( nIndex++ ) );
-            identity.setCustomerId( daoUtil.getString( nIndex++ ) );
+            identity.setCustomerId( daoUtil.getInt( nIndex++ ) );
             identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
         }
 
@@ -151,7 +176,7 @@ public final class IdentityDAO implements IIdentityDAO
 
         daoUtil.setInt( nIndex++, identity.getId(  ) );
         daoUtil.setString( nIndex++, identity.getConnectionId(  ) );
-        daoUtil.setString( nIndex++, identity.getCustomerId(  ) );
+        daoUtil.setInt( nIndex++, identity.getCustomerId(  ) );
         daoUtil.setInt( nIndex, identity.getId(  ) );
 
         daoUtil.executeUpdate(  );
@@ -222,10 +247,10 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     @Override
-    public Identity selectByCustomerId( String strCustomerId, Plugin plugin )
+    public Identity selectByCustomerId( int nCustomerId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CUSTOMER_ID, plugin );
-        daoUtil.setString( 1, strCustomerId );
+        daoUtil.setInt( 1, nCustomerId );
         daoUtil.executeQuery(  );
 
         Identity identity = null;
@@ -256,7 +281,7 @@ public final class IdentityDAO implements IIdentityDAO
 
         identity.setId( daoUtil.getInt( nIndex++ ) );
         identity.setConnectionId( daoUtil.getString( nIndex++ ) );
-        identity.setCustomerId( daoUtil.getString( nIndex++ ) );
+        identity.setCustomerId( daoUtil.getInt( nIndex++ ) );
         identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
 
         return identity;

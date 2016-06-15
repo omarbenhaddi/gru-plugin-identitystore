@@ -39,7 +39,9 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -67,8 +69,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     // Historical
     private static final String SQL_QUERY_NEW_HISTORY_PK = "SELECT max( id_history ) FROM identitystore_history_identity_attribute";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute " +
-        "( id_history, change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, author_id, author_email, author_type, author_service, certifier_name) " +
-        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+        "( id_history, id_identity,change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, author_id, author_email, author_type, author_service, certifier_name) " +
+        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, " +
+        "author_id, author_email, author_type, author_service, certifier_name " +
+        "FROM identitystore_history_identity_attribute " + " WHERE  attribute_key = ? AND id_identity = ?";
 
     /**
      * Generates a new primary key for identitystore_history_identity_attribute
@@ -78,7 +83,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      *          The Plugin
      * @return The new primary key
      */
-    public int newPrimaryKey( Plugin plugin )
+    public int newHistoricPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_HISTORY_PK, plugin );
         daoUtil.executeQuery(  );
@@ -355,12 +360,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     }
 
     @Override
-    public void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin )
+    public synchronized void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, plugin );
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, newPrimaryKey( plugin ) );
+        daoUtil.setInt( nIndex++, newHistoricPrimaryKey( plugin ) );
+        daoUtil.setInt( nIndex++, attributeChange.getIdentityId(  ) );
         daoUtil.setInt( nIndex++, attributeChange.getChangeType(  ) );
         daoUtil.setString( nIndex++, attributeChange.getIdentityConnectionId(  ) );
         daoUtil.setString( nIndex++, attributeChange.getIdentityName(  ) );
@@ -375,5 +381,37 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
+    }
+
+    @Override
+    public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey, Plugin plugin )
+    {
+        List<AttributeChange> listAttributeChange = new ArrayList<AttributeChange>(  );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_HISTORY, plugin );
+        daoUtil.setString( 1, strAttributeKey );
+        daoUtil.setInt( 2, nIdentityId );
+        daoUtil.executeQuery(  );
+
+        while ( daoUtil.next(  ) )
+        {
+            AttributeChange attributeChange = new AttributeChange(  );
+            int nIndex = 1;
+            attributeChange.setDateChange( daoUtil.getTimestamp( nIndex++ ) );
+            attributeChange.setChangeType( daoUtil.getInt( nIndex++ ) );
+            attributeChange.setIdentityConnectionId( daoUtil.getString( nIndex++ ) );
+            attributeChange.setIdentityName( daoUtil.getString( nIndex++ ) );
+            attributeChange.setChangedKey( daoUtil.getString( nIndex++ ) );
+            attributeChange.setNewValue( daoUtil.getString( nIndex++ ) );
+            attributeChange.setOldValue( daoUtil.getString( nIndex++ ) );
+            attributeChange.setAuthorId( daoUtil.getString( nIndex++ ) );
+            attributeChange.setAuthorName( daoUtil.getString( nIndex++ ) );
+            attributeChange.setAuthorType( daoUtil.getInt( nIndex++ ) );
+            attributeChange.setAuthorService( daoUtil.getString( nIndex++ ) );
+            attributeChange.setCertifier( daoUtil.getString( nIndex++ ) );
+            attributeChange.setIdentityId( nIdentityId );
+            listAttributeChange.add( attributeChange );
+        }
+
+        return listAttributeChange;
     }
 }

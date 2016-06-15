@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityConstants;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.portal.business.user.attribute.AttributeHome;
 import fr.paris.lutece.portal.service.message.AdminMessage;
@@ -51,6 +52,9 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -69,21 +73,24 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String TEMPLATE_CREATE_IDENTITY = "/admin/plugins/identitystore/create_identity.html";
     private static final String TEMPLATE_MODIFY_IDENTITY = "/admin/plugins/identitystore/modify_identity.html";
     private static final String TEMPLATE_VIEW_IDENTITY = "/admin/plugins/identitystore/view_identity.html";
+    private static final String TEMPLATE_VIEW_ATTRIBUTE_HISTORY = "/admin/plugins/identitystore/view_attribute_change_history.html";
 
     // Parameters
     private static final String PARAMETER_ID_IDENTITY = "id";
     private static final String PARAMETER_GIVEN_NAME = "given_name";
     private static final String PARAMETER_FAMILY_NAME = "family_name";
+    private static final String PARAMETER_ATTRIBUTE_KEY = "attribute_key";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS = "identitystore.manage_identities.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_IDENTITY = "identitystore.modify_identity.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_CREATE_IDENTITY = "identitystore.create_identity.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY = "identitystore.view_change_history.pageTitle";
 
     // Markers
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
-    private static final String MARK_ATTRIBUTES_LIST = "attributes_list";
+    private static final String MARK_ATTRIBUTE_CHANGE_LIST = "attributes_change_list";
     private static final String JSP_MANAGE_IDENTITYS = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
 
     // Properties
@@ -97,6 +104,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String VIEW_CREATE_IDENTITY = "createIdentity";
     private static final String VIEW_MODIFY_IDENTITY = "modifyIdentity";
     private static final String VIEW_IDENTITY = "viewIdentity";
+    private static final String VIEW_ATTRIBUTE_HISTORY = "viewAttributeHistory";
 
     // Actions
     private static final String ACTION_CREATE_IDENTITY = "createIdentity";
@@ -308,11 +316,35 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
 
-        Identity identity = IdentityHome.findByPrimaryKey( nId );
+        _identity = IdentityHome.findByPrimaryKey( nId );
 
         Map<String, Object> model = getModel(  );
-        model.put( MARK_IDENTITY, identity );
+        model.put( MARK_IDENTITY, _identity );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_VIEW_IDENTITY, model );
+    }
+
+    /**
+     * Build the attribute history View
+     *
+     * @param request
+     *          The HTTP request
+     * @return The page
+     */
+    @View( value = VIEW_ATTRIBUTE_HISTORY )
+    public String getAttributeHistoryView( HttpServletRequest request )
+    {
+        String strAttributeKey = request.getParameter( PARAMETER_ATTRIBUTE_KEY );
+        List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>(  );
+
+        if ( ( _identity != null ) && StringUtils.isNotBlank( strAttributeKey ) )
+        {
+            lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId(  ), strAttributeKey );
+        }
+
+        Map<String, Object> model = getModel(  );
+        model.put( MARK_ATTRIBUTE_CHANGE_LIST, lstAttributeChange );
+
+        return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_ATTRIBUTE_HISTORY, model );
     }
 }

@@ -1,0 +1,22 @@
+<div class="row">
+    <table class="table table-condensed table-striped">
+        <tr>
+            <th>#i18n{identitystore.view_change_history.date}</th>
+            <th>#i18n{identitystore.view_change_history.oldValue}</th>
+            <th>#i18n{identitystore.view_change_history.newValue}</th>
+            <th>#i18n{identitystore.view_change_history.modifier}</th>
+        </tr>    
+        <#if attributes_change_list??  && attributes_change_list?has_content>
+          <tbody>
+            <#list attributes_change_list as change>
+                <tr>
+                    <td> ${change.dateChange!} </td>
+                    <td> ${change.oldValue!} </td>
+                    <td> ${change.newValue!} </td>
+                    <td> ${change.authorName!} /${change.authorService!} / ${change.authorService!} / ${change.identityName!}</td>
+				</tr>
+			</#list>
+          </tbody>
+        </#if>
+    </table>
+</div>

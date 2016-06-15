@@ -47,6 +47,7 @@ public class AttributeChange
 
     // Variables declarations
     private Timestamp _dateChange;
+    private int _nIdentityId;
     private String _strAuthorId;
     private String _strAuthorName;
     private String _strAuthorService;
@@ -309,5 +310,21 @@ public class AttributeChange
     public void setChangeType( int nChangeType )
     {
         _nChangeType = nChangeType;
+    }
+
+    /**
+     * @return the _nidentityId
+     */
+    public int getIdentityId(  )
+    {
+        return _nIdentityId;
+    }
+
+    /**
+     * @param nIdentityId the _nidentityId to set
+     */
+    public void setIdentityId( int nIdentityId )
+    {
+        this._nIdentityId = nIdentityId;
     }
 }

@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -168,4 +169,13 @@ public interface IIdentityAttributeDAO
      *          the Plugin
      */
     void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin );
+
+    /**
+     * return list of attribute change history for an identity attribute
+     * @param nIdentityId identityId
+     * @param strAttributeKey attributeKey
+     * @param plugin plugin
+     * @return list of attribute change history for an identity attribute
+     */
+    List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey, Plugin plugin );
 }

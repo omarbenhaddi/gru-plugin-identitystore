@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -198,5 +199,17 @@ public final class IdentityAttributeHome
     public static void addAttributeChangeHistory( AttributeChange attributeChange )
     {
         _dao.addAttributeChangeHistory( attributeChange, _plugin );
+    }
+
+    /**
+     * get attribute change event in history table
+     *
+     * @param strAttributeKey attributekey
+     * @param nIdentityId identityId
+     * @return list of attribute changes
+     */
+    public static List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey )
+    {
+        return _dao.getAttributeChangeHistory( nIdentityId, strAttributeKey, _plugin );
     }
 }
