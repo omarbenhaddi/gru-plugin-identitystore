@@ -7,7 +7,8 @@
         <input type="hidden" id="id" name="id" value="${clientapplication.id}"/>
         <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelName" inputName="name" mandatory=true value="${clientapplication.name}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelCode" inputName="code" mandatory=true value="${clientapplication.code}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelCode.help" />
-        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelHash" inputName="hash" mandatory=true value="${clientapplication.hash}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelHash.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelHash" inputName="hash" mandatory=false value="${clientapplication.hash!}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelHash.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelControlKey" inputName="controlKey" mandatory=false value="${clientapplication.controlKey!}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelControlKey.help" />
 
 		<@table>
 			<tr>

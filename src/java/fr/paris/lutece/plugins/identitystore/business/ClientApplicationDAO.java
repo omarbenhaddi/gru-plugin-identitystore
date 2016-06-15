@@ -48,12 +48,12 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_client_app ) FROM identitystore_client_application";
-    private static final String SQL_QUERY_SELECT = "SELECT id_client_app, name, code, hash FROM identitystore_client_application WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_client_app, name, code, hash FROM identitystore_client_application WHERE code = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_client_application ( id_client_app, name, code, hash ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_client_app, name, code, hash, control_key FROM identitystore_client_application WHERE id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_client_app, name, code, hash, control_key FROM identitystore_client_application WHERE code = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_client_application ( id_client_app, name, code, hash, control_key ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_client_application WHERE id_client_app = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ?, hash = ? WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code, hash FROM identitystore_client_application";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ?, hash = ?, control_key = ? WHERE id_client_app = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code, hash, control_key FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_client_app FROM identitystore_client_application";
 
     /**
@@ -95,6 +95,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.setString( nIndex++, clientApplication.getName(  ) );
         daoUtil.setString( nIndex++, clientApplication.getCode(  ) );
         daoUtil.setString( nIndex++, clientApplication.getHash(  ) );
+        daoUtil.setString( nIndex++, clientApplication.getControlKey(  ) );
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
     }
@@ -121,6 +122,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
             clientApplication.setHash( daoUtil.getString( nIndex++ ) );
+            clientApplication.setControlKey( daoUtil.getString( nIndex++ ) );
         }
 
         daoUtil.free(  );
@@ -153,6 +155,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.setString( nIndex++, clientApplication.getName(  ) );
         daoUtil.setString( nIndex++, clientApplication.getCode(  ) );
         daoUtil.setString( nIndex++, clientApplication.getHash(  ) );
+        daoUtil.setString( nIndex++, clientApplication.getControlKey(  ) );
         daoUtil.setInt( nIndex, clientApplication.getId(  ) );
 
         daoUtil.executeUpdate(  );
@@ -178,6 +181,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
             clientApplication.setHash( daoUtil.getString( nIndex++ ) );
+            clientApplication.setControlKey( daoUtil.getString( nIndex++ ) );
             clientApplicationList.add( clientApplication );
         }
 
@@ -248,6 +252,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
             clientApplication.setHash( daoUtil.getString( nIndex++ ) );
+            clientApplication.setControlKey( daoUtil.getString( nIndex++ ) );
         }
 
         daoUtil.free(  );

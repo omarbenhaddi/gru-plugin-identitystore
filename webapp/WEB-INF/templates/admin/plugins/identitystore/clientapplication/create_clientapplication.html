@@ -8,7 +8,8 @@
         
         <@fieldInputText i18nLabelKey="identitystore.create_clientapplication.labelName" inputName="name" mandatory=true value="${clientapplication.name!''}" i18nHelpBlockKey="identitystore.create_clientapplication.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.create_clientapplication.labelCode" inputName="code" mandatory=true value="${clientapplication.code!''}" i18nHelpBlockKey="identitystore.create_clientapplication.labelCode.help" />
-        <@fieldInputText i18nLabelKey="identitystore.create_clientapplication.labelHash" inputName="hash" mandatory=true value="${clientapplication.hash!''}" i18nHelpBlockKey="identitystore.create_clientapplication.labelHash.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_clientapplication.labelHash" inputName="hash" mandatory=false value="${clientapplication.hash!''}" i18nHelpBlockKey="identitystore.create_clientapplication.labelHash.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_clientapplication.labelControlKey" inputName="controlKey" mandatory=false value="${clientapplication.controlKey!''}" i18nHelpBlockKey="identitystore.create_clientapplication.labelControlKey.help" />
         <@table>
             <tr>
                 <th>#i18n{identitystore.modify_clientapplication.labelAttributeName}</th>

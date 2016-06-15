@@ -57,9 +57,10 @@ public class ClientApplication implements Serializable
     @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Code.notEmpty}" )
     @Size( max = 50, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
     private String _strCode;
-    @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Hash.notEmpty}" )
     @Size( max = 250, message = "#i18n{identitystore.validation.clientapplication.Hash.size}" )
     private String _strHash;
+    @Size( max = 250, message = "#i18n{identitystore.validation.clientapplication.ControlKey.size}" )
+    private String _strControlKey;
 
     /**
      * Returns the Id
@@ -139,5 +140,21 @@ public class ClientApplication implements Serializable
     public void setHash( String strHash )
     {
         this._strHash = strHash;
+    }
+
+    /**
+     * @return the _strControlKey
+     */
+    public String getControlKey(  )
+    {
+        return _strControlKey;
+    }
+
+    /**
+     * @param strControlKey the _strControlKey to set
+     */
+    public void setControlKey( String strControlKey )
+    {
+        this._strControlKey = strControlKey;
     }
 }

@@ -80,6 +80,7 @@ id_client_app int(6) NOT NULL,
 name varchar(50) NOT NULL,
 code varchar(50) NOT NULL,
 hash varchar(250),
+control_key varchar(250),
 PRIMARY KEY (id_client_app)
 );
 
