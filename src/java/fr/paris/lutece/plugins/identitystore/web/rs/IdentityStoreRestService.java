@@ -191,6 +191,7 @@ public final class IdentityStoreRestService
         String strBody = StringUtils.EMPTY;
 
         Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
+        Identity identity = null;
 
         try
         {
@@ -209,7 +210,7 @@ public final class IdentityStoreRestService
                         identityChangeDto = getIdentityChangeFromJson( strBody );
                         IdentityRequestValidator.instance(  ).checkInputParams( identityChangeDto, strAuthenticationKey );
 
-                        Identity identity = getIdentity( identityChangeDto.getIdentity(  ).getConnectionId(  ),
+                        identity = getIdentity( identityChangeDto.getIdentity(  ).getConnectionId(  ),
                                 identityChangeDto.getIdentity(  ).getCustomerId(  ),
                                 identityChangeDto.getAuthor(  ).getApplicationCode(  ) );
 
@@ -254,8 +255,8 @@ public final class IdentityStoreRestService
                 identityChangeDto.getAuthor(  ).getApplicationCode(  ), mapAttachedFiles );
 
             ChangeAuthor author = DtoConverter.getAuthor( identityChangeDto.getAuthor(  ) );
-            ResponseDto responseDto = updateAttributes( identityChangeDto.getIdentity(  ),
-                    identityChangeDto.getIdentity(  ).getConnectionId(  ), author, mapAttachedFiles );
+            ResponseDto responseDto = updateAttributes( identity, identityChangeDto.getIdentity(  ), author,
+                    mapAttachedFiles );
 
             String strResponse = _objectMapper.writeValueAsString( responseDto );
 
@@ -345,8 +346,8 @@ public final class IdentityStoreRestService
             identity.setConnectionId( identityChangeDto.getIdentity(  ).getConnectionId(  ) );
             IdentityHome.create( identity );
 
-            ResponseDto responseDto = updateAttributes( identityChangeDto.getIdentity(  ),
-                    identityChangeDto.getIdentity(  ).getConnectionId(  ), author, mapAttachedFiles );
+            ResponseDto responseDto = updateAttributes( identity, identityChangeDto.getIdentity(  ), author,
+                    mapAttachedFiles );
 
             String strResponse = _objectMapper.writeValueAsString( responseDto );
 
@@ -530,20 +531,10 @@ public final class IdentityStoreRestService
      * @return responseDto response containings updated fields
      *
      */
-    private ResponseDto updateAttributes( IdentityDto identityDto, String strConnectionId, ChangeAuthor author,
+    private ResponseDto updateAttributes( Identity identity, IdentityDto identityDto, ChangeAuthor author,
         Map<String, File> mapAttachedFiles )
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
-
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
-
-        if ( identity == null )
-        {
-            identity = new Identity(  );
-            identity.setConnectionId( identityDto.getConnectionId(  ) );
-            identity.setCustomerId( identityDto.getCustomerId(  ) );
-            IdentityHome.create( identity );
-        }
 
         for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
         {
@@ -557,8 +548,8 @@ public final class IdentityStoreRestService
             }
 
             AttributeCertificate certificate = DtoConverter.getCertificate( attributeDto.getCertificate(  ) );
-            IdentityStoreService.setAttribute( strConnectionId, attributeDto.getKey(  ), attributeDto.getValue(  ),
-                file, author, certificate );
+            IdentityStoreService.setAttribute( identity, attributeDto.getKey(  ), attributeDto.getValue(  ), file,
+                author, certificate );
             sb.append( attributeDto.getKey(  ) + "," );
         }
 

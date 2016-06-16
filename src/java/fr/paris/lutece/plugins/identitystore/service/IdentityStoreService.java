@@ -232,8 +232,8 @@ public final class IdentityStoreService
     /**
      * Set an attribute value associated to an identity
      *
-     * @param strConnectionId
-     *          The connection ID
+     * @param Identity
+     *          identity
      * @param strKey
      *          The key to set
      * @param strValue
@@ -243,17 +243,17 @@ public final class IdentityStoreService
      * @param certificate
      *          The certificate. May be null
      */
-    public static void setAttribute( String strConnectionId, String strKey, String strValue, ChangeAuthor author,
+    public static void setAttribute( Identity identity, String strKey, String strValue, ChangeAuthor author,
         AttributeCertificate certificate )
     {
-        setAttribute( strConnectionId, strKey, strValue, null, author, certificate );
+        setAttribute( identity, strKey, strValue, null, author, certificate );
     }
 
     /**
      * Set an attribute value associated to an identity
      *
-     * @param strConnectionId
-     *          The connection ID
+     * @param Identity
+     *          identity
      * @param strKey
      *          The key to set
      * @param strValue
@@ -265,8 +265,8 @@ public final class IdentityStoreService
      * @param certificate
      *          The certificate. May be null
      */
-    public static void setAttribute( String strConnectionId, String strKey, String strValue, File file,
-        ChangeAuthor author, AttributeCertificate certificate )
+    public static void setAttribute( Identity identity, String strKey, String strValue, File file, ChangeAuthor author,
+        AttributeCertificate certificate )
     {
         AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
         boolean bValueUnchanged = false;
@@ -275,8 +275,6 @@ public final class IdentityStoreService
         {
             throw new AppException( "Invalid attribute key : " + strKey );
         }
-
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
 
         boolean bCreate = false;
 
@@ -296,8 +294,8 @@ public final class IdentityStoreService
 
             if ( attribute.getAttributeValue(  ).equals( strValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
             {
-                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strValue +
-                    " for connectionId=" + strConnectionId );
+                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strValue + " for Id=" +
+                    identity.getId(  ) );
                 bValueUnchanged = true;
             }
         }
