@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.service.AttributeChangeType;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -367,7 +368,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         daoUtil.setInt( nIndex++, newHistoricPrimaryKey( plugin ) );
         daoUtil.setInt( nIndex++, attributeChange.getIdentityId(  ) );
-        daoUtil.setInt( nIndex++, attributeChange.getChangeType(  ) );
+        daoUtil.setInt( nIndex++, attributeChange.getChangeType(  ).getValue(  ) );
         daoUtil.setString( nIndex++, attributeChange.getIdentityConnectionId(  ) );
         daoUtil.setString( nIndex++, attributeChange.getIdentityName(  ) );
         daoUtil.setString( nIndex++, attributeChange.getChangedKey(  ) );
@@ -397,7 +398,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             AttributeChange attributeChange = new AttributeChange(  );
             int nIndex = 1;
             attributeChange.setDateChange( daoUtil.getTimestamp( nIndex++ ) );
-            attributeChange.setChangeType( daoUtil.getInt( nIndex++ ) );
+            attributeChange.setChangeType( AttributeChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
             attributeChange.setIdentityConnectionId( daoUtil.getString( nIndex++ ) );
             attributeChange.setIdentityName( daoUtil.getString( nIndex++ ) );
             attributeChange.setChangedKey( daoUtil.getString( nIndex++ ) );

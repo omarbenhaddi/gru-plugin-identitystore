@@ -101,18 +101,23 @@ public final class IdentityRequestValidator
     }
 
     /**
-     * check that client application code exists in identitystore
+     * check whether the parameters related to the application are valid or not
      *
      * @param strClientCode
      *          client application code
      * @param strAuthenticationKey
      *          client application hash
      * @throws AppException
-     *           thrown if null
+     *           if the parameters are not valid
      */
     private void checkClientApplication( String strClientCode, String strAuthenticationKey )
         throws AppException
     {
+        if ( StringUtils.isBlank( strClientCode ) )
+        {
+            throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
+        }
+
         ClientApplication clientApp = ClientApplicationHome.findByCode( strClientCode );
 
         if ( clientApp == null )
@@ -127,46 +132,29 @@ public final class IdentityRequestValidator
     }
 
     /**
-     * check input parameters
+     * check whether the parameters related to the identity are valid or not
      *
-     * @param strConnectionId
-     *          connection id of identity to update
-     * @param nCustomerId
-     *          customerId
-     * @param strClientAppCode
-     *          client application code asking for modif
-     * @param strAuthenticationKey
-     *          client application hash
-     * @throws AppException
-     *           if request is not correct
+     * @param strConnectionId the connection id
+     * @param nCustomerId the customer id
+     * @throws AppException if the parameters are not valid
      */
-    public void checkInputParams( String strConnectionId, int nCustomerId, String strClientAppCode,
-        String strAuthenticationKey ) throws AppException
+    private void checkIdentity( String strConnectionId, int nCustomerId )
+        throws AppException
     {
         if ( StringUtils.isBlank( strConnectionId ) && ( nCustomerId == 0 ) )
         {
             throw new AppException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER +
                 " are missing, at least one must be provided" );
         }
-
-        if ( StringUtils.isBlank( strClientAppCode ) )
-        {
-            throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
-        }
-
-        checkClientApplication( strClientAppCode, strAuthenticationKey );
     }
 
     /**
-     * check input parameters
+     * check whether the parameters related to the identity change are valid or not
      *
-     * @param identityChange identity change
-     * @param strAuthenticationKey
-     *          client application hash
-     * @throws AppException
-     *           if request is not correct
+     * @param identityChange the identity change
+     * @throws AppException if the parameters are not valid
      */
-    public void checkInputParams( IdentityChangeDto identityChange, String strAuthenticationKey )
+    private void checkIdentityChange( IdentityChangeDto identityChange )
         throws AppException
     {
         if ( ( identityChange == null ) || ( identityChange.getIdentity(  ) == null ) )
@@ -178,10 +166,61 @@ public final class IdentityRequestValidator
         {
             throw new AppException( "Provided Author is null" );
         }
+    }
 
-        checkInputParams( identityChange.getIdentity(  ).getConnectionId(  ),
-            identityChange.getIdentity(  ).getCustomerId(  ), identityChange.getAuthor(  ).getApplicationCode(  ),
-            strAuthenticationKey );
+    /**
+     * check input parameters to get an identity
+     *
+     * @param strConnectionId
+     *          connection id of identity to update
+     * @param nCustomerId
+     *          customerId
+     * @param strClientAppCode
+     *          client application code asking for modif
+     * @param strAuthenticationKey
+     *          client application hash
+     * @throws AppException
+     *           if the parameters are not valid
+     */
+    public void checkFetchParams( String strConnectionId, int nCustomerId, String strClientAppCode,
+        String strAuthenticationKey ) throws AppException
+    {
+        checkIdentity( strConnectionId, nCustomerId );
+        checkClientApplication( strClientAppCode, strAuthenticationKey );
+    }
+
+    /**
+     * check input parameters to create an identity
+     *
+     * @param identityChange identity change
+     * @param strAuthenticationKey
+     *          client application hash
+     * @throws AppException
+     *           if the parameters are not valid
+     */
+    public void checkCreateParams( IdentityChangeDto identityChange, String strAuthenticationKey )
+        throws AppException
+    {
+        checkIdentityChange( identityChange );
+        checkClientApplication( identityChange.getAuthor(  ).getApplicationCode(  ), strAuthenticationKey );
+    }
+
+    /**
+     * check input parameters to update an identity
+     *
+     * @param identityChange identity change
+     * @param strAuthenticationKey
+     *          client application hash
+     * @throws AppException
+     *           if the parameters are not valid
+     */
+    public void checkUpdateParams( IdentityChangeDto identityChange, String strAuthenticationKey )
+        throws AppException
+    {
+        checkIdentityChange( identityChange );
+        checkIdentity( identityChange.getIdentity(  ).getConnectionId(  ),
+            identityChange.getIdentity(  ).getCustomerId(  ) );
+        checkClientApplication( identityChange.getAuthor(  ).getApplicationCode(  ), strAuthenticationKey );
     }
 
     /**
@@ -194,27 +233,22 @@ public final class IdentityRequestValidator
      * @param strAuthenticationKey
      *          client application hash
      * @throws AppException
-     *           thrown if input parameters are invalid or no file is found
+     *           thrown if input parameters are not valid or no file is found
      */
     public void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey,
         String strAuthenticationKey ) throws AppException
     {
-        checkClientApplication( strClientCode, strAuthenticationKey );
-
         if ( StringUtils.isBlank( strConnectionId ) )
         {
             throw new AppException( Constants.PARAM_ID_CONNECTION + " is null or empty" );
-        }
-
-        if ( StringUtils.isBlank( strClientCode ) )
-        {
-            throw new AppException( Constants.PARAM_CLIENT_CODE + " is null or empty" );
         }
 
         if ( StringUtils.isBlank( strAttributeKey ) )
         {
             throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " is null or empty" );
         }
+
+        checkClientApplication( strClientCode, strAuthenticationKey );
     }
 
     /**

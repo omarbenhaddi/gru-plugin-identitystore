@@ -375,6 +375,7 @@ public final class IdentityStoreService
         AttributeChange change = new AttributeChange(  );
         change.setIdentityId( identity.getId(  ) );
         change.setIdentityConnectionId( identity.getConnectionId(  ) );
+        change.setCustomerId( identity.getCustomerId(  ) );
         change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
         change.setChangedKey( strKey );
         change.setOldValue( strOldValue );
@@ -392,11 +393,11 @@ public final class IdentityStoreService
 
         if ( bIsCreation )
         {
-            change.setChangeType( AttributeChange.TYPE_CREATE );
+            change.setChangeType( AttributeChangeType.CREATE );
         }
         else
         {
-            change.setChangeType( AttributeChange.TYPE_UPDATE );
+            change.setChangeType( AttributeChangeType.UPDATE );
         }
 
         return change;

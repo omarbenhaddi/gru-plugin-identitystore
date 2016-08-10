@@ -41,10 +41,6 @@ import java.sql.Timestamp;
  */
 public class AttributeChange
 {
-    public static final int TYPE_CREATE = 0;
-    public static final int TYPE_UPDATE = 1;
-    public static final int TYPE_DELETE = 2;
-
     // Variables declarations
     private Timestamp _dateChange;
     private int _nIdentityId;
@@ -53,12 +49,13 @@ public class AttributeChange
     private String _strAuthorService;
     private int _nAuthorType;
     private String _strIdentityConnectionId;
+    private int _nCustomerId;
     private String _strIdentityName;
     private String _strChangedKey;
     private String _strOldValue;
     private String _strNewValue;
     private String _strCertifier;
-    private int _nChangeType;
+    private AttributeChangeType _attributeChangeType;
 
     /**
      * Returns the DateChange
@@ -187,6 +184,27 @@ public class AttributeChange
     }
 
     /**
+     * Returns the CustomerId
+     *
+     * @return The CustomerId
+     */
+    public int getCustomerId(  )
+    {
+        return _nCustomerId;
+    }
+
+    /**
+     * Sets the CustomerId
+     *
+     * @param nCustomerId
+     *          The CustomerId
+     */
+    public void setCustomerId( int nCustomerId )
+    {
+        _nCustomerId = nCustomerId;
+    }
+
+    /**
      * Returns the IdentityName
      *
      * @return The IdentityName
@@ -292,24 +310,24 @@ public class AttributeChange
     }
 
     /**
-     * Returns the ChangeType
+     * Returns the type of the AttributeChange
      *
-     * @return The ChangeType
+     * @return The AttributeChangeType
      */
-    public int getChangeType(  )
+    public AttributeChangeType getChangeType(  )
     {
-        return _nChangeType;
+        return _attributeChangeType;
     }
 
     /**
-     * Sets the ChangeType
+     * Sets the type of the AttributeChange
      *
-     * @param nChangeType
-     *          The ChangeType
+     * @param attributeChangeType
+     *          The AttributeChangeType
      */
-    public void setChangeType( int nChangeType )
+    public void setChangeType( AttributeChangeType attributeChangeType )
     {
-        _nChangeType = nChangeType;
+        _attributeChangeType = attributeChangeType;
     }
 
     /**

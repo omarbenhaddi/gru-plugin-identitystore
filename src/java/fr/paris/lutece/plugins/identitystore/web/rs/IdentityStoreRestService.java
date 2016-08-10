@@ -64,7 +64,7 @@ import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
-
+import fr.paris.lutece.portal.service.util.AppLogService;
 import net.sf.json.util.JSONUtils;
 
 import org.apache.commons.io.IOUtils;
@@ -143,7 +143,7 @@ public final class IdentityStoreRestService
         try
         {
             IdentityRequestValidator.instance(  )
-                                    .checkInputParams( strConnectionId, nCustomerId, strClientAppCode,
+                                    .checkFetchParams( strConnectionId, nCustomerId, strClientAppCode,
                 strAuthenticationKey );
 
             Identity identity = getIdentity( strConnectionId, nCustomerId, strClientAppCode );
@@ -208,7 +208,7 @@ public final class IdentityStoreRestService
                     if ( JSONUtils.mayBeJSON( strBody ) )
                     {
                         identityChangeDto = getIdentityChangeFromJson( strBody );
-                        IdentityRequestValidator.instance(  ).checkInputParams( identityChangeDto, strAuthenticationKey );
+                        IdentityRequestValidator.instance(  ).checkUpdateParams( identityChangeDto, strAuthenticationKey );
 
                         identity = getIdentity( identityChangeDto.getIdentity(  ).getConnectionId(  ),
                                 identityChangeDto.getIdentity(  ).getCustomerId(  ),
@@ -255,10 +255,10 @@ public final class IdentityStoreRestService
                 identityChangeDto.getAuthor(  ).getApplicationCode(  ), mapAttachedFiles );
 
             ChangeAuthor author = DtoConverter.getAuthor( identityChangeDto.getAuthor(  ) );
-            ResponseDto responseDto = updateAttributes( identity, identityChangeDto.getIdentity(  ), author,
-                    mapAttachedFiles );
+            updateAttributes( identity, identityChangeDto.getIdentity(  ), author, mapAttachedFiles );
 
-            String strResponse = _objectMapper.writeValueAsString( responseDto );
+            String strResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity,
+                        identityChangeDto.getAuthor(  ).getApplicationCode(  ) ) );
 
             return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
         }
@@ -303,7 +303,7 @@ public final class IdentityStoreRestService
                     if ( JSONUtils.mayBeJSON( strBody ) )
                     {
                         identityChangeDto = getIdentityChangeFromJson( strBody );
-                        IdentityRequestValidator.instance(  ).checkInputParams( identityChangeDto, strAuthenticationKey );
+                        IdentityRequestValidator.instance(  ).checkCreateParams( identityChangeDto, strAuthenticationKey );
 
                         Identity identity = getIdentity( identityChangeDto.getIdentity(  ).getConnectionId(  ),
                                 identityChangeDto.getIdentity(  ).getCustomerId(  ),
@@ -346,10 +346,10 @@ public final class IdentityStoreRestService
             identity.setConnectionId( identityChangeDto.getIdentity(  ).getConnectionId(  ) );
             IdentityHome.create( identity );
 
-            ResponseDto responseDto = updateAttributes( identity, identityChangeDto.getIdentity(  ), author,
-                    mapAttachedFiles );
+            updateAttributes( identity, identityChangeDto.getIdentity(  ), author, mapAttachedFiles );
 
-            String strResponse = _objectMapper.writeValueAsString( responseDto );
+            String strResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity,
+                        identityChangeDto.getAuthor(  ).getApplicationCode(  ) ) );
 
             return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
         }
@@ -528,10 +528,9 @@ public final class IdentityStoreRestService
      *          author responsible for modification
      * @param mapAttachedFiles
      *          map containing File matching key attribute name
-     * @return responseDto response containings updated fields
      *
      */
-    private ResponseDto updateAttributes( Identity identity, IdentityDto identityDto, ChangeAuthor author,
+    private void updateAttributes( Identity identity, IdentityDto identityDto, ChangeAuthor author,
         Map<String, File> mapAttachedFiles )
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
@@ -552,11 +551,7 @@ public final class IdentityStoreRestService
                 author, certificate );
             sb.append( attributeDto.getKey(  ) + "," );
         }
-
-        ResponseDto response = new ResponseDto(  );
-        response.setStatus( Constants.RESPONSE_OK );
-        response.setMessage( sb.substring( 0, sb.length(  ) - 1 ) );
-
-        return response;
+        
+        AppLogService.debug( sb.toString( ) );
     }
 }
