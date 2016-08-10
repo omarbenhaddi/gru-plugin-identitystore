@@ -58,7 +58,7 @@ public class IdentityStoreServiceTest extends LuteceTestCase
         System.out.println( "getAttributesByConnectionId" );
 
         Identity identity = getIdentity(  );
-        IdentityStoreService.setAttribute( identity.getConnectionId(  ), "email", "john.doe@nowhere.com", null, null );
+        IdentityStoreService.setAttribute( identity, "email", "john.doe@nowhere.com", null, null );
 
         Map<String, Attribute> map = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
         assertTrue( map.size(  ) == 1 );
