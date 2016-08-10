@@ -215,7 +215,7 @@ public final class DtoConverter
                     certificateDto.getCertificateExpirationDate(  ) );
             }
 
-            if ( certificateDto.getCertificateExpirationDate(  ) != null ) 
+            if ( certificateDto.getCertificateExpirationDate(  ) != null )
             {
                 attributeCertificate.setExpirationDate( new Timestamp( 
                         ( certificateDto.getCertificateExpirationDate(  ) ).getTime(  ) ) );

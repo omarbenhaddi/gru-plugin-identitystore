@@ -65,6 +65,7 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+
 import net.sf.json.util.JSONUtils;
 
 import org.apache.commons.io.IOUtils;
@@ -551,7 +552,7 @@ public final class IdentityStoreRestService
                 author, certificate );
             sb.append( attributeDto.getKey(  ) + "," );
         }
-        
-        AppLogService.debug( sb.toString( ) );
+
+        AppLogService.debug( sb.toString(  ) );
     }
 }
