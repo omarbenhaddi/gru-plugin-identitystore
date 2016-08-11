@@ -54,6 +54,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity WHERE id_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity SET id_identity = ?, connection_id = ?, customer_id = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity";
+    private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS = "SELECT customer_id FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE connection_id = ?";
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE customer_id = ?";
 
@@ -204,6 +205,27 @@ public final class IdentityDAO implements IIdentityDAO
         daoUtil.free(  );
 
         return identityList;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Integer> selectCustomerIdsList( Plugin plugin )
+    {
+        List<Integer> listIds = new ArrayList<Integer>(  );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS, plugin );
+        daoUtil.executeQuery(  );
+
+        while ( daoUtil.next(  ) )
+        {
+            Integer identity = Integer.valueOf( daoUtil.getInt( 1 ) );
+            listIds.add( identity );
+        }
+
+        daoUtil.free(  );
+
+        return listIds;
     }
 
     /**

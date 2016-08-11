@@ -178,6 +178,16 @@ public final class IdentityHome
     }
 
     /**
+     * Load the customer id of all the identity objects and returns them as a list
+     *
+     * @return the list which contains the customer id of all the identity objects
+     */
+    public static List<Integer> getCustomerIdsList(  )
+    {
+        return _dao.selectCustomerIdsList( _plugin );
+    }
+
+    /**
      * Load the data of all the identity objects and returns them as a
      * referenceList
      *

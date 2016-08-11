@@ -98,6 +98,15 @@ public interface IIdentityDAO
     List<Identity> selectIdentitysList( Plugin plugin );
 
     /**
+     * Load the customer id of all the identity objects and returns them as a list
+     *
+     * @param plugin
+     *          the Plugin
+     * @return The list which contains the customer id of all the identity objects
+     */
+    List<Integer> selectCustomerIdsList( Plugin plugin );
+
+    /**
      * Load the data of all the identity objects and returns them as a
      * referenceList
      *
