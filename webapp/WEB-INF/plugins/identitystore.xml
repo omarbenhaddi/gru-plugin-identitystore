@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<plug-in>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><plug-in>
     <name>identitystore</name>
     <class>fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin</class>
     <version>1.0.0</version>
-    <documentation></documentation>
-    <installation></installation>
-    <changes></changes>
-    <user-guide></user-guide>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
     <description>identitystore.plugin.description</description>
     <provider>identitystore.plugin.provider</provider>
     <provider-url>http://fr.lutece.paris.fr</provider-url>
@@ -27,7 +26,7 @@
             <feature-description>identitystore.adminFeature.ManageIdentities.description</feature-description>
             <feature-level>1</feature-level>
             <feature-url>jsp/admin/plugins/identitystore/ManageIdentities.jsp</feature-url>
-            <feature-icon-url></feature-icon-url>
+            <feature-icon-url/>
       </admin-feature>
         <admin-feature>
             <feature-id>IDENTITYSTORE_ADMIN_MANAGEMENT</feature-id>
@@ -35,7 +34,7 @@
             <feature-description>identitystore.adminFeature.AdminIdentities.description</feature-description>
             <feature-level>0</feature-level>
             <feature-url>jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp</feature-url>
-            <feature-icon-url></feature-icon-url>
+            <feature-icon-url/>
       </admin-feature>
     </admin-features>    
 </plug-in>
