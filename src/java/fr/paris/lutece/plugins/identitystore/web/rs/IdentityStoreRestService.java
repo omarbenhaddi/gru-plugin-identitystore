@@ -33,35 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
-import net.sf.json.util.JSONUtils;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
@@ -87,6 +65,31 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+
+import net.sf.json.util.JSONUtils;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.nio.charset.StandardCharsets;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 
 /**
@@ -194,10 +197,12 @@ public final class IdentityStoreRestService
         {
             for ( BodyPart part : formParams.getBodyParts(  ) )
             {
-            	InputStream inputStream = part.getEntityAs( InputStream.class );
+                InputStream inputStream = part.getEntityAs( InputStream.class );
                 ContentDisposition contentDispo = part.getContentDisposition(  );
 
-                if ( StringUtils.isBlank( contentDispo.getFileName(  ) ) && part.getMediaType(  ).isCompatible( MediaType.TEXT_PLAIN_TYPE ) && Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters(  ).get( "name" ) ) )
+                if ( StringUtils.isBlank( contentDispo.getFileName(  ) ) &&
+                        part.getMediaType(  ).isCompatible( MediaType.TEXT_PLAIN_TYPE ) &&
+                        Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters(  ).get( "name" ) ) )
                 {
                     // content-body of request
                     strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString(  ) );
@@ -290,10 +295,12 @@ public final class IdentityStoreRestService
         {
             for ( BodyPart part : formParams.getBodyParts(  ) )
             {
-            	InputStream inputStream = part.getEntityAs( InputStream.class );
+                InputStream inputStream = part.getEntityAs( InputStream.class );
                 ContentDisposition contentDispo = part.getContentDisposition(  );
 
-                if ( StringUtils.isBlank( contentDispo.getFileName(  ) ) && part.getMediaType(  ).isCompatible( MediaType.TEXT_PLAIN_TYPE ) && Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters(  ).get( "name" ) ) )
+                if ( StringUtils.isBlank( contentDispo.getFileName(  ) ) &&
+                        part.getMediaType(  ).isCompatible( MediaType.TEXT_PLAIN_TYPE ) &&
+                        Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters(  ).get( "name" ) ) )
                 {
                     // content-body of request
                     strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString(  ) );
