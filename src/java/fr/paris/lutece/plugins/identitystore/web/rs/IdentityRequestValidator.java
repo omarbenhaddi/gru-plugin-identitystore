@@ -141,7 +141,7 @@ public final class IdentityRequestValidator
     private void checkIdentity( String strConnectionId, int nCustomerId )
         throws AppException
     {
-        if ( StringUtils.isBlank( strConnectionId ) && ( nCustomerId == 0 ) )
+        if ( StringUtils.isBlank( strConnectionId ) && ( nCustomerId == Constants.NO_CUSTOMER_ID ) )
         {
             throw new AppException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER +
                 " are missing, at least one must be provided" );
