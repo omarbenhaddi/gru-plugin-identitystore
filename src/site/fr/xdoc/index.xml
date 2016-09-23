@@ -5,19 +5,19 @@
     </properties>
     <body>
         <section name="Plugin identitystore">
-            <!--
-            <p>
-                <img src="images/identitystore.png" />
-            </p>
-            -->
             <subsection name="Introduction">
-                <p></p>
+                <p>
+				Ce plugin stocke des identités. Une identité est composée d'attributes. Chasue attributes peut être lu, écrit ou certifié par l'application appelant le service.</p>
             </subsection>
             <subsection name="Configuration">
-                <p></p>
+                <p>
+					The bean appelé <code>identitystore.identityInfoExternalProvider</code> doit être défini via la configuration Spring. Le bean doit implémenter l'interface Java <code>fr.paris.lutece.plugins.identitystore.service.external.IIdentityInfoExternalProvider</code>. Il est utilisé pour créer une identité à partir d'une source externe quand un id de connexion est fourni dans la méthode web <em>create</em>.
+				</p>
             </subsection>
             <subsection name="Usage">
-                <p></p>
+                <p>
+					Le plugin expose des méthodes web pour gérer les identités. Consulter la page <em>/jsp/site/Portal.jsp?page=swaggerui</em> pour plus d'informations à propos de ces méthodes.
+				</p>
             </subsection>
         </section>
     </body>

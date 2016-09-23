@@ -169,9 +169,11 @@
 						}
 					}
 				}
-			},
+			}
+		},
+		"/rest/identitystore/identity/create/": {
 			"post": {
-				"description": "create `Identity` objects.\n",
+				"description": "Creates `Identity` objects, only if they do not already exist.\n To know if the identity alraedy exists, the application tries to retrieve an identity from the provided customer id, then from the provided connection id.",
 				"Consumes": [
 					"multipart/form-data"
 				],
@@ -211,8 +213,10 @@
 						}
 					}
 				}
-			},
-			"put": {
+			}
+		},
+		"/rest/identitystore/identity/update/": {
+			"post": {
 				"description": "updates `Identity` objects.\n",
 				"Consumes": [
 					"multipart/form-data"
