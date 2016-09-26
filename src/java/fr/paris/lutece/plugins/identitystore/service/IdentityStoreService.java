@@ -275,6 +275,8 @@ public final class IdentityStoreService
         {
             throw new AppException( "Invalid attribute key : " + strKey );
         }
+        
+        String strCorrectValue = strValue == null ? StringUtils.EMPTY : strValue;
 
         boolean bCreate = false;
 
@@ -292,9 +294,9 @@ public final class IdentityStoreService
         {
             strAttrOldValue = attribute.getAttributeValue(  );
 
-            if ( attribute.getAttributeValue(  ).equals( strValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
+            if ( attribute.getAttributeValue(  ).equals( strCorrectValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
             {
-                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strValue + " for Id=" +
+                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strCorrectValue + " for Id=" +
                     identity.getId(  ) );
                 bValueUnchanged = true;
             }
@@ -327,14 +329,14 @@ public final class IdentityStoreService
                 }
             }
 
-            attribute.setAttributeValue( strValue );
+            attribute.setAttributeValue( strCorrectValue );
 
             if ( attributeKey.getKeyType(  ) == KeyType.FILE )
             {
                 handleFile( attribute, file );
             }
 
-            AttributeChange change = getAttributeChange( identity, strKey, strValue, strAttrOldValue, author,
+            AttributeChange change = getAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author,
                     certificate, bCreate );
 
             if ( bCreate )
