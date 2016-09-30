@@ -412,7 +412,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attributeChange.setIdentityId( nIdentityId );
             listAttributeChange.add( attributeChange );
         }
-        
+
         daoUtil.free(  );
 
         return listAttributeChange;

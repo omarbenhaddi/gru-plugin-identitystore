@@ -275,8 +275,8 @@ public final class IdentityStoreService
         {
             throw new AppException( "Invalid attribute key : " + strKey );
         }
-        
-        String strCorrectValue = strValue == null ? StringUtils.EMPTY : strValue;
+
+        String strCorrectValue = ( strValue == null ) ? StringUtils.EMPTY : strValue;
 
         boolean bCreate = false;
 
@@ -294,7 +294,8 @@ public final class IdentityStoreService
         {
             strAttrOldValue = attribute.getAttributeValue(  );
 
-            if ( attribute.getAttributeValue(  ).equals( strCorrectValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
+            if ( attribute.getAttributeValue(  ).equals( strCorrectValue ) &&
+                    ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
             {
                 AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strCorrectValue + " for Id=" +
                     identity.getId(  ) );

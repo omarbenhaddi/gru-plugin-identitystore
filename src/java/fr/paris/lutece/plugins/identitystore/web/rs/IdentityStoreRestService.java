@@ -273,7 +273,8 @@ public final class IdentityStoreRestService
                 if ( identity == null )
                 {
                     ResponseDto response = new ResponseDto(  );
-                    response.setMessage( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + nCustomerId + ")" );
+                    response.setMessage( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + nCustomerId +
+                        ")" );
                     response.setStatus( String.valueOf( Status.NOT_FOUND ) );
 
                     String strResponse;
@@ -288,8 +289,8 @@ public final class IdentityStoreRestService
                 if ( !StringUtils.isEmpty( strConnectionId ) )
                 {
                     IdentityRequestValidator.instance(  )
-                                            .checkFetchParams( strConnectionId, Constants.NO_CUSTOMER_ID, strClientAppCode,
-                        strAuthenticationKey );
+                                            .checkFetchParams( strConnectionId, Constants.NO_CUSTOMER_ID,
+                        strClientAppCode, strAuthenticationKey );
 
                     identity = getIdentity( strConnectionId, Constants.NO_CUSTOMER_ID, strClientAppCode );
 
@@ -542,7 +543,7 @@ public final class IdentityStoreRestService
     private Response getErrorResponse( Exception e )
     {
         AppLogService.error( e );
-        
+
         ResponseDto response = new ResponseDto(  );
         response.setMessage( e.getMessage(  ) );
         response.setStatus( String.valueOf( Status.BAD_REQUEST ) );
