@@ -541,6 +541,8 @@ public final class IdentityStoreRestService
      */
     private Response getErrorResponse( Exception e )
     {
+        AppLogService.error( e );
+        
         ResponseDto response = new ResponseDto(  );
         response.setMessage( e.getMessage(  ) );
         response.setStatus( String.valueOf( Status.BAD_REQUEST ) );
