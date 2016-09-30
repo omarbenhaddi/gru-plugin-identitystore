@@ -304,7 +304,7 @@ public final class IdentityStoreRestService
                             Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
 
                             IdentityRequestValidator.instance(  )
-                                                    .checkAttributes( identityChangeDto.getIdentity(  ),
+                                                    .checkAttributes( identityDto,
                                 identityChangeDto.getAuthor(  ).getApplicationCode(  ), mapAttachedFiles );
 
                             ChangeAuthor author = DtoConverter.getAuthor( identityChangeDto.getAuthor(  ) );
