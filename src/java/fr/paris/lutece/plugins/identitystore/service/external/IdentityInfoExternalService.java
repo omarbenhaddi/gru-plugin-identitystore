@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.external;
 
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 
@@ -78,9 +78,9 @@ public final class IdentityInfoExternalService
      * @return the identity
      * @throws IdentityNotFoundException if no identity can be retrieve from external source
      */
-    public IdentityDto getIdentityInfo( String strConnectionId )
+    public IdentityChangeDto getIdentityInfo( String strConnectionId )
         throws IdentityNotFoundException
     {
-        return (IdentityDto) _identityInfoExternalProvider.getIdentityInfo( strConnectionId );
+        return (IdentityChangeDto) _identityInfoExternalProvider.getIdentityInfo( strConnectionId );
     }
 }

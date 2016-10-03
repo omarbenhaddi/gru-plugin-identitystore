@@ -34,7 +34,14 @@
 package fr.paris.lutece.plugins.identitystore.service.external;
 
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -43,13 +50,31 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
  */
 public class MockIdentityInfoExternalProvider implements IIdentityInfoExternalProvider
 {
+    // Properties
+    private static final String PROPERTIES_APPLICATION_CODE = "identitystore.application.code";
+    private static final String APPLICATION_CODE = AppPropertiesService.getProperty( PROPERTIES_APPLICATION_CODE );
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public IdentityDto getIdentityInfo( String strConnectionId )
+    public IdentityChangeDto getIdentityInfo( String strConnectionId )
         throws IdentityNotFoundException
     {
-        throw new IdentityNotFoundException( "An external provider must be configured via Spring !!!" );
+        IdentityChangeDto identityChangeDto = new IdentityChangeDto(  );
+
+        AuthorDto authorDto = new AuthorDto(  );
+        authorDto.setApplicationCode( APPLICATION_CODE );
+        identityChangeDto.setAuthor( authorDto );
+
+        IdentityDto identityDto = new IdentityDto(  );
+        Map<String, AttributeDto> mapAttributes = new HashMap<String, AttributeDto>(  );
+
+        identityDto.setConnectionId( strConnectionId );
+        identityDto.setAttributes( mapAttributes );
+
+        identityChangeDto.setIdentity( identityDto );
+
+        return identityChangeDto;
     }
 }

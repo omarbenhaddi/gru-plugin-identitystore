@@ -58,6 +58,7 @@ import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExtern
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
@@ -301,14 +302,16 @@ public final class IdentityStoreRestService
                             IdentityRequestValidator.instance(  )
                                                     .checkCreateParams( identityChangeDto, strAuthenticationKey );
 
-                            IdentityDto identityDto = initIdentityFromConnectionId( strConnectionId );
+                            IdentityChangeDto identityChangeDtoInitialized = initIdentityFromConnectionId( strConnectionId );
+                            IdentityDto identityDto = identityChangeDtoInitialized.getIdentity(  );
+                            AuthorDto authorDto = identityChangeDtoInitialized.getAuthor(  );
                             Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
 
                             IdentityRequestValidator.instance(  )
-                                                    .checkAttributes( identityDto,
-                                identityChangeDto.getAuthor(  ).getApplicationCode(  ), mapAttachedFiles );
+                                                    .checkAttributes( identityDto, authorDto.getApplicationCode(  ),
+                                mapAttachedFiles );
 
-                            ChangeAuthor author = DtoConverter.getAuthor( identityChangeDto.getAuthor(  ) );
+                            ChangeAuthor author = DtoConverter.getAuthor( authorDto );
 
                             identity = new Identity(  );
                             identity.setConnectionId( strConnectionId );
@@ -381,7 +384,7 @@ public final class IdentityStoreRestService
      * @return the initialized identity
      * @throws IdentityNotFoundException if no identity can be retrieve from external source
      */
-    private static IdentityDto initIdentityFromConnectionId( String strConnectionId )
+    private static IdentityChangeDto initIdentityFromConnectionId( String strConnectionId )
         throws IdentityNotFoundException
     {
         return IdentityInfoExternalService.instance(  ).getIdentityInfo( strConnectionId );
