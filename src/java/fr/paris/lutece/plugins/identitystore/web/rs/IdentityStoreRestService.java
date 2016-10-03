@@ -327,6 +327,8 @@ public final class IdentityStoreRestService
                         }
                         catch ( IdentityNotFoundException e )
                         {
+                            AppLogService.error( e );
+                            
                             ResponseDto response = new ResponseDto(  );
                             response.setMessage( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" +
                                 strConnectionId + ")" );
