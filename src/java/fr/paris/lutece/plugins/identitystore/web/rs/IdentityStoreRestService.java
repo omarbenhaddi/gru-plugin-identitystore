@@ -302,7 +302,7 @@ public final class IdentityStoreRestService
                             IdentityRequestValidator.instance(  )
                                                     .checkCreateParams( identityChangeDto, strAuthenticationKey );
 
-                            IdentityChangeDto identityChangeDtoInitialized = initIdentityFromConnectionId( strConnectionId );
+                            IdentityChangeDto identityChangeDtoInitialized = initIdentity( strConnectionId );
                             IdentityDto identityDto = identityChangeDtoInitialized.getIdentity(  );
                             AuthorDto authorDto = identityChangeDtoInitialized.getAuthor(  );
                             Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
@@ -379,12 +379,12 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * Initializes an identity from an external source by using the specified connection
+     * Initializes an identity from an external source by using the specified connection id
      * @param strConnectionId the connection id used to initialize the identity
      * @return the initialized identity
      * @throws IdentityNotFoundException if no identity can be retrieve from external source
      */
-    private static IdentityChangeDto initIdentityFromConnectionId( String strConnectionId )
+    private static IdentityChangeDto initIdentity( String strConnectionId )
         throws IdentityNotFoundException
     {
         return IdentityInfoExternalService.instance(  ).getIdentityInfo( strConnectionId );
