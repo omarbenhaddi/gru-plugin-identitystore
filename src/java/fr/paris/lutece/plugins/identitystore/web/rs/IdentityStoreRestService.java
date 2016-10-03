@@ -326,18 +326,7 @@ public final class IdentityStoreRestService
                         }
                         catch ( IdentityNotFoundException e )
                         {
-                            AppLogService.error( e );
-
-                            ResponseDto response = new ResponseDto(  );
-                            response.setMessage( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" +
-                                strConnectionId + ")" );
-                            response.setStatus( String.valueOf( Status.NOT_FOUND ) );
-
-                            String strResponse;
-                            strResponse = _objectMapper.writeValueAsString( response );
-
-                            return Response.status( Status.NOT_FOUND ).type( MediaType.APPLICATION_JSON )
-                                           .entity( strResponse ).build(  );
+                            return getErrorResponse( e, Status.NOT_FOUND );
                         }
                     }
                 }
@@ -546,11 +535,38 @@ public final class IdentityStoreRestService
      */
     private Response getErrorResponse( Exception e )
     {
+        return getErrorResponse( e, Status.BAD_REQUEST );
+    }
+
+    /**
+     * build error response from exception and status
+     *
+     * @param e
+     *          exception
+     * @param status the status to send
+     * @return ResponseDto from exception
+     */
+    private Response getErrorResponse( Exception e, Status status )
+    {
         AppLogService.error( e );
 
+        String strMessage = null;
+
+        // For security purpose, send a generic message
+        switch ( status )
+        {
+            case NOT_FOUND:
+                strMessage = "No identity found";
+
+                break;
+
+            default:
+                strMessage = "An error occured during the treatment.";
+        }
+
         ResponseDto response = new ResponseDto(  );
-        response.setMessage( e.getMessage(  ) );
-        response.setStatus( String.valueOf( Status.BAD_REQUEST ) );
+        response.setStatus( String.valueOf( status ) );
+        response.setMessage( strMessage );
 
         String strResponse;
 
@@ -558,11 +574,11 @@ public final class IdentityStoreRestService
         {
             strResponse = _objectMapper.writeValueAsString( response );
 
-            return Response.status( Status.BAD_REQUEST ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+            return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
         }
         catch ( JsonProcessingException jpe )
         {
-            return Response.status( Status.BAD_REQUEST ).type( MediaType.TEXT_PLAIN ).entity( e.getMessage(  ) ).build(  );
+            return Response.status( status ).type( MediaType.TEXT_PLAIN ).entity( strMessage ).build(  );
         }
     }
 
