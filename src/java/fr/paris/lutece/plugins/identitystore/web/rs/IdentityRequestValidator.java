@@ -322,13 +322,14 @@ public final class IdentityRequestValidator
 
                 for ( AttributeRight attRight : lstRights )
                 {
-                    Attribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),
-                            attRight.getAttributeKey(  ).getKeyName(  ), strClientAppCode );
-
                     if ( attRight.getAttributeKey(  ).getId(  ) == attributeKey.getId(  ) )
                     {
+                        Attribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),
+                                attRight.getAttributeKey(  ).getKeyName(  ), strClientAppCode );
+
                         // if provided attribute is writable, or if no change => ok
-                        if ( attRight.isWritable(  ) || attributeDto.getValue(  ).equals( attribute.getValue(  ) ) )
+                        if ( attRight.isWritable(  ) ||
+                                ( ( attribute != null ) && attributeDto.getValue(  ).equals( attribute.getValue(  ) ) ) )
                         {
                             break;
                         }
