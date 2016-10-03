@@ -299,14 +299,13 @@ public final class IdentityStoreRestService
                     {
                         try
                         {
-                            IdentityRequestValidator.instance(  )
-                                                    .checkCreateParams( identityChangeDto, strAuthenticationKey );
-
                             IdentityChangeDto identityChangeDtoInitialized = initIdentity( strConnectionId );
                             IdentityDto identityDto = identityChangeDtoInitialized.getIdentity(  );
                             AuthorDto authorDto = identityChangeDtoInitialized.getAuthor(  );
                             Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
 
+                            IdentityRequestValidator.instance(  )
+                                                    .checkCreateParams( identityChangeDtoInitialized, StringUtils.EMPTY );
                             IdentityRequestValidator.instance(  )
                                                     .checkAttributes( identityDto, authorDto.getApplicationCode(  ),
                                 mapAttachedFiles );
@@ -328,7 +327,7 @@ public final class IdentityStoreRestService
                         catch ( IdentityNotFoundException e )
                         {
                             AppLogService.error( e );
-                            
+
                             ResponseDto response = new ResponseDto(  );
                             response.setMessage( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" +
                                 strConnectionId + ")" );

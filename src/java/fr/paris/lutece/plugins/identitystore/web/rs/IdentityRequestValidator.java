@@ -305,15 +305,8 @@ public final class IdentityRequestValidator
 
         if ( identityDto.getAttributes(  ) != null )
         {
-            ClientApplication clientApplication = ClientApplicationHome.findByCode( strClientAppCode );
-
-            if ( clientApplication == null )
-            {
-                AppLogService.error( "The client application " + strClientAppCode + " does not exists !!!" );
-                throw new AppException(  );
-            }
-
-            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( clientApplication );
+            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
+                        strClientAppCode ) );
 
             // check that all file attribute type provided with filename in dto have
             // matching attachements
