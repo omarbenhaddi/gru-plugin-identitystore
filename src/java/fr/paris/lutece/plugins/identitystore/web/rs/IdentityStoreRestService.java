@@ -630,10 +630,9 @@ public final class IdentityStoreRestService
     {
         IdentityChangeDto identityChangeDto = _objectMapper.readValue( strJsonContent, IdentityChangeDto.class );
 
-        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity(  ).getAttributes(  ) == null ) ||
-                ( identityChangeDto.getIdentity(  ).getAttributes(  ).size(  ) == 0 ) )
+        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity(  ) == null ))
         {
-            throw new AppException( "no attribute to update" );
+            throw new AppException( "no identity to update" );
         }
 
         return identityChangeDto;
