@@ -105,7 +105,7 @@ public interface IIdentityAttributeDAO
      * @return The map which contains the data of all the identityAttribute
      *         objects
      */
-    Map<String, Attribute> selectAttributes( int nIdentityId, Plugin plugin );
+    Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin );
 
     /**
      * Load the data of all attributes for a given identity ID which are alowed
@@ -120,7 +120,7 @@ public interface IIdentityAttributeDAO
      * @return the map which contains the data of all the identityAttribute
      *         objects
      */
-    Map<String, Attribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin );
+    Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin );
 
     /**
      * Load the data of all the identityAttribute objects and returns them as a
@@ -148,7 +148,7 @@ public interface IIdentityAttributeDAO
      * @return the list which contains the data of all the identityAttribute
      *         objects
      */
-    Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin );
+    IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin );
 
     /**
      * Delete all attributes matching the provided identityId

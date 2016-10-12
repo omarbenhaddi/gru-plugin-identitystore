@@ -33,8 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.test.LuteceTestCase;
 
@@ -60,7 +60,7 @@ public class IdentityStoreServiceTest extends LuteceTestCase
         Identity identity = getIdentity(  );
         IdentityStoreService.setAttribute( identity, "email", "john.doe@nowhere.com", null, null );
 
-        Map<String, Attribute> map = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
+        Map<String, IdentityAttribute> map = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
         assertTrue( map.size(  ) == 1 );
     }
 

@@ -45,11 +45,11 @@ import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
@@ -103,6 +103,10 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 @Path( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.IDENTITY_PATH )
 public final class IdentityStoreRestService
 {
+    private static final String ERROR_NO_IDENTITY_FOUND = "No identity found";
+    private static final String ERROR_NO_IDENTITY_TO_UPDATE = "no identity to update";
+    private static final String ERROR_NO_IDENTITY_PROVIDED = "Neither the guid, nor the cid, nor the identity attributes are provided !!!";
+    private static final String ERROR_DURING_TREATMENT = "An error occured during the treatment.";
     private ObjectMapper _objectMapper;
 
     /**
@@ -299,30 +303,7 @@ public final class IdentityStoreRestService
                     {
                         try
                         {
-                            IdentityChangeDto identityChangeDtoInitialized = initIdentity( strConnectionId );
-                            IdentityDto identityDto = identityChangeDtoInitialized.getIdentity(  );
-                            AuthorDto authorDto = identityChangeDtoInitialized.getAuthor(  );
-                            Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
-
-                            IdentityRequestValidator.instance(  )
-                                                    .checkCreateParams( identityChangeDtoInitialized, StringUtils.EMPTY );
-                            IdentityRequestValidator.instance(  )
-                                                    .checkAttributes( identityDto, authorDto.getApplicationCode(  ),
-                                mapAttachedFiles );
-
-                            ChangeAuthor author = DtoConverter.getAuthor( authorDto );
-
-                            identity = new Identity(  );
-                            identity.setConnectionId( strConnectionId );
-                            IdentityHome.create( identity );
-
-                            updateAttributes( identity, identityDto, author, mapAttachedFiles );
-
-                            if ( AppLogService.isDebugEnabled(  ) )
-                            {
-                                AppLogService.debug( "New identity created with provided guid (" + strConnectionId +
-                                    ". Associated customer id is : " + identity.getCustomerId(  ) );
-                            }
+                            identity = initIdentity( strConnectionId );
                         }
                         catch ( IdentityNotFoundException e )
                         {
@@ -352,8 +333,7 @@ public final class IdentityStoreRestService
                     }
                     else
                     {
-                        throw new IdentityStoreException( 
-                            "Neither the guid, nor the cid, nor the identity attributes are provided !!!" );
+                        throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
                     }
                 }
             }
@@ -374,10 +354,37 @@ public final class IdentityStoreRestService
      * @return the initialized identity
      * @throws IdentityNotFoundException if no identity can be retrieve from external source
      */
-    private static IdentityChangeDto initIdentity( String strConnectionId )
+    private static Identity initIdentity( String strConnectionId )
         throws IdentityNotFoundException
     {
-        return IdentityInfoExternalService.instance(  ).getIdentityInfo( strConnectionId );
+        IdentityChangeDto identityChangeDtoInitialized = new IdentityChangeDto(  );
+
+        identityChangeDtoInitialized = IdentityInfoExternalService.instance(  ).getIdentityInfo( strConnectionId );
+
+        IdentityDto identityDto = identityChangeDtoInitialized.getIdentity(  );
+        AuthorDto authorDto = identityChangeDtoInitialized.getAuthor(  );
+        Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
+
+        IdentityRequestValidator.instance(  ).checkCreateParams( identityChangeDtoInitialized, StringUtils.EMPTY );
+        IdentityRequestValidator.instance(  )
+                                .checkAttributes( identityDto, authorDto.getApplicationCode(  ), mapAttachedFiles );
+
+        ChangeAuthor author = DtoConverter.getAuthor( authorDto );
+
+        Identity identity = new Identity(  );
+        identity.setConnectionId( strConnectionId );
+        IdentityHome.create( identity );
+
+        updateAttributes( identity, identityDto, author, mapAttachedFiles );
+
+        if ( AppLogService.isDebugEnabled(  ) )
+        {
+            AppLogService.debug( "New identity created with provided guid (" + strConnectionId +
+                ". Associated customer id is : " + identity.getCustomerId(  ) + ". Associated attributes are : " +
+                identity.getAttributes(  ) );
+        }
+
+        return identity;
     }
 
     /**
@@ -426,6 +433,7 @@ public final class IdentityStoreRestService
 
     /**
      * get identity from connectionId or customerId
+     * If no identity is found then a new one be created with attributes based on external provider data
      * @param strConnectionId connection id
      * @param nCustomerId customer id
      * @param strClientAppCode client application code
@@ -440,7 +448,8 @@ public final class IdentityStoreRestService
         {
             identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
-            if ( ( identity != null ) && ( nCustomerId != 0 ) && ( nCustomerId != identity.getCustomerId(  ) ) )
+            if ( ( identity != null ) && ( nCustomerId != Constants.NO_CUSTOMER_ID ) &&
+                    ( nCustomerId != identity.getCustomerId(  ) ) )
             {
                 throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" +
                     " AND " + Constants.PARAM_ID_CUSTOMER + "(" + nCustomerId + ")" + " params provided " );
@@ -449,6 +458,19 @@ public final class IdentityStoreRestService
         else
         {
             identity = IdentityStoreService.getIdentityByCustomerId( nCustomerId, strClientAppCode );
+        }
+
+        if ( identity == null )
+        {
+            try
+            {
+                identity = initIdentity( strConnectionId );
+            }
+            catch ( IdentityNotFoundException e )
+            {
+                //Identity not found in External provider : creation is aborted
+                AppLogService.info( "Could not create an identity from external source" );
+            }
         }
 
         return identity;
@@ -556,12 +578,12 @@ public final class IdentityStoreRestService
         switch ( status )
         {
             case NOT_FOUND:
-                strMessage = "No identity found";
+                strMessage = ERROR_NO_IDENTITY_FOUND;
 
                 break;
 
             default:
-                strMessage = "An error occured during the treatment.";
+                strMessage = ERROR_DURING_TREATMENT;
         }
 
         ResponseDto response = new ResponseDto(  );
@@ -597,7 +619,7 @@ public final class IdentityStoreRestService
     private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey )
         throws AppException
     {
-        Attribute attribute = IdentityStoreService.getAttribute( strConnectionId, strAttributeKey, strClientCode );
+        IdentityAttribute attribute = IdentityStoreService.getAttribute( strConnectionId, strAttributeKey, strClientCode );
 
         if ( ( attribute == null ) || ( attribute.getFile(  ) == null ) )
         {
@@ -630,9 +652,9 @@ public final class IdentityStoreRestService
     {
         IdentityChangeDto identityChangeDto = _objectMapper.readValue( strJsonContent, IdentityChangeDto.class );
 
-        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity(  ) == null ))
+        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity(  ) == null ) )
         {
-            throw new AppException( "no identity to update" );
+            throw new AppException( ERROR_NO_IDENTITY_TO_UPDATE );
         }
 
         return identityChangeDto;
@@ -651,7 +673,7 @@ public final class IdentityStoreRestService
      *          map containing File matching key attribute name
      *
      */
-    private void updateAttributes( Identity identity, IdentityDto identityDto, ChangeAuthor author,
+    private static void updateAttributes( Identity identity, IdentityDto identityDto, ChangeAuthor author,
         Map<String, File> mapAttachedFiles )
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );

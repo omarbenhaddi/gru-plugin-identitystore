@@ -33,12 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
@@ -324,7 +324,7 @@ public final class IdentityRequestValidator
                 {
                     if ( attRight.getAttributeKey(  ).getId(  ) == attributeKey.getId(  ) )
                     {
-                        Attribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),
+                        IdentityAttribute attribute = IdentityStoreService.getAttribute( identityDto.getConnectionId(  ),
                                 attRight.getAttributeKey(  ).getKeyName(  ), strClientAppCode );
 
                         // if provided attribute is writable, or if no change => ok

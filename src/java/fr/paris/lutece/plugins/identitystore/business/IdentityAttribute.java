@@ -39,6 +39,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 
+import java.sql.Timestamp;
+
 import javax.validation.constraints.Size;
 
 
@@ -56,6 +58,9 @@ public class IdentityAttribute implements Serializable
     private int _nIdCertificate;
     private File _file;
     private AttributeCertificate _certificate;
+    private String _strKey;
+    private String _strName;
+    private Timestamp _dateLastUpdate;
 
     /**
      * Returns the IdIdentity
@@ -104,7 +109,7 @@ public class IdentityAttribute implements Serializable
      *
      * @return The AttributeValue
      */
-    public String getAttributeValue(  )
+    public String getValue(  )
     {
         return _strAttributeValue;
     }
@@ -115,7 +120,7 @@ public class IdentityAttribute implements Serializable
      * @param strAttributeValue
      *          The AttributeValue
      */
-    public void setAttributeValue( String strAttributeValue )
+    public void setValue( String strAttributeValue )
     {
         _strAttributeValue = strAttributeValue;
     }
@@ -156,5 +161,85 @@ public class IdentityAttribute implements Serializable
     public void setFile( File file )
     {
         this._file = file;
+    }
+
+    /**
+     * Returns the Key
+     *
+     * @return The Key
+     */
+    public String getKey(  )
+    {
+        return _strKey;
+    }
+
+    /**
+     * Sets the Key
+     *
+     * @param strKey
+     *          The Key
+     */
+    public void setKey( String strKey )
+    {
+        _strKey = strKey;
+    }
+
+    /**
+     * Returns the Name
+     *
+     * @return The Name
+     */
+    public String getName(  )
+    {
+        return _strName;
+    }
+
+    /**
+     * Sets the Name
+     *
+     * @param strName
+     *          The Name
+     */
+    public void setName( String strName )
+    {
+        _strName = strName;
+    }
+
+    /**
+     * Returns the Certificate
+     *
+     * @return The Certificate
+     */
+    public AttributeCertificate getCertificate(  )
+    {
+        return _certificate;
+    }
+
+    /**
+     * Sets the Certificate
+     *
+     * @param certificate
+     *          The certificate
+     */
+    public void setCertificate( AttributeCertificate certificate )
+    {
+        _certificate = certificate;
+    }
+
+    /**
+     * @return the _dateLastUpdate
+     */
+    public Timestamp getLastUpdateDate(  )
+    {
+        return _dateLastUpdate;
+    }
+
+    /**
+     * @param dateLastUpdate
+     *          the _dateLastUpdate to set
+     */
+    public void setLastUpdateDate( Timestamp dateLastUpdate )
+    {
+        this._dateLastUpdate = dateLastUpdate;
     }
 }

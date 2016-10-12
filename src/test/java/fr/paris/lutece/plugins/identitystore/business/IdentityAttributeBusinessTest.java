@@ -53,7 +53,7 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         IdentityAttribute identityAttribute = new IdentityAttribute(  );
         identityAttribute.setIdIdentity( IDIDENTITY1 );
         identityAttribute.setIdAttribute( IDATTRIBUTE1 );
-        identityAttribute.setAttributeValue( ATTRIBUTEVALUE1 );
+        identityAttribute.setValue( ATTRIBUTEVALUE1 );
         identityAttribute.setIdCertificate( IDCERTIFICATION1 );
 
         // Create test
@@ -63,20 +63,20 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
                 identityAttribute.getIdAttribute(  ) );
         assertEquals( identityAttributeStored.getIdIdentity(  ), identityAttribute.getIdIdentity(  ) );
         assertEquals( identityAttributeStored.getIdAttribute(  ), identityAttribute.getIdAttribute(  ) );
-        assertEquals( identityAttributeStored.getAttributeValue(  ), identityAttribute.getAttributeValue(  ) );
+        assertEquals( identityAttributeStored.getValue(  ), identityAttribute.getValue(  ) );
         assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
 
         // Update test
         identityAttribute.setIdIdentity( IDIDENTITY2 );
         identityAttribute.setIdAttribute( IDATTRIBUTE2 );
-        identityAttribute.setAttributeValue( ATTRIBUTEVALUE2 );
+        identityAttribute.setValue( ATTRIBUTEVALUE2 );
         identityAttribute.setIdCertificate( IDCERTIFICATION2 );
         IdentityAttributeHome.update( identityAttribute );
         identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
                 identityAttribute.getIdAttribute(  ) );
         assertEquals( identityAttributeStored.getIdIdentity(  ), identityAttribute.getIdIdentity(  ) );
         assertEquals( identityAttributeStored.getIdAttribute(  ), identityAttribute.getIdAttribute(  ) );
-        assertEquals( identityAttributeStored.getAttributeValue(  ), identityAttribute.getAttributeValue(  ) );
+        assertEquals( identityAttributeStored.getValue(  ), identityAttribute.getValue(  ) );
         assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
 
         // List test

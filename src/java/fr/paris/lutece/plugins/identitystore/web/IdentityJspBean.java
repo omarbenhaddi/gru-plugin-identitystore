@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
@@ -42,8 +41,6 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityConstants;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.portal.business.user.attribute.AttributeHome;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -196,7 +193,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private void saveFirstNameAttribute( String strFirstName )
     {
         IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
-        idAttrFirstName.setAttributeValue( strFirstName );
+        idAttrFirstName.setValue( strFirstName );
         idAttrFirstName.setIdAttribute( _attrKeyFirstName.getId(  ) );
         idAttrFirstName.setIdIdentity( _identity.getId(  ) );
         IdentityAttributeHome.create( idAttrFirstName );
@@ -211,7 +208,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private void saveLastNameAttribute( String strLastName )
     {
         IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
-        idAttrFirstName.setAttributeValue( strLastName );
+        idAttrFirstName.setValue( strLastName );
         idAttrFirstName.setIdAttribute( _attrKeyLastName.getId(  ) );
         idAttrFirstName.setIdIdentity( _identity.getId(  ) );
         IdentityAttributeHome.create( idAttrFirstName );

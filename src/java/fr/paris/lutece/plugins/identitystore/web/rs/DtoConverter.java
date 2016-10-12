@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
@@ -41,6 +40,7 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
@@ -94,7 +94,7 @@ public final class DtoConverter
             List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
                         strClientAppCode ) );
 
-            for ( Attribute attribute : identity.getAttributes(  ).values(  ) )
+            for ( IdentityAttribute attribute : identity.getAttributes(  ).values(  ) )
             {
                 AttributeDto attrDto = new AttributeDto(  );
                 attrDto.setKey( attribute.getKey(  ) );

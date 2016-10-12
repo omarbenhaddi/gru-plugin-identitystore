@@ -112,7 +112,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdAttribute(  ) );
-        daoUtil.setString( nIndex++, identityAttribute.getAttributeValue(  ) );
+        daoUtil.setString( nIndex++, identityAttribute.getValue(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
         daoUtil.setInt( nIndex++,
             ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
@@ -142,7 +142,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
             identityAttribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
             identityAttribute.setIdAttribute( daoUtil.getInt( nIndex++ ) );
-            identityAttribute.setAttributeValue( daoUtil.getString( nIndex++ ) );
+            identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
             identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
 
             int nIdFile = daoUtil.getInt( nIndex++ );
@@ -182,7 +182,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdAttribute(  ) );
-        daoUtil.setString( nIndex++, identityAttribute.getAttributeValue(  ) );
+        daoUtil.setString( nIndex++, identityAttribute.getValue(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
         daoUtil.setInt( nIndex++,
             ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
@@ -197,16 +197,16 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public Map<String, Attribute> selectAttributes( int nIdentityId, Plugin plugin )
+    public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin )
     {
-        Map<String, Attribute> attributesMap = new HashMap<String, Attribute>(  );
+        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>(  );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeQuery(  );
 
         while ( daoUtil.next(  ) )
         {
-            Attribute attribute = new Attribute(  );
+            IdentityAttribute attribute = new IdentityAttribute(  );
             int nIndex = 1;
 
             attribute.setKey( daoUtil.getString( nIndex++ ) );
@@ -219,7 +219,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             {
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
-                attribute.setLevel( certificate.getCertificateLevel(  ) );
+
+                //attribute.setLevel( certificate.getCertificateLevel(  ) );
             }
 
             int nIdFile = daoUtil.getInt( nIndex++ );
@@ -242,9 +243,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public Map<String, Attribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin )
+    public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin )
     {
-        Map<String, Attribute> attributesMap = new HashMap<String, Attribute>(  );
+        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>(  );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setString( 2, strApplicationCode );
@@ -252,7 +253,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         while ( daoUtil.next(  ) )
         {
-            Attribute attribute = new Attribute(  );
+            IdentityAttribute attribute = new IdentityAttribute(  );
             int nIndex = 1;
 
             attribute.setKey( daoUtil.getString( nIndex++ ) );
@@ -265,7 +266,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             {
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
-                attribute.setLevel( certificate.getCertificateLevel(  ) );
+
+                //attribute.setLevel( certificate.getCertificateLevel(  ) );
             }
 
             int nIdFile = daoUtil.getInt( nIndex++ );
@@ -308,9 +310,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public Attribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin )
+    public IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode,
+        Plugin plugin )
     {
-        Attribute attribute = null;
+        IdentityAttribute attribute = null;
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setString( 2, strApplicationCode );
@@ -319,7 +322,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         if ( daoUtil.next(  ) )
         {
-            attribute = new Attribute(  );
+            attribute = new IdentityAttribute(  );
 
             int nIndex = 1;
 
@@ -333,7 +336,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             {
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
-                attribute.setLevel( certificate.getCertificateLevel(  ) );
+
+                //attribute.setLevel( certificate.getCertificateLevel(  ) );
             }
 
             int nIdFile = daoUtil.getInt( nIndex++ );

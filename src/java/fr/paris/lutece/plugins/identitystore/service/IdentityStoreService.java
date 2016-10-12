@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.plugins.identitystore.business.Attribute;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
@@ -125,7 +124,7 @@ public final class IdentityStoreService
      *          connection id
      * @return full attributes list for user identified by connection id
      */
-    public static Map<String, Attribute> getAttributesByConnectionId( String strConnectionId )
+    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
 
@@ -147,7 +146,7 @@ public final class IdentityStoreService
      * @return attributes list according to application rights for user identified
      *         by connection id
      */
-    public static Map<String, Attribute> getAttributesByConnectionId( String strConnectionId,
+    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId,
         String strClientApplicationCode )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
@@ -172,7 +171,7 @@ public final class IdentityStoreService
      * @return attributes list according to application rights for user identified
      *         by connection id
      */
-    public static Attribute getAttribute( String strConnectionId, String strAttributeKey,
+    public static IdentityAttribute getAttribute( String strConnectionId, String strAttributeKey,
         String strClientApplicationCode )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
@@ -288,14 +287,15 @@ public final class IdentityStoreService
             attribute = new IdentityAttribute(  );
             attribute.setIdAttribute( attributeKey.getId(  ) );
             attribute.setIdIdentity( identity.getId(  ) );
+            attribute.setName( attributeKey.getName(  ) );
+            attribute.setKey( attributeKey.getKeyName(  ) );
             bCreate = true;
         }
         else
         {
-            strAttrOldValue = attribute.getAttributeValue(  );
+            strAttrOldValue = attribute.getValue(  );
 
-            if ( attribute.getAttributeValue(  ).equals( strCorrectValue ) &&
-                    ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
+            if ( attribute.getValue(  ).equals( strCorrectValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
             {
                 AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strCorrectValue + " for Id=" +
                     identity.getId(  ) );
@@ -330,7 +330,7 @@ public final class IdentityStoreService
                 }
             }
 
-            attribute.setAttributeValue( strCorrectValue );
+            attribute.setValue( strCorrectValue );
 
             if ( attributeKey.getKeyType(  ) == KeyType.FILE )
             {
@@ -351,6 +351,8 @@ public final class IdentityStoreService
 
             notifyListeners( change );
         }
+
+        identity.getAttributes(  ).put( attribute.getKey(  ), attribute );
     }
 
     /**
@@ -426,7 +428,7 @@ public final class IdentityStoreService
 
             file.setIdFile( FileHome.create( file ) );
             attribute.setFile( file );
-            attribute.setAttributeValue( file.getTitle(  ) );
+            attribute.setValue( file.getTitle(  ) );
         }
         else
         {
@@ -437,7 +439,7 @@ public final class IdentityStoreService
             }
 
             attribute.setFile( null );
-            attribute.setAttributeValue( StringUtils.EMPTY );
+            attribute.setValue( StringUtils.EMPTY );
         }
     }
 

@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.validation.constraints.Size;
@@ -57,7 +58,7 @@ public class Identity implements Serializable
     private String _strConnectionId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
     private int _nCustomerId;
-    private Map<String, Attribute> _mapAttributes;
+    private Map<String, IdentityAttribute> _mapAttributes = new HashMap<String, IdentityAttribute>(  );
 
     /**
      * Returns the Id
@@ -125,7 +126,7 @@ public class Identity implements Serializable
     /**
      * @return the _mapAttributes
      */
-    public Map<String, Attribute> getAttributes(  )
+    public Map<String, IdentityAttribute> getAttributes(  )
     {
         return _mapAttributes;
     }
@@ -134,7 +135,7 @@ public class Identity implements Serializable
      * @param mapAttributes
      *          the mapAttributes to set
      */
-    public void setAttributes( Map<String, Attribute> mapAttributes )
+    public void setAttributes( Map<String, IdentityAttribute> mapAttributes )
     {
         this._mapAttributes = mapAttributes;
     }

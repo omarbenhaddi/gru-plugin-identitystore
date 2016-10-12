@@ -141,7 +141,7 @@ public final class IdentityAttributeHome
      * @return the list which contains the data of all the identityAttribute
      *         objects
      */
-    public static Map<String, Attribute> getAttributes( int nIdentityId, String strApplicationCode )
+    public static Map<String, IdentityAttribute> getAttributes( int nIdentityId, String strApplicationCode )
     {
         return _dao.selectAttributes( nIdentityId, strApplicationCode, _plugin );
     }
@@ -155,7 +155,7 @@ public final class IdentityAttributeHome
      * @return the map which contains the data of all the identityAttribute
      *         objects
      */
-    public static Map<String, Attribute> getAttributes( int nIdentityId )
+    public static Map<String, IdentityAttribute> getAttributes( int nIdentityId )
     {
         return _dao.selectAttributes( nIdentityId, _plugin );
     }
@@ -173,7 +173,7 @@ public final class IdentityAttributeHome
      * @return the list which contains the data of all the identityAttribute
      *         objects
      */
-    public static Attribute getAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode )
+    public static IdentityAttribute getAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode )
     {
         return _dao.selectAttribute( nIdentityId, strAttributeKey, strApplicationCode, _plugin );
     }
