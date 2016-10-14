@@ -262,6 +262,7 @@ public final class IdentityStoreRestService
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
+            Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
             int nCustomerId = identityChangeDto.getIdentity(  ).getCustomerId(  );
             String strConnectionId = identityChangeDto.getIdentity(  ).getConnectionId(  );
             String strClientAppCode = identityChangeDto.getAuthor(  ).getApplicationCode(  );
@@ -272,7 +273,7 @@ public final class IdentityStoreRestService
                 IdentityRequestValidator.instance(  )
                                         .checkFetchParams( null, nCustomerId, strClientAppCode, strAuthenticationKey );
 
-                identity = getIdentity( null, nCustomerId, strClientAppCode );
+                identity = IdentityStoreService.getIdentityByCustomerId( nCustomerId, strClientAppCode );
 
                 if ( identity == null )
                 {
@@ -296,13 +297,14 @@ public final class IdentityStoreRestService
                                             .checkFetchParams( strConnectionId, Constants.NO_CUSTOMER_ID,
                         strClientAppCode, strAuthenticationKey );
 
-                    identity = getIdentity( strConnectionId, Constants.NO_CUSTOMER_ID, strClientAppCode );
+                    identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
                     if ( identity == null )
                     {
                         try
                         {
-                            identity = initIdentity( strConnectionId );
+                            identity = createIdentity( strConnectionId );
+                            identity = updateIdentity( identity, identityChangeDto, mapAttachedFiles, strAuthenticationKey );
                         }
                         catch ( IdentityNotFoundException e )
                         {
@@ -312,26 +314,7 @@ public final class IdentityStoreRestService
                 }
                 else
                 {
-                    Map<String, AttributeDto> mapAttributes = identityChangeDto.getIdentity(  ).getAttributes(  );
-
-                    if ( ( mapAttributes != null ) && !mapAttributes.isEmpty(  ) )
-                    {
-                        Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
-
-                        IdentityRequestValidator.instance(  ).checkCreateParams( identityChangeDto, strAuthenticationKey );
-                        IdentityRequestValidator.instance(  )
-                                                .checkAttributes( identityChangeDto.getIdentity(  ),
-                            identityChangeDto.getAuthor(  ).getApplicationCode(  ), mapAttachedFiles );
-
-                        identity = new Identity(  );
-                        IdentityHome.create( identity );
-
-                        updateAttributes( identity, identityChangeDto.getIdentity(  ), identityChangeDto.getAuthor(  ), mapAttachedFiles );
-                    }
-                    else
-                    {
-                        throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
-                    }
+                    identity = createIdentity( identityChangeDto, mapAttachedFiles, strAuthenticationKey );
                 }
             }
 
@@ -351,27 +334,16 @@ public final class IdentityStoreRestService
      * @return the initialized identity
      * @throws IdentityNotFoundException if no identity can be retrieve from external source
      */
-    private static Identity initIdentity( String strConnectionId )
+    private static Identity createIdentity( String strConnectionId )
         throws IdentityNotFoundException
     {
-        IdentityChangeDto identityChangeDtoInitialized = new IdentityChangeDto(  );
-
-        identityChangeDtoInitialized = IdentityInfoExternalService.instance(  ).getIdentityInfo( strConnectionId );
-
-        IdentityDto identityDto = identityChangeDtoInitialized.getIdentity(  );
-        AuthorDto authorDto = identityChangeDtoInitialized.getAuthor(  );
-        Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
-
-        IdentityRequestValidator.instance(  ).checkCreateParams( identityChangeDtoInitialized, StringUtils.EMPTY );
-        IdentityRequestValidator.instance(  )
-                                .checkAttributes( identityDto, authorDto.getApplicationCode(  ), mapAttachedFiles );
-
+        IdentityChangeDto identityChangeDtoInitialized = IdentityInfoExternalService.instance(  ).getIdentityInfo( strConnectionId );
+        
         Identity identity = new Identity(  );
         identity.setConnectionId( strConnectionId );
-        IdentityHome.create( identity );
-
-        updateAttributes( identity, identityDto, authorDto, mapAttachedFiles );
-
+                
+        identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>(  ), true, StringUtils.EMPTY );
+        
         if ( AppLogService.isDebugEnabled(  ) )
         {
             AppLogService.debug( "New identity created with provided guid (" + strConnectionId +
@@ -379,6 +351,71 @@ public final class IdentityStoreRestService
                 identity.getAttributes(  ) );
         }
 
+        return identity;
+    }
+    
+    /**
+     * Creates an identity. If the provided identity is new, a creation of the object {@code Identity} is done, otherwise, the provided identity is used.
+     * @param identityChangeDto the object {@code IdentityChangeDto} containing the information to perform the creation
+     * @param mapAttachedFiles the files to create
+     * @param strAuthenticationKey the authentication key
+     * @return the created identity
+     */
+    private static Identity createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles, String strAuthenticationKey )
+    {
+        Identity identity = new Identity(  );
+        updateIdentity( identity, identityChangeDto, mapAttachedFiles, true, strAuthenticationKey );
+        
+        return identity;
+    }
+    
+    /**
+     * Updates an identity.
+     * @param identity the identity to complete.
+     * @param identityChangeDto the object {@code IdentityChangeDto} containing the information to perform the creation
+     * @param mapAttachedFiles the files to create
+     * @param strAuthenticationKey the authentication key
+     * @return the updated identity
+     */
+    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles, String strAuthenticationKey )
+    {
+        return updateIdentity( identity, identityChangeDto, mapAttachedFiles, false, strAuthenticationKey );
+    }
+    
+    /**
+     * Updates an identity. If the provided identity is new, a creation of the object {@code Identity} is done, otherwise, the provided identity is used.
+     * @param identity the identity to complete.
+     * @param identityChangeDto the object {@code IdentityChangeDto} containing the information to perform the creation
+     * @param mapAttachedFiles the files to create
+     * @param bNewIdentity {@code true} if the identity is a new one (and must be created), {@code false} otherwise
+     * @param strAuthenticationKey the authentication key
+     * @return the updated identity
+     */
+    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles, boolean bNewIdentity, String strAuthenticationKey )
+    {
+        IdentityDto identityDto = identityChangeDto.getIdentity(  );
+        AuthorDto authorDto = identityChangeDto.getAuthor(  );
+        Map<String, AttributeDto> mapAttributes = identityDto.getAttributes(  );
+
+        if ( ( mapAttributes != null ) && !mapAttributes.isEmpty(  ) )
+        {
+            IdentityRequestValidator.instance(  ).checkCreateParams( identityChangeDto, strAuthenticationKey );
+            IdentityRequestValidator.instance(  )
+                                    .checkAttributes( identityDto,
+                                            authorDto.getApplicationCode(  ), mapAttachedFiles );
+
+            if ( bNewIdentity )
+            {
+                IdentityHome.create( identity );
+            }
+
+            updateAttributes( identity, identityDto, authorDto, mapAttachedFiles );
+        }
+        else
+        {
+            throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
+        }
+        
         return identity;
     }
 
@@ -454,7 +491,7 @@ public final class IdentityStoreRestService
             {
                 try
                 {
-                    identity = initIdentity( strConnectionId );
+                    identity = createIdentity( strConnectionId );
                 }
                 catch ( IdentityNotFoundException e )
                 {
