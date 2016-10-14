@@ -449,23 +449,23 @@ public final class IdentityStoreRestService
                 throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" +
                     " AND " + Constants.PARAM_ID_CUSTOMER + "(" + nCustomerId + ")" + " params provided " );
             }
+
+            if ( identity == null )
+            {
+                try
+                {
+                    identity = initIdentity( strConnectionId );
+                }
+                catch ( IdentityNotFoundException e )
+                {
+                    //Identity not found in External provider : creation is aborted
+                    AppLogService.info( "Could not create an identity from external source" );
+                }
+            }
         }
         else
         {
             identity = IdentityStoreService.getIdentityByCustomerId( nCustomerId, strClientAppCode );
-        }
-
-        if ( identity == null )
-        {
-            try
-            {
-                identity = initIdentity( strConnectionId );
-            }
-            catch ( IdentityNotFoundException e )
-            {
-                //Identity not found in External provider : creation is aborted
-                AppLogService.info( "Could not create an identity from external source" );
-            }
         }
 
         return identity;
