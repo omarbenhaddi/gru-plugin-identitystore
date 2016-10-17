@@ -285,10 +285,8 @@ public final class IdentityStoreService
         if ( attribute == null )
         {
             attribute = new IdentityAttribute(  );
-            attribute.setIdAttribute( attributeKey.getId(  ) );
+            attribute.setAttributeKey( attributeKey );
             attribute.setIdIdentity( identity.getId(  ) );
-            attribute.setName( attributeKey.getName(  ) );
-            attribute.setKey( attributeKey.getKeyName(  ) );
             bCreate = true;
         }
         else
@@ -352,7 +350,7 @@ public final class IdentityStoreService
             notifyListeners( change );
         }
 
-        identity.getAttributes(  ).put( attribute.getKey(  ), attribute );
+        identity.getAttributes(  ).put( attributeKey.getKeyName(  ), attribute );
     }
 
     /**

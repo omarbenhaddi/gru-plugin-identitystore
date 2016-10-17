@@ -57,13 +57,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ?";
     private static final String SQL_QUERY_DELETE_ALL_ATTR = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ?";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ?, lastupdate_date = CURRENT_TIMESTAMP WHERE id_identity = ? AND id_attribute = ? ";
-    private static final String SQL_QUERY_SELECTALL = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
-        " FROM identitystore_identity_attribute a , identitystore_attribute b" +
-        " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute";
-    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
+    private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
+        " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ?";
+    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
-    private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT b.key_name, b.name, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
+    private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
 
@@ -111,7 +110,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         int nIndex = 1;
 
         daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdAttribute(  ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey(  ).getId(  ) );
         daoUtil.setString( nIndex++, identityAttribute.getValue(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
         daoUtil.setInt( nIndex++,
@@ -141,7 +140,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             int nIndex = 1;
 
             identityAttribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-            identityAttribute.setIdAttribute( daoUtil.getInt( nIndex++ ) );
+            identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) ) );
             identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
             identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
 
@@ -181,13 +180,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         int nIndex = 1;
 
         daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdAttribute(  ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey(  ).getId(  ) );
         daoUtil.setString( nIndex++, identityAttribute.getValue(  ) );
         daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
         daoUtil.setInt( nIndex++,
             ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
         daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
-        daoUtil.setInt( nIndex, identityAttribute.getIdAttribute(  ) );
+        daoUtil.setInt( nIndex, identityAttribute.getAttributeKey(  ).getId(  ) );
 
         daoUtil.executeUpdate(  );
         daoUtil.free(  );
@@ -206,19 +205,20 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         while ( daoUtil.next(  ) )
         {
-            IdentityAttribute attribute = new IdentityAttribute(  );
+            IdentityAttribute identityAttribute = new IdentityAttribute(  );
             int nIndex = 1;
 
-            attribute.setKey( daoUtil.getString( nIndex++ ) );
-            attribute.setName( daoUtil.getString( nIndex++ ) );
-            attribute.setValue( daoUtil.getString( nIndex++ ) );
+            AttributeKey attribute = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
+
+            identityAttribute.setAttributeKey( attribute );
+            identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );
 
             if ( nCertificateId != 0 )
             {
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
-                attribute.setCertificate( certificate );
+                identityAttribute.setCertificate( certificate );
 
                 //attribute.setLevel( certificate.getCertificateLevel(  ) );
             }
@@ -227,11 +227,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
             if ( nIdFile > 0 )
             {
-                attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
+                identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
 
-            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributesMap.put( attribute.getKey(  ), attribute );
+            identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+            attributesMap.put( attribute.getKeyName(  ), identityAttribute );
         }
 
         daoUtil.free(  );
@@ -256,8 +256,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             IdentityAttribute attribute = new IdentityAttribute(  );
             int nIndex = 1;
 
-            attribute.setKey( daoUtil.getString( nIndex++ ) );
-            attribute.setName( daoUtil.getString( nIndex++ ) );
+            AttributeKey attributeKey = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
+
+            attribute.setAttributeKey( attributeKey );
             attribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );
@@ -278,7 +279,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             }
 
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributesMap.put( attribute.getKey(  ), attribute );
+            attributesMap.put( attributeKey.getKeyName(  ), attribute );
         }
 
         daoUtil.free(  );
@@ -326,8 +327,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
             int nIndex = 1;
 
-            attribute.setKey( daoUtil.getString( nIndex++ ) );
-            attribute.setName( daoUtil.getString( nIndex++ ) );
+            attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) ) );
             attribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );

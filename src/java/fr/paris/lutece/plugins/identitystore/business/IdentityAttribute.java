@@ -51,15 +51,13 @@ public class IdentityAttribute implements Serializable
 {
     private static final long serialVersionUID = 1L;
     private int _nIdIdentity;
-    private int _nIdAttribute;
+    private AttributeKey _attributeKey;
     @NotEmpty( message = "#i18n{identitystore.validation.identityattribute.AttributeValue.notEmpty}" )
     @Size( max = 255, message = "#i18n{identitystore.validation.identityattribute.AttributeValue.size}" )
-    private String _strAttributeValue;
+    private String _strValue;
     private int _nIdCertificate;
     private File _file;
     private AttributeCertificate _certificate;
-    private String _strKey;
-    private String _strName;
     private Timestamp _dateLastUpdate;
 
     /**
@@ -84,45 +82,45 @@ public class IdentityAttribute implements Serializable
     }
 
     /**
-     * Returns the IdAttribute
+     * Returns the AttributeKey
      *
-     * @return The IdAttribute
+     * @return The AttributeKey
      */
-    public int getIdAttribute(  )
+    public AttributeKey getAttributeKey(  )
     {
-        return _nIdAttribute;
+        return _attributeKey;
     }
 
     /**
-     * Sets the IdAttribute
+     * Sets the AttributeKey
      *
-     * @param nIdAttribute
-     *          The IdAttribute
+     * @param attributeKey
+     *          The AttributeKey
      */
-    public void setIdAttribute( int nIdAttribute )
+    public void setAttributeKey( AttributeKey attributeKey )
     {
-        _nIdAttribute = nIdAttribute;
+        _attributeKey = attributeKey;
     }
 
     /**
-     * Returns the AttributeValue
+     * Returns the value
      *
-     * @return The AttributeValue
+     * @return The value
      */
     public String getValue(  )
     {
-        return _strAttributeValue;
+        return _strValue;
     }
 
     /**
-     * Sets the AttributeValue
+     * Sets the value
      *
-     * @param strAttributeValue
-     *          The AttributeValue
+     * @param strValue
+     *          The value
      */
-    public void setValue( String strAttributeValue )
+    public void setValue( String strValue )
     {
-        _strAttributeValue = strAttributeValue;
+        _strValue = strValue;
     }
 
     /**
@@ -161,48 +159,6 @@ public class IdentityAttribute implements Serializable
     public void setFile( File file )
     {
         this._file = file;
-    }
-
-    /**
-     * Returns the Key
-     *
-     * @return The Key
-     */
-    public String getKey(  )
-    {
-        return _strKey;
-    }
-
-    /**
-     * Sets the Key
-     *
-     * @param strKey
-     *          The Key
-     */
-    public void setKey( String strKey )
-    {
-        _strKey = strKey;
-    }
-
-    /**
-     * Returns the Name
-     *
-     * @return The Name
-     */
-    public String getName(  )
-    {
-        return _strName;
-    }
-
-    /**
-     * Sets the Name
-     *
-     * @param strName
-     *          The Name
-     */
-    public void setName( String strName )
-    {
-        _strName = strName;
     }
 
     /**

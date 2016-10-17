@@ -194,7 +194,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
         idAttrFirstName.setValue( strFirstName );
-        idAttrFirstName.setIdAttribute( _attrKeyFirstName.getId(  ) );
+        idAttrFirstName.setAttributeKey( _attrKeyFirstName );
         idAttrFirstName.setIdIdentity( _identity.getId(  ) );
         IdentityAttributeHome.create( idAttrFirstName );
     }
@@ -209,7 +209,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
         idAttrFirstName.setValue( strLastName );
-        idAttrFirstName.setIdAttribute( _attrKeyLastName.getId(  ) );
+        idAttrFirstName.setAttributeKey( _attrKeyLastName );
         idAttrFirstName.setIdIdentity( _identity.getId(  ) );
         IdentityAttributeHome.create( idAttrFirstName );
     }

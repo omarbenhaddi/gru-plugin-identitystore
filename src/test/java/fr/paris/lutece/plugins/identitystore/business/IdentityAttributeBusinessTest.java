@@ -50,9 +50,11 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
     public void testBusiness(  )
     {
         // Initialize an object
+        AttributeKey attributeKey = new AttributeKey(  );
+        attributeKey.setId( IDATTRIBUTE1 );
         IdentityAttribute identityAttribute = new IdentityAttribute(  );
         identityAttribute.setIdIdentity( IDIDENTITY1 );
-        identityAttribute.setIdAttribute( IDATTRIBUTE1 );
+        identityAttribute.setAttributeKey( attributeKey );
         identityAttribute.setValue( ATTRIBUTEVALUE1 );
         identityAttribute.setIdCertificate( IDCERTIFICATION1 );
 
@@ -60,22 +62,22 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         IdentityAttributeHome.create( identityAttribute );
 
         IdentityAttribute identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
-                identityAttribute.getIdAttribute(  ) );
+                identityAttribute.getAttributeKey(  ).getId(  ) );
         assertEquals( identityAttributeStored.getIdIdentity(  ), identityAttribute.getIdIdentity(  ) );
-        assertEquals( identityAttributeStored.getIdAttribute(  ), identityAttribute.getIdAttribute(  ) );
+        assertEquals( identityAttributeStored.getAttributeKey(  ).getId(  ), identityAttribute.getAttributeKey(  ).getId(  ) );
         assertEquals( identityAttributeStored.getValue(  ), identityAttribute.getValue(  ) );
         assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
 
         // Update test
+        attributeKey.setId( IDATTRIBUTE2 );
         identityAttribute.setIdIdentity( IDIDENTITY2 );
-        identityAttribute.setIdAttribute( IDATTRIBUTE2 );
         identityAttribute.setValue( ATTRIBUTEVALUE2 );
         identityAttribute.setIdCertificate( IDCERTIFICATION2 );
         IdentityAttributeHome.update( identityAttribute );
         identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
-                identityAttribute.getIdAttribute(  ) );
+                identityAttribute.getAttributeKey(  ).getId(  ) );
         assertEquals( identityAttributeStored.getIdIdentity(  ), identityAttribute.getIdIdentity(  ) );
-        assertEquals( identityAttributeStored.getIdAttribute(  ), identityAttribute.getIdAttribute(  ) );
+        assertEquals( identityAttributeStored.getAttributeKey(  ).getId(  ), identityAttribute.getAttributeKey(  ).getId(  ) );
         assertEquals( identityAttributeStored.getValue(  ), identityAttribute.getValue(  ) );
         assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
 
@@ -83,9 +85,9 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         IdentityAttributeHome.getAttributes( 1 );
 
         // Delete test
-        IdentityAttributeHome.remove( identityAttribute.getIdIdentity(  ), identityAttribute.getIdAttribute(  ) );
+        IdentityAttributeHome.remove( identityAttribute.getIdIdentity(  ), identityAttribute.getAttributeKey(  ).getId(  ) );
         identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
-                identityAttribute.getIdAttribute(  ) );
+                identityAttribute.getAttributeKey(  ).getId(  ) );
         assertNull( identityAttributeStored );
     }
 }

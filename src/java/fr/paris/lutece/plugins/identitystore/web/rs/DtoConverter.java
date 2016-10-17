@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.identitystore.web.rs;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
-import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
@@ -96,14 +96,16 @@ public final class DtoConverter
 
             for ( IdentityAttribute attribute : identity.getAttributes(  ).values(  ) )
             {
+                AttributeKey attributeKey = attribute.getAttributeKey(  );
+
                 AttributeDto attrDto = new AttributeDto(  );
-                attrDto.setKey( attribute.getKey(  ) );
+                attrDto.setKey( attributeKey.getKeyName(  ) );
                 attrDto.setValue( attribute.getValue(  ) );
-                attrDto.setType( AttributeKeyHome.findByKey( attribute.getKey(  ) ).getKeyType(  ).getCode(  ) );
+                attrDto.setType( attributeKey.getKeyType(  ).getCode(  ) );
 
                 for ( AttributeRight attRight : lstRights )
                 {
-                    if ( attRight.getAttributeKey(  ).getKeyName(  ).equals( attribute.getKey(  ) ) )
+                    if ( attRight.getAttributeKey(  ).getKeyName(  ).equals( attributeKey.getKeyName(  ) ) )
                     {
                         attrDto.setCertified( attribute.getCertificate(  ) != null );
 

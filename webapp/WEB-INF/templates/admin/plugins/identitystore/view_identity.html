@@ -17,8 +17,8 @@
         <#list identity.attributes?values as attribute>
         <tbody>
         <tr>
-            <td> ${attribute.name} </td>
-            <td> <a target="_blank" href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?view=viewAttributeHistory&attribute_key=${attribute.key}">${attribute.key} </a> </td>
+            <td> ${attribute.attributeKey.name} </td>
+            <td> <a target="_blank" href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?view=viewAttributeHistory&attribute_key=${attribute.attributeKey.keyName}">${attribute.attributeKey.keyName} </a> </td>
             <td><strong> ${attribute.value} </strong></td>
             <td><strong> ${attribute.lastUpdateDate!} </strong></td>
             <td>
