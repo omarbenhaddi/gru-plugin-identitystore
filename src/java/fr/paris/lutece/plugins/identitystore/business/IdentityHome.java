@@ -138,11 +138,6 @@ public final class IdentityHome
     {
         Identity identity = _dao.selectByConnectionId( strConnectionId, _plugin );
 
-        if ( identity != null )
-        {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ), strClientAppCode ) );
-        }
-
         return identity;
     }
 
@@ -158,11 +153,6 @@ public final class IdentityHome
     public static Identity findByCustomerId( int nCustomerId, String strClientAppCode )
     {
         Identity identity = _dao.selectByCustomerId( nCustomerId, _plugin );
-
-        if ( identity != null )
-        {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ), strClientAppCode ) );
-        }
 
         return identity;
     }

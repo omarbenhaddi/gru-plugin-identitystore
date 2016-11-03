@@ -50,6 +50,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_right ( id_attribute, id_client_app, readable, writable, certifiable ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_right SET readable = ?, writable = ?, certifiable = ? WHERE id_attribute = ? AND id_client_app = ?";
     private static final String SQL_QUERY_SELECT_ALL_BY_CLIENT = "SELECT a.id_attribute, b.readable, b.writable, b.certifiable FROM (identitystore_attribute a) LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CLIENT_WITH_ATTRIBUTES = "SELECT a.id_attribute, a.name, a.key_name, a.description, a.key_type,  b.readable, b.writable, b.certifiable FROM (identitystore_attribute a) LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_client_app = ? ";
     private static final int CONST_INT_TRUE = 1;
     private static final int CONST_INT_FALSE = 0;
 
@@ -123,15 +124,29 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     {
         List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>(  );
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_CLIENT, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_CLIENT_WITH_ATTRIBUTES, plugin );
         daoUtil.setInt( 1, clientApp.getId(  ) );
         daoUtil.executeQuery(  );
 
-        AttributeRight attributeRight = null;
-
         while ( daoUtil.next(  ) )
         {
-            attributeRight = getRightFromQuery( daoUtil, clientApp );
+            AttributeRight attributeRight = new AttributeRight(  );
+            AttributeKey attributeKey = new AttributeKey(  );
+
+            int nIndex = 1;
+
+            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+
+            attributeRight.setAttributeKey( attributeKey );
+            attributeRight.setClientApplication( clientApp );
+            attributeRight.setReadable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+            attributeRight.setWritable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+            attributeRight.setCertifiable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+
             lstAttributeRights.add( attributeRight );
         }
 

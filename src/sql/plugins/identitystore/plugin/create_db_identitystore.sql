@@ -8,7 +8,9 @@ CREATE TABLE identitystore_identity (
 id_identity int(11) NOT NULL,
 connection_id varchar(50) NULL,
 customer_id int (11) NULL,
-PRIMARY KEY (id_identity)
+PRIMARY KEY (id_identity),
+INDEX (connection_id),
+INDEX (customer_id)
 );
 
 --

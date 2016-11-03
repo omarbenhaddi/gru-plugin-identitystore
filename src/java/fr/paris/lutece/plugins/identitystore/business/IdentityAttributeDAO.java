@@ -59,6 +59,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ?, lastupdate_date = CURRENT_TIMESTAMP WHERE id_identity = ? AND id_attribute = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
         " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ?";
+    private static final String SQL_QUERY_SELECTALL_WITH_ATTRIBUTES = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
+        " FROM identitystore_identity_attribute a INNER JOIN identitystore_attribute b on a.id_attribute = b.id_attribute " + " WHERE a.id_identity = ?";
     private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
@@ -199,16 +201,22 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin )
     {
         Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>(  );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_WITH_ATTRIBUTES, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeQuery(  );
 
         while ( daoUtil.next(  ) )
         {
             IdentityAttribute identityAttribute = new IdentityAttribute(  );
+            AttributeKey attribute = new AttributeKey(  );
+
             int nIndex = 1;
 
-            AttributeKey attribute = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
+            attribute.setId( daoUtil.getInt( nIndex++ ) );
+            attribute.setName( daoUtil.getString( nIndex++ ) );
+            attribute.setKeyName( daoUtil.getString( nIndex++ ) );
+            attribute.setDescription( daoUtil.getString( nIndex++ ) );
+            attribute.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
             identityAttribute.setAttributeKey( attribute );
             identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
