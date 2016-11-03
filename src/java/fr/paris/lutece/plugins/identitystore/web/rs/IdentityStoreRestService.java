@@ -608,7 +608,7 @@ public final class IdentityStoreRestService
      */
     private Response getErrorResponse( Exception e, Status status )
     {
-        AppLogService.error( e );
+        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + e, e );
 
         String strMessage = null;
 
