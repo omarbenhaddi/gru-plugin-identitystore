@@ -59,7 +59,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ?, lastupdate_date = CURRENT_TIMESTAMP WHERE id_identity = ? AND id_attribute = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
         " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ?";
-    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
+    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
         " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
         " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
     private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
@@ -254,9 +254,15 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         while ( daoUtil.next(  ) )
         {
             IdentityAttribute attribute = new IdentityAttribute(  );
+            AttributeKey attributeKey = new AttributeKey(  );
+
             int nIndex = 1;
 
-            AttributeKey attributeKey = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
             attribute.setAttributeKey( attributeKey );
             attribute.setValue( daoUtil.getString( nIndex++ ) );

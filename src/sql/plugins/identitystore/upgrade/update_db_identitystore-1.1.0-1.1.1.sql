@@ -1,0 +1,2 @@
+CREATE INDEX identitystore_identity_connection_id_idx ON identitystore_identity (connection_id);
+CREATE INDEX identitystore_identity_customer_id_idx ON identitystore_identity (customer_id);
