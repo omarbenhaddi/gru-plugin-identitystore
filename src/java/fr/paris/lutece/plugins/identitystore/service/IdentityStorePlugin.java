@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
 
-
 /**
  * IdentityStorePlugin
  */
@@ -45,8 +44,8 @@ public class IdentityStorePlugin extends PluginDefaultImplementation
      * Initialize the Plugin
      */
     @Override
-    public void init(  )
+    public void init( )
     {
-        CertifierLogoService.getInstance(  ).register(  );
+        CertifierLogoService.getInstance( ).register( );
     }
 }

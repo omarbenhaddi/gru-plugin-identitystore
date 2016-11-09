@@ -37,7 +37,6 @@ import java.io.Serializable;
 
 import java.sql.Timestamp;
 
-
 /**
  * This is the business class for the object AttributeCertificate
  */
@@ -58,7 +57,7 @@ public class AttributeCertificate implements Serializable
      *
      * @return The Id
      */
-    public int getId(  )
+    public int getId( )
     {
         return _nId;
     }
@@ -67,7 +66,7 @@ public class AttributeCertificate implements Serializable
      * Sets the Id
      *
      * @param nId
-     *          The Id
+     *            The Id
      */
     public void setId( int nId )
     {
@@ -79,7 +78,7 @@ public class AttributeCertificate implements Serializable
      *
      * @return The IdCertifier
      */
-    public int getIdCertifier(  )
+    public int getIdCertifier( )
     {
         return _nIdCertifier;
     }
@@ -88,7 +87,7 @@ public class AttributeCertificate implements Serializable
      * Sets the IdCertifier
      *
      * @param nIdCertifier
-     *          The IdCertifier
+     *            The IdCertifier
      */
     public void setIdCertifier( int nIdCertifier )
     {
@@ -100,7 +99,7 @@ public class AttributeCertificate implements Serializable
      *
      * @return The CertificateDate
      */
-    public Timestamp getCertificateDate(  )
+    public Timestamp getCertificateDate( )
     {
         return _dateCertificateDate;
     }
@@ -109,7 +108,7 @@ public class AttributeCertificate implements Serializable
      * Sets the CertificateDate
      *
      * @param dateCertificateDate
-     *          The CertificateDate
+     *            The CertificateDate
      */
     public void setCertificateDate( Timestamp dateCertificateDate )
     {
@@ -121,7 +120,7 @@ public class AttributeCertificate implements Serializable
      *
      * @return The CertificateLevel
      */
-    public int getCertificateLevel(  )
+    public int getCertificateLevel( )
     {
         return _nCertificateLevel;
     }
@@ -130,7 +129,7 @@ public class AttributeCertificate implements Serializable
      * Sets the CertificateLevel
      *
      * @param nCertificateLevel
-     *          The CertificateLevel
+     *            The CertificateLevel
      */
     public void setCertificateLevel( int nCertificateLevel )
     {
@@ -142,7 +141,7 @@ public class AttributeCertificate implements Serializable
      *
      * @return The ExpirationDate
      */
-    public Timestamp getExpirationDate(  )
+    public Timestamp getExpirationDate( )
     {
         return _dateExpirationDate;
     }
@@ -151,7 +150,7 @@ public class AttributeCertificate implements Serializable
      * Sets the ExpirationDate
      *
      * @param dateExpirationDate
-     *          The ExpirationDate
+     *            The ExpirationDate
      */
     public void setExpirationDate( Timestamp dateExpirationDate )
     {
@@ -163,7 +162,7 @@ public class AttributeCertificate implements Serializable
      *
      * @return The Certifier
      */
-    public String getCertifier(  )
+    public String getCertifier( )
     {
         return _strCertifier;
     }
@@ -172,7 +171,7 @@ public class AttributeCertificate implements Serializable
      * Sets the Certifier
      *
      * @param strCertifier
-     *          The Certifier
+     *            The Certifier
      */
     public void setCertifier( String strCertifier )
     {

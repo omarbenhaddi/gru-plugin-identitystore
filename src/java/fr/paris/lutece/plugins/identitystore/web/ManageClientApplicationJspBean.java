@@ -51,10 +51,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
- * This class provides the user interface to manage ClientApplication management
- * features ( manage, create, modify, remove )
+ * This class provides the user interface to manage ClientApplication management features ( manage, create, modify, remove )
  */
 @Controller( controllerJsp = "ManageClientApplications.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
@@ -112,7 +110,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * Build the Manage View
      *
      * @param request
-     *          The HTTP request
+     *            The HTTP request
      * @return The page
      */
     @View( value = VIEW_MANAGE_CLIENTAPPLICATIONS, defaultView = true )
@@ -120,9 +118,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     {
         _clientApplication = null;
 
-        List<ClientApplication> listClientApplications = ClientApplicationHome.selectApplicationList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_CLIENTAPPLICATION_LIST,
-                listClientApplications, JSP_MANAGE_CLIENTAPPLICATIONS );
+        List<ClientApplication> listClientApplications = ClientApplicationHome.selectApplicationList( );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_CLIENTAPPLICATION_LIST, listClientApplications, JSP_MANAGE_CLIENTAPPLICATIONS );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_CLIENTAPPLICATIONS, TEMPLATE_MANAGE_CLIENTAPPLICATION, model );
     }
@@ -131,18 +128,17 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * Returns the form to create a clientapplication
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return the html code of the clientapplication form
      */
     @View( VIEW_CREATE_CLIENTAPPLICATION )
     public String getCreateClientApplication( HttpServletRequest request )
     {
-        _clientApplication = ( _clientApplication != null ) ? _clientApplication : new ClientApplication(  );
+        _clientApplication = ( _clientApplication != null ) ? _clientApplication : new ClientApplication( );
 
-        Map<String, Object> model = getModel(  );
+        Map<String, Object> model = getModel( );
         model.put( MARK_CLIENTAPPLICATION, _clientApplication );
-        model.put( MARK_CLIENTAPPLICATION_RIGHT_LIST,
-            ClientApplicationHome.selectApplicationRights( _clientApplication ) );
+        model.put( MARK_CLIENTAPPLICATION_RIGHT_LIST, ClientApplicationHome.selectApplicationRights( _clientApplication ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_CLIENTAPPLICATION, TEMPLATE_CREATE_CLIENTAPPLICATION, model );
     }
@@ -151,7 +147,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * Process the data capture form of a new clientapplication
      *
      * @param request
-     *          The Http Request
+     *            The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_CLIENTAPPLICATION )
@@ -167,21 +163,19 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
         ClientApplicationHome.create( _clientApplication );
 
-        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( getAttributesRightsFromRequest( 
-                    request ).values(  ) );
+        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( getAttributesRightsFromRequest( request ).values( ) );
         ClientApplicationHome.addAttributeRights( lstAttributeRights );
 
-        addInfo( INFO_CLIENTAPPLICATION_CREATED, getLocale(  ) );
+        addInfo( INFO_CLIENTAPPLICATION_CREATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );
     }
 
     /**
-     * Manages the removal form of a clientapplication whose identifier is in the
-     * http request
+     * Manages the removal form of a clientapplication whose identifier is in the http request
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return the html code to confirm
      */
     @Action( ACTION_CONFIRM_REMOVE_CLIENTAPPLICATION )
@@ -191,8 +185,8 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_CLIENTAPPLICATION ) );
         url.addParameter( PARAMETER_ID_CLIENTAPPLICATION, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_CLIENTAPPLICATION,
-                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_CLIENTAPPLICATION, url.getUrl( ),
+                AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -201,7 +195,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * Handles the removal form of a clientapplication
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return the jsp URL to display the form to manage clientapplications
      */
     @Action( ACTION_REMOVE_CLIENTAPPLICATION )
@@ -209,7 +203,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
         ClientApplicationHome.remove( ClientApplicationHome.findByPrimaryKey( nId ) );
-        addInfo( INFO_CLIENTAPPLICATION_REMOVED, getLocale(  ) );
+        addInfo( INFO_CLIENTAPPLICATION_REMOVED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );
     }
@@ -218,7 +212,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * Returns the form to update info about a clientapplication
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return The HTML form to update info
      */
     @View( VIEW_MODIFY_CLIENTAPPLICATION )
@@ -226,15 +220,14 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
 
-        if ( ( _clientApplication == null ) || ( _clientApplication.getId(  ) != nId ) )
+        if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
         {
             _clientApplication = ClientApplicationHome.findByPrimaryKey( nId );
         }
 
-        Map<String, Object> model = getModel(  );
+        Map<String, Object> model = getModel( );
         model.put( MARK_CLIENTAPPLICATION, _clientApplication );
-        model.put( MARK_CLIENTAPPLICATION_RIGHT_LIST,
-            ClientApplicationHome.selectApplicationRights( _clientApplication ) );
+        model.put( MARK_CLIENTAPPLICATION_RIGHT_LIST, ClientApplicationHome.selectApplicationRights( _clientApplication ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_CLIENTAPPLICATION, TEMPLATE_MODIFY_CLIENTAPPLICATION, model );
     }
@@ -243,7 +236,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * Process the change form of a clientapplication
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_MODIFY_CLIENTAPPLICATION )
@@ -254,20 +247,18 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _clientApplication, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION,
-                _clientApplication.getId(  ) );
+            return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, _clientApplication.getId( ) );
         }
 
         // remove all formers rights
         ClientApplicationHome.removeApplicationRights( _clientApplication );
 
         // add new ones
-        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( getAttributesRightsFromRequest( 
-                    request ).values(  ) );
+        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( getAttributesRightsFromRequest( request ).values( ) );
         ClientApplicationHome.addAttributeRights( lstAttributeRights );
 
         ClientApplicationHome.update( _clientApplication );
-        addInfo( INFO_CLIENTAPPLICATION_UPDATED, getLocale(  ) );
+        addInfo( INFO_CLIENTAPPLICATION_UPDATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );
     }
@@ -276,20 +267,20 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      * get AttributeRights to set from httprequest
      *
      * @param request
-     *          http request
+     *            http request
      * @return AttributeRights to set from httprequest
      */
     private Map<String, AttributeRight> getAttributesRightsFromRequest( HttpServletRequest request )
     {
-        Map<String, AttributeRight> mapAttributesRights = new HashMap<String, AttributeRight>(  );
-        String[] tabIdReadbles = request.getParameterValues( PARAMETER_RIGHT_READABLE );
-        String[] tabIdWritables = request.getParameterValues( PARAMETER_RIGHT_WRITABLE );
-        String[] tabIdCertifiables = request.getParameterValues( PARAMETER_RIGHT_CERTIFIABLE );
+        Map<String, AttributeRight> mapAttributesRights = new HashMap<String, AttributeRight>( );
+        String [ ] tabIdReadbles = request.getParameterValues( PARAMETER_RIGHT_READABLE );
+        String [ ] tabIdWritables = request.getParameterValues( PARAMETER_RIGHT_WRITABLE );
+        String [ ] tabIdCertifiables = request.getParameterValues( PARAMETER_RIGHT_CERTIFIABLE );
 
         for ( int nCpt = 0; ( tabIdReadbles != null ) && ( nCpt < tabIdReadbles.length ); nCpt++ )
         {
-            String strIdAttribute = tabIdReadbles[nCpt];
-            AttributeRight attributeRight = new AttributeRight(  );
+            String strIdAttribute = tabIdReadbles [nCpt];
+            AttributeRight attributeRight = new AttributeRight( );
             attributeRight.setReadable( true );
             attributeRight.setClientApplication( _clientApplication );
             attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
@@ -298,7 +289,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
         for ( int nCpt = 0; ( tabIdWritables != null ) && ( nCpt < tabIdWritables.length ); nCpt++ )
         {
-            String strIdAttribute = tabIdWritables[nCpt];
+            String strIdAttribute = tabIdWritables [nCpt];
 
             if ( mapAttributesRights.get( strIdAttribute ) != null )
             {
@@ -306,7 +297,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
             }
             else
             {
-                AttributeRight attributeRight = new AttributeRight(  );
+                AttributeRight attributeRight = new AttributeRight( );
                 attributeRight.setClientApplication( _clientApplication );
                 attributeRight.setWritable( true );
                 attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
@@ -316,7 +307,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
         for ( int nCpt = 0; ( tabIdCertifiables != null ) && ( nCpt < tabIdCertifiables.length ); nCpt++ )
         {
-            String strIdAttribute = tabIdCertifiables[nCpt];
+            String strIdAttribute = tabIdCertifiables [nCpt];
 
             if ( mapAttributesRights.get( strIdAttribute ) != null )
             {
@@ -324,7 +315,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
             }
             else
             {
-                AttributeRight attributeRight = new AttributeRight(  );
+                AttributeRight attributeRight = new AttributeRight( );
                 attributeRight.setClientApplication( _clientApplication );
                 attributeRight.setCertifiable( true );
                 attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );

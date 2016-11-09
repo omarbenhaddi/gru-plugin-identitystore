@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import java.io.Serializable;
 
-
 /**
  * Class which manage attribute rights for Client
  */
@@ -53,14 +52,14 @@ public class AttributeRight implements Serializable
     /**
      * @return the _clientApplication
      */
-    public ClientApplication getClientApplication(  )
+    public ClientApplication getClientApplication( )
     {
         return _clientApplication;
     }
 
     /**
      * @param clientApplication
-     *          the clientApplication to set
+     *            the clientApplication to set
      */
     public void setClientApplication( ClientApplication clientApplication )
     {
@@ -70,14 +69,14 @@ public class AttributeRight implements Serializable
     /**
      * @return the _bReadable
      */
-    public boolean isReadable(  )
+    public boolean isReadable( )
     {
         return _bReadable;
     }
 
     /**
      * @param bReadable
-     *          the bReadable to set
+     *            the bReadable to set
      */
     public void setReadable( boolean bReadable )
     {
@@ -87,14 +86,14 @@ public class AttributeRight implements Serializable
     /**
      * @return the _bWritable
      */
-    public boolean isWritable(  )
+    public boolean isWritable( )
     {
         return _bWritable;
     }
 
     /**
      * @param bWritable
-     *          the bWritable to set
+     *            the bWritable to set
      */
     public void setWritable( boolean bWritable )
     {
@@ -104,14 +103,14 @@ public class AttributeRight implements Serializable
     /**
      * @return the _bCertifiable
      */
-    public boolean isCertifiable(  )
+    public boolean isCertifiable( )
     {
         return _bCertifiable;
     }
 
     /**
      * @param bCertifiable
-     *          the bCertifiable to set
+     *            the bCertifiable to set
      */
     public void setCertifiable( boolean bCertifiable )
     {
@@ -121,14 +120,14 @@ public class AttributeRight implements Serializable
     /**
      * @return the _attribute
      */
-    public AttributeKey getAttributeKey(  )
+    public AttributeKey getAttributeKey( )
     {
         return _attributeKey;
     }
 
     /**
      * @param attributeKey
-     *          the attributeKey to set
+     *            the attributeKey to set
      */
     public void setAttributeKey( AttributeKey attributeKey )
     {

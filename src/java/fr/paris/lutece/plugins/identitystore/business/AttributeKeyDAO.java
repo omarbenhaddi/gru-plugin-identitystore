@@ -40,7 +40,6 @@ import fr.paris.lutece.util.sql.DAOUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * This class provides Data Access methods for AttributeKey objects
  */
@@ -59,22 +58,22 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
      * Generates a new primary key
      *
      * @param plugin
-     *          The Plugin
+     *            The Plugin
      * @return The new primary key
      */
     public int newPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         int nKey = 1;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
             nKey = daoUtil.getInt( 1 ) + 1;
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return nKey;
     }
@@ -90,14 +89,14 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
 
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeKey.getId(  ) );
-        daoUtil.setString( nIndex++, attributeKey.getName(  ) );
-        daoUtil.setString( nIndex++, attributeKey.getKeyName(  ) );
-        daoUtil.setString( nIndex++, attributeKey.getDescription(  ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyType(  ).getId(  ) );
+        daoUtil.setInt( nIndex++, attributeKey.getId( ) );
+        daoUtil.setString( nIndex++, attributeKey.getName( ) );
+        daoUtil.setString( nIndex++, attributeKey.getKeyName( ) );
+        daoUtil.setString( nIndex++, attributeKey.getDescription( ) );
+        daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -108,13 +107,13 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
         daoUtil.setInt( 1, nKey );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         AttributeKey attributeKey = null;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            attributeKey = new AttributeKey(  );
+            attributeKey = new AttributeKey( );
 
             int nIndex = 1;
 
@@ -125,7 +124,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attributeKey;
     }
@@ -138,8 +137,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nKey );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -151,15 +150,15 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeKey.getId(  ) );
-        daoUtil.setString( nIndex++, attributeKey.getName(  ) );
-        daoUtil.setString( nIndex++, attributeKey.getKeyName(  ) );
-        daoUtil.setString( nIndex++, attributeKey.getDescription(  ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyType(  ).getId(  ) );
-        daoUtil.setInt( nIndex, attributeKey.getId(  ) );
+        daoUtil.setInt( nIndex++, attributeKey.getId( ) );
+        daoUtil.setString( nIndex++, attributeKey.getName( ) );
+        daoUtil.setString( nIndex++, attributeKey.getKeyName( ) );
+        daoUtil.setString( nIndex++, attributeKey.getDescription( ) );
+        daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
+        daoUtil.setInt( nIndex, attributeKey.getId( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -168,13 +167,13 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public List<AttributeKey> selectAttributeKeysList( Plugin plugin )
     {
-        List<AttributeKey> attributeKeyList = new ArrayList<AttributeKey>(  );
+        List<AttributeKey> attributeKeyList = new ArrayList<AttributeKey>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            AttributeKey attributeKey = new AttributeKey(  );
+            AttributeKey attributeKey = new AttributeKey( );
             int nIndex = 1;
 
             attributeKey.setId( daoUtil.getInt( nIndex++ ) );
@@ -186,7 +185,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKeyList.add( attributeKey );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attributeKeyList;
     }
@@ -197,16 +196,16 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public ReferenceList selectAttributeKeysReferenceList( Plugin plugin )
     {
-        ReferenceList attributeKeyList = new ReferenceList(  );
+        ReferenceList attributeKeyList = new ReferenceList( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
             attributeKeyList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attributeKeyList;
     }
@@ -219,13 +218,13 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY, plugin );
         daoUtil.setString( 1, strKey );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         AttributeKey attributeKey = null;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            attributeKey = new AttributeKey(  );
+            attributeKey = new AttributeKey( );
 
             int nIndex = 1;
 
@@ -236,7 +235,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attributeKey;
     }

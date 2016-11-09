@@ -40,22 +40,19 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
-
 /**
- * This class provides instances management methods (create, find, ...) for
- * AttributeCertificate objects
+ * This class provides instances management methods (create, find, ...) for AttributeCertificate objects
  */
 public final class AttributeCertificateHome
 {
     // Static variable pointed at the DAO instance
-    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( 
-            "identitystore.attributeCertificateDAO" );
+    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( "identitystore.attributeCertificateDAO" );
     private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
 
     /**
      * Private constructor - this class need not be instantiated
      */
-    private AttributeCertificateHome(  )
+    private AttributeCertificateHome( )
     {
     }
 
@@ -63,10 +60,8 @@ public final class AttributeCertificateHome
      * Create an instance of the attributeCertificate class
      *
      * @param attributeCertificate
-     *          The instance of the AttributeCertificate which contains the
-     *          informations to store
-     * @return The instance of attributeCertificate which has been created with
-     *         its primary key.
+     *            The instance of the AttributeCertificate which contains the informations to store
+     * @return The instance of attributeCertificate which has been created with its primary key.
      */
     public static AttributeCertificate create( AttributeCertificate attributeCertificate )
     {
@@ -79,8 +74,7 @@ public final class AttributeCertificateHome
      * Update of the attributeCertificate which is specified in parameter
      *
      * @param attributeCertificate
-     *          The instance of the AttributeCertificate which contains the data
-     *          to store
+     *            The instance of the AttributeCertificate which contains the data to store
      * @return The instance of the attributeCertificate which has been updated
      */
     public static AttributeCertificate update( AttributeCertificate attributeCertificate )
@@ -94,7 +88,7 @@ public final class AttributeCertificateHome
      * Remove the attributeCertificate whose identifier is specified in parameter
      *
      * @param nKey
-     *          The attributeCertificate Id
+     *            The attributeCertificate Id
      */
     public static void remove( int nKey )
     {
@@ -102,11 +96,10 @@ public final class AttributeCertificateHome
     }
 
     /**
-     * Returns an instance of a attributeCertificate whose identifier is specified
-     * in parameter
+     * Returns an instance of a attributeCertificate whose identifier is specified in parameter
      *
      * @param nKey
-     *          The attributeCertificate primary key
+     *            The attributeCertificate primary key
      * @return an instance of AttributeCertificate
      */
     public static AttributeCertificate findByPrimaryKey( int nKey )
@@ -115,37 +108,31 @@ public final class AttributeCertificateHome
     }
 
     /**
-     * Load the data of all the attributeCertificate objects and returns them as a
-     * list
+     * Load the data of all the attributeCertificate objects and returns them as a list
      *
-     * @return the list which contains the data of all the attributeCertificate
-     *         objects
+     * @return the list which contains the data of all the attributeCertificate objects
      */
-    public static List<AttributeCertificate> getAttributeCertificatesList(  )
+    public static List<AttributeCertificate> getAttributeCertificatesList( )
     {
         return _dao.selectAttributeCertificatesList( _plugin );
     }
 
     /**
-     * Load the id of all the attributeCertificate objects and returns them as a
-     * list
+     * Load the id of all the attributeCertificate objects and returns them as a list
      *
-     * @return the list which contains the id of all the attributeCertificate
-     *         objects
+     * @return the list which contains the id of all the attributeCertificate objects
      */
-    public static List<Integer> getIdAttributeCertificatesList(  )
+    public static List<Integer> getIdAttributeCertificatesList( )
     {
         return _dao.selectIdAttributeCertificatesList( _plugin );
     }
 
     /**
-     * Load the data of all the attributeCertificate objects and returns them as a
-     * referenceList
+     * Load the data of all the attributeCertificate objects and returns them as a referenceList
      *
-     * @return the referenceList which contains the data of all the
-     *         attributeCertificate objects
+     * @return the referenceList which contains the data of all the attributeCertificate objects
      */
-    public static ReferenceList getAttributeCertificatesReferenceList(  )
+    public static ReferenceList getAttributeCertificatesReferenceList( )
     {
         return _dao.selectAttributeCertificatesReferenceList( _plugin );
     }

@@ -47,10 +47,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
- * This class provides the user interface to manage AttributeCertificate
- * features ( manage, create, modify, remove )
+ * This class provides the user interface to manage AttributeCertificate features ( manage, create, modify, remove )
  */
 @Controller( controllerJsp = "ManageAttributeCertificates.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
@@ -102,7 +100,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
      * Build the Manage View
      *
      * @param request
-     *          The HTTP request
+     *            The HTTP request
      * @return The page
      */
     @View( value = VIEW_MANAGE_ATTRIBUTECERTIFICATES, defaultView = true )
@@ -110,9 +108,8 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     {
         _attributecertificate = null;
 
-        List<AttributeCertificate> listAttributeCertificates = AttributeCertificateHome.getAttributeCertificatesList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFICATE_LIST,
-                listAttributeCertificates, JSP_MANAGE_ATTRIBUTECERTIFICATES );
+        List<AttributeCertificate> listAttributeCertificates = AttributeCertificateHome.getAttributeCertificatesList( );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFICATE_LIST, listAttributeCertificates, JSP_MANAGE_ATTRIBUTECERTIFICATES );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFICATES, TEMPLATE_MANAGE_ATTRIBUTECERTIFICATES, model );
     }
@@ -121,15 +118,15 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
      * Returns the form to create a attributecertificate
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return the html code of the attributecertificate form
      */
     @View( VIEW_CREATE_ATTRIBUTECERTIFICATE )
     public String getCreateAttributeCertificate( HttpServletRequest request )
     {
-        _attributecertificate = ( _attributecertificate != null ) ? _attributecertificate : new AttributeCertificate(  );
+        _attributecertificate = ( _attributecertificate != null ) ? _attributecertificate : new AttributeCertificate( );
 
-        Map<String, Object> model = getModel(  );
+        Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTECERTIFICATE, _attributecertificate );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_ATTRIBUTECERTIFICATE, TEMPLATE_CREATE_ATTRIBUTECERTIFICATE, model );
@@ -139,7 +136,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
      * Process the data capture form of a new attributecertificate
      *
      * @param request
-     *          The Http Request
+     *            The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_ATTRIBUTECERTIFICATE )
@@ -154,17 +151,16 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
         }
 
         AttributeCertificateHome.create( _attributecertificate );
-        addInfo( INFO_ATTRIBUTECERTIFICATE_CREATED, getLocale(  ) );
+        addInfo( INFO_ATTRIBUTECERTIFICATE_CREATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTECERTIFICATES );
     }
 
     /**
-     * Manages the removal form of a attributecertificate whose identifier is in
-     * the http request
+     * Manages the removal form of a attributecertificate whose identifier is in the http request
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return the html code to confirm
      */
     @Action( ACTION_CONFIRM_REMOVE_ATTRIBUTECERTIFICATE )
@@ -174,8 +170,8 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_ATTRIBUTECERTIFICATE ) );
         url.addParameter( PARAMETER_ID_ATTRIBUTECERTIFICATE, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTECERTIFICATE,
-                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ATTRIBUTECERTIFICATE, url.getUrl( ),
+                AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -184,7 +180,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
      * Handles the removal form of a attributecertificate
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return the jsp URL to display the form to manage attributecertificates
      */
     @Action( ACTION_REMOVE_ATTRIBUTECERTIFICATE )
@@ -192,7 +188,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTECERTIFICATE ) );
         AttributeCertificateHome.remove( nId );
-        addInfo( INFO_ATTRIBUTECERTIFICATE_REMOVED, getLocale(  ) );
+        addInfo( INFO_ATTRIBUTECERTIFICATE_REMOVED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTECERTIFICATES );
     }
@@ -201,7 +197,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
      * Returns the form to update info about a attributecertificate
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return The HTML form to update info
      */
     @View( VIEW_MODIFY_ATTRIBUTECERTIFICATE )
@@ -209,12 +205,12 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTECERTIFICATE ) );
 
-        if ( ( _attributecertificate == null ) || ( _attributecertificate.getId(  ) != nId ) )
+        if ( ( _attributecertificate == null ) || ( _attributecertificate.getId( ) != nId ) )
         {
             _attributecertificate = AttributeCertificateHome.findByPrimaryKey( nId );
         }
 
-        Map<String, Object> model = getModel(  );
+        Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTECERTIFICATE, _attributecertificate );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_ATTRIBUTECERTIFICATE, TEMPLATE_MODIFY_ATTRIBUTECERTIFICATE, model );
@@ -224,7 +220,7 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
      * Process the change form of a attributecertificate
      *
      * @param request
-     *          The Http request
+     *            The Http request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_MODIFY_ATTRIBUTECERTIFICATE )
@@ -235,12 +231,11 @@ public class AttributeCertificateJspBean extends AdminIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _attributecertificate, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_ATTRIBUTECERTIFICATE, PARAMETER_ID_ATTRIBUTECERTIFICATE,
-                _attributecertificate.getId(  ) );
+            return redirect( request, VIEW_MODIFY_ATTRIBUTECERTIFICATE, PARAMETER_ID_ATTRIBUTECERTIFICATE, _attributecertificate.getId( ) );
         }
 
         AttributeCertificateHome.update( _attributecertificate );
-        addInfo( INFO_ATTRIBUTECERTIFICATE_UPDATED, getLocale(  ) );
+        addInfo( INFO_ATTRIBUTECERTIFICATE_UPDATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTECERTIFICATES );
     }

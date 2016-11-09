@@ -44,7 +44,6 @@ import java.util.Map;
 
 import javax.validation.constraints.Size;
 
-
 /**
  * This is the business class for the object Identity
  */
@@ -57,15 +56,15 @@ public class Identity implements Serializable
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.ConnectionId.size}" )
     private String _strConnectionId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
-    private int _nCustomerId;
-    private Map<String, IdentityAttribute> _mapAttributes = new HashMap<String, IdentityAttribute>(  );
+    private String _nCustomerId;
+    private Map<String, IdentityAttribute> _mapAttributes = new HashMap<String, IdentityAttribute>( );
 
     /**
      * Returns the Id
      *
      * @return The Id
      */
-    public int getId(  )
+    public int getId( )
     {
         return _nId;
     }
@@ -74,7 +73,7 @@ public class Identity implements Serializable
      * Sets the Id
      *
      * @param nId
-     *          The Id
+     *            The Id
      */
     public void setId( int nId )
     {
@@ -86,7 +85,7 @@ public class Identity implements Serializable
      *
      * @return The ConnectionId
      */
-    public String getConnectionId(  )
+    public String getConnectionId( )
     {
         return _strConnectionId;
     }
@@ -95,7 +94,7 @@ public class Identity implements Serializable
      * Sets the ConnectionId
      *
      * @param strConnectionId
-     *          The ConnectionId
+     *            The ConnectionId
      */
     public void setConnectionId( String strConnectionId )
     {
@@ -107,7 +106,7 @@ public class Identity implements Serializable
      *
      * @return The CustomerId
      */
-    public int getCustomerId(  )
+    public String getCustomerId( )
     {
         return _nCustomerId;
     }
@@ -116,9 +115,9 @@ public class Identity implements Serializable
      * Sets the CustomerId
      *
      * @param nCustomerId
-     *          The CustomerId
+     *            The CustomerId
      */
-    public void setCustomerId( int nCustomerId )
+    public void setCustomerId( String nCustomerId )
     {
         _nCustomerId = nCustomerId;
     }
@@ -126,14 +125,14 @@ public class Identity implements Serializable
     /**
      * @return the _mapAttributes
      */
-    public Map<String, IdentityAttribute> getAttributes(  )
+    public Map<String, IdentityAttribute> getAttributes( )
     {
         return _mapAttributes;
     }
 
     /**
      * @param mapAttributes
-     *          the mapAttributes to set
+     *            the mapAttributes to set
      */
     public void setAttributes( Map<String, IdentityAttribute> mapAttributes )
     {
@@ -145,16 +144,14 @@ public class Identity implements Serializable
      *
      * @return familyName
      */
-    public String getFamilyName(  )
+    public String getFamilyName( )
     {
         String strFamilyName = StringUtils.EMPTY;
 
-        if ( ( _mapAttributes != null ) &&
-                ( _mapAttributes.get( AppPropertiesService.getProperty( 
-                        IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) != null ) )
+        if ( ( _mapAttributes != null )
+                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) != null ) )
         {
-            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( 
-                        IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ).getValue(  );
+            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ).getValue( );
         }
 
         return strFamilyName;
@@ -165,16 +162,14 @@ public class Identity implements Serializable
      *
      * @return given name
      */
-    public String getGivenName(  )
+    public String getGivenName( )
     {
         String strGivenName = StringUtils.EMPTY;
 
-        if ( ( _mapAttributes != null ) &&
-                ( _mapAttributes.get( AppPropertiesService.getProperty( 
-                        IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) != null ) )
+        if ( ( _mapAttributes != null )
+                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) != null ) )
         {
-            strGivenName = _mapAttributes.get( AppPropertiesService.getProperty( 
-                        IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ).getValue(  );
+            strGivenName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ).getValue( );
         }
 
         return strGivenName;

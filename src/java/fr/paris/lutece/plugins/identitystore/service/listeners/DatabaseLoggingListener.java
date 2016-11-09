@@ -37,7 +37,6 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
 
-
 /**
  * Database Logging Listener
  */
@@ -55,7 +54,7 @@ public class DatabaseLoggingListener implements AttributeChangeListener
     }
 
     @Override
-    public String getName(  )
+    public String getName( )
     {
         return SERVICE_NAME;
     }

@@ -24,7 +24,7 @@ INSERT INTO identitystore_attribute_certifier (id_attribute_certifier, name, cod
 
 DELETE FROM identitystore_identity;
 INSERT INTO identitystore_identity (id_identity, connection_id, customer_id ) VALUES
-	(1, 'azerty', '123' );
+	(1, 'azerty', '3F2504E0-4F89-11D3-9A0C-0305E82C3301' );
 
 DELETE FROM identitystore_identity_attribute;
 INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_value,id_certification) VALUES
@@ -50,7 +50,7 @@ INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_
 
 DELETE FROM identitystore_client_application;
 INSERT INTO identitystore_client_application (id_client_app, name, code, hash) VALUES
-(1, 'My Dashboard', 'MyDashboard', '');
+(1, 'My Dashboard', 'MyDashboard', '1');
 
 DELETE FROM identitystore_attribute_right;
 INSERT INTO identitystore_attribute_right (id_client_app, id_attribute, readable, writable, certifiable) VALUES

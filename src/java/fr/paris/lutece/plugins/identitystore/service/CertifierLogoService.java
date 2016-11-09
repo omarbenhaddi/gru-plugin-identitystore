@@ -41,7 +41,6 @@ import fr.paris.lutece.portal.service.image.ImageResourceProvider;
 import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.util.url.UrlItem;
 
-
 /**
  * CertifierLogoService
  */
@@ -53,14 +52,14 @@ public class CertifierLogoService implements ImageResourceProvider
     /**
      * Creates a new instance of IconService
      */
-    private CertifierLogoService(  )
+    private CertifierLogoService( )
     {
     }
 
     /**
      * Initializes the service
      */
-    public void register(  )
+    public void register( )
     {
         ImageResourceManager.registerProvider( this );
     }
@@ -70,11 +69,11 @@ public class CertifierLogoService implements ImageResourceProvider
      *
      * @return The unique instance
      */
-    public static synchronized CertifierLogoService getInstance(  )
+    public static synchronized CertifierLogoService getInstance( )
     {
         if ( _singleton == null )
         {
-            _singleton = new CertifierLogoService(  );
+            _singleton = new CertifierLogoService( );
         }
 
         return _singleton;
@@ -84,7 +83,7 @@ public class CertifierLogoService implements ImageResourceProvider
      * Return the Resource id
      *
      * @param nIdResource
-     *          The resource identifier
+     *            The resource identifier
      * @return The Resource Image
      */
     @Override
@@ -94,9 +93,9 @@ public class CertifierLogoService implements ImageResourceProvider
 
         if ( certifier != null )
         {
-            ImageResource imageResource = new ImageResource(  );
-            imageResource.setImage( certifier.getLogo(  ) );
-            imageResource.setMimeType( certifier.getLogoMimeType(  ) );
+            ImageResource imageResource = new ImageResource( );
+            imageResource.setImage( certifier.getLogo( ) );
+            imageResource.setMimeType( certifier.getLogoMimeType( ) );
 
             return imageResource;
         }
@@ -110,7 +109,7 @@ public class CertifierLogoService implements ImageResourceProvider
      * @return The Resource Type Id
      */
     @Override
-    public String getResourceTypeId(  )
+    public String getResourceTypeId( )
     {
         return IMAGE_RESOURCE_TYPE_ID;
     }
@@ -119,16 +118,16 @@ public class CertifierLogoService implements ImageResourceProvider
      * Management of the image associated to the {@link EntryUrl}
      *
      * @param nEntryUrl
-     *          The {@link EntryUrl} identifier
+     *            The {@link EntryUrl} identifier
      * @return The url of the resource
      */
     public static String getResourceImageEntryUrl( int nEntryUrl )
     {
-        String strResourceType = CertifierLogoService.getInstance(  ).getResourceTypeId(  );
+        String strResourceType = CertifierLogoService.getInstance( ).getResourceTypeId( );
         UrlItem url = new UrlItem( Parameters.IMAGE_SERVLET );
         url.addParameter( Parameters.RESOURCE_TYPE, strResourceType );
         url.addParameter( Parameters.RESOURCE_ID, Integer.toString( nEntryUrl ) );
 
-        return url.getUrlWithEntity(  );
+        return url.getUrlWithEntity( );
     }
 }

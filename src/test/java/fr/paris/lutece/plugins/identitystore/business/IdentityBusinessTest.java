@@ -37,13 +37,12 @@ import fr.paris.lutece.test.LuteceTestCase;
 
 import java.sql.Date;
 
-
 public class IdentityBusinessTest extends LuteceTestCase
 {
     private final static String CONNECTIONID1 = "ConnectionId1";
     private final static String CONNECTIONID2 = "ConnectionId2";
-    private final static int CUSTOMERID1 = 1;
-    private final static int CUSTOMERID2 = 2;
+    private final static String CUSTOMERID1 = "48376eb6-b6c9-4247-931c-351a8182d297";
+    private final static String CUSTOMERID2 = "c966a0a2-e12a-4c74-b52f-2d03b9466df8";
     private final static String GIVENNAME1 = "GivenName1";
     private final static String GIVENNAME2 = "GivenName2";
     private final static String FAMILYNAME1 = "FamilyName1";
@@ -63,38 +62,38 @@ public class IdentityBusinessTest extends LuteceTestCase
     private final static String PHONE1 = "Phone1";
     private final static String PHONE2 = "Phone2";
 
-    public void testBusiness(  )
+    public void testBusiness( )
     {
         // Initialize an object
-        Identity identity = new Identity(  );
+        Identity identity = new Identity( );
         identity.setConnectionId( CONNECTIONID1 );
         identity.setCustomerId( CUSTOMERID1 );
 
         // Create test
         IdentityHome.create( identity );
 
-        Identity identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
-        assertEquals( identityStored.getConnectionId(  ), identity.getConnectionId(  ) );
-        assertEquals( identityStored.getCustomerId(  ), identity.getCustomerId(  ) );
-        assertEquals( identityStored.getGivenName(  ), identity.getGivenName(  ) );
-        assertEquals( identityStored.getFamilyName(  ), identity.getFamilyName(  ) );
+        Identity identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
+        assertEquals( identityStored.getConnectionId( ), identity.getConnectionId( ) );
+        assertEquals( identityStored.getCustomerId( ), identity.getCustomerId( ) );
+        assertEquals( identityStored.getGivenName( ), identity.getGivenName( ) );
+        assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
 
         // Update test
         identity.setConnectionId( CONNECTIONID2 );
         identity.setCustomerId( CUSTOMERID2 );
         IdentityHome.update( identity );
-        identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
-        assertEquals( identityStored.getConnectionId(  ), identity.getConnectionId(  ) );
-        assertEquals( identityStored.getCustomerId(  ), identity.getCustomerId(  ) );
-        assertEquals( identityStored.getGivenName(  ), identity.getGivenName(  ) );
-        assertEquals( identityStored.getFamilyName(  ), identity.getFamilyName(  ) );
+        identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
+        assertEquals( identityStored.getConnectionId( ), identity.getConnectionId( ) );
+        assertEquals( identityStored.getCustomerId( ), identity.getCustomerId( ) );
+        assertEquals( identityStored.getGivenName( ), identity.getGivenName( ) );
+        assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
 
         // List test
-        IdentityHome.getIdentitysList(  );
+        IdentityHome.getIdentitysList( );
 
         // Delete test
-        IdentityHome.remove( identity.getId(  ) );
-        identityStored = IdentityHome.findByPrimaryKey( identity.getId(  ) );
+        IdentityHome.remove( identity.getId( ) );
+        identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
         assertNull( identityStored );
     }
 }

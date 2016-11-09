@@ -40,10 +40,8 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
-
 /**
- * This class provides instances management methods (create, find, ...) for
- * AttributeKey objects
+ * This class provides instances management methods (create, find, ...) for AttributeKey objects
  */
 public final class AttributeKeyHome
 {
@@ -54,7 +52,7 @@ public final class AttributeKeyHome
     /**
      * Private constructor - this class need not be instantiated
      */
-    private AttributeKeyHome(  )
+    private AttributeKeyHome( )
     {
     }
 
@@ -62,10 +60,8 @@ public final class AttributeKeyHome
      * Create an instance of the attributeKey class
      *
      * @param attributeKey
-     *          The instance of the AttributeKey which contains the informations
-     *          to store
-     * @return The instance of attributeKey which has been created with its
-     *         primary key.
+     *            The instance of the AttributeKey which contains the informations to store
+     * @return The instance of attributeKey which has been created with its primary key.
      */
     public static AttributeKey create( AttributeKey attributeKey )
     {
@@ -78,7 +74,7 @@ public final class AttributeKeyHome
      * Update of the attributeKey which is specified in parameter
      *
      * @param attributeKey
-     *          The instance of the AttributeKey which contains the data to store
+     *            The instance of the AttributeKey which contains the data to store
      * @return The instance of the attributeKey which has been updated
      */
     public static AttributeKey update( AttributeKey attributeKey )
@@ -92,7 +88,7 @@ public final class AttributeKeyHome
      * Remove the attributeKey whose identifier is specified in parameter
      *
      * @param nKey
-     *          The attributeKey Id
+     *            The attributeKey Id
      */
     public static void remove( int nKey )
     {
@@ -100,11 +96,10 @@ public final class AttributeKeyHome
     }
 
     /**
-     * Returns an instance of a attributeKey whose identifier is specified in
-     * parameter
+     * Returns an instance of a attributeKey whose identifier is specified in parameter
      *
      * @param nKey
-     *          The attributeKey primary key
+     *            The attributeKey primary key
      * @return an instance of AttributeKey
      */
     public static AttributeKey findByPrimaryKey( int nKey )
@@ -116,7 +111,7 @@ public final class AttributeKeyHome
      * Find the attribute by its key
      *
      * @param strKey
-     *          The key The key
+     *            The key The key
      * @return the AttributeKey
      */
     public static AttributeKey findByKey( String strKey )
@@ -129,19 +124,17 @@ public final class AttributeKeyHome
      *
      * @return the list which contains the data of all the attributeKey objects
      */
-    public static List<AttributeKey> getAttributeKeysList(  )
+    public static List<AttributeKey> getAttributeKeysList( )
     {
         return _dao.selectAttributeKeysList( _plugin );
     }
 
     /**
-     * Load the data of all the attributeKey objects and returns them as a
-     * referenceList
+     * Load the data of all the attributeKey objects and returns them as a referenceList
      *
-     * @return the referenceList which contains the data of all the attributeKey
-     *         objects
+     * @return the referenceList which contains the data of all the attributeKey objects
      */
-    public static ReferenceList getAttributeKeysReferenceList(  )
+    public static ReferenceList getAttributeKeysReferenceList( )
     {
         return _dao.selectAttributeKeysReferenceList( _plugin );
     }

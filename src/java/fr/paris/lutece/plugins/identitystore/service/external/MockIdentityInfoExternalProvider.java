@@ -43,7 +43,6 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * This class is a mock for the external provider of identity information
  *
@@ -58,17 +57,16 @@ public class MockIdentityInfoExternalProvider implements IIdentityInfoExternalPr
      * {@inheritDoc}
      */
     @Override
-    public IdentityChangeDto getIdentityInfo( String strConnectionId )
-        throws IdentityNotFoundException
+    public IdentityChangeDto getIdentityInfo( String strConnectionId ) throws IdentityNotFoundException
     {
-        IdentityChangeDto identityChangeDto = new IdentityChangeDto(  );
+        IdentityChangeDto identityChangeDto = new IdentityChangeDto( );
 
-        AuthorDto authorDto = new AuthorDto(  );
+        AuthorDto authorDto = new AuthorDto( );
         authorDto.setApplicationCode( APPLICATION_CODE );
         identityChangeDto.setAuthor( authorDto );
 
-        IdentityDto identityDto = new IdentityDto(  );
-        Map<String, AttributeDto> mapAttributes = new HashMap<String, AttributeDto>(  );
+        IdentityDto identityDto = new IdentityDto( );
+        Map<String, AttributeDto> mapAttributes = new HashMap<String, AttributeDto>( );
 
         identityDto.setConnectionId( strConnectionId );
         identityDto.setAttributes( mapAttributes );

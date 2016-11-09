@@ -58,7 +58,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  *
  * class to help managing rest feature
@@ -69,7 +68,7 @@ public final class DtoConverter
     /**
      * private constructor
      */
-    private DtoConverter(  )
+    private DtoConverter( )
     {
     }
 
@@ -77,55 +76,53 @@ public final class DtoConverter
      * returns a identityDto initialized from provided identity
      *
      * @param identity
-     *          business identity to convert
+     *            business identity to convert
      * @param strClientAppCode
-     *          client app code
+     *            client app code
      * @return identityDto initialized from provided identity
      */
     public static IdentityDto convertToDto( Identity identity, String strClientAppCode )
     {
-        IdentityDto identityDto = new IdentityDto(  );
-        identityDto.setConnectionId( identity.getConnectionId(  ) );
-        identityDto.setCustomerId( identity.getCustomerId(  ) );
+        IdentityDto identityDto = new IdentityDto( );
+        identityDto.setConnectionId( identity.getConnectionId( ) );
+        identityDto.setCustomerId( identity.getCustomerId( ) );
 
-        if ( identity.getAttributes(  ) != null )
+        if ( identity.getAttributes( ) != null )
         {
-            Map<String, AttributeDto> mapAttributeDto = new HashMap<String, AttributeDto>(  );
-            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( 
-                        strClientAppCode ) );
+            Map<String, AttributeDto> mapAttributeDto = new HashMap<String, AttributeDto>( );
+            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( strClientAppCode ) );
 
-            for ( IdentityAttribute attribute : identity.getAttributes(  ).values(  ) )
+            for ( IdentityAttribute attribute : identity.getAttributes( ).values( ) )
             {
-                AttributeKey attributeKey = attribute.getAttributeKey(  );
+                AttributeKey attributeKey = attribute.getAttributeKey( );
 
-                AttributeDto attrDto = new AttributeDto(  );
-                attrDto.setKey( attributeKey.getKeyName(  ) );
-                attrDto.setValue( attribute.getValue(  ) );
-                attrDto.setType( attributeKey.getKeyType(  ).getCode(  ) );
+                AttributeDto attrDto = new AttributeDto( );
+                attrDto.setKey( attributeKey.getKeyName( ) );
+                attrDto.setValue( attribute.getValue( ) );
+                attrDto.setType( attributeKey.getKeyType( ).getCode( ) );
 
                 for ( AttributeRight attRight : lstRights )
                 {
-                    if ( attRight.getAttributeKey(  ).getKeyName(  ).equals( attributeKey.getKeyName(  ) ) )
+                    if ( attRight.getAttributeKey( ).getKeyName( ).equals( attributeKey.getKeyName( ) ) )
                     {
-                        attrDto.setCertified( attribute.getCertificate(  ) != null );
+                        attrDto.setCertified( attribute.getCertificate( ) != null );
 
                         break;
                     }
                 }
 
-                if ( attribute.getCertificate(  ) != null )
+                if ( attribute.getCertificate( ) != null )
                 {
-                    AttributeCertifier certifier = AttributeCertifierHome.findByPrimaryKey( attribute.getCertificate(  )
-                                                                                                     .getIdCertifier(  ) );
-                    CertificateDto certifDto = new CertificateDto(  );
-                    certifDto.setCertificateExpirationDate( attribute.getCertificate(  ).getExpirationDate(  ) );
-                    certifDto.setCertifierCode( certifier.getCode(  ) );
-                    certifDto.setCertifierName( certifier.getName(  ) );
-                    certifDto.setCertifierLevel( attribute.getCertificate(  ).getCertificateLevel(  ) );
+                    AttributeCertifier certifier = AttributeCertifierHome.findByPrimaryKey( attribute.getCertificate( ).getIdCertifier( ) );
+                    CertificateDto certifDto = new CertificateDto( );
+                    certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
+                    certifDto.setCertifierCode( certifier.getCode( ) );
+                    certifDto.setCertifierName( certifier.getName( ) );
+                    certifDto.setCertifierLevel( attribute.getCertificate( ).getCertificateLevel( ) );
                     attrDto.setCertificate( certifDto );
                 }
 
-                mapAttributeDto.put( attrDto.getKey(  ), attrDto );
+                mapAttributeDto.put( attrDto.getKey( ), attrDto );
             }
 
             identityDto.setAttributes( mapAttributeDto );
@@ -138,10 +135,10 @@ public final class DtoConverter
      * returns ChangeAuthor read from authorDto
      *
      * @param authorDto
-     *          authorDto (mandatory)
+     *            authorDto (mandatory)
      * @return changeAuthor initialized from Dto datas
      * @throws AppException
-     *           if provided dto is null
+     *             if provided dto is null
      */
     public static ChangeAuthor getAuthor( AuthorDto authorDto )
     {
@@ -149,25 +146,24 @@ public final class DtoConverter
 
         if ( authorDto != null )
         {
-            author = new ChangeAuthor(  );
-            author.setApplication( authorDto.getApplicationName(  ) );
-            author.setUserName( authorDto.getUserName(  ) );
+            author = new ChangeAuthor( );
+            author.setApplication( authorDto.getApplicationName( ) );
+            author.setUserName( authorDto.getUserName( ) );
 
-            if ( ( authorDto.getType(  ) != AuthorType.TYPE_APPLICATION.getTypeValue(  ) ) &&
-                    ( authorDto.getType(  ) != AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue(  ) ) &&
-                    ( authorDto.getType(  ) != AuthorType.TYPE_USER_OWNER.getTypeValue(  ) ) )
+            if ( ( authorDto.getType( ) != AuthorType.TYPE_APPLICATION.getTypeValue( ) )
+                    && ( authorDto.getType( ) != AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) )
+                    && ( authorDto.getType( ) != AuthorType.TYPE_USER_OWNER.getTypeValue( ) ) )
             {
-                throw new AppException( "type provided is unknown type=" + authorDto.getType(  ) );
+                throw new AppException( "type provided is unknown type=" + authorDto.getType( ) );
             }
 
-            if ( ( authorDto.getType(  ) == AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue(  ) ) &&
-                    StringUtils.isEmpty( authorDto.getEmail(  ) ) )
+            if ( ( authorDto.getType( ) == AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) ) && StringUtils.isEmpty( authorDto.getEmail( ) ) )
             {
                 throw new AppException( "email field is missing" );
             }
 
-            author.setEmail( authorDto.getEmail(  ) );
-            author.setType( authorDto.getType(  ) );
+            author.setEmail( authorDto.getEmail( ) );
+            author.setType( authorDto.getType( ) );
         }
         else
         {
@@ -181,46 +177,40 @@ public final class DtoConverter
      * returns certificate from Dto
      *
      * @param certificateDto
-     *          certificate dto (can be null)
-     * @return certificate initialized from Dto datas, null if provided dto is
-     *         null
+     *            certificate dto (can be null)
+     * @return certificate initialized from Dto datas, null if provided dto is null
      * @throws AppException
-     *           if provided certifier code is unknown or its expiration date is
-     *           already expired
+     *             if provided certifier code is unknown or its expiration date is already expired
      *
      */
-    public static AttributeCertificate getCertificate( CertificateDto certificateDto )
-        throws AppException
+    public static AttributeCertificate getCertificate( CertificateDto certificateDto ) throws AppException
     {
         AttributeCertificate attributeCertificate = null;
 
         if ( certificateDto != null )
         {
-            attributeCertificate = new AttributeCertificate(  );
-            attributeCertificate.setCertificateLevel( certificateDto.getCertifierLevel(  ) );
-            attributeCertificate.setCertifier( certificateDto.getCertifierName(  ) );
+            attributeCertificate = new AttributeCertificate( );
+            attributeCertificate.setCertificateLevel( certificateDto.getCertifierLevel( ) );
+            attributeCertificate.setCertifier( certificateDto.getCertifierName( ) );
 
-            AttributeCertifier certifier = AttributeCertifierHome.findByCode( certificateDto.getCertifierCode(  ) );
+            AttributeCertifier certifier = AttributeCertifierHome.findByCode( certificateDto.getCertifierCode( ) );
 
             if ( certifier == null )
             {
-                throw new AppException( "Unknown Certifier code, provided code=" + certificateDto.getCertifierCode(  ) );
+                throw new AppException( "Unknown Certifier code, provided code=" + certificateDto.getCertifierCode( ) );
             }
 
-            attributeCertificate.setIdCertifier( certifier.getId(  ) );
-            attributeCertificate.setCertificateDate( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+            attributeCertificate.setIdCertifier( certifier.getId( ) );
+            attributeCertificate.setCertificateDate( new Timestamp( ( new Date( ) ).getTime( ) ) );
 
-            if ( ( certificateDto.getCertificateExpirationDate(  ) != null ) &&
-                    certificateDto.getCertificateExpirationDate(  ).before( new Date(  ) ) )
+            if ( ( certificateDto.getCertificateExpirationDate( ) != null ) && certificateDto.getCertificateExpirationDate( ).before( new Date( ) ) )
             {
-                throw new AppException( "Certificate expiration date is expired =" +
-                    certificateDto.getCertificateExpirationDate(  ) );
+                throw new AppException( "Certificate expiration date is expired =" + certificateDto.getCertificateExpirationDate( ) );
             }
 
-            if ( certificateDto.getCertificateExpirationDate(  ) != null )
+            if ( certificateDto.getCertificateExpirationDate( ) != null )
             {
-                attributeCertificate.setExpirationDate( new Timestamp( 
-                        ( certificateDto.getCertificateExpirationDate(  ) ).getTime(  ) ) );
+                attributeCertificate.setExpirationDate( new Timestamp( ( certificateDto.getCertificateExpirationDate( ) ).getTime( ) ) );
             }
         }
 

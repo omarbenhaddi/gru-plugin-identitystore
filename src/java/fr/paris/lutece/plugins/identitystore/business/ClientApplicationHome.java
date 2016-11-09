@@ -39,24 +39,20 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
 
-
 /**
- * This class provides instances management methods (create, find, ...) for
- * IdentityAttribute objects
+ * This class provides instances management methods (create, find, ...) for IdentityAttribute objects
  */
 public final class ClientApplicationHome
 {
     // Static variable pointed at the DAO instance
-    private static IClientApplicationDAO _daoClientApplication = SpringContextService.getBean( 
-            "identitystore.clientApplicationDAO" );
-    private static IAttributeRightDAO _daoAttributeRights = SpringContextService.getBean( 
-            "identitystore.attributeRightDAO" );
+    private static IClientApplicationDAO _daoClientApplication = SpringContextService.getBean( "identitystore.clientApplicationDAO" );
+    private static IAttributeRightDAO _daoAttributeRights = SpringContextService.getBean( "identitystore.attributeRightDAO" );
     private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
 
     /**
      * Private constructor - this class need not be instantiated
      */
-    private ClientApplicationHome(  )
+    private ClientApplicationHome( )
     {
     }
 
@@ -64,10 +60,8 @@ public final class ClientApplicationHome
      * Create an instance of the identityAttribute class
      *
      * @param clientApplication
-     *          The instance of the clientApplication which contains the
-     *          informations to store
-     * @return The instance of identityAttribute which has been created with its
-     *         primary key.
+     *            The instance of the clientApplication which contains the informations to store
+     * @return The instance of identityAttribute which has been created with its primary key.
      */
     public static ClientApplication create( ClientApplication clientApplication )
     {
@@ -80,8 +74,7 @@ public final class ClientApplicationHome
      * Update of the clientApplication which is specified in parameter
      *
      * @param clientApplication
-     *          The instance of the clientApplication which contains the data to
-     *          store
+     *            The instance of the clientApplication which contains the data to store
      * @return The instance of the clientApplication which has been updated
      */
     public static ClientApplication update( ClientApplication clientApplication )
@@ -95,20 +88,19 @@ public final class ClientApplicationHome
      * Remove the clientApplication whose identifier is specified in parameter
      *
      * @param clientApplication
-     *          The client application
+     *            The client application
      */
     public static void remove( ClientApplication clientApplication )
     {
         _daoAttributeRights.removeApplicationRights( clientApplication, _plugin );
-        _daoClientApplication.delete( clientApplication.getId(  ), _plugin );
+        _daoClientApplication.delete( clientApplication.getId( ), _plugin );
     }
 
     /**
-     * Returns an instance of a clientApplication whose identifier is specified in
-     * parameter
+     * Returns an instance of a clientApplication whose identifier is specified in parameter
      *
      * @param nIdclientApplication
-     *          The clientApplication ID
+     *            The clientApplication ID
      * @return an instance of clientApplication
      */
     public static ClientApplication findByPrimaryKey( int nIdclientApplication )
@@ -117,11 +109,10 @@ public final class ClientApplicationHome
     }
 
     /**
-     * Returns an instance of a clientApplication whose code is specified in
-     * parameter
+     * Returns an instance of a clientApplication whose code is specified in parameter
      *
      * @param strApplicationCode
-     *          code of the clientApplication
+     *            code of the clientApplication
      * @return an instance of clientApplication
      */
     public static ClientApplication findByCode( String strApplicationCode )
@@ -134,7 +125,7 @@ public final class ClientApplicationHome
      *
      * @return list of clientApplication
      */
-    public static List<ClientApplication> selectApplicationList(  )
+    public static List<ClientApplication> selectApplicationList( )
     {
         return _daoClientApplication.selectClientApplicationList( _plugin );
     }
@@ -143,7 +134,7 @@ public final class ClientApplicationHome
      * returns rights of provided application
      *
      * @param clientApp
-     *          client application
+     *            client application
      * @return list of rights
      */
     public static List<AttributeRight> selectApplicationRights( ClientApplication clientApp )
@@ -155,7 +146,7 @@ public final class ClientApplicationHome
      * remove all rights of application
      *
      * @param clientApp
-     *          client application
+     *            client application
      */
     public static void removeApplicationRights( ClientApplication clientApp )
     {
@@ -166,7 +157,7 @@ public final class ClientApplicationHome
      * add rights to the application
      *
      * @param lstAttributeRights
-     *          attribute rights to add
+     *            attribute rights to add
      */
     public static void addAttributeRights( List<AttributeRight> lstAttributeRights )
     {

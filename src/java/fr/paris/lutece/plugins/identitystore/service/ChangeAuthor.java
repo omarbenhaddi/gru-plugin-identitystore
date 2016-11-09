@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
-
 /**
  * ChangeAuthor
  */
@@ -50,7 +49,7 @@ public class ChangeAuthor
      *
      * @return The Application
      */
-    public String getApplication(  )
+    public String getApplication( )
     {
         return _strApplication;
     }
@@ -59,7 +58,7 @@ public class ChangeAuthor
      * Sets the Application
      *
      * @param strApplication
-     *          The Application
+     *            The Application
      */
     public void setApplication( String strApplication )
     {
@@ -71,7 +70,7 @@ public class ChangeAuthor
      *
      * @return The UserName
      */
-    public String getUserName(  )
+    public String getUserName( )
     {
         return _strUserName;
     }
@@ -80,7 +79,7 @@ public class ChangeAuthor
      * Sets the UserName
      *
      * @param strUserName
-     *          The UserName
+     *            The UserName
      */
     public void setUserName( String strUserName )
     {
@@ -92,7 +91,7 @@ public class ChangeAuthor
      *
      * @return The strEmail
      */
-    public String getEmail(  )
+    public String getEmail( )
     {
         return _strEmail;
     }
@@ -101,7 +100,7 @@ public class ChangeAuthor
      * Sets the strEmail
      *
      * @param strEmail
-     *          The email
+     *            The email
      */
     public void setEmail( String strEmail )
     {
@@ -113,7 +112,7 @@ public class ChangeAuthor
      *
      * @return The Type
      */
-    public int getType(  )
+    public int getType( )
     {
         return _nType;
     }
@@ -122,7 +121,7 @@ public class ChangeAuthor
      * Sets the Type
      *
      * @param nType
-     *          The Type
+     *            The Type
      */
     public void setType( int nType )
     {

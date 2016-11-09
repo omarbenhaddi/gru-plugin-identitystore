@@ -38,7 +38,6 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
-
 /**
  * IAttributeCertifierDAO Interface
  */
@@ -48,9 +47,9 @@ public interface IAttributeCertifierDAO
      * Insert a new record in the table.
      *
      * @param attributeCertifier
-     *          instance of the AttributeCertifier object to insert
+     *            instance of the AttributeCertifier object to insert
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void insert( AttributeCertifier attributeCertifier, Plugin plugin );
 
@@ -58,9 +57,9 @@ public interface IAttributeCertifierDAO
      * Update the record in the table
      *
      * @param attributeCertifier
-     *          the reference of the AttributeCertifier
+     *            the reference of the AttributeCertifier
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void store( AttributeCertifier attributeCertifier, Plugin plugin );
 
@@ -68,9 +67,9 @@ public interface IAttributeCertifierDAO
      * Delete a record from the table
      *
      * @param nKey
-     *          The identifier of the AttributeCertifier to delete
+     *            The identifier of the AttributeCertifier to delete
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void delete( int nKey, Plugin plugin );
 
@@ -81,43 +80,37 @@ public interface IAttributeCertifierDAO
      * Load the data from the table
      *
      * @param nKey
-     *          The identifier of the attributeCertifier
+     *            The identifier of the attributeCertifier
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The instance of the attributeCertifier
      */
     AttributeCertifier load( int nKey, Plugin plugin );
 
     /**
-     * Load the data of all the attributeCertifier objects and returns them as a
-     * list
+     * Load the data of all the attributeCertifier objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
-     * @return The list which contains the data of all the attributeCertifier
-     *         objects
+     *            the Plugin
+     * @return The list which contains the data of all the attributeCertifier objects
      */
     List<AttributeCertifier> selectAttributeCertifiersList( Plugin plugin );
 
     /**
-     * Load the id of all the attributeCertifier objects and returns them as a
-     * list
+     * Load the id of all the attributeCertifier objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
-     * @return The list which contains the id of all the attributeCertifier
-     *         objects
+     *            the Plugin
+     * @return The list which contains the id of all the attributeCertifier objects
      */
     List<Integer> selectIdAttributeCertifiersList( Plugin plugin );
 
     /**
-     * Load the data of all the attributeCertifier objects and returns them as a
-     * referenceList
+     * Load the data of all the attributeCertifier objects and returns them as a referenceList
      *
      * @param plugin
-     *          the Plugin
-     * @return The referenceList which contains the data of all the
-     *         attributeCertifier objects
+     *            the Plugin
+     * @return The referenceList which contains the data of all the attributeCertifier objects
      */
     ReferenceList selectAttributeCertifiersReferenceList( Plugin plugin );
 
@@ -125,9 +118,9 @@ public interface IAttributeCertifierDAO
      * Select a Certifier by its code
      *
      * @param strCode
-     *          The code
+     *            The code
      * @param plugin
-     *          The plugin
+     *            The plugin
      * @return The certifier
      */
     AttributeCertifier selectByCode( String strCode, Plugin plugin );

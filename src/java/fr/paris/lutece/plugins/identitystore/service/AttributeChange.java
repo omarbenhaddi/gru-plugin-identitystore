@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.service;
 
 import java.sql.Timestamp;
 
-
 /**
  * AttributeChange
  */
@@ -49,7 +48,7 @@ public class AttributeChange
     private String _strAuthorService;
     private int _nAuthorType;
     private String _strIdentityConnectionId;
-    private int _nCustomerId;
+    private String _sCustomerId;
     private String _strIdentityName;
     private String _strChangedKey;
     private String _strOldValue;
@@ -62,7 +61,7 @@ public class AttributeChange
      *
      * @return The DateChange
      */
-    public Timestamp getDateChange(  )
+    public Timestamp getDateChange( )
     {
         return _dateChange;
     }
@@ -70,12 +69,12 @@ public class AttributeChange
     /**
      * Sets the DateChange
      *
-     * @param DateChange
-     *          The DateChange
+     * @param dateChange
+     *            The DateChange
      */
-    public void setDateChange( Timestamp DateChange )
+    public void setDateChange( Timestamp dateChange )
     {
-        _dateChange = DateChange;
+        _dateChange = dateChange;
     }
 
     /**
@@ -83,7 +82,7 @@ public class AttributeChange
      *
      * @return The AuthorId
      */
-    public String getAuthorId(  )
+    public String getAuthorId( )
     {
         return _strAuthorId;
     }
@@ -92,7 +91,7 @@ public class AttributeChange
      * Sets the AuthorId
      *
      * @param strAuthorId
-     *          The AuthorId
+     *            The AuthorId
      */
     public void setAuthorId( String strAuthorId )
     {
@@ -104,7 +103,7 @@ public class AttributeChange
      *
      * @return The AuthorName
      */
-    public String getAuthorName(  )
+    public String getAuthorName( )
     {
         return _strAuthorName;
     }
@@ -113,7 +112,7 @@ public class AttributeChange
      * Sets the AuthorName
      *
      * @param strAuthorName
-     *          The AuthorName
+     *            The AuthorName
      */
     public void setAuthorName( String strAuthorName )
     {
@@ -125,7 +124,7 @@ public class AttributeChange
      *
      * @return The AuthorService
      */
-    public String getAuthorService(  )
+    public String getAuthorService( )
     {
         return _strAuthorService;
     }
@@ -134,7 +133,7 @@ public class AttributeChange
      * Sets the AuthorService
      *
      * @param strAuthorService
-     *          The AuthorService
+     *            The AuthorService
      */
     public void setAuthorService( String strAuthorService )
     {
@@ -146,7 +145,7 @@ public class AttributeChange
      *
      * @return The AuthorType
      */
-    public int getAuthorType(  )
+    public int getAuthorType( )
     {
         return _nAuthorType;
     }
@@ -155,7 +154,7 @@ public class AttributeChange
      * Sets the AuthorType
      *
      * @param nAuthorType
-     *          The AuthorType
+     *            The AuthorType
      */
     public void setAuthorType( int nAuthorType )
     {
@@ -167,7 +166,7 @@ public class AttributeChange
      *
      * @return The IdentityId
      */
-    public String getIdentityConnectionId(  )
+    public String getIdentityConnectionId( )
     {
         return _strIdentityConnectionId;
     }
@@ -176,7 +175,7 @@ public class AttributeChange
      * Sets the IdentityId
      *
      * @param strIdentityId
-     *          The IdentityId
+     *            The IdentityId
      */
     public void setIdentityConnectionId( String strIdentityId )
     {
@@ -188,20 +187,20 @@ public class AttributeChange
      *
      * @return The CustomerId
      */
-    public int getCustomerId(  )
+    public String getCustomerId( )
     {
-        return _nCustomerId;
+        return _sCustomerId;
     }
 
     /**
      * Sets the CustomerId
      *
-     * @param nCustomerId
-     *          The CustomerId
+     * @param sCustomerId
+     *            The CustomerId
      */
-    public void setCustomerId( int nCustomerId )
+    public void setCustomerId( String sCustomerId )
     {
-        _nCustomerId = nCustomerId;
+        _sCustomerId = sCustomerId;
     }
 
     /**
@@ -209,7 +208,7 @@ public class AttributeChange
      *
      * @return The IdentityName
      */
-    public String getIdentityName(  )
+    public String getIdentityName( )
     {
         return _strIdentityName;
     }
@@ -218,7 +217,7 @@ public class AttributeChange
      * Sets the IdentityName
      *
      * @param strIdentityName
-     *          The IdentityName
+     *            The IdentityName
      */
     public void setIdentityName( String strIdentityName )
     {
@@ -230,7 +229,7 @@ public class AttributeChange
      *
      * @return The ChangedKey
      */
-    public String getChangedKey(  )
+    public String getChangedKey( )
     {
         return _strChangedKey;
     }
@@ -239,7 +238,7 @@ public class AttributeChange
      * Sets the ChangedKey
      *
      * @param strChangedKey
-     *          The ChangedKey
+     *            The ChangedKey
      */
     public void setChangedKey( String strChangedKey )
     {
@@ -251,7 +250,7 @@ public class AttributeChange
      *
      * @return The OldValue
      */
-    public String getOldValue(  )
+    public String getOldValue( )
     {
         return _strOldValue;
     }
@@ -260,7 +259,7 @@ public class AttributeChange
      * Sets the OldValue
      *
      * @param strOldValue
-     *          The OldValue
+     *            The OldValue
      */
     public void setOldValue( String strOldValue )
     {
@@ -272,7 +271,7 @@ public class AttributeChange
      *
      * @return The NewValue
      */
-    public String getNewValue(  )
+    public String getNewValue( )
     {
         return _strNewValue;
     }
@@ -281,7 +280,7 @@ public class AttributeChange
      * Sets the NewValue
      *
      * @param strNewValue
-     *          The NewValue
+     *            The NewValue
      */
     public void setNewValue( String strNewValue )
     {
@@ -293,7 +292,7 @@ public class AttributeChange
      *
      * @return The Certifier
      */
-    public String getCertifier(  )
+    public String getCertifier( )
     {
         return _strCertifier;
     }
@@ -302,7 +301,7 @@ public class AttributeChange
      * Sets the Certifier
      *
      * @param strCertifier
-     *          The Certifier
+     *            The Certifier
      */
     public void setCertifier( String strCertifier )
     {
@@ -314,7 +313,7 @@ public class AttributeChange
      *
      * @return The AttributeChangeType
      */
-    public AttributeChangeType getChangeType(  )
+    public AttributeChangeType getChangeType( )
     {
         return _attributeChangeType;
     }
@@ -323,7 +322,7 @@ public class AttributeChange
      * Sets the type of the AttributeChange
      *
      * @param attributeChangeType
-     *          The AttributeChangeType
+     *            The AttributeChangeType
      */
     public void setChangeType( AttributeChangeType attributeChangeType )
     {
@@ -333,13 +332,14 @@ public class AttributeChange
     /**
      * @return the _nidentityId
      */
-    public int getIdentityId(  )
+    public int getIdentityId( )
     {
         return _nIdentityId;
     }
 
     /**
-     * @param nIdentityId the _nidentityId to set
+     * @param nIdentityId
+     *            the _nidentityId to set
      */
     public void setIdentityId( int nIdentityId )
     {

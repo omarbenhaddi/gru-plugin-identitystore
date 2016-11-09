@@ -39,7 +39,6 @@ import java.io.Serializable;
 
 import javax.validation.constraints.Size;
 
-
 /**
  *
  * class representing Client application
@@ -67,7 +66,7 @@ public class ClientApplication implements Serializable
      *
      * @return The Id
      */
-    public int getId(  )
+    public int getId( )
     {
         return _nId;
     }
@@ -76,7 +75,7 @@ public class ClientApplication implements Serializable
      * Sets the Id
      *
      * @param nId
-     *          The Id
+     *            The Id
      */
     public void setId( int nId )
     {
@@ -88,7 +87,7 @@ public class ClientApplication implements Serializable
      *
      * @return The Name
      */
-    public String getName(  )
+    public String getName( )
     {
         return _strName;
     }
@@ -97,7 +96,7 @@ public class ClientApplication implements Serializable
      * Sets the Name
      *
      * @param strName
-     *          The Name
+     *            The Name
      */
     public void setName( String strName )
     {
@@ -109,7 +108,7 @@ public class ClientApplication implements Serializable
      *
      * @return The Code
      */
-    public String getCode(  )
+    public String getCode( )
     {
         return _strCode;
     }
@@ -118,7 +117,7 @@ public class ClientApplication implements Serializable
      * Sets the Code
      *
      * @param strCode
-     *          The Code
+     *            The Code
      */
     public void setCode( String strCode )
     {
@@ -128,14 +127,14 @@ public class ClientApplication implements Serializable
     /**
      * @return the _strHash
      */
-    public String getHash(  )
+    public String getHash( )
     {
         return _strHash;
     }
 
     /**
      * @param strHash
-     *          the _strHash to set
+     *            the _strHash to set
      */
     public void setHash( String strHash )
     {
@@ -145,13 +144,14 @@ public class ClientApplication implements Serializable
     /**
      * @return the _strControlKey
      */
-    public String getControlKey(  )
+    public String getControlKey( )
     {
         return _strControlKey;
     }
 
     /**
-     * @param strControlKey the _strControlKey to set
+     * @param strControlKey
+     *            the _strControlKey to set
      */
     public void setControlKey( String strControlKey )
     {

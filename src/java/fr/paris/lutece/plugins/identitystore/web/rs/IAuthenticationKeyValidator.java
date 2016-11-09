@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
-
 /**
  *
  * Key Validator
@@ -43,8 +42,11 @@ public interface IAuthenticationKeyValidator
 {
     /**
      * return true if key is valid, false otherwise
-     * @param strClientCode client application code
-     * @param strHeaderKey key to validate
+     * 
+     * @param strClientCode
+     *            client application code
+     * @param strHeaderKey
+     *            key to validate
      * @return true if key is valid, false otherwise
      */
     boolean isAuthenticationKeyValid( String strClientCode, String strHeaderKey );

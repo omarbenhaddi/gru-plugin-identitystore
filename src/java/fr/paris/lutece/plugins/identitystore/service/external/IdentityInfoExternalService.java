@@ -37,7 +37,6 @@ import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundExcep
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
-
 /**
  * This class provides a service to retrieve identity information from external source.<br/>
  * Designed as a singleton
@@ -49,9 +48,9 @@ public final class IdentityInfoExternalService
     private static IdentityInfoExternalService _singleton;
 
     /**
-     *  Private constructor.
+     * Private constructor.
      */
-    private IdentityInfoExternalService(  )
+    private IdentityInfoExternalService( )
     {
     }
 
@@ -60,11 +59,11 @@ public final class IdentityInfoExternalService
      *
      * @return The instance
      */
-    public static IdentityInfoExternalService instance(  )
+    public static IdentityInfoExternalService instance( )
     {
         if ( _singleton == null )
         {
-            _singleton = new IdentityInfoExternalService(  );
+            _singleton = new IdentityInfoExternalService( );
             _identityInfoExternalProvider = SpringContextService.getBean( BEAN_IDENTITY_INFO_EXTERNAL_PROVIDER );
         }
 
@@ -74,12 +73,13 @@ public final class IdentityInfoExternalService
     /**
      * Gives identity information from external source.
      *
-     * @param strConnectionId the connection id
+     * @param strConnectionId
+     *            the connection id
      * @return the identity
-     * @throws IdentityNotFoundException if no identity can be retrieve from external source
+     * @throws IdentityNotFoundException
+     *             if no identity can be retrieve from external source
      */
-    public IdentityChangeDto getIdentityInfo( String strConnectionId )
-        throws IdentityNotFoundException
+    public IdentityChangeDto getIdentityInfo( String strConnectionId ) throws IdentityNotFoundException
     {
         return (IdentityChangeDto) _identityInfoExternalProvider.getIdentityInfo( strConnectionId );
     }
