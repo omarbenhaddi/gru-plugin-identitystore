@@ -38,13 +38,13 @@
         <dependency>
 			<groupId>fr.paris.lutece.plugins</groupId>
 			<artifactId>plugin-swaggerui</artifactId>
-			<version>[1.0.0-SNAPSHOT,)</version>
+			<version>[1.0.1,)</version>
 			<type>lutece-plugin</type>
 		</dependency>
         <dependency>
         	<groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-identitystore</artifactId>
-            <version>[1.1.0-SNAPSHOT,)</version>
+            <version>[1.1.0,)</version>
             <type>jar</type>
         </dependency>		
 		<dependency>
