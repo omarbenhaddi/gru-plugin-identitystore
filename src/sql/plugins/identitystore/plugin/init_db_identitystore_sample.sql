@@ -50,7 +50,7 @@ INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_
 
 DELETE FROM identitystore_client_application;
 INSERT INTO identitystore_client_application (id_client_app, name, code, hash) VALUES
-(1, 'My Dashboard', 'MyDashboard', '');
+(1, 'My Application', 'MyApplication', '');
 
 DELETE FROM identitystore_attribute_right;
 INSERT INTO identitystore_attribute_right (id_client_app, id_attribute, readable, writable, certifiable) VALUES

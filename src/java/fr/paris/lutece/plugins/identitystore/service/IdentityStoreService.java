@@ -122,25 +122,6 @@ public final class IdentityStoreService
      *
      * @param strConnectionId
      *          connection id
-     * @return full attributes list for user identified by connection id
-     */
-    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId )
-    {
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
-
-        if ( identity != null )
-        {
-            return IdentityAttributeHome.getAttributes( identity.getId(  ) );
-        }
-
-        return null;
-    }
-
-    /**
-     * returns attributes from connection id
-     *
-     * @param strConnectionId
-     *          connection id
      * @param strClientApplicationCode
      *          application code who requested attributes
      * @return attributes list according to application rights for user identified
@@ -196,14 +177,7 @@ public final class IdentityStoreService
      */
     public static Identity getIdentityByConnectionId( String strConnectionId, String strClientApplicationCode )
     {
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId, strClientApplicationCode );
-
-        if ( identity != null )
-        {
-            return identity;
-        }
-
-        return null;
+        return IdentityHome.findByConnectionId( strConnectionId, strClientApplicationCode );
     }
 
     /**
@@ -218,14 +192,7 @@ public final class IdentityStoreService
      */
     public static Identity getIdentityByCustomerId( int nCustomerId, String strClientApplicationCode )
     {
-        Identity identity = IdentityHome.findByCustomerId( nCustomerId, strClientApplicationCode );
-
-        if ( identity != null )
-        {
-            return identity;
-        }
-
-        return null;
+        return IdentityHome.findByCustomerId( nCustomerId, strClientApplicationCode );
     }
 
     /**

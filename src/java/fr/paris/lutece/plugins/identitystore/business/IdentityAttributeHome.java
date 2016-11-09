@@ -154,6 +154,10 @@ public final class IdentityAttributeHome
      *          The identity ID
      * @return the map which contains the data of all the identityAttribute
      *         objects
+     *
+     * @deprecated
+     * Use {@link #getAttributes( int, String ) } method instead
+     *
      */
     public static Map<String, IdentityAttribute> getAttributes( int nIdentityId )
     {

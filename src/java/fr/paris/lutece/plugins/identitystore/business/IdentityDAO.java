@@ -146,10 +146,14 @@ public final class IdentityDAO implements IIdentityDAO
             identity.setId( daoUtil.getInt( nIndex++ ) );
             identity.setConnectionId( daoUtil.getString( nIndex++ ) );
             identity.setCustomerId( daoUtil.getInt( nIndex++ ) );
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
         }
 
         daoUtil.free(  );
+
+        if ( identity != null )
+        {
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
+        }
 
         return identity;
     }
@@ -199,10 +203,14 @@ public final class IdentityDAO implements IIdentityDAO
             Identity identity = new Identity(  );
             identity = getIdentityFromQuery( daoUtil );
             identityList.add( identity );
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
         }
 
         daoUtil.free(  );
+
+        for ( Identity identity : identityList )
+        {
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
+        }
 
         return identityList;
     }

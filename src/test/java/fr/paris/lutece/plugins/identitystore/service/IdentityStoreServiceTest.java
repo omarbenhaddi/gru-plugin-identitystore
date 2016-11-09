@@ -49,6 +49,8 @@ import java.util.Map;
  */
 public class IdentityStoreServiceTest extends LuteceTestCase
 {
+    private static final String APPLICATION_CODE = "MyApplication";
+    
     /**
      * Test of getAttributesByConnectionId method, of class IdentityStoreService.
      */
@@ -60,7 +62,7 @@ public class IdentityStoreServiceTest extends LuteceTestCase
         Identity identity = getIdentity(  );
         IdentityStoreService.setAttribute( identity, "email", "john.doe@nowhere.com", null, null );
 
-        Map<String, IdentityAttribute> map = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ) );
+        Map<String, IdentityAttribute> map = IdentityStoreService.getAttributesByConnectionId( identity.getConnectionId(  ), APPLICATION_CODE );
         assertTrue( map.size(  ) == 1 );
     }
 
