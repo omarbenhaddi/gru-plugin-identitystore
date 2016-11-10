@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS identitystore_identity;
 CREATE TABLE identitystore_identity (
 id_identity int(11) NOT NULL,
 connection_id varchar(100) NULL UNIQUE,
-customer_id varchar (36) NULL UNIQUE,
+customer_id varchar (50) NULL UNIQUE,
 PRIMARY KEY (id_identity),
 INDEX (connection_id),
 INDEX (customer_id)
