@@ -25,6 +25,13 @@
             </list>
         </constructor-arg>
     </bean>
+    <bean id="identitystore.application.code.delete.authorized.list" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value></value>
+            </list>
+        </constructor-arg>
+    </bean>
     
     <bean id="identitystore.identityInfoExternalProvider" class="fr.paris.lutece.plugins.identitystore.service.external.MockIdentityInfoExternalProvider" />
 

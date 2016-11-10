@@ -84,6 +84,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -107,6 +108,7 @@ public final class IdentityStoreRestService
     private static final String ERROR_NO_IDENTITY_TO_UPDATE = "no identity to update";
     private static final String ERROR_NO_IDENTITY_PROVIDED = "Neither the guid, nor the cid, nor the identity attributes are provided !!!";
     private static final String ERROR_DURING_TREATMENT = "An error occured during the treatment.";
+    private static final String MESSAGE_DELETE_SUCCESSFUL = "Identity successfully deleted.";
     private ObjectMapper _objectMapper;
 
     /**
@@ -328,6 +330,33 @@ public final class IdentityStoreRestService
         {
             return getErrorResponse( exception );
         }
+    }
+
+    /**
+     * Deletes an identity from the specified connectionId
+     *
+     * @param strConnectionId the connection ID
+     * @param strClientAppCode the client code
+     * @return a OK message if the deletion has been performed, a KO message otherwise
+     */
+    @DELETE
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
+    String strClientAppCode )
+    {
+        IdentityStoreRequest identityStoreRequest = new IdentityStoreRequest( strConnectionId, strClientAppCode );
+
+        try
+        {
+            identityStoreRequest.deleteIdentity(  );
+        }
+        catch ( Exception e )
+        {
+            return getErrorResponse( e );
+        }
+
+        return buildResponse( MESSAGE_DELETE_SUCCESSFUL, Status.OK );
     }
 
     /**
@@ -624,17 +653,25 @@ public final class IdentityStoreRestService
                 strMessage = ERROR_DURING_TREATMENT;
         }
 
-        ResponseDto response = new ResponseDto(  );
-        response.setStatus( String.valueOf( status ) );
-        response.setMessage( strMessage );
+        return buildResponse( strMessage, status );
+    }
 
-        String strResponse;
-
+    /**
+     * Builds a {@code Response} object from the specified message and status
+     * @param strMessage the message
+     * @param status the status
+     * @return the {@code Response} object
+     */
+    private Response buildResponse( String strMessage, Status status )
+    {
         try
         {
-            strResponse = _objectMapper.writeValueAsString( response );
+            ResponseDto response = new ResponseDto(  );
+            response.setStatus( status.toString(  ) );
+            response.setMessage( strMessage );
 
-            return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build(  );
+            return Response.status( status ).type( MediaType.APPLICATION_JSON )
+                           .entity( _objectMapper.writeValueAsString( response ) ).build(  );
         }
         catch ( JsonProcessingException jpe )
         {
@@ -735,5 +772,40 @@ public final class IdentityStoreRestService
         }
 
         AppLogService.debug( sb.toString(  ) );
+    }
+
+    /**
+     * This class represents a request for IdentityStoreRestServive
+     *
+     */
+
+    // TODO use this class for other web methods
+    private static class IdentityStoreRequest
+    {
+        // TODO add class attributes when this class will be used for other web methods
+        private String _strConnectionId;
+        private String _strApplicationCode;
+
+        /**
+         * Constructor of IdentityStoreRequest
+         * @param strConnectionId the connection id of the identity
+         * @param strApplicationCode the application code provided by the client
+         */
+         IdentityStoreRequest( String strConnectionId, String strApplicationCode )
+        {
+            IdentityRequestValidator.instance(  ).checkClientApplication( strApplicationCode, StringUtils.EMPTY );
+
+            _strConnectionId = strConnectionId;
+            _strApplicationCode = strApplicationCode;
+        }
+
+        /**
+         * Deletes the identity
+         * @throws AppException if there is an exception during the treatment
+         */
+        public void deleteIdentity(  ) throws AppException
+        {
+            IdentityStoreService.removeIdentity( _strConnectionId, _strApplicationCode );
+        }
     }
 }

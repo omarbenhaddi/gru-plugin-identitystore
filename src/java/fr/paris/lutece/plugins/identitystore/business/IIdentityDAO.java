@@ -138,4 +138,15 @@ public interface IIdentityDAO
      * @return The identity
      */
     Identity selectByCustomerId( int nCustomerId, Plugin plugin );
+
+    /**
+     * Find an identity ID from the specified connection ID
+     *
+     * @param strConnectionId
+     *          the connection ID
+     * @param plugin
+     *          the plugin
+     * @return The identity ID
+     */
+    int selectIdByConnectionId( String strConnectionId, Plugin plugin );
 }

@@ -57,6 +57,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS = "SELECT customer_id FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE connection_id = ?";
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE customer_id = ?";
+    private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity FROM identitystore_identity WHERE connection_id = ?";
 
     /**
      * Generates a new primary key
@@ -292,6 +293,25 @@ public final class IdentityDAO implements IIdentityDAO
         daoUtil.free(  );
 
         return identity;
+    }
+
+    @Override
+    public int selectIdByConnectionId( String strConnectionId, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CONNECTION_ID, plugin );
+        daoUtil.setString( 1, strConnectionId );
+        daoUtil.executeQuery(  );
+
+        int nIdentityId = -1;
+
+        if ( daoUtil.next(  ) )
+        {
+            nIdentityId = daoUtil.getInt( 1 );
+        }
+
+        daoUtil.free(  );
+
+        return nIdentityId;
     }
 
     /**
