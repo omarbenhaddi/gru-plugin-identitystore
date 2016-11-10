@@ -128,11 +128,22 @@ public interface IIdentityDAO
     /**
      * Find by customer ID
      *
-     * @param sCustomerId
+     * @param strCustomerId
      *            The customerID
      * @param plugin
      *            The plugin
      * @return The identity
      */
-    Identity selectByCustomerId( String sCustomerId, Plugin plugin );
+    Identity selectByCustomerId( String strCustomerId, Plugin plugin );
+
+    /**
+     * Find an identity ID from the specified connection ID
+     *
+     * @param strConnectionId
+     *          the connection ID
+     * @param plugin
+     *          the plugin
+     * @return The identity ID
+     */
+    int selectIdByConnectionId( String strConnectionId, Plugin plugin );
 }

@@ -85,6 +85,24 @@ public final class IdentityHome
     }
 
     /**
+     * Removes the identity whose identifier is specified in parameter
+     *
+     * @param strConnectionId the connection id
+     * @return the id of the deleted identity
+     */
+    public static int removeByConnectionId( String strConnectionId )
+    {
+        int nIdentityId = findIdByConnectionId( strConnectionId );
+
+        if ( nIdentityId >= 0 )
+        {
+            remove( nIdentityId );
+        }
+
+        return nIdentityId;
+    }
+
+    /**
      * Remove the identity whose identifier is specified in parameter
      *
      * @param nIdentityId
@@ -97,7 +115,19 @@ public final class IdentityHome
     }
 
     /**
-     * Returns an instance of a identity whose identifier is specified in parameter
+     * Find an identity ID from the specified connection ID
+     *
+     * @param strConnectionId the connection ID
+     * @return the identity ID
+     */
+    public static int findIdByConnectionId( String strConnectionId )
+    {
+        return _dao.selectIdByConnectionId( strConnectionId, _plugin );
+    }
+
+    /**
+     * Returns an instance of a identity whose identifier is specified in
+     * parameter
      *
      * @param nKey
      *            The identity primary key

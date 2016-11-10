@@ -42,6 +42,8 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -95,8 +97,14 @@ import java.util.Map;
  */
 public final class IdentityStoreService
 {
+    // Beans
     private static final String BEAN_LISTENERS_LIST = "identitystore.changelisteners.list";
+    private static final String BEAN_APPLICATION_CODE_DELETE_AUTHORIZED_LIST = "identitystore.application.code.delete.authorized.list";
+
+    // Other constants
+    private static final String ERROR_DELETE_UNAUTHORIZED = "Provided application code is not authorized to delete an identity";
     private static List<AttributeChangeListener> _listListeners;
+    private static List<String> _listDeleteAuthorizedApplicationCodes;
 
     /**
      * private constructor
@@ -196,15 +204,40 @@ public final class IdentityStoreService
     /**
      * returns identity from customer id
      *
-     * @param sCustomerId
+     * @param strCustomerId
      *            customer id
      * @param strClientApplicationCode
      *            application code who requested identity
      * @return identity filled according to application rights for user identified by connection id
      */
-    public static Identity getIdentityByCustomerId( String sCustomerId, String strClientApplicationCode )
+    public static Identity getIdentityByCustomerId( String strCustomerId, String strClientApplicationCode )
     {
-        return IdentityHome.findByCustomerId( sCustomerId, strClientApplicationCode );
+        return IdentityHome.findByCustomerId( strCustomerId, strClientApplicationCode );
+    }
+
+    /**
+     * Removes an identity from the specified connection id
+     * @param strConnectionId the connection id
+     * @param strClientApplicationCode the application code
+     */
+    public static void removeIdentity( String strConnectionId, String strClientApplicationCode )
+    {
+        if ( _listDeleteAuthorizedApplicationCodes == null )
+        {
+            _listDeleteAuthorizedApplicationCodes = SpringContextService.getBean( BEAN_APPLICATION_CODE_DELETE_AUTHORIZED_LIST );
+        }
+
+        if ( !_listDeleteAuthorizedApplicationCodes.contains( strClientApplicationCode ) )
+        {
+            throw new IdentityStoreException( ERROR_DELETE_UNAUTHORIZED );
+        }
+
+        int nIdentityId = IdentityHome.removeByConnectionId( strConnectionId );
+
+        if ( nIdentityId < 0 )
+        {
+            throw new IdentityNotFoundException(  );
+        }
     }
 
     /**
