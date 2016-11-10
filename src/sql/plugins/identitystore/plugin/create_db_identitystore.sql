@@ -132,7 +132,6 @@ PRIMARY KEY ( id_history )
 
 ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_identity FOREIGN KEY ( id_identity ) REFERENCES identitystore_identity ( id_identity );
 ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_attribute FOREIGN KEY ( id_attribute ) REFERENCES identitystore_attribute ( id_attribute );
-ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_certification FOREIGN KEY ( id_certification ) REFERENCES identitystore_attribute_certificate ( id_attribute_certificate );
 ALTER TABLE identitystore_attribute_certificate ADD CONSTRAINT fk_attribute_certificate FOREIGN KEY ( id_certifier ) REFERENCES identitystore_attribute_certifier ( id_attribute_certifier );
 ALTER TABLE identitystore_attribute_right ADD CONSTRAINT fk_attribute_right_id_client_app FOREIGN KEY ( id_client_app ) REFERENCES identitystore_client_application ( id_client_app );
 ALTER TABLE identitystore_attribute_right ADD CONSTRAINT fk_attribute_right_id_attribute FOREIGN KEY ( id_attribute ) REFERENCES identitystore_attribute ( id_attribute );

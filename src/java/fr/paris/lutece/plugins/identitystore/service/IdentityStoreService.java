@@ -190,14 +190,7 @@ public final class IdentityStoreService
      */
     public static Identity getIdentityByConnectionId( String strConnectionId, String strClientApplicationCode )
     {
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId, strClientApplicationCode );
-
-        if ( identity != null )
-        {
-            return identity;
-        }
-
-        return null;
+        return IdentityHome.findByConnectionId( strConnectionId, strClientApplicationCode );
     }
 
     /**
@@ -211,14 +204,7 @@ public final class IdentityStoreService
      */
     public static Identity getIdentityByCustomerId( String sCustomerId, String strClientApplicationCode )
     {
-        Identity identity = IdentityHome.findByCustomerId( sCustomerId, strClientApplicationCode );
-
-        if ( identity != null )
-        {
-            return identity;
-        }
-
-        return null;
+        return IdentityHome.findByCustomerId( sCustomerId, strClientApplicationCode );
     }
 
     /**

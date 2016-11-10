@@ -142,8 +142,11 @@ public final class IdentityAttributeHome
      * Load the data of all attributes for a given identity ID which are allowed for the client application provided
      *
      * @param nIdentityId
-     *            The identity ID
-     * @return the map which contains the data of all the identityAttribute objects
+     *          The identity ID
+     * @return the map which contains the data of all the identityAttribute
+     *         objects
+     * @deprecated
+     * Use {@link #getAttributes( int, String ) } method instead
      */
     public static Map<String, IdentityAttribute> getAttributes( int nIdentityId )
     {
