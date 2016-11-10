@@ -48,7 +48,7 @@ public class AttributeChange
     private String _strAuthorService;
     private int _nAuthorType;
     private String _strIdentityConnectionId;
-    private String _sCustomerId;
+    private String _strCustomerId;
     private String _strIdentityName;
     private String _strChangedKey;
     private String _strOldValue;
@@ -189,18 +189,18 @@ public class AttributeChange
      */
     public String getCustomerId( )
     {
-        return _sCustomerId;
+        return _strCustomerId;
     }
 
     /**
      * Sets the CustomerId
      *
-     * @param sCustomerId
+     * @param strCustomerId
      *            The CustomerId
      */
-    public void setCustomerId( String sCustomerId )
+    public void setCustomerId( String strCustomerId )
     {
-        _sCustomerId = sCustomerId;
+        _strCustomerId = strCustomerId;
     }
 
     /**

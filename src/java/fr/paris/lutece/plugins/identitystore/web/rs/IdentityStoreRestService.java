@@ -249,21 +249,21 @@ public final class IdentityStoreRestService
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
             Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
-            String sCustomerId = identityChangeDto.getIdentity( ).getCustomerId( );
+            String strCustomerId = identityChangeDto.getIdentity( ).getCustomerId( );
             String strConnectionId = identityChangeDto.getIdentity( ).getConnectionId( );
             String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
             Identity identity = null;
 
-            if ( Constants.NO_CUSTOMER_ID.equals( sCustomerId ) )
+            if ( Constants.NO_CUSTOMER_ID.equals( strCustomerId ) )
             {
-                IdentityRequestValidator.instance( ).checkFetchParams( null, sCustomerId, strClientAppCode, strAuthenticationKey );
+                IdentityRequestValidator.instance( ).checkFetchParams( null, strCustomerId, strClientAppCode, strAuthenticationKey );
 
-                identity = IdentityStoreService.getIdentityByCustomerId( sCustomerId, strClientAppCode );
+                identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
 
                 if ( identity == null )
                 {
                     ResponseDto response = new ResponseDto( );
-                    response.setMessage( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + sCustomerId + ")" );
+                    response.setMessage( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
                     response.setStatus( String.valueOf( Status.NOT_FOUND ) );
 
                     String strResponse;
@@ -492,7 +492,7 @@ public final class IdentityStoreRestService
      *            client application code
      * @return identity , null if no identity found
      * @throws AppException
-     *             if provided connectionId and customerId are not consitent
+     *             if provided connectionId and customerId are not consistent
      */
     private Identity getIdentity( String strConnectionId, String strCustomerId, String strClientAppCode )
     {

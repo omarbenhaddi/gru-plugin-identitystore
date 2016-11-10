@@ -204,15 +204,15 @@ public final class IdentityStoreService
     /**
      * returns identity from customer id
      *
-     * @param sCustomerId
+     * @param strCustomerId
      *            customer id
      * @param strClientApplicationCode
      *            application code who requested identity
      * @return identity filled according to application rights for user identified by connection id
      */
-    public static Identity getIdentityByCustomerId( String sCustomerId, String strClientApplicationCode )
+    public static Identity getIdentityByCustomerId( String strCustomerId, String strClientApplicationCode )
     {
-        return IdentityHome.findByCustomerId( sCustomerId, strClientApplicationCode );
+        return IdentityHome.findByCustomerId( strCustomerId, strClientApplicationCode );
     }
 
     /**

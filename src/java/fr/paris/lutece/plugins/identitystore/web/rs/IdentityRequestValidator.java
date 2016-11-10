@@ -136,14 +136,14 @@ public final class IdentityRequestValidator
      *
      * @param strConnectionId
      *            the connection id
-     * @param sCustomerId
+     * @param strCustomerId
      *            the customer id
      * @throws AppException
      *             if the parameters are not valid
      */
-    private void checkIdentity( String strConnectionId, String sCustomerId ) throws AppException
+    private void checkIdentity( String strConnectionId, String strCustomerId ) throws AppException
     {
-        if ( StringUtils.isBlank( strConnectionId ) && ( StringUtils.isBlank( sCustomerId ) ) )
+        if ( StringUtils.isBlank( strConnectionId ) && ( StringUtils.isBlank( strCustomerId ) ) )
         {
             throw new AppException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER + " are missing, at least one must be provided" );
         }

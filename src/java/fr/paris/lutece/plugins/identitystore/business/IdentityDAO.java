@@ -48,7 +48,6 @@ public final class IdentityDAO implements IIdentityDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_identity ) FROM identitystore_identity";
-    private static final String SQL_QUERY_NEW_CUSTOMER_ID_KEY = "SELECT max( customer_id ) FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE id_identity = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity ( id_identity, connection_id, customer_id ) VALUES ( ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity WHERE id_identity = ? ";
@@ -86,14 +85,11 @@ public final class IdentityDAO implements IIdentityDAO
     /**
      * Generates a new customerId key using Java UUID
      *
-     *            The Plugin
      * @return The new customerID
      */
     public String newCustomerIdKey( )
     {
-        String sKey = String.valueOf( UUID.randomUUID( ) );
-
-        return sKey;
+        return UUID.randomUUID( ).toString( );
     }
 
     /**
@@ -266,10 +262,10 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     @Override
-    public Identity selectByCustomerId( String sCustomerId, Plugin plugin )
+    public Identity selectByCustomerId( String strCustomerId, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CUSTOMER_ID, plugin );
-        daoUtil.setString( 1, sCustomerId );
+        daoUtil.setString( 1, strCustomerId );
         daoUtil.executeQuery( );
 
         Identity identity = null;
