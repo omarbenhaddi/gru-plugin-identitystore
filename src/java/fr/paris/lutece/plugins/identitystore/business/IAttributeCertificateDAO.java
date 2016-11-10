@@ -38,7 +38,6 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
-
 /**
  * IAttributeCertificateDAO Interface
  */
@@ -48,9 +47,9 @@ public interface IAttributeCertificateDAO
      * Insert a new record in the table.
      *
      * @param attributeCertificate
-     *          instance of the AttributeCertificate object to insert
+     *            instance of the AttributeCertificate object to insert
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void insert( AttributeCertificate attributeCertificate, Plugin plugin );
 
@@ -58,9 +57,9 @@ public interface IAttributeCertificateDAO
      * Update the record in the table
      *
      * @param attributeCertificate
-     *          the reference of the AttributeCertificate
+     *            the reference of the AttributeCertificate
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void store( AttributeCertificate attributeCertificate, Plugin plugin );
 
@@ -68,9 +67,9 @@ public interface IAttributeCertificateDAO
      * Delete a record from the table
      *
      * @param nKey
-     *          The identifier of the AttributeCertificate to delete
+     *            The identifier of the AttributeCertificate to delete
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void delete( int nKey, Plugin plugin );
 
@@ -81,43 +80,37 @@ public interface IAttributeCertificateDAO
      * Load the data from the table
      *
      * @param nKey
-     *          The identifier of the attributeCertificate
+     *            The identifier of the attributeCertificate
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The instance of the attributeCertificate
      */
     AttributeCertificate load( int nKey, Plugin plugin );
 
     /**
-     * Load the data of all the attributeCertificate objects and returns them as a
-     * list
+     * Load the data of all the attributeCertificate objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
-     * @return The list which contains the data of all the attributeCertificate
-     *         objects
+     *            the Plugin
+     * @return The list which contains the data of all the attributeCertificate objects
      */
     List<AttributeCertificate> selectAttributeCertificatesList( Plugin plugin );
 
     /**
-     * Load the id of all the attributeCertificate objects and returns them as a
-     * list
+     * Load the id of all the attributeCertificate objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
-     * @return The list which contains the id of all the attributeCertificate
-     *         objects
+     *            the Plugin
+     * @return The list which contains the id of all the attributeCertificate objects
      */
     List<Integer> selectIdAttributeCertificatesList( Plugin plugin );
 
     /**
-     * Load the data of all the attributeCertificate objects and returns them as a
-     * referenceList
+     * Load the data of all the attributeCertificate objects and returns them as a referenceList
      *
      * @param plugin
-     *          the Plugin
-     * @return The referenceList which contains the data of all the
-     *         attributeCertificate objects
+     *            the Plugin
+     * @return The referenceList which contains the data of all the attributeCertificate objects
      */
     ReferenceList selectAttributeCertificatesReferenceList( Plugin plugin );
 }

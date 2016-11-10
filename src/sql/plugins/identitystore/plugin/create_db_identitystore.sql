@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS identitystore_identity;
 CREATE TABLE identitystore_identity (
 id_identity int(11) NOT NULL,
 connection_id varchar(100) NULL UNIQUE,
-customer_id int (11) NULL UNIQUE,
+customer_id varchar (36) NULL UNIQUE,
 PRIMARY KEY (id_identity),
 INDEX (connection_id),
 INDEX (customer_id)
@@ -86,8 +86,8 @@ CREATE TABLE identitystore_client_application (
 id_client_app int(6) NOT NULL,
 name varchar(50) NOT NULL UNIQUE,
 code varchar(50) NOT NULL UNIQUE,
-hash varchar(250) UNIQUE,
-control_key varchar(250) UNIQUE,
+hash varchar(250),
+control_key varchar(250),
 PRIMARY KEY (id_client_app)
 );
 
@@ -132,7 +132,6 @@ PRIMARY KEY ( id_history )
 
 ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_identity FOREIGN KEY ( id_identity ) REFERENCES identitystore_identity ( id_identity );
 ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_attribute FOREIGN KEY ( id_attribute ) REFERENCES identitystore_attribute ( id_attribute );
-ALTER TABLE identitystore_attribute_certificate ADD CONSTRAINT fk_attribute_certificate FOREIGN KEY ( id_certifier ) REFERENCES identitystore_attribute_certifier ( id_attribute_certifier );
 ALTER TABLE identitystore_attribute_right ADD CONSTRAINT fk_attribute_right_id_client_app FOREIGN KEY ( id_client_app ) REFERENCES identitystore_client_application ( id_client_app );
 ALTER TABLE identitystore_attribute_right ADD CONSTRAINT fk_attribute_right_id_attribute FOREIGN KEY ( id_attribute ) REFERENCES identitystore_attribute ( id_attribute );
 ALTER TABLE identitystore_history_identity_attribute ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY ( id_identity ) REFERENCES identitystore_identity ( id_identity );

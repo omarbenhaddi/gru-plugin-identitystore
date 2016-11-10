@@ -38,7 +38,6 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
-
 /**
  * IIdentityDAO Interface
  */
@@ -48,9 +47,9 @@ public interface IIdentityDAO
      * Insert a new record in the table.
      *
      * @param identity
-     *          instance of the Identity object to insert
+     *            instance of the Identity object to insert
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void insert( Identity identity, Plugin plugin );
 
@@ -58,9 +57,9 @@ public interface IIdentityDAO
      * Update the record in the table
      *
      * @param identity
-     *          the reference of the Identity
+     *            the reference of the Identity
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void store( Identity identity, Plugin plugin );
 
@@ -68,9 +67,9 @@ public interface IIdentityDAO
      * Delete a record from the table
      *
      * @param nKey
-     *          The identifier of the Identity to delete
+     *            The identifier of the Identity to delete
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void delete( int nKey, Plugin plugin );
 
@@ -81,9 +80,9 @@ public interface IIdentityDAO
      * Load the data from the table
      *
      * @param nKey
-     *          The identifier of the identity
+     *            The identifier of the identity
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The instance of the identity
      */
     Identity load( int nKey, Plugin plugin );
@@ -92,7 +91,7 @@ public interface IIdentityDAO
      * Load the data of all the identity objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The list which contains the data of all the identity objects
      */
     List<Identity> selectIdentitysList( Plugin plugin );
@@ -101,19 +100,17 @@ public interface IIdentityDAO
      * Load the customer id of all the identity objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The list which contains the customer id of all the identity objects
      */
     List<Integer> selectCustomerIdsList( Plugin plugin );
 
     /**
-     * Load the data of all the identity objects and returns them as a
-     * referenceList
+     * Load the data of all the identity objects and returns them as a referenceList
      *
      * @param plugin
-     *          the Plugin
-     * @return The referenceList which contains the data of all the identity
-     *         objects
+     *            the Plugin
+     * @return The referenceList which contains the data of all the identity objects
      */
     ReferenceList selectIdentitysReferenceList( Plugin plugin );
 
@@ -121,9 +118,9 @@ public interface IIdentityDAO
      * Find by connection ID
      *
      * @param strConnectionId
-     *          The connection ID
+     *            The connection ID
      * @param plugin
-     *          The plugin
+     *            The plugin
      * @return The identity
      */
     Identity selectByConnectionId( String strConnectionId, Plugin plugin );
@@ -131,13 +128,13 @@ public interface IIdentityDAO
     /**
      * Find by customer ID
      *
-     * @param nCustomerId
-     *          The customerID
+     * @param sCustomerId
+     *            The customerID
      * @param plugin
-     *          The plugin
+     *            The plugin
      * @return The identity
      */
-    Identity selectByCustomerId( int nCustomerId, Plugin plugin );
+    Identity selectByCustomerId( String sCustomerId, Plugin plugin );
 
     /**
      * Find an identity ID from the specified connection ID

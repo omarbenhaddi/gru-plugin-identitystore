@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-
 /**
  *
  * Constant class for identity
@@ -47,7 +46,7 @@ public final class IdentityConstants
     /**
      * private constructor
      */
-    private IdentityConstants(  )
+    private IdentityConstants( )
     {
     }
 }

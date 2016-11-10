@@ -58,7 +58,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-
 /*
  * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
@@ -110,7 +109,7 @@ public final class IdentityStoreService
     /**
      * private constructor
      */
-    private IdentityStoreService(  )
+    private IdentityStoreService( )
     {
     }
 
@@ -118,7 +117,7 @@ public final class IdentityStoreService
      * create identity
      *
      * @param identity
-     *          identity to create
+     *            identity to create
      */
     public static void createIdentity( Identity identity )
     {
@@ -129,20 +128,16 @@ public final class IdentityStoreService
      * returns attributes from connection id
      *
      * @param strConnectionId
-     *          connection id
-     * @param strClientApplicationCode
-     *          application code who requested attributes
-     * @return attributes list according to application rights for user identified
-     *         by connection id
+     *            connection id
+     * @return full attributes list for user identified by connection id
      */
-    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId,
-        String strClientApplicationCode )
+    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
 
         if ( identity != null )
         {
-            return IdentityAttributeHome.getAttributes( identity.getId(  ), strClientApplicationCode );
+            return IdentityAttributeHome.getAttributes( identity.getId( ) );
         }
 
         return null;
@@ -152,22 +147,41 @@ public final class IdentityStoreService
      * returns attributes from connection id
      *
      * @param strConnectionId
-     *          connection id
-     * @param strAttributeKey
-     *          attribute key
+     *            connection id
      * @param strClientApplicationCode
-     *          application code who requested attributes
-     * @return attributes list according to application rights for user identified
-     *         by connection id
+     *            application code who requested attributes
+     * @return attributes list according to application rights for user identified by connection id
      */
-    public static IdentityAttribute getAttribute( String strConnectionId, String strAttributeKey,
-        String strClientApplicationCode )
+    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId, String strClientApplicationCode )
     {
         Identity identity = IdentityHome.findByConnectionId( strConnectionId );
 
         if ( identity != null )
         {
-            return IdentityAttributeHome.getAttribute( identity.getId(  ), strAttributeKey, strClientApplicationCode );
+            return IdentityAttributeHome.getAttributes( identity.getId( ), strClientApplicationCode );
+        }
+
+        return null;
+    }
+
+    /**
+     * returns attributes from connection id
+     *
+     * @param strConnectionId
+     *            connection id
+     * @param strAttributeKey
+     *            attribute key
+     * @param strClientApplicationCode
+     *            application code who requested attributes
+     * @return attributes list according to application rights for user identified by connection id
+     */
+    public static IdentityAttribute getAttribute( String strConnectionId, String strAttributeKey, String strClientApplicationCode )
+    {
+        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
+
+        if ( identity != null )
+        {
+            return IdentityAttributeHome.getAttribute( identity.getId( ), strAttributeKey, strClientApplicationCode );
         }
 
         return null;
@@ -177,11 +191,10 @@ public final class IdentityStoreService
      * returns identity from connection id
      *
      * @param strConnectionId
-     *          connection id
+     *            connection id
      * @param strClientApplicationCode
-     *          application code who requested identity
-     * @return identity filled according to application rights for user identified
-     *         by connection id
+     *            application code who requested identity
+     * @return identity filled according to application rights for user identified by connection id
      */
     public static Identity getIdentityByConnectionId( String strConnectionId, String strClientApplicationCode )
     {
@@ -191,16 +204,15 @@ public final class IdentityStoreService
     /**
      * returns identity from customer id
      *
-     * @param nCustomerId
-     *          customer id
+     * @param sCustomerId
+     *            customer id
      * @param strClientApplicationCode
-     *          application code who requested identity
-     * @return identity filled according to application rights for user identified
-     *         by connection id
+     *            application code who requested identity
+     * @return identity filled according to application rights for user identified by connection id
      */
-    public static Identity getIdentityByCustomerId( int nCustomerId, String strClientApplicationCode )
+    public static Identity getIdentityByCustomerId( String sCustomerId, String strClientApplicationCode )
     {
-        return IdentityHome.findByCustomerId( nCustomerId, strClientApplicationCode );
+        return IdentityHome.findByCustomerId( sCustomerId, strClientApplicationCode );
     }
 
     /**
@@ -231,19 +243,18 @@ public final class IdentityStoreService
     /**
      * Set an attribute value associated to an identity
      *
-     * @param Identity
-     *          identity
+     * @param identity
+     *            identity
      * @param strKey
-     *          The key to set
+     *            The key to set
      * @param strValue
-     *          The value
+     *            The value
      * @param author
-     *          The author of the change
+     *            The author of the change
      * @param certificate
-     *          The certificate. May be null
+     *            The certificate. May be null
      */
-    public static void setAttribute( Identity identity, String strKey, String strValue, ChangeAuthor author,
-        AttributeCertificate certificate )
+    public static void setAttribute( Identity identity, String strKey, String strValue, ChangeAuthor author, AttributeCertificate certificate )
     {
         setAttribute( identity, strKey, strValue, null, author, certificate );
     }
@@ -251,21 +262,20 @@ public final class IdentityStoreService
     /**
      * Set an attribute value associated to an identity
      *
-     * @param Identity
-     *          identity
+     * @param identity
+     *            identity
      * @param strKey
-     *          The key to set
+     *            The key to set
      * @param strValue
-     *          The value
+     *            The value
      * @param file
-     *          file to upload, null if attribute type is not file
+     *            file to upload, null if attribute type is not file
      * @param author
-     *          The author of the change
+     *            The author of the change
      * @param certificate
-     *          The certificate. May be null
+     *            The certificate. May be null
      */
-    public static void setAttribute( Identity identity, String strKey, String strValue, File file, ChangeAuthor author,
-        AttributeCertificate certificate )
+    public static void setAttribute( Identity identity, String strKey, String strValue, File file, ChangeAuthor author, AttributeCertificate certificate )
     {
         AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
         boolean bValueUnchanged = false;
@@ -279,64 +289,60 @@ public final class IdentityStoreService
 
         boolean bCreate = false;
 
-        IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId(  ), attributeKey.getId(  ) );
+        IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId( ), attributeKey.getId( ) );
         String strAttrOldValue = StringUtils.EMPTY;
 
         if ( attribute == null )
         {
-            attribute = new IdentityAttribute(  );
+            attribute = new IdentityAttribute( );
             attribute.setAttributeKey( attributeKey );
-            attribute.setIdIdentity( identity.getId(  ) );
+            attribute.setIdIdentity( identity.getId( ) );
             bCreate = true;
         }
         else
         {
-            strAttrOldValue = attribute.getValue(  );
+            strAttrOldValue = attribute.getValue( );
 
-            if ( attribute.getValue(  ).equals( strCorrectValue ) && ( attributeKey.getKeyType(  ) != KeyType.FILE ) )
+            if ( attribute.getValue( ).equals( strCorrectValue ) && ( attributeKey.getKeyType( ) != KeyType.FILE ) )
             {
-                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strCorrectValue + " for Id=" +
-                    identity.getId(  ) );
+                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strCorrectValue + " for Id=" + identity.getId( ) );
                 bValueUnchanged = true;
             }
         }
 
         AttributeCertificate attributeCertifPrev = null;
 
-        if ( attribute.getIdCertificate(  ) != 0 )
+        if ( attribute.getIdCertificate( ) != 0 )
         {
-            attributeCertifPrev = AttributeCertificateHome.findByPrimaryKey( attribute.getIdCertificate(  ) );
+            attributeCertifPrev = AttributeCertificateHome.findByPrimaryKey( attribute.getIdCertificate( ) );
         }
 
         // attribute value changed or attribute has new certification
-        if ( !bValueUnchanged ||
-                ( ( certificate != null ) &&
-                ( ( attributeCertifPrev == null ) ||
-                ( certificate.getIdCertifier(  ) != attributeCertifPrev.getIdCertifier(  ) ) ) ) )
+        if ( !bValueUnchanged
+                || ( ( certificate != null ) && ( ( attributeCertifPrev == null ) || ( certificate.getIdCertifier( ) != attributeCertifPrev.getIdCertifier( ) ) ) ) )
         {
             if ( certificate != null )
             {
                 AttributeCertificateHome.create( certificate );
-                attribute.setIdCertificate( certificate.getId(  ) );
+                attribute.setIdCertificate( certificate.getId( ) );
             }
             else
             {
                 if ( attributeCertifPrev != null )
                 {
                     attribute.setIdCertificate( 0 );
-                    AttributeCertificateHome.remove( attributeCertifPrev.getId(  ) );
+                    AttributeCertificateHome.remove( attributeCertifPrev.getId( ) );
                 }
             }
 
             attribute.setValue( strCorrectValue );
 
-            if ( attributeKey.getKeyType(  ) == KeyType.FILE )
+            if ( attributeKey.getKeyType( ) == KeyType.FILE )
             {
                 handleFile( attribute, file );
             }
 
-            AttributeChange change = getAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author,
-                    certificate, bCreate );
+            AttributeChange change = getAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author, certificate, bCreate );
 
             if ( bCreate )
             {
@@ -350,48 +356,48 @@ public final class IdentityStoreService
             notifyListeners( change );
         }
 
-        identity.getAttributes(  ).put( attributeKey.getKeyName(  ), attribute );
+        identity.getAttributes( ).put( attributeKey.getKeyName( ), attribute );
     }
 
     /**
      * create and return an AttributeChange from input params
      *
      * @param identity
-     *          modified identity
+     *            modified identity
      * @param strKey
-     *          attribute key which is modified
+     *            attribute key which is modified
      * @param strValue
-     *          attribute new value
+     *            attribute new value
      * @param strOldValue
-     *          attribute old value
+     *            attribute old value
      * @param author
-     *          author of change
+     *            author of change
      * @param certificate
-     *          attribute certificate if it s a certification case
+     *            attribute certificate if it s a certification case
      * @param bIsCreation
-     *          true if attribute is a new one, false if it s an update
+     *            true if attribute is a new one, false if it s an update
      * @return AttributeChange from input params
      */
-    private static AttributeChange getAttributeChange( Identity identity, String strKey, String strValue,
-        String strOldValue, ChangeAuthor author, AttributeCertificate certificate, boolean bIsCreation )
+    private static AttributeChange getAttributeChange( Identity identity, String strKey, String strValue, String strOldValue, ChangeAuthor author,
+            AttributeCertificate certificate, boolean bIsCreation )
     {
-        AttributeChange change = new AttributeChange(  );
-        change.setIdentityId( identity.getId(  ) );
-        change.setIdentityConnectionId( identity.getConnectionId(  ) );
-        change.setCustomerId( identity.getCustomerId(  ) );
-        change.setIdentityName( identity.getGivenName(  ) + " " + identity.getFamilyName(  ) );
+        AttributeChange change = new AttributeChange( );
+        change.setIdentityId( identity.getId( ) );
+        change.setIdentityConnectionId( identity.getConnectionId( ) );
+        change.setCustomerId( identity.getCustomerId( ) );
+        change.setIdentityName( identity.getGivenName( ) + " " + identity.getFamilyName( ) );
         change.setChangedKey( strKey );
         change.setOldValue( strOldValue );
         change.setNewValue( strValue );
-        change.setAuthorName( author.getUserName(  ) );
-        change.setAuthorId( author.getEmail(  ) );
-        change.setAuthorService( author.getApplication(  ) );
-        change.setAuthorType( author.getType(  ) );
-        change.setDateChange( new Timestamp( ( new Date(  ) ).getTime(  ) ) );
+        change.setAuthorName( author.getUserName( ) );
+        change.setAuthorId( author.getEmail( ) );
+        change.setAuthorService( author.getApplication( ) );
+        change.setAuthorType( author.getType( ) );
+        change.setDateChange( new Timestamp( ( new Date( ) ).getTime( ) ) );
 
         if ( certificate != null )
         {
-            change.setCertifier( certificate.getCertifier(  ) );
+            change.setCertifier( certificate.getCertifier( ) );
         }
 
         if ( bIsCreation )
@@ -410,30 +416,30 @@ public final class IdentityStoreService
      * handle file param
      *
      * @param attribute
-     *          attribute describing file
+     *            attribute describing file
      * @param file
-     *          uploaded file
+     *            uploaded file
      *
      */
     private static void handleFile( IdentityAttribute attribute, File file )
     {
         if ( file != null )
         {
-            if ( attribute.getFile(  ) != null )
+            if ( attribute.getFile( ) != null )
             {
-                FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+                FileHome.remove( attribute.getFile( ).getIdFile( ) );
             }
 
             file.setIdFile( FileHome.create( file ) );
             attribute.setFile( file );
-            attribute.setValue( file.getTitle(  ) );
+            attribute.setValue( file.getTitle( ) );
         }
         else
         {
             // remove file
-            if ( attribute.getFile(  ) != null )
+            if ( attribute.getFile( ) != null )
             {
-                FileHome.remove( attribute.getFile(  ).getIdFile(  ) );
+                FileHome.remove( attribute.getFile( ).getIdFile( ) );
             }
 
             attribute.setFile( null );
@@ -445,7 +451,7 @@ public final class IdentityStoreService
      * Notify a change to all registered listeners
      *
      * @param change
-     *          The change
+     *            The change
      */
     private static void notifyListeners( AttributeChange change )
     {
@@ -453,15 +459,15 @@ public final class IdentityStoreService
         {
             _listListeners = SpringContextService.getBean( BEAN_LISTENERS_LIST );
 
-            StringBuilder sbLog = new StringBuilder(  );
+            StringBuilder sbLog = new StringBuilder( );
             sbLog.append( "IdentityStore - loading listeners  : " );
 
             for ( AttributeChangeListener listener : _listListeners )
             {
-                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName(  ) );
+                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
             }
 
-            AppLogService.info( sbLog.toString(  ) );
+            AppLogService.info( sbLog.toString( ) );
         }
 
         for ( AttributeChangeListener listener : _listListeners )

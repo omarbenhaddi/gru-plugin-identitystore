@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
-
 public class AttributeCertifierBusinessTest extends LuteceTestCase
 {
     private final static String NAME1 = "Name1";
@@ -45,34 +44,34 @@ public class AttributeCertifierBusinessTest extends LuteceTestCase
     private final static String LOGO1 = "Logo1";
     private final static String LOGO2 = "Logo2";
 
-    public void testBusiness(  )
+    public void testBusiness( )
     {
         // Initialize an object
-        AttributeCertifier attributeCertifier = new AttributeCertifier(  );
+        AttributeCertifier attributeCertifier = new AttributeCertifier( );
         attributeCertifier.setName( NAME1 );
         attributeCertifier.setDescription( DESCRIPTION1 );
 
         // Create test
         AttributeCertifierHome.create( attributeCertifier );
 
-        AttributeCertifier attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId(  ) );
-        assertEquals( attributeCertifierStored.getName(  ), attributeCertifier.getName(  ) );
-        assertEquals( attributeCertifierStored.getDescription(  ), attributeCertifier.getDescription(  ) );
+        AttributeCertifier attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId( ) );
+        assertEquals( attributeCertifierStored.getName( ), attributeCertifier.getName( ) );
+        assertEquals( attributeCertifierStored.getDescription( ), attributeCertifier.getDescription( ) );
 
         // Update test
         attributeCertifier.setName( NAME2 );
         attributeCertifier.setDescription( DESCRIPTION2 );
         AttributeCertifierHome.update( attributeCertifier );
-        attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId(  ) );
-        assertEquals( attributeCertifierStored.getName(  ), attributeCertifier.getName(  ) );
-        assertEquals( attributeCertifierStored.getDescription(  ), attributeCertifier.getDescription(  ) );
+        attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId( ) );
+        assertEquals( attributeCertifierStored.getName( ), attributeCertifier.getName( ) );
+        assertEquals( attributeCertifierStored.getDescription( ), attributeCertifier.getDescription( ) );
 
         // List test
-        AttributeCertifierHome.getAttributeCertifiersList(  );
+        AttributeCertifierHome.getAttributeCertifiersList( );
 
         // Delete test
-        AttributeCertifierHome.remove( attributeCertifier.getId(  ) );
-        attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId(  ) );
+        AttributeCertifierHome.remove( attributeCertifier.getId( ) );
+        attributeCertifierStored = AttributeCertifierHome.findByPrimaryKey( attributeCertifier.getId( ) );
         assertNull( attributeCertifierStored );
     }
 }

@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.portal.service.util.LuteceService;
 
-
 /**
  * AttributeChangeListener
  */
@@ -45,7 +44,7 @@ public interface AttributeChangeListener extends LuteceService
      * Process an attribute change
      *
      * @param change
-     *          The change
+     *            The change
      */
     void processAttributeChange( AttributeChange change );
 }

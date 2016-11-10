@@ -43,7 +43,6 @@ import java.sql.Timestamp;
 
 import javax.validation.constraints.Size;
 
-
 /**
  * This is the business class for the object IdentityAttribute
  */
@@ -65,7 +64,7 @@ public class IdentityAttribute implements Serializable
      *
      * @return The IdIdentity
      */
-    public int getIdIdentity(  )
+    public int getIdIdentity( )
     {
         return _nIdIdentity;
     }
@@ -74,7 +73,7 @@ public class IdentityAttribute implements Serializable
      * Sets the IdIdentity
      *
      * @param nIdIdentity
-     *          The IdIdentity
+     *            The IdIdentity
      */
     public void setIdIdentity( int nIdIdentity )
     {
@@ -86,7 +85,7 @@ public class IdentityAttribute implements Serializable
      *
      * @return The AttributeKey
      */
-    public AttributeKey getAttributeKey(  )
+    public AttributeKey getAttributeKey( )
     {
         return _attributeKey;
     }
@@ -95,7 +94,7 @@ public class IdentityAttribute implements Serializable
      * Sets the AttributeKey
      *
      * @param attributeKey
-     *          The AttributeKey
+     *            The AttributeKey
      */
     public void setAttributeKey( AttributeKey attributeKey )
     {
@@ -107,7 +106,7 @@ public class IdentityAttribute implements Serializable
      *
      * @return The value
      */
-    public String getValue(  )
+    public String getValue( )
     {
         return _strValue;
     }
@@ -116,7 +115,7 @@ public class IdentityAttribute implements Serializable
      * Sets the value
      *
      * @param strValue
-     *          The value
+     *            The value
      */
     public void setValue( String strValue )
     {
@@ -128,7 +127,7 @@ public class IdentityAttribute implements Serializable
      *
      * @return The IdCertification
      */
-    public int getIdCertificate(  )
+    public int getIdCertificate( )
     {
         return _nIdCertificate;
     }
@@ -137,7 +136,7 @@ public class IdentityAttribute implements Serializable
      * Sets the IdCertification
      *
      * @param nIdCertificate
-     *          The IdCertification
+     *            The IdCertification
      */
     public void setIdCertificate( int nIdCertificate )
     {
@@ -147,14 +146,14 @@ public class IdentityAttribute implements Serializable
     /**
      * @return the file
      */
-    public File getFile(  )
+    public File getFile( )
     {
         return _file;
     }
 
     /**
      * @param file
-     *          the file to set
+     *            the file to set
      */
     public void setFile( File file )
     {
@@ -166,7 +165,7 @@ public class IdentityAttribute implements Serializable
      *
      * @return The Certificate
      */
-    public AttributeCertificate getCertificate(  )
+    public AttributeCertificate getCertificate( )
     {
         return _certificate;
     }
@@ -175,7 +174,7 @@ public class IdentityAttribute implements Serializable
      * Sets the Certificate
      *
      * @param certificate
-     *          The certificate
+     *            The certificate
      */
     public void setCertificate( AttributeCertificate certificate )
     {
@@ -185,14 +184,14 @@ public class IdentityAttribute implements Serializable
     /**
      * @return the _dateLastUpdate
      */
-    public Timestamp getLastUpdateDate(  )
+    public Timestamp getLastUpdateDate( )
     {
         return _dateLastUpdate;
     }
 
     /**
      * @param dateLastUpdate
-     *          the _dateLastUpdate to set
+     *            the _dateLastUpdate to set
      */
     public void setLastUpdateDate( Timestamp dateLastUpdate )
     {

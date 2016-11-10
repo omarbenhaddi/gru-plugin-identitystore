@@ -38,7 +38,6 @@ import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 
 import org.apache.commons.lang.StringUtils;
 
-
 /**
  * API Manager key validator
  *
@@ -50,7 +49,6 @@ public class ApiManagerAuthKeyValidator implements IAuthenticationKeyValidator
     {
         ClientApplication clientApp = ClientApplicationHome.findByCode( strClientCode );
 
-        return StringUtils.isNotEmpty( clientApp.getControlKey(  ) ) &&
-        clientApp.getControlKey(  ).equals( strHeaderKey );
+        return StringUtils.isNotEmpty( clientApp.getControlKey( ) ) && clientApp.getControlKey( ).equals( strHeaderKey );
     }
 }

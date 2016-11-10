@@ -39,7 +39,6 @@ import fr.paris.lutece.util.sql.DAOUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * This class provides rights Access methods for Attribute objects
  */
@@ -62,27 +61,27 @@ public final class AttributeRightDAO implements IAttributeRightDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
 
         int nIndex = 1;
-        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey(  ).getId(  ) );
-        daoUtil.setInt( nIndex++, attributeRight.getClientApplication(  ).getId(  ) );
-        daoUtil.setInt( nIndex++, attributeRight.isReadable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isWritable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isCertifiable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
+        daoUtil.setInt( nIndex++, attributeRight.getClientApplication( ).getId( ) );
+        daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isCertifiable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
      * returns AttributeRight from request results
      *
      * @param daoUtil
-     *          daoUtil which contains results
+     *            daoUtil which contains results
      * @param clientApp
-     *          client application who requests rights
+     *            client application who requests rights
      * @return AttributeRight
      */
     private AttributeRight getRightFromQuery( DAOUtil daoUtil, ClientApplication clientApp )
     {
-        AttributeRight attributeRight = new AttributeRight(  );
+        AttributeRight attributeRight = new AttributeRight( );
 
         int nIndex = 1;
 
@@ -105,14 +104,14 @@ public final class AttributeRightDAO implements IAttributeRightDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeRight.isReadable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isWritable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isCertifiable(  ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey(  ).getId(  ) );
-        daoUtil.setInt( nIndex++, attributeRight.getClientApplication(  ).getId(  ) );
+        daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isCertifiable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
+        daoUtil.setInt( nIndex++, attributeRight.getClientApplication( ).getId( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -121,16 +120,16 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     @Override
     public List<AttributeRight> selectAttributeRights( ClientApplication clientApp, Plugin plugin )
     {
-        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>(  );
+        List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( );
 
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_CLIENT, plugin );
-        daoUtil.setInt( 1, clientApp.getId(  ) );
-        daoUtil.executeQuery(  );
+        daoUtil.setInt( 1, clientApp.getId( ) );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            AttributeRight attributeRight = new AttributeRight(  );
-            AttributeKey attributeKey = new AttributeKey(  );
+            AttributeRight attributeRight = new AttributeRight( );
+            AttributeKey attributeKey = new AttributeKey( );
 
             int nIndex = 1;
 
@@ -149,7 +148,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             lstAttributeRights.add( attributeRight );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return lstAttributeRights;
     }
@@ -161,8 +160,8 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     public void removeApplicationRights( ClientApplication clientApp, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_BY_CLIENT, plugin );
-        daoUtil.setInt( 1, clientApp.getId(  ) );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.setInt( 1, clientApp.getId( ) );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 }

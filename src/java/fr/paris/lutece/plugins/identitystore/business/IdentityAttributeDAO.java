@@ -45,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * This class provides Data Access methods for IdentityAttribute objects
  */
@@ -57,45 +56,45 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ?";
     private static final String SQL_QUERY_DELETE_ALL_ATTR = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ?";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ?, lastupdate_date = CURRENT_TIMESTAMP WHERE id_identity = ? AND id_attribute = ? ";
-    private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
-        " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ?";
-    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
-        " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
-        " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
-    private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date " +
-        " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d " +
-        " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date "
+            + " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ?";
+    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date "
+            + " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d "
+            + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
+    private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date "
+            + " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d "
+            + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
 
     // Historical
     private static final String SQL_QUERY_NEW_HISTORY_PK = "SELECT max( id_history ) FROM identitystore_history_identity_attribute";
-    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute " +
-        "( id_history, id_identity,change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, author_id, author_email, author_type, author_service, certifier_name) " +
-        "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, " +
-        "author_id, author_email, author_type, author_service, certifier_name " +
-        "FROM identitystore_history_identity_attribute " + " WHERE  attribute_key = ? AND id_identity = ?";
+    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute "
+            + "( id_history, id_identity,change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, author_id, author_email, author_type, author_service, certifier_name) "
+            + "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, "
+            + "author_id, author_email, author_type, author_service, certifier_name "
+            + "FROM identitystore_history_identity_attribute "
+            + " WHERE  attribute_key = ? AND id_identity = ?";
 
     /**
-     * Generates a new primary key for identitystore_history_identity_attribute
-     * table
+     * Generates a new primary key for identitystore_history_identity_attribute table
      *
      * @param plugin
-     *          The Plugin
+     *            The Plugin
      * @return The new primary key
      */
     public int newHistoricPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_HISTORY_PK, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         int nKey = 1;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
             nKey = daoUtil.getInt( 1 ) + 1;
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return nKey;
     }
@@ -109,15 +108,14 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey(  ).getId(  ) );
-        daoUtil.setString( nIndex++, identityAttribute.getValue(  ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
-        daoUtil.setInt( nIndex++,
-            ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
+        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity( ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey( ).getId( ) );
+        daoUtil.setString( nIndex++, identityAttribute.getValue( ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate( ) );
+        daoUtil.setInt( nIndex++, ( identityAttribute.getFile( ) != null ) ? identityAttribute.getFile( ).getIdFile( ) : 0 );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -129,13 +127,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setInt( 2, nAttributeId );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         IdentityAttribute identityAttribute = null;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            identityAttribute = new IdentityAttribute(  );
+            identityAttribute = new IdentityAttribute( );
 
             int nIndex = 1;
 
@@ -152,7 +150,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             }
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return identityAttribute;
     }
@@ -166,8 +164,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setInt( 2, nAttributeId );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -179,17 +177,16 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey(  ).getId(  ) );
-        daoUtil.setString( nIndex++, identityAttribute.getValue(  ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate(  ) );
-        daoUtil.setInt( nIndex++,
-            ( identityAttribute.getFile(  ) != null ) ? identityAttribute.getFile(  ).getIdFile(  ) : 0 );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity(  ) );
-        daoUtil.setInt( nIndex, identityAttribute.getAttributeKey(  ).getId(  ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity( ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey( ).getId( ) );
+        daoUtil.setString( nIndex++, identityAttribute.getValue( ) );
+        daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate( ) );
+        daoUtil.setInt( nIndex++, ( identityAttribute.getFile( ) != null ) ? identityAttribute.getFile( ).getIdFile( ) : 0 );
+        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity( ) );
+        daoUtil.setInt( nIndex, identityAttribute.getAttributeKey( ).getId( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     /**
@@ -198,14 +195,14 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin )
     {
-        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>(  );
+        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.setInt( 1, nIdentityId );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            IdentityAttribute identityAttribute = new IdentityAttribute(  );
+            IdentityAttribute identityAttribute = new IdentityAttribute( );
             int nIndex = 1;
 
             AttributeKey attribute = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
@@ -220,7 +217,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 identityAttribute.setCertificate( certificate );
 
-                //attribute.setLevel( certificate.getCertificateLevel(  ) );
+                // attribute.setLevel( certificate.getCertificateLevel( ) );
             }
 
             int nIdFile = daoUtil.getInt( nIndex++ );
@@ -231,10 +228,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             }
 
             identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributesMap.put( attribute.getKeyName(  ), identityAttribute );
+            attributesMap.put( attribute.getKeyName( ), identityAttribute );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attributesMap;
     }
@@ -245,16 +242,16 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin )
     {
-        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>(  );
+        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setString( 2, strApplicationCode );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            IdentityAttribute attribute = new IdentityAttribute(  );
-            AttributeKey attributeKey = new AttributeKey(  );
+            IdentityAttribute attribute = new IdentityAttribute( );
+            AttributeKey attributeKey = new AttributeKey( );
 
             int nIndex = 1;
 
@@ -274,7 +271,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
 
-                //attribute.setLevel( certificate.getCertificateLevel(  ) );
+                // attribute.setLevel( certificate.getCertificateLevel( ) );
             }
 
             int nIdFile = daoUtil.getInt( nIndex++ );
@@ -285,10 +282,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             }
 
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributesMap.put( attributeKey.getKeyName(  ), attribute );
+            attributesMap.put( attributeKey.getKeyName( ), attribute );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attributesMap;
     }
@@ -299,16 +296,16 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public ReferenceList selectIdentityAttributesReferenceList( Plugin plugin )
     {
-        ReferenceList identityAttributeList = new ReferenceList(  );
+        ReferenceList identityAttributeList = new ReferenceList( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
             identityAttributeList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return identityAttributeList;
     }
@@ -317,19 +314,18 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      * {@inheritDoc }
      */
     @Override
-    public IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode,
-        Plugin plugin )
+    public IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin )
     {
         IdentityAttribute attribute = null;
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setString( 2, strApplicationCode );
         daoUtil.setString( 3, strAttributeKey );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
-            attribute = new IdentityAttribute(  );
+            attribute = new IdentityAttribute( );
 
             int nIndex = 1;
 
@@ -343,7 +339,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
                 attribute.setCertificate( certificate );
 
-                //attribute.setLevel( certificate.getCertificateLevel(  ) );
+                // attribute.setLevel( certificate.getCertificateLevel( ) );
             }
 
             int nIdFile = daoUtil.getInt( nIndex++ );
@@ -356,7 +352,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return attribute;
     }
@@ -366,8 +362,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin );
         daoUtil.setInt( 1, nIdentityId );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     @Override
@@ -377,35 +373,35 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         int nIndex = 1;
 
         daoUtil.setInt( nIndex++, newHistoricPrimaryKey( plugin ) );
-        daoUtil.setInt( nIndex++, attributeChange.getIdentityId(  ) );
-        daoUtil.setInt( nIndex++, attributeChange.getChangeType(  ).getValue(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getIdentityConnectionId(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getIdentityName(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getChangedKey(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getNewValue(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getOldValue(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getAuthorId(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getAuthorName(  ) );
-        daoUtil.setInt( nIndex++, attributeChange.getAuthorType(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getAuthorService(  ) );
-        daoUtil.setString( nIndex++, attributeChange.getCertifier(  ) );
+        daoUtil.setInt( nIndex++, attributeChange.getIdentityId( ) );
+        daoUtil.setInt( nIndex++, attributeChange.getChangeType( ).getValue( ) );
+        daoUtil.setString( nIndex++, attributeChange.getIdentityConnectionId( ) );
+        daoUtil.setString( nIndex++, attributeChange.getIdentityName( ) );
+        daoUtil.setString( nIndex++, attributeChange.getChangedKey( ) );
+        daoUtil.setString( nIndex++, attributeChange.getNewValue( ) );
+        daoUtil.setString( nIndex++, attributeChange.getOldValue( ) );
+        daoUtil.setString( nIndex++, attributeChange.getAuthorId( ) );
+        daoUtil.setString( nIndex++, attributeChange.getAuthorName( ) );
+        daoUtil.setInt( nIndex++, attributeChange.getAuthorType( ) );
+        daoUtil.setString( nIndex++, attributeChange.getAuthorService( ) );
+        daoUtil.setString( nIndex++, attributeChange.getCertifier( ) );
 
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
     @Override
     public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey, Plugin plugin )
     {
-        List<AttributeChange> listAttributeChange = new ArrayList<AttributeChange>(  );
+        List<AttributeChange> listAttributeChange = new ArrayList<AttributeChange>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_HISTORY, plugin );
         daoUtil.setString( 1, strAttributeKey );
         daoUtil.setInt( 2, nIdentityId );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
-        while ( daoUtil.next(  ) )
+        while ( daoUtil.next( ) )
         {
-            AttributeChange attributeChange = new AttributeChange(  );
+            AttributeChange attributeChange = new AttributeChange( );
             int nIndex = 1;
             attributeChange.setDateChange( daoUtil.getTimestamp( nIndex++ ) );
             attributeChange.setChangeType( AttributeChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
@@ -423,7 +419,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             listAttributeChange.add( attributeChange );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return listAttributeChange;
     }

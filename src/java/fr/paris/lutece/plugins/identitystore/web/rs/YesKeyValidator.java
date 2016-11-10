@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
-
 /**
  *
  * Validator which always returns true on key validation method call
@@ -44,7 +43,7 @@ public class YesKeyValidator implements IAuthenticationKeyValidator
     @Override
     public boolean isAuthenticationKeyValid( String strClientCode, String strHeaderKey )
     {
-        //no control for demo authenticator
+        // no control for demo authenticator
         return true;
     }
 }

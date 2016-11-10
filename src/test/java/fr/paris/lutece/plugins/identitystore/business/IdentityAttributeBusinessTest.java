@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
-
 public class IdentityAttributeBusinessTest extends LuteceTestCase
 {
     private static final String APPLICATION_CODE = "MyApplication";
@@ -49,12 +48,12 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
     private final static int IDCERTIFICATION1 = 1;
     private final static int IDCERTIFICATION2 = 2;
 
-    public void testBusiness(  )
+    public void testBusiness( )
     {
         // Initialize an object
-        AttributeKey attributeKey = new AttributeKey(  );
+        AttributeKey attributeKey = new AttributeKey( );
         attributeKey.setId( IDATTRIBUTE1 );
-        IdentityAttribute identityAttribute = new IdentityAttribute(  );
+        IdentityAttribute identityAttribute = new IdentityAttribute( );
         identityAttribute.setIdIdentity( IDIDENTITY1 );
         identityAttribute.setAttributeKey( attributeKey );
         identityAttribute.setValue( ATTRIBUTEVALUE1 );
@@ -63,12 +62,12 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         // Create test
         IdentityAttributeHome.create( identityAttribute );
 
-        IdentityAttribute identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
-                identityAttribute.getAttributeKey(  ).getId(  ) );
-        assertEquals( identityAttributeStored.getIdIdentity(  ), identityAttribute.getIdIdentity(  ) );
-        assertEquals( identityAttributeStored.getAttributeKey(  ).getId(  ), identityAttribute.getAttributeKey(  ).getId(  ) );
-        assertEquals( identityAttributeStored.getValue(  ), identityAttribute.getValue(  ) );
-        assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
+        IdentityAttribute identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity( ), identityAttribute
+                .getAttributeKey( ).getId( ) );
+        assertEquals( identityAttributeStored.getIdIdentity( ), identityAttribute.getIdIdentity( ) );
+        assertEquals( identityAttributeStored.getAttributeKey( ).getId( ), identityAttribute.getAttributeKey( ).getId( ) );
+        assertEquals( identityAttributeStored.getValue( ), identityAttribute.getValue( ) );
+        assertEquals( identityAttributeStored.getIdCertificate( ), identityAttribute.getIdCertificate( ) );
 
         // Update test
         attributeKey.setId( IDATTRIBUTE2 );
@@ -76,20 +75,18 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         identityAttribute.setValue( ATTRIBUTEVALUE2 );
         identityAttribute.setIdCertificate( IDCERTIFICATION2 );
         IdentityAttributeHome.update( identityAttribute );
-        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
-                identityAttribute.getAttributeKey(  ).getId(  ) );
-        assertEquals( identityAttributeStored.getIdIdentity(  ), identityAttribute.getIdIdentity(  ) );
-        assertEquals( identityAttributeStored.getAttributeKey(  ).getId(  ), identityAttribute.getAttributeKey(  ).getId(  ) );
-        assertEquals( identityAttributeStored.getValue(  ), identityAttribute.getValue(  ) );
-        assertEquals( identityAttributeStored.getIdCertificate(  ), identityAttribute.getIdCertificate(  ) );
+        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );
+        assertEquals( identityAttributeStored.getIdIdentity( ), identityAttribute.getIdIdentity( ) );
+        assertEquals( identityAttributeStored.getAttributeKey( ).getId( ), identityAttribute.getAttributeKey( ).getId( ) );
+        assertEquals( identityAttributeStored.getValue( ), identityAttribute.getValue( ) );
+        assertEquals( identityAttributeStored.getIdCertificate( ), identityAttribute.getIdCertificate( ) );
 
         // List test
         IdentityAttributeHome.getAttributes( 1, APPLICATION_CODE );
 
         // Delete test
-        IdentityAttributeHome.remove( identityAttribute.getIdIdentity(  ), identityAttribute.getAttributeKey(  ).getId(  ) );
-        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity(  ),
-                identityAttribute.getAttributeKey(  ).getId(  ) );
+        IdentityAttributeHome.remove( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );
+        identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );
         assertNull( identityAttributeStored );
     }
 }

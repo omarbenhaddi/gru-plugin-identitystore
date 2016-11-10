@@ -39,7 +39,6 @@ import java.io.Serializable;
 
 import javax.validation.constraints.Size;
 
-
 /**
  * This is the business class for the object AttributeKey
  */
@@ -64,7 +63,7 @@ public class AttributeKey implements Serializable
      *
      * @return The Id
      */
-    public int getId(  )
+    public int getId( )
     {
         return _nId;
     }
@@ -73,7 +72,7 @@ public class AttributeKey implements Serializable
      * Sets the Id
      *
      * @param nId
-     *          The Id
+     *            The Id
      */
     public void setId( int nId )
     {
@@ -85,7 +84,7 @@ public class AttributeKey implements Serializable
      *
      * @return The Name
      */
-    public String getName(  )
+    public String getName( )
     {
         return _strName;
     }
@@ -94,7 +93,7 @@ public class AttributeKey implements Serializable
      * Sets the Name
      *
      * @param strName
-     *          The Name
+     *            The Name
      */
     public void setName( String strName )
     {
@@ -106,7 +105,7 @@ public class AttributeKey implements Serializable
      *
      * @return The KeyName
      */
-    public String getKeyName(  )
+    public String getKeyName( )
     {
         return _strKeyName;
     }
@@ -115,7 +114,7 @@ public class AttributeKey implements Serializable
      * Sets the KeyName
      *
      * @param strKeyName
-     *          The KeyName
+     *            The KeyName
      */
     public void setKeyName( String strKeyName )
     {
@@ -127,7 +126,7 @@ public class AttributeKey implements Serializable
      *
      * @return The Description
      */
-    public String getDescription(  )
+    public String getDescription( )
     {
         return _strDescription;
     }
@@ -136,7 +135,7 @@ public class AttributeKey implements Serializable
      * Sets the Description
      *
      * @param strDescription
-     *          The Description
+     *            The Description
      */
     public void setDescription( String strDescription )
     {
@@ -148,7 +147,7 @@ public class AttributeKey implements Serializable
      *
      * @return The KeyType
      */
-    public KeyType getKeyType(  )
+    public KeyType getKeyType( )
     {
         return _keyType;
     }
@@ -157,7 +156,7 @@ public class AttributeKey implements Serializable
      * Sets the KeyType
      *
      * @param keyType
-     *          The KeyType
+     *            The KeyType
      */
     public void setKeyType( KeyType keyType )
     {

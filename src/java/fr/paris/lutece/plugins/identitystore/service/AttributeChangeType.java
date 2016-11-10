@@ -42,11 +42,10 @@ import java.util.Map;
  *
  */
 public enum AttributeChangeType
-{CREATE( 0 ),
-    UPDATE( 1 ),
-    DELETE( 2 );
+{
+    CREATE( 0 ), UPDATE( 1 ), DELETE( 2 );
 
-    private static Map<Integer,AttributeChangeType> _mapTypes = new HashMap<Integer,AttributeChangeType>(  );
+    private static Map<Integer, AttributeChangeType> _mapTypes = new HashMap<Integer, AttributeChangeType>( );
     private int _nValue;
 
     static
@@ -59,7 +58,9 @@ public enum AttributeChangeType
 
     /**
      * Constructor
-     * @param nValue the value
+     * 
+     * @param nValue
+     *            the value
      */
     AttributeChangeType( int nValue )
     {
@@ -68,16 +69,19 @@ public enum AttributeChangeType
 
     /**
      * Gets the value
+     * 
      * @return the value
      */
-    public int getValue(  )
+    public int getValue( )
     {
         return _nValue;
     }
 
     /**
      * Gives the AttributeChangeType for the specified value
-     * @param nValue the value
+     * 
+     * @param nValue
+     *            the value
      * @return the AttributeChangeType
      */
     public static AttributeChangeType valueOf( int nValue )

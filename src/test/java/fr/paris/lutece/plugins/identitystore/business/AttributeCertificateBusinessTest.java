@@ -37,7 +37,6 @@ import fr.paris.lutece.test.LuteceTestCase;
 
 import java.sql.Timestamp;
 
-
 public class AttributeCertificateBusinessTest extends LuteceTestCase
 {
     private final static int IDCERTIFIER1 = 1;
@@ -49,10 +48,10 @@ public class AttributeCertificateBusinessTest extends LuteceTestCase
     private final static Timestamp EXPIRATIONDATE1 = new Timestamp( 1000000L );
     private final static Timestamp EXPIRATIONDATE2 = new Timestamp( 2000000L );
 
-    public void testBusiness(  )
+    public void testBusiness( )
     {
         // Initialize an object
-        AttributeCertificate attributeCertificate = new AttributeCertificate(  );
+        AttributeCertificate attributeCertificate = new AttributeCertificate( );
         attributeCertificate.setIdCertifier( IDCERTIFIER1 );
         attributeCertificate.setCertificateDate( CERTIFICATEDATE1 );
         attributeCertificate.setCertificateLevel( CERTIFICATELEVEL1 );
@@ -61,11 +60,11 @@ public class AttributeCertificateBusinessTest extends LuteceTestCase
         // Create test
         AttributeCertificateHome.create( attributeCertificate );
 
-        AttributeCertificate attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId(  ) );
-        assertEquals( attributeCertificateStored.getIdCertifier(  ), attributeCertificate.getIdCertifier(  ) );
-        assertEquals( attributeCertificateStored.getCertificateDate(  ), attributeCertificate.getCertificateDate(  ) );
-        assertEquals( attributeCertificateStored.getCertificateLevel(  ), attributeCertificate.getCertificateLevel(  ) );
-        assertEquals( attributeCertificateStored.getExpirationDate(  ), attributeCertificate.getExpirationDate(  ) );
+        AttributeCertificate attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
+        assertEquals( attributeCertificateStored.getIdCertifier( ), attributeCertificate.getIdCertifier( ) );
+        assertEquals( attributeCertificateStored.getCertificateDate( ), attributeCertificate.getCertificateDate( ) );
+        assertEquals( attributeCertificateStored.getCertificateLevel( ), attributeCertificate.getCertificateLevel( ) );
+        assertEquals( attributeCertificateStored.getExpirationDate( ), attributeCertificate.getExpirationDate( ) );
 
         // Update test
         attributeCertificate.setIdCertifier( IDCERTIFIER2 );
@@ -73,18 +72,18 @@ public class AttributeCertificateBusinessTest extends LuteceTestCase
         attributeCertificate.setCertificateLevel( CERTIFICATELEVEL2 );
         attributeCertificate.setExpirationDate( EXPIRATIONDATE2 );
         AttributeCertificateHome.update( attributeCertificate );
-        attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId(  ) );
-        assertEquals( attributeCertificateStored.getIdCertifier(  ), attributeCertificate.getIdCertifier(  ) );
-        assertEquals( attributeCertificateStored.getCertificateDate(  ), attributeCertificate.getCertificateDate(  ) );
-        assertEquals( attributeCertificateStored.getCertificateLevel(  ), attributeCertificate.getCertificateLevel(  ) );
-        assertEquals( attributeCertificateStored.getExpirationDate(  ), attributeCertificate.getExpirationDate(  ) );
+        attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
+        assertEquals( attributeCertificateStored.getIdCertifier( ), attributeCertificate.getIdCertifier( ) );
+        assertEquals( attributeCertificateStored.getCertificateDate( ), attributeCertificate.getCertificateDate( ) );
+        assertEquals( attributeCertificateStored.getCertificateLevel( ), attributeCertificate.getCertificateLevel( ) );
+        assertEquals( attributeCertificateStored.getExpirationDate( ), attributeCertificate.getExpirationDate( ) );
 
         // List test
-        AttributeCertificateHome.getAttributeCertificatesList(  );
+        AttributeCertificateHome.getAttributeCertificatesList( );
 
         // Delete test
-        AttributeCertificateHome.remove( attributeCertificate.getId(  ) );
-        attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId(  ) );
+        AttributeCertificateHome.remove( attributeCertificate.getId( ) );
+        attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
         assertNull( attributeCertificateStored );
     }
 }

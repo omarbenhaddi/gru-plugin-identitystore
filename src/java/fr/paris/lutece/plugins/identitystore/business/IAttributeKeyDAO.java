@@ -38,7 +38,6 @@ import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 
-
 /**
  * IAttributeKeyDAO Interface
  */
@@ -48,9 +47,9 @@ public interface IAttributeKeyDAO
      * Insert a new record in the table.
      *
      * @param attributeKey
-     *          instance of the AttributeKey object to insert
+     *            instance of the AttributeKey object to insert
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void insert( AttributeKey attributeKey, Plugin plugin );
 
@@ -58,9 +57,9 @@ public interface IAttributeKeyDAO
      * Update the record in the table
      *
      * @param attributeKey
-     *          the reference of the AttributeKey
+     *            the reference of the AttributeKey
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void store( AttributeKey attributeKey, Plugin plugin );
 
@@ -68,9 +67,9 @@ public interface IAttributeKeyDAO
      * Delete a record from the table
      *
      * @param nKey
-     *          The identifier of the AttributeKey to delete
+     *            The identifier of the AttributeKey to delete
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void delete( int nKey, Plugin plugin );
 
@@ -81,9 +80,9 @@ public interface IAttributeKeyDAO
      * Load the data from the table
      *
      * @param nKey
-     *          The identifier of the attributeKey
+     *            The identifier of the attributeKey
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The instance of the attributeKey
      */
     AttributeKey load( int nKey, Plugin plugin );
@@ -92,19 +91,17 @@ public interface IAttributeKeyDAO
      * Load the data of all the attributeKey objects and returns them as a list
      *
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return The list which contains the data of all the attributeKey objects
      */
     List<AttributeKey> selectAttributeKeysList( Plugin plugin );
 
     /**
-     * Load the data of all the attributeKey objects and returns them as a
-     * referenceList
+     * Load the data of all the attributeKey objects and returns them as a referenceList
      *
      * @param plugin
-     *          the Plugin
-     * @return The referenceList which contains the data of all the attributeKey
-     *         objects
+     *            the Plugin
+     * @return The referenceList which contains the data of all the attributeKey objects
      */
     ReferenceList selectAttributeKeysReferenceList( Plugin plugin );
 
@@ -112,9 +109,9 @@ public interface IAttributeKeyDAO
      * Find the attribute by its key
      *
      * @param strKey
-     *          The key The key
+     *            The key The key
      * @param plugin
-     *          The plugin
+     *            The plugin
      * @return the attributeKey matching key, null if no attributes matches
      */
     AttributeKey selectByKey( String strKey, Plugin plugin );

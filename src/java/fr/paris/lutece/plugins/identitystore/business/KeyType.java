@@ -47,13 +47,11 @@ import java.util.Map;
  *
  */
 public enum KeyType
-{STRING( 0, "string" ),
-    NUMERIC( 1, "numeric" ),
-    FILE( 2, "file" ),
-    DATE( 3, "date" );
+{
+    STRING( 0, "string" ), NUMERIC( 1, "numeric" ), FILE( 2, "file" ), DATE( 3, "date" );
 
     private static final String MESSAGE_PREFIX = "identitystore.keytype.label.";
-    private static Map<Integer,KeyType> _mapKeyType = new HashMap<Integer,KeyType>(  );
+    private static Map<Integer, KeyType> _mapKeyType = new HashMap<Integer, KeyType>( );
     private int _nId;
     private String _strCode;
 
@@ -61,9 +59,9 @@ public enum KeyType
      * private constructor
      *
      * @param nId
-     *          id
+     *            id
      * @param strCode
-     *          code
+     *            code
      */
     KeyType( int nId, String strCode )
     {
@@ -84,7 +82,7 @@ public enum KeyType
      *
      * @return id
      */
-    public int getId(  )
+    public int getId( )
     {
         return _nId;
     }
@@ -94,7 +92,7 @@ public enum KeyType
      *
      * @return code
      */
-    public String getCode(  )
+    public String getCode( )
     {
         return _strCode;
     }
@@ -104,16 +102,16 @@ public enum KeyType
      *
      * @return label
      */
-    public String getDefaultLabel(  )
+    public String getDefaultLabel( )
     {
-        return getLocalizedMessage( Locale.getDefault(  ) );
+        return getLocalizedMessage( Locale.getDefault( ) );
     }
 
     /**
      * returns KeyType enum for id
      *
      * @param nId
-     *          id of KeyType
+     *            id of KeyType
      * @return KeyType enum
      */
     public static KeyType valueOf( int nId )
@@ -125,7 +123,7 @@ public enum KeyType
      * returns level label
      *
      * @param locale
-     *          the locale used to retrieve the localized messages
+     *            the locale used to retrieve the localized messages
      * @return the message
      */
     public String getLocalizedMessage( Locale locale )
@@ -137,16 +135,16 @@ public enum KeyType
      * Builds a RefenrenceList object containing all the SupportLevel objects
      *
      * @param locale
-     *          the locale used to retrieve the localized messages
+     *            the locale used to retrieve the localized messages
      * @return the ReferenceList object
      */
     public static ReferenceList getReferenceList( Locale locale )
     {
-        ReferenceList refListLevel = new ReferenceList(  );
+        ReferenceList refListLevel = new ReferenceList( );
 
-        for ( KeyType keyType : KeyType.values(  ) )
+        for ( KeyType keyType : KeyType.values( ) )
         {
-            refListLevel.addItem( keyType.getId(  ), keyType.getLocalizedMessage( locale ) );
+            refListLevel.addItem( keyType.getId( ), keyType.getLocalizedMessage( locale ) );
         }
 
         return refListLevel;

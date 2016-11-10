@@ -37,7 +37,6 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 
 import java.util.List;
 
-
 /**
  * IAttributeRightDAO Interface
  */
@@ -47,9 +46,9 @@ public interface IAttributeRightDAO
      * Insert a new record in the table.
      *
      * @param attributeRight
-     *          instance of the AttributeRight object to insert
+     *            instance of the AttributeRight object to insert
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void insert( AttributeRight attributeRight, Plugin plugin );
 
@@ -57,9 +56,9 @@ public interface IAttributeRightDAO
      * Update the record in the table
      *
      * @param attributeRight
-     *          the reference of the AttributeRight
+     *            the reference of the AttributeRight
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void store( AttributeRight attributeRight, Plugin plugin );
 
@@ -70,9 +69,9 @@ public interface IAttributeRightDAO
      * retrieve all attributes and its rights for provided application
      *
      * @param clientApp
-     *          application
+     *            application
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      * @return list of all attributes with rights for provided application
      */
     List<AttributeRight> selectAttributeRights( ClientApplication clientApp, Plugin plugin );
@@ -81,9 +80,9 @@ public interface IAttributeRightDAO
      * remove all rights for provided application
      *
      * @param clientApp
-     *          application
+     *            application
      * @param plugin
-     *          the Plugin
+     *            the Plugin
      */
     void removeApplicationRights( ClientApplication clientApp, Plugin plugin );
 }

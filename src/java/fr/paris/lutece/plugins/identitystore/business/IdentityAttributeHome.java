@@ -42,10 +42,8 @@ import fr.paris.lutece.util.ReferenceList;
 import java.util.List;
 import java.util.Map;
 
-
 /**
- * This class provides instances management methods (create, find, ...) for
- * IdentityAttribute objects
+ * This class provides instances management methods (create, find, ...) for IdentityAttribute objects
  */
 public final class IdentityAttributeHome
 {
@@ -56,7 +54,7 @@ public final class IdentityAttributeHome
     /**
      * Private constructor - this class need not be instantiated
      */
-    private IdentityAttributeHome(  )
+    private IdentityAttributeHome( )
     {
     }
 
@@ -64,10 +62,8 @@ public final class IdentityAttributeHome
      * Create an instance of the identityAttribute class
      *
      * @param identityAttribute
-     *          The instance of the IdentityAttribute which contains the
-     *          informations to store
-     * @return The instance of identityAttribute which has been created with its
-     *         primary key.
+     *            The instance of the IdentityAttribute which contains the informations to store
+     * @return The instance of identityAttribute which has been created with its primary key.
      */
     public static IdentityAttribute create( IdentityAttribute identityAttribute )
     {
@@ -80,8 +76,7 @@ public final class IdentityAttributeHome
      * Update of the identityAttribute which is specified in parameter
      *
      * @param identityAttribute
-     *          The instance of the IdentityAttribute which contains the data to
-     *          store
+     *            The instance of the IdentityAttribute which contains the data to store
      * @return The instance of the identityAttribute which has been updated
      */
     public static IdentityAttribute update( IdentityAttribute identityAttribute )
@@ -95,9 +90,9 @@ public final class IdentityAttributeHome
      * Remove the identityAttribute whose identifier is specified in parameter
      *
      * @param nIdentityId
-     *          The identity ID
+     *            The identity ID
      * @param nAttributeId
-     *          The Attribute ID
+     *            The Attribute ID
      */
     public static void remove( int nIdentityId, int nAttributeId )
     {
@@ -108,7 +103,7 @@ public final class IdentityAttributeHome
      * Remove all the identityAttribute of an identity
      *
      * @param nIdentityId
-     *          The identity ID
+     *            The identity ID
      */
     public static void removeAllAttributes( int nIdentityId )
     {
@@ -116,13 +111,12 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Returns an instance of a identityAttribute whose identifier is specified in
-     * parameter
+     * Returns an instance of a identityAttribute whose identifier is specified in parameter
      *
      * @param nIdentityId
-     *          The identity ID
+     *            The identity ID
      * @param nAttributeId
-     *          The Attribute ID
+     *            The Attribute ID
      * @return an instance of IdentityAttribute
      */
     public static IdentityAttribute findByPrimaryKey( int nIdentityId, int nAttributeId )
@@ -131,15 +125,13 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of all attributes for a given identity ID which are allowed
-     * for the client application provided
+     * Load the data of all attributes for a given identity ID which are allowed for the client application provided
      *
      * @param nIdentityId
-     *          The identity ID
+     *            The identity ID
      * @param strApplicationCode
-     *          code of client application
-     * @return the list which contains the data of all the identityAttribute
-     *         objects
+     *            code of client application
+     * @return the list which contains the data of all the identityAttribute objects
      */
     public static Map<String, IdentityAttribute> getAttributes( int nIdentityId, String strApplicationCode )
     {
@@ -147,17 +139,14 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of all attributes for a given identity ID which are allowed
-     * for the client application provided
+     * Load the data of all attributes for a given identity ID which are allowed for the client application provided
      *
      * @param nIdentityId
      *          The identity ID
      * @return the map which contains the data of all the identityAttribute
      *         objects
-     *
      * @deprecated
      * Use {@link #getAttributes( int, String ) } method instead
-     *
      */
     public static Map<String, IdentityAttribute> getAttributes( int nIdentityId )
     {
@@ -165,17 +154,15 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of an attribute for a given identity ID and attribute key
-     * which is allowed for the client application provided
+     * Load the data of an attribute for a given identity ID and attribute key which is allowed for the client application provided
      *
      * @param nIdentityId
-     *          The identity ID
+     *            The identity ID
      * @param strApplicationCode
-     *          code of client application
+     *            code of client application
      * @param strAttributeKey
-     *          attribute key
-     * @return the list which contains the data of all the identityAttribute
-     *         objects
+     *            attribute key
+     * @return the list which contains the data of all the identityAttribute objects
      */
     public static IdentityAttribute getAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode )
     {
@@ -183,13 +170,11 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of all the identityAttribute objects and returns them as a
-     * referenceList
+     * Load the data of all the identityAttribute objects and returns them as a referenceList
      *
-     * @return the referenceList which contains the data of all the
-     *         identityAttribute objects
+     * @return the referenceList which contains the data of all the identityAttribute objects
      */
-    public static ReferenceList getIdentityAttributesReferenceList(  )
+    public static ReferenceList getIdentityAttributesReferenceList( )
     {
         return _dao.selectIdentityAttributesReferenceList( _plugin );
     }
@@ -198,7 +183,7 @@ public final class IdentityAttributeHome
      * add an attribute change event in history table
      *
      * @param attributeChange
-     *          attribute change event
+     *            attribute change event
      */
     public static void addAttributeChangeHistory( AttributeChange attributeChange )
     {
@@ -208,8 +193,10 @@ public final class IdentityAttributeHome
     /**
      * get attribute change event in history table
      *
-     * @param strAttributeKey attributekey
-     * @param nIdentityId identityId
+     * @param strAttributeKey
+     *            attributekey
+     * @param nIdentityId
+     *            identityId
      * @return list of attribute changes
      */
     public static List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey )

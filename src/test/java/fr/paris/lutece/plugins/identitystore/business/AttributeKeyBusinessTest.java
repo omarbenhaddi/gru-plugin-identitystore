@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
-
 public class AttributeKeyBusinessTest extends LuteceTestCase
 {
     private final static String KEYNAME1 = "KeyName1";
@@ -43,10 +42,10 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
     private final static String KEYDESCRIPTION1 = "KeyDescription1";
     private final static String KEYDESCRIPTION2 = "KeyDescription2";
 
-    public void testBusiness(  )
+    public void testBusiness( )
     {
         // Initialize an object
-        AttributeKey attributeKey = new AttributeKey(  );
+        AttributeKey attributeKey = new AttributeKey( );
         attributeKey.setKeyName( KEYNAME1 );
         attributeKey.setDescription( KEYDESCRIPTION1 );
         attributeKey.setKeyType( KeyType.STRING );
@@ -54,27 +53,27 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
         // Create test
         AttributeKeyHome.create( attributeKey );
 
-        AttributeKey attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId(  ) );
-        assertEquals( attributeKeyStored.getKeyName(  ), attributeKey.getKeyName(  ) );
-        assertEquals( attributeKeyStored.getDescription(  ), attributeKey.getDescription(  ) );
-        assertEquals( attributeKeyStored.getKeyType(  ), attributeKey.getKeyType(  ) );
+        AttributeKey attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId( ) );
+        assertEquals( attributeKeyStored.getKeyName( ), attributeKey.getKeyName( ) );
+        assertEquals( attributeKeyStored.getDescription( ), attributeKey.getDescription( ) );
+        assertEquals( attributeKeyStored.getKeyType( ), attributeKey.getKeyType( ) );
 
         // Update test
         attributeKey.setKeyName( KEYNAME2 );
         attributeKey.setDescription( KEYDESCRIPTION2 );
         attributeKey.setKeyType( KeyType.STRING );
         AttributeKeyHome.update( attributeKey );
-        attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId(  ) );
-        assertEquals( attributeKeyStored.getKeyName(  ), attributeKey.getKeyName(  ) );
-        assertEquals( attributeKeyStored.getDescription(  ), attributeKey.getDescription(  ) );
-        assertEquals( attributeKeyStored.getKeyType(  ), attributeKey.getKeyType(  ) );
+        attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId( ) );
+        assertEquals( attributeKeyStored.getKeyName( ), attributeKey.getKeyName( ) );
+        assertEquals( attributeKeyStored.getDescription( ), attributeKey.getDescription( ) );
+        assertEquals( attributeKeyStored.getKeyType( ), attributeKey.getKeyType( ) );
 
         // List test
-        AttributeKeyHome.getAttributeKeysList(  );
+        AttributeKeyHome.getAttributeKeysList( );
 
         // Delete test
-        AttributeKeyHome.remove( attributeKey.getId(  ) );
-        attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId(  ) );
+        AttributeKeyHome.remove( attributeKey.getId( ) );
+        attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId( ) );
         assertNull( attributeKeyStored );
     }
 }
