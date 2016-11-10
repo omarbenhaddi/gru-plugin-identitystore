@@ -177,7 +177,7 @@ public final class IdentityHome
      *
      * @return the list which contains the customer id of all the identity objects
      */
-    public static List<Integer> getCustomerIdsList( )
+    public static List<String> getCustomerIdsList( )
     {
         return _dao.selectCustomerIdsList( _plugin );
     }

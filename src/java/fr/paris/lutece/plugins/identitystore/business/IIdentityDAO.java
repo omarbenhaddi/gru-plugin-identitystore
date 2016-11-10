@@ -103,7 +103,7 @@ public interface IIdentityDAO
      *            the Plugin
      * @return The list which contains the customer id of all the identity objects
      */
-    List<Integer> selectCustomerIdsList( Plugin plugin );
+    List<String> selectCustomerIdsList( Plugin plugin );
 
     /**
      * Load the data of all the identity objects and returns them as a referenceList

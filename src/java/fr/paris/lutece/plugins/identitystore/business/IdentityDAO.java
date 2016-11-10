@@ -208,15 +208,15 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<Integer> selectCustomerIdsList( Plugin plugin )
+    public List<String> selectCustomerIdsList( Plugin plugin )
     {
-        List<Integer> listIds = new ArrayList<Integer>( );
+        List<String> listIds = new ArrayList<String>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS, plugin );
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )
         {
-            Integer identity = Integer.valueOf( daoUtil.getInt( 1 ) );
+            String identity = daoUtil.getString( 1 );
             listIds.add( identity );
         }
 

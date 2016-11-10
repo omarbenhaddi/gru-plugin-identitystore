@@ -1,0 +1,1 @@
+ALTER TABLE identitystore_identity CHANGE COLUMN customer_id customer_id VARCHAR(50) NULL DEFAULT NULL ;
