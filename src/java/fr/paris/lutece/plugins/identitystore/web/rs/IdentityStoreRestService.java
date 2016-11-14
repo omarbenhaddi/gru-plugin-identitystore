@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
@@ -502,7 +503,7 @@ public final class IdentityStoreRestService
         {
             identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
-            if ( ( identity != null ) && ( !Constants.NO_CUSTOMER_ID.equals( strCustomerId ) ) && ( !strCustomerId.equals( identity.getCustomerId( ) ) ) )
+            if ( ( identity != null ) && ( !Constants.NO_CUSTOMER_ID.equals( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
             {
                 throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND " + Constants.PARAM_ID_CUSTOMER
                         + "(" + strCustomerId + ")" + " params provided " );
