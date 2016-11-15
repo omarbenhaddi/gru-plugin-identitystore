@@ -255,7 +255,7 @@ public final class IdentityStoreRestService
             String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
             Identity identity = null;
 
-            if ( Constants.NO_CUSTOMER_ID.equals( strCustomerId ) )
+            if ( !Constants.NO_CUSTOMER_ID.equals( strCustomerId ) )
             {
                 IdentityRequestValidator.instance( ).checkFetchParams( null, strCustomerId, strClientAppCode, strAuthenticationKey );
 
