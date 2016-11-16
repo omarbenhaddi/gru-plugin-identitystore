@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.plugins.identitystore.web.rs.service.Constants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -236,7 +237,7 @@ public final class IdentityStoreService
 
         if ( nIdentityId < 0 )
         {
-            throw new IdentityNotFoundException(  );
+            throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" );
         }
     }
 
