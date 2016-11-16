@@ -152,15 +152,8 @@ public final class IdentityStoreRestService
 
             if ( identity == null )
             {
-                ResponseDto response = new ResponseDto( );
-                response.setMessage( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND "
+                throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND "
                         + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
-                response.setStatus( String.valueOf( Status.NOT_FOUND ) );
-
-                String strResponse;
-                strResponse = _objectMapper.writeValueAsString( response );
-
-                return Response.status( Status.NOT_FOUND ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build( );
             }
 
             strJsonResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
@@ -197,15 +190,8 @@ public final class IdentityStoreRestService
 
             if ( identity == null )
             {
-                ResponseDto response = new ResponseDto( );
-                response.setMessage( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + identityChangeDto.getIdentity( ).getConnectionId( ) + ")"
+                throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + identityChangeDto.getIdentity( ).getConnectionId( ) + ")"
                         + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + identityChangeDto.getIdentity( ).getCustomerId( ) + ")" );
-                response.setStatus( String.valueOf( Status.NOT_FOUND ) );
-
-                String strResponse;
-                strResponse = _objectMapper.writeValueAsString( response );
-
-                return Response.status( Status.NOT_FOUND ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build( );
             }
 
             Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
@@ -263,14 +249,7 @@ public final class IdentityStoreRestService
 
                 if ( identity == null )
                 {
-                    ResponseDto response = new ResponseDto( );
-                    response.setMessage( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
-                    response.setStatus( String.valueOf( Status.NOT_FOUND ) );
-
-                    String strResponse;
-                    strResponse = _objectMapper.writeValueAsString( response );
-
-                    return Response.status( Status.NOT_FOUND ).type( MediaType.APPLICATION_JSON ).entity( strResponse ).build( );
+                    throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
                 }
             }
             else
@@ -283,15 +262,8 @@ public final class IdentityStoreRestService
 
                     if ( identity == null )
                     {
-                        try
-                        {
-                            identity = createIdentity( strConnectionId );
-                            identity = updateIdentity( identity, identityChangeDto, mapAttachedFiles, strAuthenticationKey );
-                        }
-                        catch( IdentityNotFoundException e )
-                        {
-                            return getErrorResponse( e, Status.NOT_FOUND );
-                        }
+                        identity = createIdentity( strConnectionId );
+                        identity = updateIdentity( identity, identityChangeDto, mapAttachedFiles, strAuthenticationKey );
                     }
                 }
                 else
@@ -614,36 +586,21 @@ public final class IdentityStoreRestService
      */
     private Response getErrorResponse( Exception e )
     {
-        return getErrorResponse( e, Status.BAD_REQUEST );
-    }
-
-    /**
-     * build error response from exception and status
-     *
-     * @param e
-     *            exception
-     * @param status
-     *            the status to send
-     * @return ResponseDto from exception
-     */
-    private Response getErrorResponse( Exception e, Status status )
-    {
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + e, e );
-
-        String strMessage = null;
-
         // For security purpose, send a generic message
-        switch( status )
+        String strMessage = null;
+        Status status = null;
+        
+        if ( e instanceof IdentityNotFoundException )
         {
-            case NOT_FOUND:
-                strMessage = ERROR_NO_IDENTITY_FOUND;
-
-                break;
-
-            default:
-                strMessage = ERROR_DURING_TREATMENT;
+            strMessage = ERROR_NO_IDENTITY_FOUND;
+            status = Status.NOT_FOUND;
         }
-
+        else
+        {
+            strMessage = ERROR_DURING_TREATMENT;
+            status = Status.BAD_REQUEST;
+        }
+        
         return buildResponse( strMessage, status );
     }
 
