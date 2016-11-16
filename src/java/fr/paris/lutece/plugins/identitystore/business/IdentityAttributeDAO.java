@@ -74,6 +74,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             + "author_id, author_email, author_type, author_service, certifier_name "
             + "FROM identitystore_history_identity_attribute "
             + " WHERE  attribute_key = ? AND id_identity = ?";
+    private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_history_identity_attribute WHERE id_identity = ?";
 
     /**
      * Generates a new primary key for identitystore_history_identity_attribute table
@@ -161,6 +162,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public void delete( int nIdentityId, int nAttributeId, Plugin plugin )
     {
+        // FIXME Delete also the attribute history 
+        
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setInt( 2, nAttributeId );
@@ -360,7 +363,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public void deleteAllAttributes( int nIdentityId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_HISTORY, plugin );
+        daoUtil.setInt( 1, nIdentityId );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
+        
+        daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
