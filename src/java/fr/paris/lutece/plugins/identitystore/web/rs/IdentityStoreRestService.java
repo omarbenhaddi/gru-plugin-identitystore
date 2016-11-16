@@ -241,7 +241,7 @@ public final class IdentityStoreRestService
             String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
             Identity identity = null;
 
-            if ( !Constants.NO_CUSTOMER_ID.equals( strCustomerId ) )
+            if ( StringUtils.isNotEmpty( strCustomerId ) )
             {
                 IdentityRequestValidator.instance( ).checkFetchParams( null, strCustomerId, strClientAppCode, strAuthenticationKey );
 
@@ -475,7 +475,7 @@ public final class IdentityStoreRestService
         {
             identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
-            if ( ( identity != null ) && ( !Constants.NO_CUSTOMER_ID.equals( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
+            if ( ( identity != null ) && ( StringUtils.isNotEmpty( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
             {
                 throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND " + Constants.PARAM_ID_CUSTOMER
                         + "(" + strCustomerId + ")" + " params provided " );
