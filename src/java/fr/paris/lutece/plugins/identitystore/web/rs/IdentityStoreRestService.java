@@ -295,10 +295,9 @@ public final class IdentityStoreRestService
     String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
     String strClientAppCode )
     {
-        IdentityStoreRequest identityStoreRequest = new IdentityStoreRequest( strConnectionId, strClientAppCode );
-
         try
         {
+            IdentityStoreRequest identityStoreRequest = new IdentityStoreRequest( strConnectionId, strClientAppCode );
             identityStoreRequest.deleteIdentity(  );
         }
         catch ( Exception e )
