@@ -590,6 +590,8 @@ public final class IdentityStoreRestService
         String strMessage = null;
         Status status = null;
         
+        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + e, e );
+
         if ( e instanceof IdentityNotFoundException )
         {
             strMessage = ERROR_NO_IDENTITY_FOUND;
