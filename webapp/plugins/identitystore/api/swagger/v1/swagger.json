@@ -91,6 +91,12 @@
 											"value": "",
 											"certified": false
 										},
+										"first_name": {
+											"key": "first_name",
+											"type": "string",
+											"value": "Jean",
+											"certified": false
+										},
 										"given_name": {
 											"key": "given_name",
 											"type": "string",

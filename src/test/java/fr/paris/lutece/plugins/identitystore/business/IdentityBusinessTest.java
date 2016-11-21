@@ -43,8 +43,8 @@ public class IdentityBusinessTest extends LuteceTestCase
     private final static String CONNECTIONID2 = "ConnectionId2";
     private final static String CUSTOMERID1 = "48376eb6-b6c9-4247-931c-351a8182d297";
     private final static String CUSTOMERID2 = "c966a0a2-e12a-4c74-b52f-2d03b9466df8";
-    private final static String GIVENNAME1 = "GivenName1";
-    private final static String GIVENNAME2 = "GivenName2";
+    private final static String FIRSTNAME1 = "FirstName1";
+    private final static String FIRSTNAME2 = "FirstName2";
     private final static String FAMILYNAME1 = "FamilyName1";
     private final static String FAMILYNAME2 = "FamilyName2";
     private final static int GENDER1 = 1;
@@ -75,7 +75,7 @@ public class IdentityBusinessTest extends LuteceTestCase
         Identity identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
         assertEquals( identityStored.getConnectionId( ), identity.getConnectionId( ) );
         assertEquals( identityStored.getCustomerId( ), identity.getCustomerId( ) );
-        assertEquals( identityStored.getGivenName( ), identity.getGivenName( ) );
+        assertEquals( identityStored.getFirstName( ), identity.getFirstName( ) );
         assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
 
         // Update test
@@ -85,7 +85,7 @@ public class IdentityBusinessTest extends LuteceTestCase
         identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
         assertEquals( identityStored.getConnectionId( ), identity.getConnectionId( ) );
         assertEquals( identityStored.getCustomerId( ), identity.getCustomerId( ) );
-        assertEquals( identityStored.getGivenName( ), identity.getGivenName( ) );
+        assertEquals( identityStored.getFirstName( ), identity.getFirstName( ) );
         assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
 
         // List test

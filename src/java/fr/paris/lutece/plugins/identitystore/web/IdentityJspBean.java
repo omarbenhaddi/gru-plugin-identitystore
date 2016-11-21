@@ -57,6 +57,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
  * This class provides the user interface to manage Identity features ( manage, create, modify, remove )
  */
@@ -72,7 +73,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     // Parameters
     private static final String PARAMETER_ID_IDENTITY = "id";
-    private static final String PARAMETER_GIVEN_NAME = "given_name";
+    private static final String PARAMETER_FIRST_NAME = "first_name";
     private static final String PARAMETER_FAMILY_NAME = "family_name";
     private static final String PARAMETER_ATTRIBUTE_KEY = "attribute_key";
 
@@ -114,9 +115,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     // Session variable to store working values
     private Identity _identity;
-    private AttributeKey _attrKeyFirstName = AttributeKeyHome
-            .findByKey( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) );
-    private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) );
+    private AttributeKey _attrKeyFirstName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( 
+                IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) );
+    private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( 
+                IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) );
 
     /**
      * Build the Manage View
@@ -130,8 +132,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         _identity = null;
 
-        List<Identity> listIdentitys = IdentityHome.getIdentitysList( );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentitys, JSP_MANAGE_IDENTITYS );
+        List<Identity> listIdentitys = IdentityHome.getIdentitysList(  );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentitys,
+                JSP_MANAGE_IDENTITYS );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS, TEMPLATE_MANAGE_IDENTITYS, model );
     }
@@ -146,9 +149,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @View( VIEW_CREATE_IDENTITY )
     public String getCreateIdentity( HttpServletRequest request )
     {
-        _identity = ( _identity != null ) ? _identity : new Identity( );
+        _identity = ( _identity != null ) ? _identity : new Identity(  );
 
-        Map<String, Object> model = getModel( );
+        Map<String, Object> model = getModel(  );
         model.put( MARK_IDENTITY, _identity );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_CREATE_IDENTITY, model );
@@ -173,9 +176,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         }
 
         IdentityHome.create( _identity );
-        saveFirstNameAttribute( request.getParameter( PARAMETER_GIVEN_NAME ) );
+        saveFirstNameAttribute( request.getParameter( PARAMETER_FIRST_NAME ) );
         saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
-        addInfo( INFO_IDENTITY_CREATED, getLocale( ) );
+        addInfo( INFO_IDENTITY_CREATED, getLocale(  ) );
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
     }
@@ -188,10 +191,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
      */
     private void saveFirstNameAttribute( String strFirstName )
     {
-        IdentityAttribute idAttrFirstName = new IdentityAttribute( );
+        IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
         idAttrFirstName.setValue( strFirstName );
         idAttrFirstName.setAttributeKey( _attrKeyFirstName );
-        idAttrFirstName.setIdIdentity( _identity.getId( ) );
+        idAttrFirstName.setIdIdentity( _identity.getId(  ) );
         IdentityAttributeHome.create( idAttrFirstName );
     }
 
@@ -203,10 +206,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
      */
     private void saveLastNameAttribute( String strLastName )
     {
-        IdentityAttribute idAttrFirstName = new IdentityAttribute( );
+        IdentityAttribute idAttrFirstName = new IdentityAttribute(  );
         idAttrFirstName.setValue( strLastName );
         idAttrFirstName.setAttributeKey( _attrKeyLastName );
-        idAttrFirstName.setIdIdentity( _identity.getId( ) );
+        idAttrFirstName.setIdIdentity( _identity.getId(  ) );
         IdentityAttributeHome.create( idAttrFirstName );
     }
 
@@ -224,7 +227,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_IDENTITY ) );
         url.addParameter( PARAMETER_ID_IDENTITY, nId );
 
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_IDENTITY, url.getUrl( ), AdminMessage.TYPE_CONFIRMATION );
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_IDENTITY,
+                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
 
         return redirect( request, strMessageUrl );
     }
@@ -241,7 +245,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
         IdentityHome.remove( nId );
-        addInfo( INFO_IDENTITY_REMOVED, getLocale( ) );
+        addInfo( INFO_IDENTITY_REMOVED, getLocale(  ) );
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
     }
@@ -258,12 +262,12 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
 
-        if ( ( _identity == null ) || ( _identity.getId( ) != nId ) )
+        if ( ( _identity == null ) || ( _identity.getId(  ) != nId ) )
         {
             _identity = IdentityHome.findByPrimaryKey( nId );
         }
 
-        Map<String, Object> model = getModel( );
+        Map<String, Object> model = getModel(  );
         model.put( MARK_IDENTITY, _identity );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_IDENTITY, TEMPLATE_MODIFY_IDENTITY, model );
@@ -284,13 +288,13 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         // Check constraints
         if ( !validateBean( _identity, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
-            return redirect( request, VIEW_MODIFY_IDENTITY, PARAMETER_ID_IDENTITY, _identity.getId( ) );
+            return redirect( request, VIEW_MODIFY_IDENTITY, PARAMETER_ID_IDENTITY, _identity.getId(  ) );
         }
 
         IdentityHome.update( _identity );
-        saveFirstNameAttribute( request.getParameter( PARAMETER_GIVEN_NAME ) );
+        saveFirstNameAttribute( request.getParameter( PARAMETER_FIRST_NAME ) );
         saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
-        addInfo( INFO_IDENTITY_UPDATED, getLocale( ) );
+        addInfo( INFO_IDENTITY_UPDATED, getLocale(  ) );
 
         return redirectView( request, VIEW_MANAGE_IDENTITYS );
     }
@@ -309,7 +313,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         _identity = IdentityHome.findByPrimaryKey( nId );
 
-        Map<String, Object> model = getModel( );
+        Map<String, Object> model = getModel(  );
         model.put( MARK_IDENTITY, _identity );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_VIEW_IDENTITY, model );
@@ -326,14 +330,14 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     public String getAttributeHistoryView( HttpServletRequest request )
     {
         String strAttributeKey = request.getParameter( PARAMETER_ATTRIBUTE_KEY );
-        List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>( );
+        List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>(  );
 
         if ( ( _identity != null ) && StringUtils.isNotBlank( strAttributeKey ) )
         {
-            lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey );
+            lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId(  ), strAttributeKey );
         }
 
-        Map<String, Object> model = getModel( );
+        Map<String, Object> model = getModel(  );
         model.put( MARK_ATTRIBUTE_CHANGE_LIST, lstAttributeChange );
 
         return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_ATTRIBUTE_HISTORY, model );

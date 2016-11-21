@@ -44,6 +44,7 @@ import java.util.Map;
 
 import javax.validation.constraints.Size;
 
+
 /**
  * This is the business class for the object Identity
  */
@@ -57,14 +58,14 @@ public class Identity implements Serializable
     private String _strConnectionId;
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
     private String _strCustomerId;
-    private Map<String, IdentityAttribute> _mapAttributes = new HashMap<String, IdentityAttribute>( );
+    private Map<String, IdentityAttribute> _mapAttributes = new HashMap<String, IdentityAttribute>(  );
 
     /**
      * Returns the Id
      *
      * @return The Id
      */
-    public int getId( )
+    public int getId(  )
     {
         return _nId;
     }
@@ -85,7 +86,7 @@ public class Identity implements Serializable
      *
      * @return The ConnectionId
      */
-    public String getConnectionId( )
+    public String getConnectionId(  )
     {
         return _strConnectionId;
     }
@@ -106,7 +107,7 @@ public class Identity implements Serializable
      *
      * @return The CustomerId
      */
-    public String getCustomerId( )
+    public String getCustomerId(  )
     {
         return _strCustomerId;
     }
@@ -125,7 +126,7 @@ public class Identity implements Serializable
     /**
      * @return the _mapAttributes
      */
-    public Map<String, IdentityAttribute> getAttributes( )
+    public Map<String, IdentityAttribute> getAttributes(  )
     {
         return _mapAttributes;
     }
@@ -144,34 +145,38 @@ public class Identity implements Serializable
      *
      * @return familyName
      */
-    public String getFamilyName( )
+    public String getFamilyName(  )
     {
         String strFamilyName = StringUtils.EMPTY;
 
-        if ( ( _mapAttributes != null )
-                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) != null ) )
+        if ( ( _mapAttributes != null ) &&
+                ( _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) != null ) )
         {
-            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ).getValue( );
+            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ).getValue(  );
         }
 
         return strFamilyName;
     }
 
     /**
-     * returns given name retrieve from attributes
+     * returns first name retrieve from attributes
      *
-     * @return given name
+     * @return first name
      */
-    public String getGivenName( )
+    public String getFirstName(  )
     {
-        String strGivenName = StringUtils.EMPTY;
+        String strFirstName = StringUtils.EMPTY;
 
-        if ( ( _mapAttributes != null )
-                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) != null ) )
+        if ( ( _mapAttributes != null ) &&
+                ( _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) != null ) )
         {
-            strGivenName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ).getValue( );
+            strFirstName = _mapAttributes.get( AppPropertiesService.getProperty( 
+                        IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ).getValue(  );
         }
 
-        return strGivenName;
+        return strFirstName;
     }
 }

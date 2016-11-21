@@ -18,7 +18,7 @@
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>#i18n{identitystore.manage_identities.columnGivenName}</th>
+            <th>#i18n{identitystore.manage_identities.columnFirstName}</th>
             <th>#i18n{identitystore.manage_identities.columnFamilyName}</th>
             <th>#i18n{identitystore.manage_identities.columnConnectionId}</th>
             <th>#i18n{identitystore.manage_identities.columnCustomerId}</th>
@@ -29,7 +29,7 @@
         <tr>
             <input type="hidden" id="id" name="id"/>
             <td>
-                ${identity.givenName!''}
+                ${identity.firstName!''}
             </td>
             <td>
                 ${identity.familyName!''}

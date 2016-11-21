@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2002-2016, Mairie de Paris
  * All rights reserved.
@@ -97,6 +96,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+
 /**
  * REST service for channel resource
  *
@@ -114,9 +114,9 @@ public final class IdentityStoreRestService
     /**
      * private constructor
      */
-    private IdentityStoreRestService( )
+    private IdentityStoreRestService(  )
     {
-        _objectMapper = new ObjectMapper( );
+        _objectMapper = new ObjectMapper(  );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
         _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
         _objectMapper.enable( DeserializationFeature.UNWRAP_ROOT_VALUE );
@@ -138,29 +138,35 @@ public final class IdentityStoreRestService
      */
     @GET
     @Produces( MediaType.APPLICATION_JSON )
-    public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode,
-            @HeaderParam( value = Constants.PARAM_CLIENT_CONTROL_KEY ) @DefaultValue( StringUtils.EMPTY ) String strAuthenticationKey )
+    public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @QueryParam( Constants.PARAM_ID_CUSTOMER )
+    String strCustomerId, @QueryParam( Constants.PARAM_CLIENT_CODE )
+    String strClientAppCode,
+        @HeaderParam( value = Constants.PARAM_CLIENT_CONTROL_KEY )
+    @DefaultValue( StringUtils.EMPTY )
+    String strAuthenticationKey )
     {
         String strJsonResponse;
 
         try
         {
-            IdentityRequestValidator.instance( ).checkFetchParams( strConnectionId, strCustomerId, strClientAppCode, strAuthenticationKey );
+            IdentityRequestValidator.instance(  )
+                                    .checkFetchParams( strConnectionId, strCustomerId, strClientAppCode,
+                strAuthenticationKey );
 
             Identity identity = getIdentity( strConnectionId, strCustomerId, strClientAppCode );
 
             if ( identity == null )
             {
-                throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND "
-                        + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
+                throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" +
+                    strConnectionId + ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
             }
 
             strJsonResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
 
-            return Response.ok( strJsonResponse ).build( );
+            return Response.ok( strJsonResponse ).build(  );
         }
-        catch( Exception exception )
+        catch ( Exception exception )
         {
             return getErrorResponse( exception );
         }
@@ -178,34 +184,41 @@ public final class IdentityStoreRestService
     @POST
     @Path( Constants.UPDATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response updateIdentity( FormDataMultiPart formParams, @HeaderParam( Constants.PARAM_CLIENT_CONTROL_KEY ) String strAuthenticationKey )
+    public Response updateIdentity( FormDataMultiPart formParams,
+        @HeaderParam( Constants.PARAM_CLIENT_CONTROL_KEY )
+    String strAuthenticationKey )
     {
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
-            IdentityRequestValidator.instance( ).checkUpdateParams( identityChangeDto, strAuthenticationKey );
+            IdentityRequestValidator.instance(  ).checkUpdateParams( identityChangeDto, strAuthenticationKey );
 
-            Identity identity = getIdentity( identityChangeDto.getIdentity( ).getConnectionId( ), identityChangeDto.getIdentity( ).getCustomerId( ),
-                    identityChangeDto.getAuthor( ).getApplicationCode( ) );
+            Identity identity = getIdentity( identityChangeDto.getIdentity(  ).getConnectionId(  ),
+                    identityChangeDto.getIdentity(  ).getCustomerId(  ),
+                    identityChangeDto.getAuthor(  ).getApplicationCode(  ) );
 
             if ( identity == null )
             {
-                throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + identityChangeDto.getIdentity( ).getConnectionId( ) + ")"
-                        + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + identityChangeDto.getIdentity( ).getCustomerId( ) + ")" );
+                throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" +
+                    identityChangeDto.getIdentity(  ).getConnectionId(  ) + ")" + " AND " +
+                    Constants.PARAM_ID_CUSTOMER + "(" + identityChangeDto.getIdentity(  ).getCustomerId(  ) + ")" );
             }
 
             Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
 
-            IdentityRequestValidator.instance( ).checkAttributes( identityChangeDto.getIdentity( ), identityChangeDto.getAuthor( ).getApplicationCode( ),
-                    mapAttachedFiles );
+            IdentityRequestValidator.instance(  )
+                                    .checkAttributes( identityChangeDto.getIdentity(  ),
+                identityChangeDto.getAuthor(  ).getApplicationCode(  ), mapAttachedFiles );
 
-            updateAttributes( identity, identityChangeDto.getIdentity( ), identityChangeDto.getAuthor( ), mapAttachedFiles );
+            updateAttributes( identity, identityChangeDto.getIdentity(  ), identityChangeDto.getAuthor(  ),
+                mapAttachedFiles );
 
-            String strResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, identityChangeDto.getAuthor( ).getApplicationCode( ) ) );
+            String strResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity,
+                        identityChangeDto.getAuthor(  ).getApplicationCode(  ) ) );
 
-            return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build( );
+            return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
         }
-        catch( Exception exception )
+        catch ( Exception exception )
         {
             return getErrorResponse( exception );
         }
@@ -230,33 +243,39 @@ public final class IdentityStoreRestService
     @POST
     @Path( Constants.CREATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response createIdentity( FormDataMultiPart formParams, @HeaderParam( Constants.PARAM_CLIENT_CONTROL_KEY ) String strAuthenticationKey )
+    public Response createIdentity( FormDataMultiPart formParams,
+        @HeaderParam( Constants.PARAM_CLIENT_CONTROL_KEY )
+    String strAuthenticationKey )
     {
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
             Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
-            String strCustomerId = identityChangeDto.getIdentity( ).getCustomerId( );
-            String strConnectionId = identityChangeDto.getIdentity( ).getConnectionId( );
-            String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
+            String strCustomerId = identityChangeDto.getIdentity(  ).getCustomerId(  );
+            String strConnectionId = identityChangeDto.getIdentity(  ).getConnectionId(  );
+            String strClientAppCode = identityChangeDto.getAuthor(  ).getApplicationCode(  );
             Identity identity = null;
 
             if ( StringUtils.isNotEmpty( strCustomerId ) )
             {
-                IdentityRequestValidator.instance( ).checkFetchParams( null, strCustomerId, strClientAppCode, strAuthenticationKey );
+                IdentityRequestValidator.instance(  )
+                                        .checkFetchParams( null, strCustomerId, strClientAppCode, strAuthenticationKey );
 
                 identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
 
                 if ( identity == null )
                 {
-                    throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
+                    throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" +
+                        strCustomerId + ")" );
                 }
             }
             else
             {
                 if ( !StringUtils.isEmpty( strConnectionId ) )
                 {
-                    IdentityRequestValidator.instance( ).checkFetchParams( strConnectionId, Constants.NO_CUSTOMER_ID, strClientAppCode, strAuthenticationKey );
+                    IdentityRequestValidator.instance(  )
+                                            .checkFetchParams( strConnectionId, Constants.NO_CUSTOMER_ID,
+                        strClientAppCode, strAuthenticationKey );
 
                     identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
@@ -274,9 +293,9 @@ public final class IdentityStoreRestService
 
             String strResponse = _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
 
-            return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build( );
+            return Response.ok( strResponse, MediaType.APPLICATION_JSON ).build(  );
         }
-        catch( Exception exception )
+        catch ( Exception exception )
         {
             return getErrorResponse( exception );
         }
@@ -310,26 +329,30 @@ public final class IdentityStoreRestService
 
     /**
      * Initializes an identity from an external source by using the specified connection id
-     * 
+     *
      * @param strConnectionId
      *            the connection id used to initialize the identity
      * @return the initialized identity
      * @throws IdentityNotFoundException
      *             if no identity can be retrieve from external source
      */
-    private static Identity createIdentity( String strConnectionId ) throws IdentityNotFoundException
+    private static Identity createIdentity( String strConnectionId )
+        throws IdentityNotFoundException
     {
-        IdentityChangeDto identityChangeDtoInitialized = IdentityInfoExternalService.instance( ).getIdentityInfo( strConnectionId );
+        IdentityChangeDto identityChangeDtoInitialized = IdentityInfoExternalService.instance(  )
+                                                                                    .getIdentityInfo( strConnectionId );
 
-        Identity identity = new Identity( );
+        Identity identity = new Identity(  );
         identity.setConnectionId( strConnectionId );
 
-        identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ), true, StringUtils.EMPTY );
+        identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>(  ), true,
+                StringUtils.EMPTY );
 
-        if ( AppLogService.isDebugEnabled( ) )
+        if ( AppLogService.isDebugEnabled(  ) )
         {
-            AppLogService.debug( "New identity created with provided guid (" + strConnectionId + ". Associated customer id is : " + identity.getCustomerId( )
-                    + ". Associated attributes are : " + identity.getAttributes( ) );
+            AppLogService.debug( "New identity created with provided guid (" + strConnectionId +
+                ". Associated customer id is : " + identity.getCustomerId(  ) + ". Associated attributes are : " +
+                identity.getAttributes(  ) );
         }
 
         return identity;
@@ -337,7 +360,7 @@ public final class IdentityStoreRestService
 
     /**
      * Creates an identity. If the provided identity is new, a creation of the object {@code Identity} is done, otherwise, the provided identity is used.
-     * 
+     *
      * @param identityChangeDto
      *            the object {@code IdentityChangeDto} containing the information to perform the creation
      * @param mapAttachedFiles
@@ -346,9 +369,10 @@ public final class IdentityStoreRestService
      *            the authentication key
      * @return the created identity
      */
-    private static Identity createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles, String strAuthenticationKey )
+    private static Identity createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles,
+        String strAuthenticationKey )
     {
-        Identity identity = new Identity( );
+        Identity identity = new Identity(  );
         updateIdentity( identity, identityChangeDto, mapAttachedFiles, true, strAuthenticationKey );
 
         return identity;
@@ -356,7 +380,7 @@ public final class IdentityStoreRestService
 
     /**
      * Updates an identity.
-     * 
+     *
      * @param identity
      *            the identity to complete.
      * @param identityChangeDto
@@ -367,15 +391,15 @@ public final class IdentityStoreRestService
      *            the authentication key
      * @return the updated identity
      */
-    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles,
-            String strAuthenticationKey )
+    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto,
+        Map<String, File> mapAttachedFiles, String strAuthenticationKey )
     {
         return updateIdentity( identity, identityChangeDto, mapAttachedFiles, false, strAuthenticationKey );
     }
 
     /**
      * Updates an identity. If the provided identity is new, a creation of the object {@code Identity} is done, otherwise, the provided identity is used.
-     * 
+     *
      * @param identity
      *            the identity to complete.
      * @param identityChangeDto
@@ -388,17 +412,18 @@ public final class IdentityStoreRestService
      *            the authentication key
      * @return the updated identity
      */
-    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles, boolean bNewIdentity,
-            String strAuthenticationKey )
+    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto,
+        Map<String, File> mapAttachedFiles, boolean bNewIdentity, String strAuthenticationKey )
     {
-        IdentityDto identityDto = identityChangeDto.getIdentity( );
-        AuthorDto authorDto = identityChangeDto.getAuthor( );
-        Map<String, AttributeDto> mapAttributes = identityDto.getAttributes( );
+        IdentityDto identityDto = identityChangeDto.getIdentity(  );
+        AuthorDto authorDto = identityChangeDto.getAuthor(  );
+        Map<String, AttributeDto> mapAttributes = identityDto.getAttributes(  );
 
-        if ( ( mapAttributes != null ) && !mapAttributes.isEmpty( ) )
+        if ( ( mapAttributes != null ) && !mapAttributes.isEmpty(  ) )
         {
-            IdentityRequestValidator.instance( ).checkCreateParams( identityChangeDto, strAuthenticationKey );
-            IdentityRequestValidator.instance( ).checkAttributes( identityDto, authorDto.getApplicationCode( ), mapAttachedFiles );
+            IdentityRequestValidator.instance(  ).checkCreateParams( identityChangeDto, strAuthenticationKey );
+            IdentityRequestValidator.instance(  )
+                                    .checkAttributes( identityDto, authorDto.getApplicationCode(  ), mapAttachedFiles );
 
             if ( bNewIdentity )
             {
@@ -430,32 +455,37 @@ public final class IdentityStoreRestService
      */
     @GET
     @Path( Constants.DOWNLOAD_FILE_PATH )
-    public Response downloadFileAttribute( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey,
-            @HeaderParam( Constants.PARAM_CLIENT_CONTROL_KEY ) String strAuthenticationKey )
+    public Response downloadFileAttribute( @QueryParam( Constants.PARAM_ID_CONNECTION )
+    String strConnectionId, @QueryParam( Constants.PARAM_CLIENT_CODE )
+    String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY )
+    String strAttributeKey, @HeaderParam( Constants.PARAM_CLIENT_CONTROL_KEY )
+    String strAuthenticationKey )
     {
         File file = null;
 
         try
         {
-            IdentityRequestValidator.instance( ).checkDownloadFileAttributeParams( strConnectionId, strClientAppCode, strAttributeKey, strAuthenticationKey );
+            IdentityRequestValidator.instance(  )
+                                    .checkDownloadFileAttributeParams( strConnectionId, strClientAppCode,
+                strAttributeKey, strAuthenticationKey );
             file = getFileAttribute( strConnectionId, strClientAppCode, strAttributeKey );
         }
-        catch( Exception exception )
+        catch ( Exception exception )
         {
             return getErrorResponse( exception );
         }
 
-        ResponseBuilder response = Response.ok( (Object) PhysicalFileHome.findByPrimaryKey( file.getPhysicalFile( ).getIdPhysicalFile( ) ).getValue( ) );
-        response.header( "Content-Disposition", "attachment; filename=" + file.getTitle( ) );
-        response.header( "Content-Type", file.getMimeType( ) );
+        ResponseBuilder response = Response.ok( (Object) PhysicalFileHome.findByPrimaryKey( 
+                    file.getPhysicalFile(  ).getIdPhysicalFile(  ) ).getValue(  ) );
+        response.header( "Content-Disposition", "attachment; filename=" + file.getTitle(  ) );
+        response.header( "Content-Type", file.getMimeType(  ) );
 
-        return response.build( );
+        return response.build(  );
     }
 
     /**
      * get identity from connectionId or customerId If no identity is found then a new one be created with attributes based on external provider data
-     * 
+     *
      * @param strConnectionId
      *            connection id
      * @param strCustomerId
@@ -474,10 +504,11 @@ public final class IdentityStoreRestService
         {
             identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
-            if ( ( identity != null ) && ( StringUtils.isNotEmpty( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
+            if ( ( identity != null ) && ( StringUtils.isNotEmpty( strCustomerId ) ) &&
+                    ( !identity.getCustomerId(  ).equals( strCustomerId ) ) )
             {
-                throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND " + Constants.PARAM_ID_CUSTOMER
-                        + "(" + strCustomerId + ")" + " params provided " );
+                throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" +
+                    " AND " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" + " params provided " );
             }
 
             if ( identity == null )
@@ -486,7 +517,7 @@ public final class IdentityStoreRestService
                 {
                     identity = createIdentity( strConnectionId );
                 }
-                catch( IdentityNotFoundException e )
+                catch ( IdentityNotFoundException e )
                 {
                     // Identity not found in External provider : creation is aborted
                     AppLogService.info( "Could not create an identity from external source" );
@@ -503,28 +534,30 @@ public final class IdentityStoreRestService
 
     /**
      * Fetches the object {@link IdentityChangeDto} from multi-part data
-     * 
+     *
      * @param formParams
      *            the mutli-part data
      * @return the IdentityChangeDto
      * @throws IOException
      *             if an error occurs during the treatment
      */
-    private IdentityChangeDto fetchIdentityChange( FormDataMultiPart formParams ) throws IOException
+    private IdentityChangeDto fetchIdentityChange( FormDataMultiPart formParams )
+        throws IOException
     {
         IdentityChangeDto identityChangeDto = null;
         String strBody = StringUtils.EMPTY;
 
-        for ( BodyPart part : formParams.getBodyParts( ) )
+        for ( BodyPart part : formParams.getBodyParts(  ) )
         {
             InputStream inputStream = part.getEntityAs( InputStream.class );
-            ContentDisposition contentDispo = part.getContentDisposition( );
+            ContentDisposition contentDispo = part.getContentDisposition(  );
 
-            if ( StringUtils.isBlank( contentDispo.getFileName( ) ) && part.getMediaType( ).isCompatible( MediaType.TEXT_PLAIN_TYPE )
-                    && Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters( ).get( Constants.PARAMETER_NAME ) ) )
+            if ( StringUtils.isBlank( contentDispo.getFileName(  ) ) &&
+                    part.getMediaType(  ).isCompatible( MediaType.TEXT_PLAIN_TYPE ) &&
+                    Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters(  ).get( Constants.PARAMETER_NAME ) ) )
             {
                 // content-body of request
-                strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
+                strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString(  ) );
 
                 if ( JSONUtils.mayBeJSON( strBody ) )
                 {
@@ -542,34 +575,35 @@ public final class IdentityStoreRestService
 
     /**
      * Fetches the attached files from the specified multi-part data
-     * 
+     *
      * @param formParams
      *            the multi-part data
      * @return the attached files
      * @throws IOException
      *             if an error occurs during the treatment
      */
-    private static Map<String, File> fetchAttachedFiles( FormDataMultiPart formParams ) throws IOException
+    private static Map<String, File> fetchAttachedFiles( FormDataMultiPart formParams )
+        throws IOException
     {
-        Map<String, File> mapAttachedFiles = new HashMap<String, File>( );
+        Map<String, File> mapAttachedFiles = new HashMap<String, File>(  );
 
-        for ( BodyPart part : formParams.getBodyParts( ) )
+        for ( BodyPart part : formParams.getBodyParts(  ) )
         {
             InputStream inputStream = part.getEntityAs( InputStream.class );
-            ContentDisposition contentDispo = part.getContentDisposition( );
+            ContentDisposition contentDispo = part.getContentDisposition(  );
 
-            if ( StringUtils.isNotBlank( contentDispo.getFileName( ) ) )
+            if ( StringUtils.isNotBlank( contentDispo.getFileName(  ) ) )
             {
                 // attachment file
-                PhysicalFile physicalFile = new PhysicalFile( );
+                PhysicalFile physicalFile = new PhysicalFile(  );
                 physicalFile.setValue( IOUtils.toByteArray( inputStream ) );
 
-                fr.paris.lutece.portal.business.file.File file = new fr.paris.lutece.portal.business.file.File( );
+                fr.paris.lutece.portal.business.file.File file = new fr.paris.lutece.portal.business.file.File(  );
                 file.setPhysicalFile( physicalFile );
-                file.setMimeType( part.getMediaType( ).getType( ) + "/" + part.getMediaType( ).getSubtype( ) );
-                file.setSize( physicalFile.getValue( ).length );
-                file.setTitle( contentDispo.getFileName( ) );
-                mapAttachedFiles.put( contentDispo.getFileName( ), file );
+                file.setMimeType( part.getMediaType(  ).getType(  ) + "/" + part.getMediaType(  ).getSubtype(  ) );
+                file.setSize( physicalFile.getValue(  ).length );
+                file.setTitle( contentDispo.getFileName(  ) );
+                mapAttachedFiles.put( contentDispo.getFileName(  ), file );
             }
         }
 
@@ -601,7 +635,7 @@ public final class IdentityStoreRestService
             strMessage = ERROR_DURING_TREATMENT;
             status = Status.BAD_REQUEST;
         }
-        
+
         return buildResponse( strMessage, status );
     }
 
@@ -622,9 +656,9 @@ public final class IdentityStoreRestService
             return Response.status( status ).type( MediaType.APPLICATION_JSON )
                            .entity( _objectMapper.writeValueAsString( response ) ).build(  );
         }
-        catch( JsonProcessingException jpe )
+        catch ( JsonProcessingException jpe )
         {
-            return Response.status( status ).type( MediaType.TEXT_PLAIN ).entity( strMessage ).build( );
+            return Response.status( status ).type( MediaType.TEXT_PLAIN ).entity( strMessage ).build(  );
         }
     }
 
@@ -639,17 +673,19 @@ public final class IdentityStoreRestService
      * @throws AppException
      *             thrown if input parameters are invalid or no file is found
      */
-    private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey ) throws AppException
+    private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey )
+        throws AppException
     {
         IdentityAttribute attribute = IdentityStoreService.getAttribute( strConnectionId, strAttributeKey, strClientCode );
 
-        if ( ( attribute == null ) || ( attribute.getFile( ) == null ) )
+        if ( ( attribute == null ) || ( attribute.getFile(  ) == null ) )
         {
-            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + strAttributeKey + " attribute not found for " + Constants.PARAM_ID_CONNECTION + "="
-                    + strConnectionId + "  " + Constants.PARAM_CLIENT_CODE + "=" + strClientCode );
+            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + strAttributeKey +
+                " attribute not found for " + Constants.PARAM_ID_CONNECTION + "=" + strConnectionId + "  " +
+                Constants.PARAM_CLIENT_CODE + "=" + strClientCode );
         }
 
-        return attribute.getFile( );
+        return attribute.getFile(  );
     }
 
     /**
@@ -668,11 +704,12 @@ public final class IdentityStoreRestService
      *             if error occurs while parsing json
      *
      */
-    private IdentityChangeDto getIdentityChangeFromJson( String strJsonContent ) throws AppException, JsonParseException, JsonMappingException, IOException
+    private IdentityChangeDto getIdentityChangeFromJson( String strJsonContent )
+        throws AppException, JsonParseException, JsonMappingException, IOException
     {
         IdentityChangeDto identityChangeDto = _objectMapper.readValue( strJsonContent, IdentityChangeDto.class );
 
-        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity( ) == null ) )
+        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity(  ) == null ) )
         {
             throw new AppException( ERROR_NO_IDENTITY_TO_UPDATE );
         }
@@ -693,27 +730,30 @@ public final class IdentityStoreRestService
      *            map containing File matching key attribute name
      *
      */
-    private static void updateAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto, Map<String, File> mapAttachedFiles )
+    private static void updateAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto,
+        Map<String, File> mapAttachedFiles )
     {
         StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
         ChangeAuthor author = DtoConverter.getAuthor( authorDto );
 
-        for ( AttributeDto attributeDto : identityDto.getAttributes( ).values( ) )
+        for ( AttributeDto attributeDto : identityDto.getAttributes(  ).values(  ) )
         {
             File file = null;
-            AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey( ) );
+            AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey(  ) );
 
-            if ( attributeKey.getKeyType( ).equals( KeyType.FILE ) && StringUtils.isNotBlank( attributeDto.getValue( ) ) )
+            if ( attributeKey.getKeyType(  ).equals( KeyType.FILE ) &&
+                    StringUtils.isNotBlank( attributeDto.getValue(  ) ) )
             {
-                file = mapAttachedFiles.get( attributeDto.getValue( ) );
+                file = mapAttachedFiles.get( attributeDto.getValue(  ) );
             }
 
-            AttributeCertificate certificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
-            IdentityStoreService.setAttribute( identity, attributeDto.getKey( ), attributeDto.getValue( ), file, author, certificate );
-            sb.append( attributeDto.getKey( ) + "," );
+            AttributeCertificate certificate = DtoConverter.getCertificate( attributeDto.getCertificate(  ) );
+            IdentityStoreService.setAttribute( identity, attributeDto.getKey(  ), attributeDto.getValue(  ), file,
+                author, certificate );
+            sb.append( attributeDto.getKey(  ) + "," );
         }
 
-        AppLogService.debug( sb.toString( ) );
+        AppLogService.debug( sb.toString(  ) );
     }
 
     /**
@@ -733,7 +773,7 @@ public final class IdentityStoreRestService
          * @param strConnectionId the connection id of the identity
          * @param strApplicationCode the application code provided by the client
          */
-         IdentityStoreRequest( String strConnectionId, String strApplicationCode )
+        IdentityStoreRequest( String strConnectionId, String strApplicationCode )
         {
             IdentityRequestValidator.instance(  ).checkClientApplication( strApplicationCode, StringUtils.EMPTY );
 
