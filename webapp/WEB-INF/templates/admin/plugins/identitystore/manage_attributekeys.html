@@ -34,9 +34,15 @@
             <td>
                 ${attributekey.name}
             </td>
+			<#if ( attributekey.keyName?length > 33 ) >
+            <td title="${attributekey.keyName}">
+                ${attributekey.keyName[0..30]}...
+            </td>
+			<#else>
             <td>
                 ${attributekey.keyName}
             </td>
+            </#if>
             <td>
                 ${attributekey.description}
             </td>

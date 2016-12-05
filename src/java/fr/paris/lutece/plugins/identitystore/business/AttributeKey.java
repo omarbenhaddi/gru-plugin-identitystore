@@ -49,10 +49,10 @@ public class AttributeKey implements Serializable
     // Variables declarations
     private int _nId;
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Name.notEmpty}" )
-    @Size( max = 50, message = "#i18n{identitystore.validation.attributekey.Name.size}" )
+    @Size( max = 100, message = "#i18n{identitystore.validation.attributekey.Name.size}" )
     private String _strName;
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.KeyName.notEmpty}" )
-    @Size( max = 50, message = "#i18n{identitystore.validation.attributekey.KeyName.size}" )
+    @Size( max = 100, message = "#i18n{identitystore.validation.attributekey.KeyName.size}" )
     private String _strKeyName;
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Description.notEmpty}" )
     private String _strDescription;

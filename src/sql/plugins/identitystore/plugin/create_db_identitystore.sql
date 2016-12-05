@@ -30,8 +30,8 @@ INDEX (customer_id)
 
 CREATE TABLE identitystore_attribute (
 id_attribute int(6) NOT NULL,
-name varchar(50) NOT NULL default '' UNIQUE,
-key_name varchar(50) NOT NULL default '' UNIQUE,
+name varchar(100) NOT NULL default '' UNIQUE,
+key_name varchar(100) NOT NULL default '' UNIQUE,
 description long varchar NULL,
 key_type int(11) NOT NULL default '0',
 PRIMARY KEY (id_attribute)

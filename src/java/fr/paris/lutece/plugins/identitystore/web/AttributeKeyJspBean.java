@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
@@ -67,6 +68,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTEKEYS = "identitystore.manage_attributekeys.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_ATTRIBUTEKEY = "identitystore.modify_attributekey.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_CREATE_ATTRIBUTEKEY = "identitystore.create_attributekey.pageTitle";
+    private static final String PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE = "identitystore.validation.attributekey.KeyName.duplicate";
 
     // Markers
     private static final String MARK_ATTRIBUTEKEY_LIST = "attributekey_list";
@@ -158,6 +160,12 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         int nKeyType = Integer.parseInt( strIdKeyType );
         KeyType keyType = KeyType.valueOf( nKeyType );
         _attributekey.setKeyType( keyType );
+        
+        if ( AttributeKeyHome.findByKey( _attributekey.getKeyName(  ) ) != null )
+        {
+        	addError( PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE, getLocale(  ) );
+        	return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
+        }
 
         AttributeKeyHome.create( _attributekey );
         addInfo( INFO_ATTRIBUTEKEY_CREATED, getLocale( ) );
@@ -242,11 +250,6 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         {
             return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId( ) );
         }
-
-        String strIdKeyType = request.getParameter( PARAMETER_ID_KEY_TYPE );
-        int nKeyType = Integer.parseInt( strIdKeyType );
-        KeyType keyType = KeyType.valueOf( nKeyType );
-        _attributekey.setKeyType( keyType );
 
         AttributeKeyHome.update( _attributekey );
         addInfo( INFO_ATTRIBUTEKEY_UPDATED, getLocale( ) );
