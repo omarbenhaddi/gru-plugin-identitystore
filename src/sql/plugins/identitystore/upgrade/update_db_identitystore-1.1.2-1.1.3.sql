@@ -1,0 +1,1 @@
+ALTER TABLE identitystore_history_identity_attribute CHANGE COLUMN identity_connection_id identity_connection_id VARCHAR(100) NULL DEFAULT NULL COLLATE utf8_unicode_ci AFTER id_identity;
