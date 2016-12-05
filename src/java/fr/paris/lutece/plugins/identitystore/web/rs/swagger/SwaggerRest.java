@@ -62,11 +62,10 @@ import org.codehaus.jackson.node.ObjectNode;
 @Path( RestConstants.BASE_PATH + Constants.API_PATH + Constants.VERSION_PATH )
 public class SwaggerRest
 {
-    private static final  String BASE_INFOS_SCHEMES = "schemes";
-    private static final  String BASE_INFOS_HOST = "host";
-    private static final  String BASE_INFOS_BASE_PATH = "basePath";
+    private static final String BASE_INFOS_SCHEMES = "schemes";
+    private static final String BASE_INFOS_HOST = "host";
+    private static final String BASE_INFOS_BASE_PATH = "basePath";
     private final Logger _logger = Logger.getLogger( RestConstants.REST_LOGGER );
-
 
     /**
      * Get Swagger.json

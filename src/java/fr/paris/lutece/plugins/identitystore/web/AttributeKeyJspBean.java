@@ -160,11 +160,11 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         int nKeyType = Integer.parseInt( strIdKeyType );
         KeyType keyType = KeyType.valueOf( nKeyType );
         _attributekey.setKeyType( keyType );
-        
-        if ( AttributeKeyHome.findByKey( _attributekey.getKeyName(  ) ) != null )
+
+        if ( AttributeKeyHome.findByKey( _attributekey.getKeyName( ) ) != null )
         {
-        	addError( PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE, getLocale(  ) );
-        	return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
+            addError( PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE, getLocale( ) );
+            return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
 
         AttributeKeyHome.create( _attributekey );

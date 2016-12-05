@@ -38,7 +38,7 @@ import fr.paris.lutece.test.LuteceTestCase;
 public class IdentityAttributeBusinessTest extends LuteceTestCase
 {
     private static final String APPLICATION_CODE = "MyApplication";
-    
+
     private final static int IDIDENTITY1 = 1;
     private final static int IDIDENTITY2 = 2;
     private final static int IDATTRIBUTE1 = 1;

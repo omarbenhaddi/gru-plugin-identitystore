@@ -140,9 +140,9 @@ public interface IIdentityDAO
      * Find an identity ID from the specified connection ID
      *
      * @param strConnectionId
-     *          the connection ID
+     *            the connection ID
      * @param plugin
-     *          the plugin
+     *            the plugin
      * @return The identity ID
      */
     int selectIdByConnectionId( String strConnectionId, Plugin plugin );

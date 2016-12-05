@@ -163,8 +163,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public void delete( int nIdentityId, int nAttributeId, Plugin plugin )
     {
-        // FIXME Delete also the attribute history 
-        
+        // FIXME Delete also the attribute history
+
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setInt( 2, nAttributeId );
@@ -199,7 +199,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin )
     {
-        Map<String, IdentityAttribute> attributesMap = new LinkedHashMap<String, IdentityAttribute>(  );
+        Map<String, IdentityAttribute> attributesMap = new LinkedHashMap<String, IdentityAttribute>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeQuery( );
@@ -368,7 +368,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeUpdate( );
         daoUtil.free( );
-        
+
         daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.executeUpdate( );

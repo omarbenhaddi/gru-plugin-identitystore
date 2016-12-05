@@ -87,7 +87,8 @@ public final class IdentityHome
     /**
      * Removes the identity whose identifier is specified in parameter
      *
-     * @param strConnectionId the connection id
+     * @param strConnectionId
+     *            the connection id
      * @return the id of the deleted identity
      */
     public static int removeByConnectionId( String strConnectionId )
@@ -117,7 +118,8 @@ public final class IdentityHome
     /**
      * Find an identity ID from the specified connection ID
      *
-     * @param strConnectionId the connection ID
+     * @param strConnectionId
+     *            the connection ID
      * @return the identity ID
      */
     public static int findIdByConnectionId( String strConnectionId )
@@ -126,8 +128,7 @@ public final class IdentityHome
     }
 
     /**
-     * Returns an instance of a identity whose identifier is specified in
-     * parameter
+     * Returns an instance of a identity whose identifier is specified in parameter
      *
      * @param nKey
      *            The identity primary key

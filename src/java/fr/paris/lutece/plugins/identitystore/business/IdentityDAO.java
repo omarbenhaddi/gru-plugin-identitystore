@@ -105,7 +105,7 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setCustomerId( newCustomerIdKey( ) );
         daoUtil.setInt( nIndex++, identity.getId( ) );
         daoUtil.setString( nIndex++, identity.getConnectionId( ) );
-        daoUtil.setString( nIndex++, identity.getCustomerId(  ) );
+        daoUtil.setString( nIndex++, identity.getCustomerId( ) );
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }
@@ -138,7 +138,7 @@ public final class IdentityDAO implements IIdentityDAO
 
         if ( identity != null )
         {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ) ) );
         }
 
         return identity;
@@ -195,7 +195,7 @@ public final class IdentityDAO implements IIdentityDAO
 
         for ( Identity identity : identityList )
         {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId(  ) ) );
+            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ) ) );
         }
 
         return identityList;
@@ -285,16 +285,16 @@ public final class IdentityDAO implements IIdentityDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CONNECTION_ID, plugin );
         daoUtil.setString( 1, strConnectionId );
-        daoUtil.executeQuery(  );
+        daoUtil.executeQuery( );
 
         int nIdentityId = -1;
 
-        if ( daoUtil.next(  ) )
+        if ( daoUtil.next( ) )
         {
             nIdentityId = daoUtil.getInt( 1 );
         }
 
-        daoUtil.free(  );
+        daoUtil.free( );
 
         return nIdentityId;
     }

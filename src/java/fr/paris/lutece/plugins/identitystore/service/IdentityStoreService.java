@@ -218,8 +218,11 @@ public final class IdentityStoreService
 
     /**
      * Removes an identity from the specified connection id
-     * @param strConnectionId the connection id
-     * @param strClientApplicationCode the application code
+     * 
+     * @param strConnectionId
+     *            the connection id
+     * @param strClientApplicationCode
+     *            the application code
      */
     public static void removeIdentity( String strConnectionId, String strClientApplicationCode )
     {

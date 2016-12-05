@@ -110,8 +110,7 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             if the parameters are not valid
      */
-    public void checkClientApplication( String strClientCode, String strAuthenticationKey )
-        throws AppException
+    public void checkClientApplication( String strClientCode, String strAuthenticationKey ) throws AppException
     {
         if ( StringUtils.isBlank( strClientCode ) )
         {
