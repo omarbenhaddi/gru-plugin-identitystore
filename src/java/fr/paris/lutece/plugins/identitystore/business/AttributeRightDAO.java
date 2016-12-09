@@ -33,11 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.sql.DAOUtil;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.util.sql.DAOUtil;
 
 /**
  * This class provides rights Access methods for Attribute objects
@@ -68,31 +68,6 @@ public final class AttributeRightDAO implements IAttributeRightDAO
         daoUtil.setInt( nIndex++, attributeRight.isCertifiable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.executeUpdate( );
         daoUtil.free( );
-    }
-
-    /**
-     * returns AttributeRight from request results
-     *
-     * @param daoUtil
-     *            daoUtil which contains results
-     * @param clientApp
-     *            client application who requests rights
-     * @return AttributeRight
-     */
-    private AttributeRight getRightFromQuery( DAOUtil daoUtil, ClientApplication clientApp )
-    {
-        AttributeRight attributeRight = new AttributeRight( );
-
-        int nIndex = 1;
-
-        int nIdAttribute = daoUtil.getInt( nIndex++ );
-        attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nIdAttribute ) );
-        attributeRight.setClientApplication( clientApp );
-        attributeRight.setReadable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
-        attributeRight.setWritable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
-        attributeRight.setCertifiable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
-
-        return attributeRight;
     }
 
     /**

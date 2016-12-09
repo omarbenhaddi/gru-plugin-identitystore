@@ -2,3 +2,8 @@ ALTER TABLE identitystore_history_identity_attribute CHANGE COLUMN identity_conn
 
 ALTER TABLE identitystore_attribute CHANGE COLUMN name name varchar(100) NOT NULL default '' ;
 ALTER TABLE identitystore_attribute CHANGE COLUMN key_name key_name varchar(100) NOT NULL default '' ;
+
+ALTER TABLE identitystore_client_application CHANGE COLUMN name name varchar(100) NOT NULL default '' ;
+ALTER TABLE identitystore_client_application CHANGE COLUMN code code varchar(100) NOT NULL default '' ;
+ALTER TABLE identitystore_client_application DROP COLUMN control_key ;
+ALTER TABLE identitystore_client_application DROP COLUMN hash;

@@ -84,7 +84,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      *            The Plugin
      * @return The new primary key
      */
-    public int newHistoricPrimaryKey( Plugin plugin )
+    private synchronized int newHistoricPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_HISTORY_PK, plugin );
         daoUtil.executeQuery( );

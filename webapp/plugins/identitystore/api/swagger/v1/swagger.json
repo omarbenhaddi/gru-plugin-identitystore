@@ -32,13 +32,6 @@
 					"required": true,
 					"type": "string",
 					"format": "string"
-				}, {
-					"name": "client_control_key",
-					"in": "header",
-					"description": "client control key",
-					"required": true,
-					"type": "string",
-					"format": "string"
 				}],
 				"responses": {
 					"200": {
@@ -187,13 +180,6 @@
 					"application/json"
 				],
 				"parameters": [{
-					"name": "client_control_key",
-					"in": "header",
-					"description": "client control key",
-					"required": true,
-					"type": "string",
-					"format": "string"
-				}, {
 	                "in": "body",
 	                "name": "body",
 	                "description": "identity attributes to update",
@@ -231,13 +217,6 @@
 					"application/json"
 				],
 				"parameters": [{
-					"name": "client_control_key",
-					"in": "header",
-					"description": "client control key",
-					"required": true,
-					"type": "string",
-					"format": "string"
-				}, {
 	                "in": "body",
 	                "name": "body",
 	                "description": "identity attributes to update",

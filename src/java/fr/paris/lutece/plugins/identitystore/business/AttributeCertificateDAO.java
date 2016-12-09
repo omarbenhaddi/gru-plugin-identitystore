@@ -63,7 +63,7 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
      *            The Plugin
      * @return The new primary key
      */
-    public int newPrimaryKey( Plugin plugin )
+    private synchronized int newPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
         daoUtil.executeQuery( );

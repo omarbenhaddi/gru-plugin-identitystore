@@ -33,12 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class provides Data Access methods for ClientApplication objects
@@ -47,12 +47,12 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_client_app ) FROM identitystore_client_application";
-    private static final String SQL_QUERY_SELECT = "SELECT id_client_app, name, code, hash, control_key FROM identitystore_client_application WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_client_app, name, code, hash, control_key FROM identitystore_client_application WHERE code = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_client_application ( id_client_app, name, code, hash, control_key ) VALUES ( ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_client_app, name, code FROM identitystore_client_application WHERE id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_client_app, name, code FROM identitystore_client_application WHERE code = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_client_application ( id_client_app, name, code ) VALUES ( ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_client_application WHERE id_client_app = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ?, hash = ?, control_key = ? WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code, hash, control_key FROM identitystore_client_application";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ? WHERE id_client_app = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_client_app FROM identitystore_client_application";
 
     /**
@@ -62,7 +62,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
      *            The Plugin
      * @return The new primary key
      */
-    public int newPrimaryKey( Plugin plugin )
+    private synchronized int newPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
         daoUtil.executeQuery( );
@@ -93,8 +93,6 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.setInt( nIndex++, clientApplication.getId( ) );
         daoUtil.setString( nIndex++, clientApplication.getName( ) );
         daoUtil.setString( nIndex++, clientApplication.getCode( ) );
-        daoUtil.setString( nIndex++, clientApplication.getHash( ) );
-        daoUtil.setString( nIndex++, clientApplication.getControlKey( ) );
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }
@@ -120,8 +118,6 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
-            clientApplication.setHash( daoUtil.getString( nIndex++ ) );
-            clientApplication.setControlKey( daoUtil.getString( nIndex++ ) );
         }
 
         daoUtil.free( );
@@ -153,8 +149,6 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.setInt( nIndex++, clientApplication.getId( ) );
         daoUtil.setString( nIndex++, clientApplication.getName( ) );
         daoUtil.setString( nIndex++, clientApplication.getCode( ) );
-        daoUtil.setString( nIndex++, clientApplication.getHash( ) );
-        daoUtil.setString( nIndex++, clientApplication.getControlKey( ) );
         daoUtil.setInt( nIndex, clientApplication.getId( ) );
 
         daoUtil.executeUpdate( );
@@ -179,8 +173,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
-            clientApplication.setHash( daoUtil.getString( nIndex++ ) );
-            clientApplication.setControlKey( daoUtil.getString( nIndex++ ) );
+            ;
             clientApplicationList.add( clientApplication );
         }
 
@@ -250,8 +243,6 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
-            clientApplication.setHash( daoUtil.getString( nIndex++ ) );
-            clientApplication.setControlKey( daoUtil.getString( nIndex++ ) );
         }
 
         daoUtil.free( );

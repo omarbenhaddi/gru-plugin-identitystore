@@ -31,92 +31,61 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.business;
+package fr.paris.lutece.plugins.identitystore.web.request;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
-import java.io.Serializable;
-
-import javax.validation.constraints.Size;
+import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.portal.service.util.AppException;
 
 /**
- *
- * class representing Client application
+ * This class represents a delete request for IdentityStoreRestServive
  *
  */
-public class ClientApplication implements Serializable
+public class IdentityStoreDeleteRequest extends IdentityStoreRequest
 {
-    private static final long serialVersionUID = 1L;
+    private static final String MESSAGE_DELETE_SUCCESSFUL = "Identity successfully deleted.";
 
-    // Variables declarations
-    private int _nId;
-    @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Name.notEmpty}" )
-    @Size( max = 100, message = "#i18n{identitystore.validation.clientapplication.Name.size}" )
-    private String _strName;
-    @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Code.notEmpty}" )
-    @Size( max = 100, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
-    private String _strCode;
+    private String _strConnectionId;
+    private String _strApplicationCode;
 
     /**
-     * Returns the Id
-     *
-     * @return The Id
+     * Constructor of IdentityStoreDeleteRequest
+     * 
+     * @param strConnectionId
+     *            the connection id of the identity
+     * @param strApplicationCode
+     *            the application code provided by the client
      */
-    public int getId( )
+    public IdentityStoreDeleteRequest( String strConnectionId, String strApplicationCode )
     {
-        return _nId;
+        super( );
+        _strConnectionId = strConnectionId;
+        _strApplicationCode = strApplicationCode;
     }
 
     /**
-     * Sets the Id
-     *
-     * @param nId
-     *            The Id
+     * Valid the delete request
+     * 
+     * @throws AppException
+     *             if there is an exception during the treatment
      */
-    public void setId( int nId )
+    @Override
+    protected void validRequest( ) throws AppException
     {
-        _nId = nId;
+        IdentityRequestValidator.instance( ).checkClientApplication( _strApplicationCode );
     }
 
     /**
-     * Returns the Name
-     *
-     * @return The Name
+     * Deletes the identity
+     * 
+     * @throws AppException
+     *             if there is an exception during the treatment
      */
-    public String getName( )
+    @Override
+    protected String doSpecificRequest( ) throws AppException
     {
-        return _strName;
-    }
+        IdentityStoreService.removeIdentity( _strConnectionId, _strApplicationCode );
 
-    /**
-     * Sets the Name
-     *
-     * @param strName
-     *            The Name
-     */
-    public void setName( String strName )
-    {
-        _strName = strName;
-    }
-
-    /**
-     * Returns the Code
-     *
-     * @return The Code
-     */
-    public String getCode( )
-    {
-        return _strCode;
-    }
-
-    /**
-     * Sets the Code
-     *
-     * @param strCode
-     *            The Code
-     */
-    public void setCode( String strCode )
-    {
-        _strCode = strCode;
+        return MESSAGE_DELETE_SUCCESSFUL;
     }
 }

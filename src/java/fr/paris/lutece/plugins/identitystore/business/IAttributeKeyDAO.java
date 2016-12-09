@@ -33,16 +33,18 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import java.util.List;
+
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
-
-import java.util.List;
 
 /**
  * IAttributeKeyDAO Interface
  */
 public interface IAttributeKeyDAO
 {
+    public static final String BEAN_NAME = "identitystore.attributeKeyDAO";
+
     /**
      * Insert a new record in the table.
      *

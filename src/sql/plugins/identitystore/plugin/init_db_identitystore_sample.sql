@@ -53,8 +53,8 @@ INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_
 (1, 18, 'Paris', 0)
 ;
 
-INSERT INTO identitystore_client_application (id_client_app, name, code, hash) VALUES
-(1, 'My Application', 'MyApplication', '');
+INSERT INTO identitystore_client_application (id_client_app, name, code) VALUES
+(1, 'My Application', 'MyApplication');
 
 
 INSERT INTO identitystore_attribute_right (id_client_app, id_attribute, readable, writable, certifiable) VALUES

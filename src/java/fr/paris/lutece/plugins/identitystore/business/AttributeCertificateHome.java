@@ -33,12 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import java.util.List;
+
+import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
-
-import java.util.List;
 
 /**
  * This class provides instances management methods (create, find, ...) for AttributeCertificate objects
@@ -46,8 +47,8 @@ import java.util.List;
 public final class AttributeCertificateHome
 {
     // Static variable pointed at the DAO instance
-    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( "identitystore.attributeCertificateDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
+    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( IAttributeCertificateDAO.BEAN_NAME );
+    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated

@@ -85,10 +85,8 @@ PRIMARY KEY (id_attribute_certificate)
 
 CREATE TABLE identitystore_client_application (
 id_client_app int(6) NOT NULL,
-name varchar(50) NOT NULL UNIQUE,
-code varchar(50) NOT NULL UNIQUE,
-hash varchar(250),
-control_key varchar(250),
+name varchar(100) NOT NULL UNIQUE,
+code varchar(100) NOT NULL UNIQUE,
 PRIMARY KEY (id_client_app)
 );
 

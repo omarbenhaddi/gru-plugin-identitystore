@@ -43,6 +43,8 @@ import java.util.List;
  */
 public interface IIdentityDAO
 {
+    public final static String BEAN_NAME = "identitystore.identityDAO";
+
     /**
      * Insert a new record in the table.
      *

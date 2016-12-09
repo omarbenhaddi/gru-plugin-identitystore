@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -46,8 +47,8 @@ import java.util.List;
 public final class IdentityHome
 {
     // Static variable pointed at the DAO instance
-    private static IIdentityDAO _dao = SpringContextService.getBean( "identitystore.identityDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
+    private static IIdentityDAO _dao = SpringContextService.getBean( IIdentityDAO.BEAN_NAME );
+    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
