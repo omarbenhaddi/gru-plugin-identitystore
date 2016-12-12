@@ -42,6 +42,7 @@ import java.util.Map;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -121,7 +122,7 @@ public final class IdentityStoreRestService
     @GET
     @Produces( MediaType.APPLICATION_JSON )
     public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
+            @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
     {
         try
         {
@@ -206,7 +207,7 @@ public final class IdentityStoreRestService
     @DELETE
     @Produces( MediaType.APPLICATION_JSON )
     public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
+    		@HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
     {
         try
         {
@@ -233,7 +234,7 @@ public final class IdentityStoreRestService
     @GET
     @Path( Constants.DOWNLOAD_FILE_PATH )
     public Response downloadFileAttribute( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey )
+    		@HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey )
     {
         File file = null;
 
