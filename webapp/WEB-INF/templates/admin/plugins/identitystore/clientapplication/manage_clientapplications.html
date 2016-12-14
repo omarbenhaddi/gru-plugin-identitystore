@@ -20,8 +20,6 @@
     
     <@table>
         <tr>
-            <input type="hidden" id="id" name="id"/>
-            <th>#i18n{identitystore.manage_clientapplications.columnId}</th>
             <th>#i18n{identitystore.manage_clientapplications.columnName}</th>
             <th>#i18n{identitystore.manage_clientapplications.columnCode}</th>
             <th>#i18n{portal.util.labelActions}</th>
@@ -29,10 +27,6 @@
         <@tableHeadBodySeparator />
             <#list clientapplication_list as clientapplication >
         <tr>
-            <input type="hidden" id="id" name="id"/>
-            <td>
-                ${clientapplication.id}
-            </td>
             <td>
                 ${clientapplication.name}
             </td>
