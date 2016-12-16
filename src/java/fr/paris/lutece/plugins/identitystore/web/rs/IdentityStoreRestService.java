@@ -115,15 +115,22 @@ public final class IdentityStoreRestService
      *            connection ID
      * @param strCustomerId
      *            customerID
-     * @param strClientAppCode
+     * @param strHeaderClientAppCode
      *            client code
+     * @param strQueryClientAppCode
+     *            client code, will be removed, use Header parameter instead 
      * @return the identity
      */
     @GET
     @Produces( MediaType.APPLICATION_JSON )
     public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
+            @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
+    	String strClientAppCode = strHeaderClientAppCode;
+    	if( StringUtils.isEmpty( strClientAppCode ) )
+    	{
+    		strClientAppCode = strQueryClientAppCode;
+    	}
         try
         {
             IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strConnectionId, strCustomerId, strClientAppCode, _objectMapper );
@@ -207,8 +214,13 @@ public final class IdentityStoreRestService
     @DELETE
     @Produces( MediaType.APPLICATION_JSON )
     public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-    		@HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
+    		@HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
+    	String strClientAppCode = strHeaderClientAppCode;
+    	if( StringUtils.isEmpty( strClientAppCode ) )
+    	{
+    		strClientAppCode = strQueryClientAppCode;
+    	}
         try
         {
             IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strConnectionId, strClientAppCode );
@@ -234,8 +246,13 @@ public final class IdentityStoreRestService
     @GET
     @Path( Constants.DOWNLOAD_FILE_PATH )
     public Response downloadFileAttribute( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-    		@HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey )
+    		@HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode, @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey )
     {
+    	String strClientAppCode = strHeaderClientAppCode;
+    	if( StringUtils.isEmpty( strClientAppCode ) )
+    	{
+    		strClientAppCode = strQueryClientAppCode;
+    	}
         File file = null;
 
         try
