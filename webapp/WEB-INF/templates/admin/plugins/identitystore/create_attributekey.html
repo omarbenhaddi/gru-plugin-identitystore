@@ -1,4 +1,5 @@
 <#include "adminidentities_tabs.html" />
+<#include "/admin/util/editor/editor.html" />
 <@tabs tab="attributekey" />
 
 <@rowBoxHeader i18nTitleKey="identitystore.create_attributekey.title">
@@ -6,9 +7,16 @@
         <@messages errors=errors />
         <input type="hidden" id="id" name="id"/>
         
-        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelName" inputName="name" mandatory=true value="${attributekey.name!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelName.help" />
-        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyName" inputName="key_name" mandatory=true value="${attributekey.keyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyName.help" />
-        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelDescription" inputName="description" mandatory=true value="${attributekey.description!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelDescription.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelName" inputName="name" maxlength=100 mandatory=true value="${attributekey.name!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelName.help" />
+        <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyName" inputName="key_name" maxlength=100 mandatory=true value="${attributekey.keyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyName.help" />
+        <div class="row form-group">
+			<label class="col-xs-12 col-sm-12 col-md-3 col-lg-3 control-label" for="description">#i18n{identitystore.create_attributekey.labelDescription} : </label>
+			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+				<textarea name="description" id="description" rows="5" class="richtext">${attributekey.description!''}</textarea>
+				<p class="help-block">#i18n{identitystore.create_attributekey.labelDescription.help}</p>
+			</div>
+		</div>
+
 		<div class="form-group">
 			<label class="col-xs-12 col-sm-3 col-md-3 col-lg-3 control-label" for="id_key_type">#i18n{identitystore.create_attributekey.labelKeyType} * : </label>
 			<div class="col-xs-12 col-sm-9 col-md-6 col-lg-6">
@@ -18,4 +26,6 @@
         <@actionButtons button1Name="action_createAttributeKey" button2Name="view_manageAttributeKeys"/>
     </form>
 </@rowBoxHeader>
+    
+<@initEditor />
 

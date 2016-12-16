@@ -54,7 +54,6 @@ public class AttributeKey implements Serializable
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.KeyName.notEmpty}" )
     @Size( max = 100, message = "#i18n{identitystore.validation.attributekey.KeyName.size}" )
     private String _strKeyName;
-    @NotEmpty( message = "#i18n{identitystore.validation.attributekey.Description.notEmpty}" )
     private String _strDescription;
     private KeyType _keyType;
 

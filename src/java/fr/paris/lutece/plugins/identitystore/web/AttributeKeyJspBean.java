@@ -33,20 +33,22 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
+import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * This class provides the user interface to manage AttributeKey features ( manage, create, modify, remove )
@@ -73,6 +75,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String MARK_ATTRIBUTEKEY_LIST = "attributekey_list";
     private static final String MARK_ATTRIBUTEKEY = "attributekey";
     private static final String MARK_KEYTYPE_LIST = "keytype_list";
+    private static final String MARK_WEBAPP_URL = "webapp_url";
+    private static final String MARK_LOCALE = "locale";
     private static final String JSP_MANAGE_ATTRIBUTEKEYS = "jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp";
 
     // Properties
@@ -133,6 +137,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
         model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale( ) ) );
+        storeRichText( request, model );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_ATTRIBUTEKEY, TEMPLATE_CREATE_ATTRIBUTEKEY, model );
     }
@@ -163,6 +168,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         if ( AttributeKeyHome.findByKey( _attributekey.getKeyName( ) ) != null )
         {
             addError( PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE, getLocale( ) );
+
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
 
@@ -228,6 +234,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
         model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale( ) ) );
+        storeRichText( request, model );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_ATTRIBUTEKEY, TEMPLATE_MODIFY_ATTRIBUTEKEY, model );
     }
@@ -254,5 +261,11 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         addInfo( INFO_ATTRIBUTEKEY_UPDATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
+    }
+
+    private static void storeRichText( HttpServletRequest request, Map<String, Object> model )
+    {
+        model.put( MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );
+        model.put( MARK_LOCALE, AdminUserService.getLocale( request ).getLanguage( ) );
     }
 }
