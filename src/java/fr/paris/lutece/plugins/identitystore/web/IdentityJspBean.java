@@ -115,8 +115,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Session variable to store working values
     private Identity _identity;
     private AttributeKey _attrKeyFirstName = AttributeKeyHome
-            .findByKey( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) );
-    private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) );
+            .findByKey( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_NAME_GIVEN ) );
+    private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_PREFERRED_NAME ) );
 
     /**
      * Build the Manage View

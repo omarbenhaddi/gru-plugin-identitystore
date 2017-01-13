@@ -31,46 +31,20 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.web.request;
+package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.portal.service.util.LuteceService;
 
 /**
- * This class represents a request for IdentityStoreRestServive
+ * IdentityChangeListener
  */
-public abstract class IdentityStoreRequest
+public interface IdentityChangeListener extends LuteceService
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
-
     /**
-     * Valid the request according to parameter
-     * 
-     * @throws AppException
-     *             if request not valid
+     * Process an identity change
+     *
+     * @param identityChange
+     *            The identityChange
      */
-    protected abstract void validRequest( ) throws AppException;
-
-    /**
-     * Specific action for the request
-     * 
-     * @return html/json string response
-     * @throws AppException
-     *             in case of request fail
-     */
-    protected abstract String doSpecificRequest( ) throws AppException;
-
-    /**
-     * Do the request, call the inner validRequest and doSpecificRequest
-     * 
-     * @return html/json string response
-     * @throws AppException
-     *             in case of failure
-     */
-    public String doRequest( ) throws AppException
-    {
-        validRequest( );
-
-        return doSpecificRequest( );
-    }
-
+    void processIdentityChange( IdentityChange identityChange );
 }

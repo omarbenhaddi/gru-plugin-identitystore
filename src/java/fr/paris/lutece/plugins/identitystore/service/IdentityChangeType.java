@@ -31,46 +31,61 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.web.request;
+package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.portal.service.util.AppException;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This class represents a request for IdentityStoreRestServive
+ * This enum represents a type of IdentityChange
+ *
  */
-public abstract class IdentityStoreRequest
+public enum IdentityChangeType
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
+    CREATE( 0 ), UPDATE( 1 ), DELETE( 2 );
 
-    /**
-     * Valid the request according to parameter
-     * 
-     * @throws AppException
-     *             if request not valid
-     */
-    protected abstract void validRequest( ) throws AppException;
+    private static Map<Integer, IdentityChangeType> _mapTypes = new HashMap<Integer, IdentityChangeType>( );
+    private int _nValue;
 
-    /**
-     * Specific action for the request
-     * 
-     * @return html/json string response
-     * @throws AppException
-     *             in case of request fail
-     */
-    protected abstract String doSpecificRequest( ) throws AppException;
-
-    /**
-     * Do the request, call the inner validRequest and doSpecificRequest
-     * 
-     * @return html/json string response
-     * @throws AppException
-     *             in case of failure
-     */
-    public String doRequest( ) throws AppException
+    static
     {
-        validRequest( );
-
-        return doSpecificRequest( );
+        for ( IdentityChangeType identityChangeType : EnumSet.allOf( IdentityChangeType.class ) )
+        {
+            _mapTypes.put( identityChangeType._nValue, identityChangeType );
+        }
     }
 
+    /**
+     * Constructor
+     * 
+     * @param nValue
+     *            the value
+     */
+    IdentityChangeType( int nValue )
+    {
+        _nValue = nValue;
+    }
+
+    /**
+     * Gets the value
+     * 
+     * @return the value
+     */
+    public int getValue( )
+    {
+        return _nValue;
+    }
+
+    /**
+     * Gives the IdentityChangeType for the specified value
+     * 
+     * @param nValue
+     *            the value
+     * @return the IdentityChangeType
+     */
+    public static IdentityChangeType valueOf( int nValue )
+    {
+        return _mapTypes.get( Integer.valueOf( nValue ) );
+    }
 }

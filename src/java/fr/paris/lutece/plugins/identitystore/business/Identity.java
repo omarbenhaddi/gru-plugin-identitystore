@@ -149,9 +149,9 @@ public class Identity implements Serializable
         String strFamilyName = StringUtils.EMPTY;
 
         if ( ( _mapAttributes != null )
-                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ) != null ) )
+                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_PREFERRED_NAME ) ) != null ) )
         {
-            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_LASTNAME_KEY ) ).getValue( );
+            strFamilyName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_PREFERRED_NAME ) ).getValue( );
         }
 
         return strFamilyName;
@@ -167,9 +167,9 @@ public class Identity implements Serializable
         String strFirstName = StringUtils.EMPTY;
 
         if ( ( _mapAttributes != null )
-                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ) != null ) )
+                && ( _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_NAME_GIVEN ) ) != null ) )
         {
-            strFirstName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_FIRSTNAME_KEY ) ).getValue( );
+            strFirstName = _mapAttributes.get( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_NAME_GIVEN ) ).getValue( );
         }
 
         return strFirstName;

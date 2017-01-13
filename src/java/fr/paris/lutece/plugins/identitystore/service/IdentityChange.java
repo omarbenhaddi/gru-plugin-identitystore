@@ -31,46 +31,58 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.web.request;
+package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.plugins.identitystore.business.Identity;
 
 /**
- * This class represents a request for IdentityStoreRestServive
+ * AttributeChange
  */
-public abstract class IdentityStoreRequest
+public class IdentityChange
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
+    // Variables declarations
+    private Identity _identity;
+    private IdentityChangeType _identityChangeType;
 
     /**
-     * Valid the request according to parameter
-     * 
-     * @throws AppException
-     *             if request not valid
+     * Returns the Identity
+     *
+     * @return The Identity
      */
-    protected abstract void validRequest( ) throws AppException;
-
-    /**
-     * Specific action for the request
-     * 
-     * @return html/json string response
-     * @throws AppException
-     *             in case of request fail
-     */
-    protected abstract String doSpecificRequest( ) throws AppException;
-
-    /**
-     * Do the request, call the inner validRequest and doSpecificRequest
-     * 
-     * @return html/json string response
-     * @throws AppException
-     *             in case of failure
-     */
-    public String doRequest( ) throws AppException
+    public Identity getIdentity( )
     {
-        validRequest( );
-
-        return doSpecificRequest( );
+        return _identity;
     }
 
+    /**
+     * Sets the Identity
+     *
+     * @param identity
+     *            The Identity
+     */
+    public void setIdentity( Identity identity )
+    {
+        _identity = identity;
+    }
+
+    /**
+     * Returns the type of the IdentityChangeType
+     *
+     * @return The IdentityChangeType
+     */
+    public IdentityChangeType getChangeType( )
+    {
+        return _identityChangeType;
+    }
+
+    /**
+     * Sets the type of the IdentityChange
+     *
+     * @param identityChangeType
+     *            The IdentityChangeType
+     */
+    public void setChangeType( IdentityChangeType identityChangeType )
+    {
+        _identityChangeType = identityChangeType;
+    }
 }

@@ -42,8 +42,15 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
+import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
+import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.service.Constants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
@@ -54,8 +61,8 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.Timestamp;
-
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,12 +106,15 @@ import java.util.Map;
 public final class IdentityStoreService
 {
     // Beans
-    private static final String BEAN_LISTENERS_LIST = "identitystore.changelisteners.list";
+    private static final String BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST = "identitystore.attributes.changelisteners.list";
+    private static final String BEAN_IDENTITY_CHANGE_LISTENERS_LIST = "identitystore.identity.changelisteners.list";
     private static final String BEAN_APPLICATION_CODE_DELETE_AUTHORIZED_LIST = "identitystore.application.code.delete.authorized.list";
 
     // Other constants
+    private static final String ERROR_NO_IDENTITY_PROVIDED = "Neither the guid, nor the cid, nor the identity attributes are provided !!!";
     private static final String ERROR_DELETE_UNAUTHORIZED = "Provided application code is not authorized to delete an identity";
-    private static List<AttributeChangeListener> _listListeners;
+    private static List<AttributeChangeListener> _attributeChangelistListeners;
+    private static List<IdentityChangeListener> _identityChangeListListeners;
     private static List<String> _listDeleteAuthorizedApplicationCodes;
 
     /**
@@ -115,16 +125,117 @@ public final class IdentityStoreService
     }
 
     /**
-     * create identity
+     * Creates an identity. If the provided identity is new, a creation of the object {@code Identity} is done, otherwise, the provided identity is used.
      *
-     * @param identity
-     *            identity to create
+     * @param identityChangeDto
+     *            the object {@code IdentityChangeDto} containing the information to perform the creation
+     * @param mapAttachedFiles
+     *            the files to create
+     * @return the created identity
      */
-    public static void createIdentity( Identity identity )
+    public static Identity createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
     {
-        IdentityHome.create( identity );
+        String strCustomerId = identityChangeDto.getIdentity( ).getCustomerId( );
+        String strConnectionId = identityChangeDto.getIdentity( ).getConnectionId( );
+        String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
+        Identity identity = null;
+
+        if ( StringUtils.isNotEmpty( strCustomerId ) )
+        {
+            identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
+
+            if ( identity == null )
+            {
+                throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
+            }
+        }
+        else
+        {
+            if ( !StringUtils.isEmpty( strConnectionId ) )
+            {
+                identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
+
+                if ( identity == null )
+                {
+                    identity = IdentityStoreService.createIdentity( strConnectionId );
+                    identity = IdentityStoreService.updateIdentity( identity, identityChangeDto, mapAttachedFiles );
+                }
+            }
+            else
+            {
+                identity = new Identity(  );
+                IdentityHome.create( identity );
+                updateIdentity( identity, identityChangeDto, mapAttachedFiles );
+            }
+        }
+        
+        IdentityChange identityChange = new IdentityChange(  );
+        identityChange.setIdentity( identity );
+        identityChange.setChangeType( IdentityChangeType.valueOf(IdentityChangeType.CREATE.getValue(  ) ) );
+        notifyListenersIdentityChange( identityChange );
+
+        return identity;
     }
 
+    /**
+     * get identity from connectionId or customerId If no identity is found then a new one be created with attributes based on external provider data
+     *
+     * @param strConnectionId
+     *            connection id
+     * @param strCustomerId
+     *            customer id
+     * @param strClientAppCode
+     *            client application code
+     * @return identity , null if no identity found
+     * @throws AppException
+     *             if provided connectionId and customerId are not consistent
+     */
+    public static Identity getOrCreateIdentity( String strConnectionId, String strCustomerId, String strClientAppCode )
+    {
+        Identity identity = null;
+
+        if ( StringUtils.isNotBlank( strConnectionId ) )
+        {
+            identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
+
+            if ( ( identity != null ) && ( StringUtils.isNotEmpty( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
+            {
+                throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND " + Constants.PARAM_ID_CUSTOMER
+                        + "(" + strCustomerId + ")" + " params provided " );
+            }
+
+            if ( identity == null )
+            {
+                try
+                {
+                    identity = IdentityStoreService.createIdentity( strConnectionId );
+                    
+                    IdentityChange identityChange = new IdentityChange(  );
+                    identityChange.setIdentity( identity );
+                    identityChange.setChangeType( IdentityChangeType.valueOf(IdentityChangeType.CREATE.getValue(  ) ) );
+                    notifyListenersIdentityChange( identityChange );
+                }
+                catch( IdentityNotFoundException e )
+                {
+                    // Identity not found in External provider : creation is aborted
+                    AppLogService.info( "Could not create an identity from external source" );
+                }
+            }
+        }
+        else
+        {
+            identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
+        }
+
+        if ( identity == null )
+        {
+            throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND "
+                    + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
+        }
+        
+        return identity;
+    }
+    
     /**
      * returns attributes from connection id
      *
@@ -217,6 +328,149 @@ public final class IdentityStoreService
     }
 
     /**
+     * Initializes an identity from an external source by using the specified connection id
+     *
+     * @param strConnectionId
+     *            the connection id used to initialize the identity
+     * @return the initialized identity
+     * @throws IdentityNotFoundException
+     *             if no identity can be retrieve from external source
+     */
+    private static Identity createIdentity( String strConnectionId ) throws IdentityNotFoundException
+    {
+        IdentityChangeDto identityChangeDtoInitialized = IdentityInfoExternalService.instance( ).getIdentityInfo( strConnectionId );
+
+        Identity identity = new Identity( );
+        identity.setConnectionId( strConnectionId );
+        IdentityHome.create( identity );
+
+        identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ) );
+
+        if ( AppLogService.isDebugEnabled( ) )
+        {
+            AppLogService.debug( "New identity created with provided guid (" + strConnectionId + ". Associated customer id is : " + identity.getCustomerId( )
+                    + ". Associated attributes are : " + identity.getAttributes( ) );
+        }
+        
+        return identity;
+    }
+
+    /**
+     * Updates an existing identity.
+     *
+     * @param identity
+     *            the identity to complete.
+     * @param identityChangeDto
+     *            the object {@code IdentityChangeDto} containing the information to perform the creation
+     * @param mapAttachedFiles
+     *            the files to create
+     * @return the updated identity
+     */
+    public static Identity updateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    {
+        Identity identity = getOrCreateIdentity( identityChangeDto.getIdentity( ).getConnectionId( ), identityChangeDto.getIdentity( ).getCustomerId( ),
+                identityChangeDto.getAuthor( ).getApplicationCode( ) );
+
+        if ( identity == null )
+        {
+            throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "("
+                    + identityChangeDto.getIdentity( ).getConnectionId( ) + ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "("
+                    + identityChangeDto.getIdentity( ).getCustomerId( ) + ")" );
+        }
+        
+        IdentityDto identityDto = identityChangeDto.getIdentity( );
+        AuthorDto authorDto = identityChangeDto.getAuthor( );
+        Map<String, AttributeDto> mapAttributes = identityDto.getAttributes( );
+
+        if ( ( mapAttributes != null ) && !mapAttributes.isEmpty( ) )
+        {
+            IdentityRequestValidator.instance( ).checkIdentityChange( identityChangeDto );
+            IdentityRequestValidator.instance( ).checkAttributes( identityDto, authorDto.getApplicationCode( ), mapAttachedFiles );
+
+            updateAttributes( identity, identityDto, authorDto, mapAttachedFiles );
+        }
+        else
+        {
+            throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
+        }
+
+        IdentityChange identityChange = new IdentityChange(  );
+        identityChange.setIdentity( identity );
+        identityChange.setChangeType( IdentityChangeType.valueOf(IdentityChangeType.UPDATE.getValue(  ) ) );
+        notifyListenersIdentityChange( identityChange );
+        
+        return identity;
+    }
+
+    /**
+     * Updates an existing identity.
+     *
+     * @param identity
+     *            the identity to complete.
+     * @param identityChangeDto
+     *            the object {@code IdentityChangeDto} containing the information to perform the creation
+     * @param mapAttachedFiles
+     *            the files to create
+     * @return the updated identity
+     */
+    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    {
+        IdentityDto identityDto = identityChangeDto.getIdentity( );
+        AuthorDto authorDto = identityChangeDto.getAuthor( );
+        Map<String, AttributeDto> mapAttributes = identityDto.getAttributes( );
+
+        if ( ( mapAttributes != null ) && !mapAttributes.isEmpty( ) )
+        {
+            IdentityRequestValidator.instance( ).checkIdentityChange( identityChangeDto );
+            IdentityRequestValidator.instance( ).checkAttributes( identityDto, authorDto.getApplicationCode( ), mapAttachedFiles );
+
+            updateAttributes( identity, identityDto, authorDto, mapAttachedFiles );
+        }
+        else
+        {
+            throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
+        }
+
+        return identity;
+    }
+
+    /**
+     * check if new identity attributes have errors and returns them
+     *
+     * @param identity
+     *            the identity
+     * @param identityDto
+     *            new identity to update connectionId of identity which will be updated
+     * @param authorDto
+     *            author responsible for modification
+     * @param mapAttachedFiles
+     *            map containing File matching key attribute name
+     *
+     */
+    private static void updateAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto, Map<String, File> mapAttachedFiles )
+    {
+        StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
+        ChangeAuthor author = DtoConverter.getAuthor( authorDto );
+
+        for ( AttributeDto attributeDto : identityDto.getAttributes( ).values( ) )
+        {
+            File file = null;
+            AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey( ) );
+
+            if ( attributeKey.getKeyType( ).equals( KeyType.FILE ) && StringUtils.isNotBlank( attributeDto.getValue( ) ) )
+            {
+                file = mapAttachedFiles.get( attributeDto.getValue( ) );
+            }
+
+            AttributeCertificate certificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
+            setAttribute( identity, attributeDto.getKey( ), attributeDto.getValue( ), file, author, certificate );
+            sb.append( attributeDto.getKey( ) + "," );
+        }
+
+        AppLogService.debug( sb.toString( ) );
+    }
+    
+    /**
      * Removes an identity from the specified connection id
      * 
      * @param strConnectionId
@@ -279,7 +533,7 @@ public final class IdentityStoreService
      * @param certificate
      *            The certificate. May be null
      */
-    public static void setAttribute( Identity identity, String strKey, String strValue, File file, ChangeAuthor author, AttributeCertificate certificate )
+    private static void setAttribute( Identity identity, String strKey, String strValue, File file, ChangeAuthor author, AttributeCertificate certificate )
     {
         AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
         boolean bValueUnchanged = false;
@@ -357,7 +611,7 @@ public final class IdentityStoreService
                 IdentityAttributeHome.update( attribute );
             }
 
-            notifyListeners( change );
+            notifyListenersAttributeChange( change );
         }
 
         identity.getAttributes( ).put( attributeKey.getKeyName( ), attribute );
@@ -452,21 +706,21 @@ public final class IdentityStoreService
     }
 
     /**
-     * Notify a change to all registered listeners
+     * Notify an attribute change to all registered listeners
      *
      * @param change
      *            The change
      */
-    private static void notifyListeners( AttributeChange change )
+    private static void notifyListenersAttributeChange( AttributeChange change )
     {
-        if ( _listListeners == null )
+        if ( _attributeChangelistListeners == null )
         {
-            _listListeners = SpringContextService.getBean( BEAN_LISTENERS_LIST );
+            _attributeChangelistListeners = SpringContextService.getBean( BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST );
 
             StringBuilder sbLog = new StringBuilder( );
             sbLog.append( "IdentityStore - loading listeners  : " );
 
-            for ( AttributeChangeListener listener : _listListeners )
+            for ( AttributeChangeListener listener : _attributeChangelistListeners )
             {
                 sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
             }
@@ -474,9 +728,39 @@ public final class IdentityStoreService
             AppLogService.info( sbLog.toString( ) );
         }
 
-        for ( AttributeChangeListener listener : _listListeners )
+        for ( AttributeChangeListener listener : _attributeChangelistListeners )
         {
             listener.processAttributeChange( change );
         }
     }
+    
+    /**
+     * Notify an identityChange to all registered listeners
+     *
+     * @param identityChange
+     *            The identityChange
+     */
+    private static void notifyListenersIdentityChange( IdentityChange identityChange )
+    {
+        if ( _identityChangeListListeners == null )
+        {
+            _identityChangeListListeners = SpringContextService.getBean( BEAN_IDENTITY_CHANGE_LISTENERS_LIST );
+
+            StringBuilder sbLog = new StringBuilder( );
+            sbLog.append( "IdentityStore - loading listeners  : " );
+
+            for ( IdentityChangeListener listener : _identityChangeListListeners )
+            {
+                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
+            }
+
+            AppLogService.info( sbLog.toString( ) );
+        }
+
+        for ( IdentityChangeListener listener : _identityChangeListListeners )
+        {
+            listener.processIdentityChange( identityChange );
+        }
+    }
+    
 }

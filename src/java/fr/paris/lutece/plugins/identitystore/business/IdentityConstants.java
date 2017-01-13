@@ -40,9 +40,15 @@ package fr.paris.lutece.plugins.identitystore.business;
  */
 public final class IdentityConstants
 {
-    public static final String PROPERTY_ATTRIBUTE_FIRSTNAME_KEY = "attribute.firstname.key";
-    public static final String PROPERTY_ATTRIBUTE_LASTNAME_KEY = "attribute.lastname.key";
-
+    public static final String PROPERTY_APPLICATION_CODE = "identitystore.application.code";
+    public static final String PROPERTY_ATTRIBUTE_USER_NAME_GIVEN = "identitystore.identity.attribute.user.name.given";
+    public static final String PROPERTY_ATTRIBUTE_USER_PREFERRED_NAME = "identitystore.identity.attribute.user.name.preferred-username";
+    public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_ONLINE_EMAIL = "identitystore.identity.attribute.user.home-info.online.email";
+    public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_TELECOM_TELEPHONE_NUMBER = "identitystore.identity.attribute.user.home-info.telecom.telephone.number";
+    public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_TELECOM_MOBILE_NUMBER = "identitystore.identity.attribute.user.home-info.telecom.mobile.number";
+    public static final String PROPERTY_ATTRIBUTE_USER_GENDER = "identitystore.identity.attribute.user.gender";
+    public static final String PROPERTY_ATTRIBUTE_USER_BDATE = "identitystore.identity.attribute.user.bdate";
+    
     /**
      * private constructor
      */

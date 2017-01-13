@@ -42,7 +42,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
@@ -111,41 +110,11 @@ public class IdentityStoreCreateRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        String strCustomerId = _identityChangeDto.getIdentity( ).getCustomerId( );
-        String strConnectionId = _identityChangeDto.getIdentity( ).getConnectionId( );
-        String strClientAppCode = _identityChangeDto.getAuthor( ).getApplicationCode( );
-        Identity identity = null;
-
-        if ( StringUtils.isNotEmpty( strCustomerId ) )
-        {
-            identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
-
-            if ( identity == null )
-            {
-                throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
-            }
-        }
-        else
-        {
-            if ( !StringUtils.isEmpty( strConnectionId ) )
-            {
-                identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
-
-                if ( identity == null )
-                {
-                    identity = createIdentity( strConnectionId );
-                    identity = updateIdentity( identity, _identityChangeDto, _mapAttachedFiles );
-                }
-            }
-            else
-            {
-                identity = createIdentity( _identityChangeDto, _mapAttachedFiles );
-            }
-        }
-
+        Identity identity = IdentityStoreService.createIdentity( _identityChangeDto, _mapAttachedFiles );
+        
         try
         {
-            return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
+            return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, _identityChangeDto.getAuthor( ).getApplicationCode( ) ) );
         }
         catch( JsonProcessingException e )
         {

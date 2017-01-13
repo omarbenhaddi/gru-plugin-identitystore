@@ -37,10 +37,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.paris.lutece.plugins.identitystore.business.Identity;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.web.rs.service.Constants;
 import fr.paris.lutece.portal.service.util.AppException;
 
 /**
@@ -98,13 +97,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        Identity identity = getOrCreateIdentity( _strConnectionId, _strCustomerId, _strClientAppCode );
-
-        if ( identity == null )
-        {
-            throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + _strConnectionId + ")" + " AND "
-                    + Constants.PARAM_ID_CUSTOMER + "(" + _strCustomerId + ")" );
-        }
+        Identity identity = IdentityStoreService.getOrCreateIdentity( _strConnectionId, _strCustomerId, _strClientAppCode );
 
         try
         {

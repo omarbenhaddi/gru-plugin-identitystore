@@ -16,11 +16,17 @@
     <bean id="identitystore.clientApplicationDAO" class="fr.paris.lutece.plugins.identitystore.business.ClientApplicationDAO" />
     <bean id="identitystore.listener.logging" class="fr.paris.lutece.plugins.identitystore.service.listeners.LoggingListener" /> 
     <bean id="identitystore.listener.databaseLogging" class="fr.paris.lutece.plugins.identitystore.service.listeners.DatabaseLoggingListener" />
-    <bean id="identitystore.changelisteners.list" class="java.util.ArrayList">
+    <bean id="identitystore.attributes.changelisteners.list" class="java.util.ArrayList">
         <constructor-arg>
             <list>
                 <ref bean="identitystore.listener.logging" />
                 <ref bean="identitystore.listener.databaseLogging" />
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean id="identitystore.identity.changelisteners.list" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
             </list>
         </constructor-arg>
     </bean>
