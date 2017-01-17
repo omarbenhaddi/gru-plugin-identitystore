@@ -48,7 +48,7 @@ public final class IdentityConstants
     public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_TELECOM_MOBILE_NUMBER = "identitystore.identity.attribute.user.home-info.telecom.mobile.number";
     public static final String PROPERTY_ATTRIBUTE_USER_GENDER = "identitystore.identity.attribute.user.gender";
     public static final String PROPERTY_ATTRIBUTE_USER_BDATE = "identitystore.identity.attribute.user.bdate";
-    
+
     /**
      * private constructor
      */

@@ -163,15 +163,15 @@ public final class IdentityStoreService
             }
             else
             {
-                identity = new Identity(  );
+                identity = new Identity( );
                 IdentityHome.create( identity );
                 updateIdentity( identity, identityChangeDto, mapAttachedFiles );
             }
         }
-        
-        IdentityChange identityChange = new IdentityChange(  );
+
+        IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
-        identityChange.setChangeType( IdentityChangeType.valueOf(IdentityChangeType.CREATE.getValue(  ) ) );
+        identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.CREATE.getValue( ) ) );
         notifyListenersIdentityChange( identityChange );
 
         return identity;
@@ -209,10 +209,10 @@ public final class IdentityStoreService
                 try
                 {
                     identity = IdentityStoreService.createIdentity( strConnectionId );
-                    
-                    IdentityChange identityChange = new IdentityChange(  );
+
+                    IdentityChange identityChange = new IdentityChange( );
                     identityChange.setIdentity( identity );
-                    identityChange.setChangeType( IdentityChangeType.valueOf(IdentityChangeType.CREATE.getValue(  ) ) );
+                    identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.CREATE.getValue( ) ) );
                     notifyListenersIdentityChange( identityChange );
                 }
                 catch( IdentityNotFoundException e )
@@ -232,10 +232,10 @@ public final class IdentityStoreService
             throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND "
                     + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
         }
-        
+
         return identity;
     }
-    
+
     /**
      * returns attributes from connection id
      *
@@ -351,7 +351,7 @@ public final class IdentityStoreService
             AppLogService.debug( "New identity created with provided guid (" + strConnectionId + ". Associated customer id is : " + identity.getCustomerId( )
                     + ". Associated attributes are : " + identity.getAttributes( ) );
         }
-        
+
         return identity;
     }
 
@@ -377,7 +377,7 @@ public final class IdentityStoreService
                     + identityChangeDto.getIdentity( ).getConnectionId( ) + ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "("
                     + identityChangeDto.getIdentity( ).getCustomerId( ) + ")" );
         }
-        
+
         IdentityDto identityDto = identityChangeDto.getIdentity( );
         AuthorDto authorDto = identityChangeDto.getAuthor( );
         Map<String, AttributeDto> mapAttributes = identityDto.getAttributes( );
@@ -394,11 +394,11 @@ public final class IdentityStoreService
             throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
         }
 
-        IdentityChange identityChange = new IdentityChange(  );
+        IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
-        identityChange.setChangeType( IdentityChangeType.valueOf(IdentityChangeType.UPDATE.getValue(  ) ) );
+        identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.UPDATE.getValue( ) ) );
         notifyListenersIdentityChange( identityChange );
-        
+
         return identity;
     }
 
@@ -469,7 +469,7 @@ public final class IdentityStoreService
 
         AppLogService.debug( sb.toString( ) );
     }
-    
+
     /**
      * Removes an identity from the specified connection id
      * 
@@ -733,7 +733,7 @@ public final class IdentityStoreService
             listener.processAttributeChange( change );
         }
     }
-    
+
     /**
      * Notify an identityChange to all registered listeners
      *
@@ -762,5 +762,5 @@ public final class IdentityStoreService
             listener.processIdentityChange( identityChange );
         }
     }
-    
+
 }

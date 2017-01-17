@@ -111,7 +111,7 @@ public class IdentityStoreCreateRequest extends IdentityStoreRequest
     protected String doSpecificRequest( ) throws AppException
     {
         Identity identity = IdentityStoreService.createIdentity( _identityChangeDto, _mapAttachedFiles );
-        
+
         try
         {
             return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, _identityChangeDto.getAuthor( ).getApplicationCode( ) ) );
