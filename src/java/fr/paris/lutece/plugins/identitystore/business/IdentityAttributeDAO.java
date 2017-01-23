@@ -154,10 +154,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             }
         }
         daoUtil.free( );
-        
-        if(identityAttribute != null)
+
+        if ( identityAttribute != null )
         {
-            identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttributeKey ) );        	
+            identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttributeKey ) );
         }
 
         return identityAttribute;
@@ -224,8 +224,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             AttributeCertificate certificate = null;
             if ( nCertificateId != 0 )
             {
-            	certificate = new AttributeCertificate(  );
-            	certificate.setId( nCertificateId );
+                certificate = new AttributeCertificate( );
+                certificate.setId( nCertificateId );
             }
             identityAttribute.setCertificate( certificate );
 
@@ -233,8 +233,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             File attrFile = null;
             if ( nIdFile > 0 )
             {
-            	attrFile = new File(  );
-            	attrFile.setIdFile( nIdFile );
+                attrFile = new File( );
+                attrFile.setIdFile( nIdFile );
             }
             identityAttribute.setFile( attrFile );
 
@@ -242,17 +242,18 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attributesMap.put( attribute.getKeyName( ), identityAttribute );
         }
         daoUtil.free( );
-        
-        for ( String strAttrKey : attributesMap.keySet(  ) )
+
+        for ( String strAttrKey : attributesMap.keySet( ) )
         {
-        	if( attributesMap.get( strAttrKey ).getCertificate(  ) != null )
-        	{
-        		attributesMap.get( strAttrKey ).setCertificate( AttributeCertificateHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getCertificate(  ).getId(  ) ) );
-        	}
-        	if( attributesMap.get( strAttrKey ).getFile(  ) != null )
-        	{
-        		attributesMap.get( strAttrKey ).setFile( FileHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getFile(  ).getIdFile(  ) ) );
-        	}
+            if ( attributesMap.get( strAttrKey ).getCertificate( ) != null )
+            {
+                attributesMap.get( strAttrKey ).setCertificate(
+                        AttributeCertificateHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getCertificate( ).getId( ) ) );
+            }
+            if ( attributesMap.get( strAttrKey ).getFile( ) != null )
+            {
+                attributesMap.get( strAttrKey ).setFile( FileHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getFile( ).getIdFile( ) ) );
+            }
         }
 
         return attributesMap;
@@ -290,8 +291,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             AttributeCertificate certificate = null;
             if ( nCertificateId != 0 )
             {
-            	certificate = new AttributeCertificate(  );
-            	certificate.setId( nCertificateId );
+                certificate = new AttributeCertificate( );
+                certificate.setId( nCertificateId );
             }
             attribute.setCertificate( certificate );
 
@@ -299,8 +300,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             File attrFile = null;
             if ( nIdFile > 0 )
             {
-            	attrFile = new File(  );
-            	attrFile.setIdFile( nIdFile );
+                attrFile = new File( );
+                attrFile.setIdFile( nIdFile );
             }
             attribute.setFile( attrFile );
 
@@ -308,17 +309,18 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attributesMap.put( attributeKey.getKeyName( ), attribute );
         }
         daoUtil.free( );
-        
-        for ( String strAttrKey : attributesMap.keySet(  ) )
+
+        for ( String strAttrKey : attributesMap.keySet( ) )
         {
-        	if( attributesMap.get( strAttrKey ).getCertificate(  ) != null )
-        	{
-        		attributesMap.get( strAttrKey ).setCertificate( AttributeCertificateHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getCertificate(  ).getId(  ) ) );
-        	}
-        	if( attributesMap.get( strAttrKey ).getFile(  ) != null )
-        	{
-        		attributesMap.get( strAttrKey ).setFile( FileHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getFile(  ).getIdFile(  ) ) );
-        	}
+            if ( attributesMap.get( strAttrKey ).getCertificate( ) != null )
+            {
+                attributesMap.get( strAttrKey ).setCertificate(
+                        AttributeCertificateHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getCertificate( ).getId( ) ) );
+            }
+            if ( attributesMap.get( strAttrKey ).getFile( ) != null )
+            {
+                attributesMap.get( strAttrKey ).setFile( FileHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getFile( ).getIdFile( ) ) );
+            }
         }
 
         return attributesMap;
@@ -363,18 +365,18 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attribute = new IdentityAttribute( );
 
             int nIndex = 1;
-            nAttrKey = daoUtil.getInt( nIndex++ );            
+            nAttrKey = daoUtil.getInt( nIndex++ );
             attribute.setValue( daoUtil.getString( nIndex++ ) );
             nCertificateId = daoUtil.getInt( nIndex++ );
-            nIdFile = daoUtil.getInt( nIndex++ );            
+            nIdFile = daoUtil.getInt( nIndex++ );
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
         }
         daoUtil.free( );
-        
-        if( attribute != null )
+
+        if ( attribute != null )
         {
-        	attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttrKey ) );        	
-        	if ( nCertificateId > 0 )
+            attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttrKey ) );
+            if ( nCertificateId > 0 )
             {
                 attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( nCertificateId ) );
             }
