@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.plugins.identitystore.service.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeType;
+import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -132,6 +133,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.executeQuery( );
 
         IdentityAttribute identityAttribute = null;
+        int nAttributeKey = -1;
 
         if ( daoUtil.next( ) )
         {
@@ -140,7 +142,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             int nIndex = 1;
 
             identityAttribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-            identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) ) );
+            nAttributeKey = daoUtil.getInt( nIndex++ );
             identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
             identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
 
@@ -151,8 +153,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
         }
-
         daoUtil.free( );
+        
+        if(identityAttribute != null)
+        {
+            identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttributeKey ) );        	
+        }
 
         return identityAttribute;
     }
@@ -215,27 +221,39 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );
-
+            AttributeCertificate certificate = null;
             if ( nCertificateId != 0 )
             {
-                AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
-                identityAttribute.setCertificate( certificate );
-
-                // attribute.setLevel( certificate.getCertificateLevel( ) );
+            	certificate = new AttributeCertificate(  );
+            	certificate.setId( nCertificateId );
             }
+            identityAttribute.setCertificate( certificate );
 
             int nIdFile = daoUtil.getInt( nIndex++ );
-
+            File attrFile = null;
             if ( nIdFile > 0 )
             {
-                identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
+            	attrFile = new File(  );
+            	attrFile.setIdFile( nIdFile );
             }
+            identityAttribute.setFile( attrFile );
 
             identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
             attributesMap.put( attribute.getKeyName( ), identityAttribute );
         }
-
         daoUtil.free( );
+        
+        for ( String strAttrKey : attributesMap.keySet(  ) )
+        {
+        	if( attributesMap.get( strAttrKey ).getCertificate(  ) != null )
+        	{
+        		attributesMap.get( strAttrKey ).setCertificate( AttributeCertificateHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getCertificate(  ).getId(  ) ) );
+        	}
+        	if( attributesMap.get( strAttrKey ).getFile(  ) != null )
+        	{
+        		attributesMap.get( strAttrKey ).setFile( FileHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getFile(  ).getIdFile(  ) ) );
+        	}
+        }
 
         return attributesMap;
     }
@@ -269,27 +287,39 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );
-
+            AttributeCertificate certificate = null;
             if ( nCertificateId != 0 )
             {
-                AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
-                attribute.setCertificate( certificate );
-
-                // attribute.setLevel( certificate.getCertificateLevel( ) );
+            	certificate = new AttributeCertificate(  );
+            	certificate.setId( nCertificateId );
             }
+            attribute.setCertificate( certificate );
 
             int nIdFile = daoUtil.getInt( nIndex++ );
-
+            File attrFile = null;
             if ( nIdFile > 0 )
             {
-                attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
+            	attrFile = new File(  );
+            	attrFile.setIdFile( nIdFile );
             }
+            attribute.setFile( attrFile );
 
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
             attributesMap.put( attributeKey.getKeyName( ), attribute );
         }
-
         daoUtil.free( );
+        
+        for ( String strAttrKey : attributesMap.keySet(  ) )
+        {
+        	if( attributesMap.get( strAttrKey ).getCertificate(  ) != null )
+        	{
+        		attributesMap.get( strAttrKey ).setCertificate( AttributeCertificateHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getCertificate(  ).getId(  ) ) );
+        	}
+        	if( attributesMap.get( strAttrKey ).getFile(  ) != null )
+        	{
+        		attributesMap.get( strAttrKey ).setFile( FileHome.findByPrimaryKey( attributesMap.get( strAttrKey ).getFile(  ).getIdFile(  ) ) );
+        	}
+        }
 
         return attributesMap;
     }
@@ -321,6 +351,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     public IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin )
     {
         IdentityAttribute attribute = null;
+        int nAttrKey = -1, nCertificateId = -1, nIdFile = -1;
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin );
         daoUtil.setInt( 1, nIdentityId );
         daoUtil.setString( 2, strApplicationCode );
@@ -332,31 +363,26 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attribute = new IdentityAttribute( );
 
             int nIndex = 1;
-
-            attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) ) );
+            nAttrKey = daoUtil.getInt( nIndex++ );            
             attribute.setValue( daoUtil.getString( nIndex++ ) );
-
-            int nCertificateId = daoUtil.getInt( nIndex++ );
-
-            if ( nCertificateId != 0 )
+            nCertificateId = daoUtil.getInt( nIndex++ );
+            nIdFile = daoUtil.getInt( nIndex++ );            
+            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+        }
+        daoUtil.free( );
+        
+        if( attribute != null )
+        {
+        	attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttrKey ) );        	
+        	if ( nCertificateId > 0 )
             {
-                AttributeCertificate certificate = AttributeCertificateHome.findByPrimaryKey( nCertificateId );
-                attribute.setCertificate( certificate );
-
-                // attribute.setLevel( certificate.getCertificateLevel( ) );
+                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( nCertificateId ) );
             }
-
-            int nIdFile = daoUtil.getInt( nIndex++ );
-
             if ( nIdFile > 0 )
             {
                 attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
-
-            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
         }
-
-        daoUtil.free( );
 
         return attribute;
     }

@@ -173,7 +173,6 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
-            ;
             clientApplicationList.add( clientApplication );
         }
 
