@@ -490,11 +490,20 @@ public final class IdentityStoreService
             throw new IdentityStoreException( ERROR_DELETE_UNAUTHORIZED );
         }
 
-        int nIdentityId = IdentityHome.removeByConnectionId( strConnectionId );
+        Identity identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientApplicationCode );
 
-        if ( nIdentityId < 0 )
+        if ( identity == null )
         {
             throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" );
+        }
+        else
+        {
+            IdentityHome.removeByConnectionId( strConnectionId );
+            
+            IdentityChange identityChange = new IdentityChange( );
+            identityChange.setIdentity( identity );
+            identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.DELETE.getValue( ) ) );
+            notifyListenersIdentityChange( identityChange );
         }
     }
 
