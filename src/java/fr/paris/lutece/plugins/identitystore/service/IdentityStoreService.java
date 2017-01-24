@@ -499,7 +499,7 @@ public final class IdentityStoreService
         else
         {
             IdentityHome.removeByConnectionId( strConnectionId );
-            
+
             IdentityChange identityChange = new IdentityChange( );
             identityChange.setIdentity( identity );
             identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.DELETE.getValue( ) ) );
