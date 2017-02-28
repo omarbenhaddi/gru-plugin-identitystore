@@ -195,6 +195,20 @@ public final class IdentityHome
     }
 
     /**
+     * Find by attribute value
+     *
+     * @param strAttributeValue
+     *            The attribute value
+     * @param strClientAppCode
+     *            code of application client which requires infos
+     * @return The Identity
+     */
+    public static List<Identity> findByAttributeValue( String strAttributeValue )
+    {
+        return _dao.selectByAttributeValue( strAttributeValue, _plugin );
+    }
+
+    /**
      * Load the data of all the identity objects and returns them as a list
      *
      * @return the list which contains the data of all the identity objects

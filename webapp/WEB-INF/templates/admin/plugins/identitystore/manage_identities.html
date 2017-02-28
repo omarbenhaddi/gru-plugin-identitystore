@@ -12,16 +12,27 @@
     </@boxHeader>
     <@boxBody>    
     <@messages infos=infos />
+    
+    <form class="form-inline" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
+        <div class="input-group">
+            <input class="form-control" type="text" name="query" placeholder="#i18n{identitystore.manage_identities.searchPlaceHolder}" value="${query!''}" />
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button">
+                    <span class="fa fa-search"></span>
+                </button>
+            </span>
+        </div>
+        <p class="help-block">#i18n{identitystore.manage_identities.search.help}</p>
+    </form>
+    
+    <#if query??>
     <@paginationAdmin paginator=paginator combo=1 />
     <div class="clearfix"></div>
-    
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>#i18n{identitystore.manage_identities.columnFirstName}</th>
-            <th>#i18n{identitystore.manage_identities.columnFamilyName}</th>
-            <th>#i18n{identitystore.manage_identities.columnConnectionId}</th>
             <th>#i18n{identitystore.manage_identities.columnCustomerId}</th>
+            <th>#i18n{identitystore.manage_identities.columnConnectionId}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
@@ -29,16 +40,10 @@
         <tr>
             <input type="hidden" id="id" name="id"/>
             <td>
-                ${identity.firstName!''}
-            </td>
-            <td>
-                ${identity.familyName!''}
+                ${identity.customerId!''}
             </td>
             <td>
                 ${identity.connectionId!''}
-            </td>
-            <td>
-                ${identity.customerId!''}
             </td>
         <td>
             <a href="jsp/admin/plugins/identitystore/ManageIdentities.jsp?view=viewIdentity&id=${identity.id}"
@@ -56,6 +61,7 @@
     </@table>
 
     <@paginationAdmin paginator=paginator />
+    </#if>
 
   </@boxBody>
 </@rowBox>

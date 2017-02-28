@@ -64,7 +64,7 @@ import javax.servlet.http.HttpServletRequest;
 public class IdentityJspBean extends ManageIdentitiesJspBean
 {
     // Templates
-    private static final String TEMPLATE_MANAGE_IDENTITYS = "/admin/plugins/identitystore/manage_identities.html";
+    private static final String TEMPLATE_MANAGE_IDENTITIES = "/admin/plugins/identitystore/manage_identities.html";
     private static final String TEMPLATE_CREATE_IDENTITY = "/admin/plugins/identitystore/create_identity.html";
     private static final String TEMPLATE_MODIFY_IDENTITY = "/admin/plugins/identitystore/modify_identity.html";
     private static final String TEMPLATE_VIEW_IDENTITY = "/admin/plugins/identitystore/view_identity.html";
@@ -75,9 +75,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_FIRST_NAME = "first_name";
     private static final String PARAMETER_FAMILY_NAME = "family_name";
     private static final String PARAMETER_ATTRIBUTE_KEY = "attribute_key";
+    private static final String PARAMETER_QUERY = "query";
 
     // Properties for page titles
-    private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS = "identitystore.manage_identities.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES = "identitystore.manage_identities.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_IDENTITY = "identitystore.modify_identity.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_CREATE_IDENTITY = "identitystore.create_identity.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY = "identitystore.view_change_history.pageTitle";
@@ -86,7 +87,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
     private static final String MARK_ATTRIBUTE_CHANGE_LIST = "attributes_change_list";
-    private static final String JSP_MANAGE_IDENTITYS = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
+    private static final String MARK_QUERY = "query";
+    private static final String JSP_MANAGE_IDENTITIES = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
 
     // Properties
     private static final String MESSAGE_CONFIRM_REMOVE_IDENTITY = "identitystore.message.confirmRemoveIdentity";
@@ -95,7 +97,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String VALIDATION_ATTRIBUTES_PREFIX = "identitystore.model.entity.identity.attribute.";
 
     // Views
-    private static final String VIEW_MANAGE_IDENTITYS = "manageIdentitys";
+    private static final String VIEW_MANAGE_IDENTITIES = "manageIdentitys";
     private static final String VIEW_CREATE_IDENTITY = "createIdentity";
     private static final String VIEW_MODIFY_IDENTITY = "modifyIdentity";
     private static final String VIEW_IDENTITY = "viewIdentity";
@@ -114,6 +116,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     // Session variable to store working values
     private Identity _identity;
+    private String _strQuery;
     private AttributeKey _attrKeyFirstName = AttributeKeyHome.findByKey( AppPropertiesService
             .getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_NAME_GIVEN ) );
     private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService
@@ -126,15 +129,31 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
      *            The HTTP request
      * @return The page
      */
-    @View( value = VIEW_MANAGE_IDENTITYS, defaultView = true )
+    @View( value = VIEW_MANAGE_IDENTITIES, defaultView = true )
     public String getManageIdentitys( HttpServletRequest request )
     {
         _identity = null;
+        String strQuery = request.getParameter( PARAMETER_QUERY );
 
-        List<Identity> listIdentitys = IdentityHome.getIdentitysList( );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentitys, JSP_MANAGE_IDENTITYS );
+        if( strQuery != null )
+        {
+            _strQuery = strQuery;
+        }
+        
+        List<Identity> listIdentities;
+        if( _strQuery != null )
+        {
+            listIdentities = IdentityHome.findByAttributeValue( _strQuery );
+        }    
+        else
+        {
+            listIdentities = new ArrayList<Identity>();
+        }
+       
+        Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentities, JSP_MANAGE_IDENTITIES );
+        model.put( MARK_QUERY, _strQuery );
 
-        return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITYS, TEMPLATE_MANAGE_IDENTITYS, model );
+        return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES, TEMPLATE_MANAGE_IDENTITIES, model );
     }
 
     /**
@@ -178,7 +197,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
         addInfo( INFO_IDENTITY_CREATED, getLocale( ) );
 
-        return redirectView( request, VIEW_MANAGE_IDENTITYS );
+        return redirectView( request, VIEW_MANAGE_IDENTITIES );
     }
 
     /**
@@ -244,7 +263,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityHome.remove( nId );
         addInfo( INFO_IDENTITY_REMOVED, getLocale( ) );
 
-        return redirectView( request, VIEW_MANAGE_IDENTITYS );
+        return redirectView( request, VIEW_MANAGE_IDENTITIES );
     }
 
     /**
@@ -293,7 +312,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
         addInfo( INFO_IDENTITY_UPDATED, getLocale( ) );
 
-        return redirectView( request, VIEW_MANAGE_IDENTITYS );
+        return redirectView( request, VIEW_MANAGE_IDENTITIES );
     }
 
     /**
