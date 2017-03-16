@@ -6,7 +6,7 @@ DELETE FROM identitystore_attribute;
 DELETE FROM identitystore_identity;
 
 INSERT INTO identitystore_attribute (id_attribute, key_name, name, description, key_type) VALUES
-	(1, 'gender', 'Genre', '0:Non défini 1:Homme 2:Femme', 0),
+	(1, 'gender', 'Genre', '0:Non défini /  1:Homme / 2:Femme', 0),
 	(2, 'email', 'Email', '', 0),
 	(3, 'birthdate', 'Date de naissance', 'au format DD/MM/YYYY', 0),
 	(4, 'birthplace', 'Lieu de naissance', '', 0),
@@ -24,7 +24,7 @@ INSERT INTO identitystore_attribute (id_attribute, key_name, name, description, 
 	(16, 'address_stair','Etage','Champ d''adresse : Etage, Numéro d appartement',0),
 	(17, 'address_postal_code','Code postal','Champ d''adresse : code postal',0),
 	(18, 'address_city','Ville','Champ d''adresse : ville',0),
-        (30, 'fc_given_name' , '(FC) Prénoms' , 'FranceConnect - Liste des prénoms - Format Pivot', 0 ),
+        (30, 'fc_given_name' , '(FC) Prénoms' , 'Format Pivot FranceConnect - Liste des prénoms', 0 ),
         (31, 'fc_family_name' , '(FC) Nom de naissance' , 'Format Pivot FranceConnect', 0 ),
         (32, 'fc_birthdate' , '(FC) Date de naissance' , 'Format Pivot FranceConnect - format YYYY-MM-DD', 0 ),
         (33, 'fc_gender' , '(FC) Genre' , 'Format Pivot FranceConnect - male / female', 0 ),
