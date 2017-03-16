@@ -6,17 +6,17 @@ DELETE FROM identitystore_attribute;
 DELETE FROM identitystore_identity;
 
 INSERT INTO identitystore_attribute (id_attribute, key_name, name, description, key_type) VALUES
-	(1, 'gender', 'Genre', 'Fait partie du format pivot FranceConnect', 0),
-	(2, 'email', 'Email', 'Champ optionel des IDP FranceConnect', 0),
-	(3, 'birthdate', 'Date de naissance', 'Fait partie du format pivot FranceConnect', 0),
-	(4, 'birthplace', 'Lieu de naissance', 'Code INSEE de la commune ou vide pour l''étranger. Fait partie du format pivot FranceConnect', 0),
+	(1, 'gender', 'Genre', '0:Non défini 1:Homme 2:Femme', 0),
+	(2, 'email', 'Email', '', 0),
+	(3, 'birthdate', 'Date de naissance', 'au format DD/MM/YYYY', 0),
+	(4, 'birthplace', 'Lieu de naissance', '', 0),
 	(5, 'mobile_phone', 'Téléphone portable', 'Réservé pour l''envoi de SMS',  0),
 	(6, 'fixed_phone', 'Téléphone fixe', '',0),
-	(7, 'phone', 'Téléphone fixe ou mobile', 'Champ optionel des IDP FranceConnect', 0),
-	(8, 'preferred_username', 'Nom usuel','Champ optionel des IDP FranceConnect', 0),
-	(9, 'address', 'Adresse postale', 'Champ optionel des IDP FranceConnect', 0),
+	(7, 'phone', 'Téléphone fixe ou mobile', '', 0),
+	(8, 'preferred_username', 'Nom usuel','', 0),
+	(9, 'address', 'Adresse postale', '', 0),
 	(10, 'first_name', 'Prénom', 'Prénom usuel', 0),
-	(11, 'family_name', 'Nom de famille de naissance', 'Fait partie du format pivot FranceConnect', 0),
+	(11, 'family_name', 'Nom de famille de naissance', '', 0),
 	(12, 'address_number','Numéro de rue','Champ d''adresse : numéro de rue ',0),
 	(13, 'address_suffix','Suffixe','Champ d''adresse : suffixe de numéro (bis,ter...)',0),
 	(14, 'address_street','Rue','Champ d''adresse :  rue, avenue...',0),
@@ -24,9 +24,12 @@ INSERT INTO identitystore_attribute (id_attribute, key_name, name, description, 
 	(16, 'address_stair','Etage','Champ d''adresse : Etage, Numéro d appartement',0),
 	(17, 'address_postal_code','Code postal','Champ d''adresse : code postal',0),
 	(18, 'address_city','Ville','Champ d''adresse : ville',0),
-	(19, 'given_name', 'Prénoms', 'Fait partie du format pivot FranceConnect', 0);
-	
-
+        (30, 'fc_given_name' , '(FC) Prénoms' , 'FranceConnect - Liste des prénoms - Format Pivot', 0 ),
+        (31, 'fc_family_name' , '(FC) Nom de naissance' , 'Format Pivot FranceConnect', 0 ),
+        (32, 'fc_birthdate' , '(FC) Date de naissance' , 'Format Pivot FranceConnect - format YYYY-MM-DD', 0 ),
+        (33, 'fc_gender' , '(FC) Genre' , 'Format Pivot FranceConnect - male / female', 0 ),
+        (34, 'fc_birthplace' , '(FC) Lieu de naissance' , 'Format Pivot FranceConnect - Code INSEE du lieu de naissance (ou une chaîne vide si la personne est née à l\'étranger)', 0 ),
+        (35, 'fc_birthcountry' , '(FC) Pays de naissance' , 'Format Pivot FranceConnect - Code INSEE du pays de naissance' , 0 );
 
 INSERT INTO identitystore_identity (id_identity, connection_id, customer_id ) VALUES
 	(1, 'azerty', '3F2504E0-4F89-11D3-9A0C-0305E82C3301' );
