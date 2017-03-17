@@ -58,8 +58,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE customer_id = ?";
     private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity FROM identitystore_identity WHERE connection_id = ?";
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id "
-                + " FROM identitystore_identity a,  identitystore_identity_attribute b "
-                + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
+            + " FROM identitystore_identity a,  identitystore_identity_attribute b " + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
 
     /**
      * Generates a new primary key
@@ -321,7 +320,7 @@ public final class IdentityDAO implements IIdentityDAO
 
         return identity;
     }
-    
+
     /**
      * {@inheritDoc }
      */
@@ -331,7 +330,7 @@ public final class IdentityDAO implements IIdentityDAO
         List<Identity> listIdentities = new ArrayList<Identity>( );
         String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTE;
         String strValue = strAttributeValue;
-        if( strAttributeValue.contains( "*" ))
+        if ( strAttributeValue.contains( "*" ) )
         {
             strValue = strValue.replace( '*', '%' );
             strSQL += " LIKE ?";
@@ -340,7 +339,7 @@ public final class IdentityDAO implements IIdentityDAO
         {
             strSQL += " = ?";
         }
-        DAOUtil daoUtil = new DAOUtil( strSQL , plugin );
+        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
         daoUtil.setString( 1, strValue );
         daoUtil.executeQuery( );
 

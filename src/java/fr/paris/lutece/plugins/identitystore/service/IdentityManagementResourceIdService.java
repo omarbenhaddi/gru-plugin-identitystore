@@ -69,11 +69,11 @@ public class IdentityManagementResourceIdService extends ResourceIdService
         setPluginName( IdentityStorePlugin.PLUGIN_NAME );
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void register()
+    public void register( )
     {
         ResourceType rt = new ResourceType( );
         rt.setResourceIdServiceClass( IdentityManagementResourceIdService.class.getName( ) );
@@ -96,29 +96,29 @@ public class IdentityManagementResourceIdService extends ResourceIdService
         p.setPermissionTitleKey( PROPERTY_LABEL_DELETE_IDENTITY );
         rt.registerPermission( p );
 
-        ResourceTypeManager.registerResourceType( rt );	    
+        ResourceTypeManager.registerResourceType( rt );
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ReferenceList getResourceIdList( Locale locale )
     {
         return null;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getTitle( String strId, Locale locale )
     {
-	    return StringUtils.EMPTY;
+        return StringUtils.EMPTY;
     }
-    
+
     public static boolean isAuthorized( String strPermission, AdminUser adminUser )
     {
-    	return RBACService.isAuthorized( RESOURCE_TYPE, RBAC.WILDCARD_RESOURCES_ID, strPermission, adminUser );
+        return RBACService.isAuthorized( RESOURCE_TYPE, RBAC.WILDCARD_RESOURCES_ID, strPermission, adminUser );
     }
 }

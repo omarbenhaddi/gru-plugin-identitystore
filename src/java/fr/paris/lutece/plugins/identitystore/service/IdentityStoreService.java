@@ -606,7 +606,8 @@ public final class IdentityStoreService
                 handleFile( attribute, file );
             }
 
-            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author, certificate, bCreate );
+            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author,
+                    certificate, bCreate );
 
             if ( bCreate )
             {

@@ -145,26 +145,29 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         _identity = null;
         String strQuery = request.getParameter( PARAMETER_QUERY );
 
-        if( strQuery != null )
+        if ( strQuery != null )
         {
             _strQuery = strQuery;
         }
-        
+
         List<Identity> listIdentities;
-        if( _strQuery != null )
+        if ( _strQuery != null )
         {
             listIdentities = IdentityHome.findByAttributeValue( _strQuery );
-        }    
+        }
         else
         {
-            listIdentities = new ArrayList<Identity>();
+            listIdentities = new ArrayList<Identity>( );
         }
-       
+
         Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentities, JSP_MANAGE_IDENTITIES );
         model.put( MARK_QUERY, _strQuery );
-        model.put( MARK_HAS_CREATE_ROLE, IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) );
-        model.put( MARK_HAS_MODIFY_ROLE, IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) );
-        model.put( MARK_HAS_DELETE_ROLE, IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) );
+        model.put( MARK_HAS_CREATE_ROLE,
+                IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) );
+        model.put( MARK_HAS_MODIFY_ROLE,
+                IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) );
+        model.put( MARK_HAS_DELETE_ROLE,
+                IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES, TEMPLATE_MANAGE_IDENTITIES, model );
     }
@@ -179,10 +182,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @View( VIEW_CREATE_IDENTITY )
     public String getCreateIdentity( HttpServletRequest request )
     {
-    	if( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) )
-    	{
-    		return redirect( request, AdminMessageService.getMessageUrl( request , Messages.USER_ACCESS_DENIED , AdminMessage.TYPE_STOP ) );    		
-    	}
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
         _identity = ( _identity != null ) ? _identity : new Identity( );
 
         Map<String, Object> model = getModel( );
@@ -201,10 +204,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @Action( ACTION_CREATE_IDENTITY )
     public String doCreateIdentity( HttpServletRequest request )
     {
-    	if( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) )
-    	{
-    		return redirect( request, AdminMessageService.getMessageUrl( request , Messages.USER_ACCESS_DENIED , AdminMessage.TYPE_STOP ) );    		
-    	}
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
         populate( _identity, request );
 
         // Check constraints
@@ -217,16 +220,18 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityAttribute idAttrFirstName = saveFirstNameAttribute( request.getParameter( PARAMETER_FIRST_NAME ) );
         IdentityAttribute idAttrLastName = saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
         addInfo( INFO_IDENTITY_CREATED, getLocale( ) );
-        
+
         // notify listeners
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( _identity );
         identityChange.setChangeType( IdentityChangeType.CREATE );
-        IdentityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
-        
-        AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( ).getKeyName( ), idAttrFirstName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrFirstName.getCertificate( ), true );
+        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+
+        AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( ).getKeyName( ),
+                idAttrFirstName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrFirstName.getCertificate( ), true );
         IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeFirstName );
-        AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrLastName.getAttributeKey( ).getKeyName( ), idAttrLastName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrLastName.getCertificate( ), true );
+        AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrLastName.getAttributeKey( ).getKeyName( ),
+                idAttrLastName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrLastName.getCertificate( ), true );
         IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeLastName );
 
         return redirectView( request, VIEW_MANAGE_IDENTITIES );
@@ -263,15 +268,15 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityAttributeHome.create( idAttrLastName );
         return idAttrLastName;
     }
-    
+
     private ChangeAuthor getAuthor( )
     {
-    	ChangeAuthor author = new ChangeAuthor( );
-    	author.setApplication( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_APPLICATION_CODE ) );
-    	author.setEmail( getUser( ).getEmail( ) );
-    	author.setType( AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) );
-    	author.setUserName( getUser( ).getFirstName( ) );
-    	return author;
+        ChangeAuthor author = new ChangeAuthor( );
+        author.setApplication( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_APPLICATION_CODE ) );
+        author.setEmail( getUser( ).getEmail( ) );
+        author.setType( AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) );
+        author.setUserName( getUser( ).getFirstName( ) );
+        return author;
     }
 
     /**
@@ -284,10 +289,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @Action( ACTION_CONFIRM_REMOVE_IDENTITY )
     public String getConfirmRemoveIdentity( HttpServletRequest request )
     {
-    	if( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) )
-    	{
-    		return redirect( request, AdminMessageService.getMessageUrl( request , Messages.USER_ACCESS_DENIED , AdminMessage.TYPE_STOP ) );    		
-    	}
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_IDENTITY ) );
         url.addParameter( PARAMETER_ID_IDENTITY, nId );
@@ -307,15 +312,15 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @Action( ACTION_REMOVE_IDENTITY )
     public String doRemoveIdentity( HttpServletRequest request )
     {
-    	if( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) )
-    	{
-    		return redirect( request, AdminMessageService.getMessageUrl( request , Messages.USER_ACCESS_DENIED , AdminMessage.TYPE_STOP ) );    		
-    	}
-    	int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
-    	Identity identity = IdentityHome.findByPrimaryKey( nId );
-    	IdentityHome.remove( nId );
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
+        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
+        Identity identity = IdentityHome.findByPrimaryKey( nId );
+        IdentityHome.remove( nId );
         addInfo( INFO_IDENTITY_REMOVED, getLocale( ) );
-        
+
         // notify listeners
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
@@ -335,10 +340,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @View( VIEW_MODIFY_IDENTITY )
     public String getModifyIdentity( HttpServletRequest request )
     {
-    	if( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) )
-    	{
-    		return redirect( request, AdminMessageService.getMessageUrl( request , Messages.USER_ACCESS_DENIED , AdminMessage.TYPE_STOP ) );    		
-    	}
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
 
         if ( ( _identity == null ) || ( _identity.getId( ) != nId ) )
@@ -362,10 +367,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @Action( ACTION_MODIFY_IDENTITY )
     public String doModifyIdentity( HttpServletRequest request )
     {
-    	if( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) )
-    	{
-    		return redirect( request, AdminMessageService.getMessageUrl( request , Messages.USER_ACCESS_DENIED , AdminMessage.TYPE_STOP ) );    		
-    	}
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
         populate( _identity, request );
 
         // Check constraints
@@ -377,39 +382,42 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityHome.update( _identity );
         IdentityAttribute idAttrFirstName = _identity.getAttributes( ).get( _attrKeyFirstName.getKeyName( ) );
         String strRequestFirstName = request.getParameter( PARAMETER_FIRST_NAME );
-        boolean bUpdateFirstName = ! StringUtils.equals( idAttrFirstName.getValue( ), strRequestFirstName );
-        if( bUpdateFirstName )
+        boolean bUpdateFirstName = !StringUtils.equals( idAttrFirstName.getValue( ), strRequestFirstName );
+        if ( bUpdateFirstName )
         {
-        	idAttrFirstName.setValue( strRequestFirstName );
-        	IdentityAttributeHome.update( idAttrFirstName );
-        	_identity.getAttributes( ).put( _attrKeyFirstName.getKeyName( ), idAttrFirstName );
+            idAttrFirstName.setValue( strRequestFirstName );
+            IdentityAttributeHome.update( idAttrFirstName );
+            _identity.getAttributes( ).put( _attrKeyFirstName.getKeyName( ), idAttrFirstName );
         }
         IdentityAttribute idAttrLastName = _identity.getAttributes( ).get( _attrKeyLastName.getKeyName( ) );
         String strRequestLastName = request.getParameter( PARAMETER_FAMILY_NAME );
-        boolean bUpdateLastName = ! StringUtils.equals( idAttrLastName.getValue( ), strRequestLastName );
-        if( bUpdateLastName )
+        boolean bUpdateLastName = !StringUtils.equals( idAttrLastName.getValue( ), strRequestLastName );
+        if ( bUpdateLastName )
         {
-        	idAttrLastName.setValue( strRequestLastName );
-        	IdentityAttributeHome.update( idAttrLastName );
-        	_identity.getAttributes( ).put( _attrKeyLastName.getKeyName( ), idAttrLastName );
+            idAttrLastName.setValue( strRequestLastName );
+            IdentityAttributeHome.update( idAttrLastName );
+            _identity.getAttributes( ).put( _attrKeyLastName.getKeyName( ), idAttrLastName );
         }
         addInfo( INFO_IDENTITY_UPDATED, getLocale( ) );
-        
+
         // notify listeners
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( _identity );
         identityChange.setChangeType( IdentityChangeType.UPDATE );
         IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
-        
-        if( bUpdateFirstName )
+
+        if ( bUpdateFirstName )
         {
-        	AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( ).getKeyName( ), idAttrFirstName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrFirstName.getCertificate( ), false );
-        	IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeFirstName );
+            AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( )
+                    .getKeyName( ), idAttrFirstName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrFirstName.getCertificate( ), false );
+            IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeFirstName );
         }
-        if( bUpdateLastName )
+        if ( bUpdateLastName )
         {
-        	AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrLastName.getAttributeKey( ).getKeyName( ), idAttrLastName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrLastName.getCertificate( ), false );
-        	IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeLastName );
+            AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity,
+                    idAttrLastName.getAttributeKey( ).getKeyName( ), idAttrLastName.getValue( ), StringUtils.EMPTY, getAuthor( ),
+                    idAttrLastName.getCertificate( ), false );
+            IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeLastName );
         }
 
         return redirectView( request, VIEW_MANAGE_IDENTITIES );

@@ -67,13 +67,14 @@ public final class IdentityStoreNotifyListenerService
     private IdentityStoreNotifyListenerService( )
     {
     }
+
     /**
      * Notify an attribute change to all registered listeners
      *
      * @param change
      *            The change
      */
-	public static void notifyListenersAttributeChange( AttributeChange change )
+    public static void notifyListenersAttributeChange( AttributeChange change )
     {
         if ( _attributeChangelistListeners == null )
         {
@@ -124,7 +125,6 @@ public final class IdentityStoreNotifyListenerService
             listener.processIdentityChange( identityChange );
         }
     }
-
 
     /**
      * create and return an AttributeChange from input params

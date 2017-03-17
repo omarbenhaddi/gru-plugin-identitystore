@@ -148,11 +148,14 @@ public interface IIdentityDAO
      * @return The identity ID
      */
     int selectIdByConnectionId( String strConnectionId, Plugin plugin );
-    
-    /** 
+
+    /**
      * Find by Attribute value
-     * @param strAttributeValue The value to match
-     * @param plugin The plugin
+     * 
+     * @param strAttributeValue
+     *            The value to match
+     * @param plugin
+     *            The plugin
      * @return The identity
      */
     List<Identity> selectByAttributeValue( String strAttributeValue, Plugin plugin );
