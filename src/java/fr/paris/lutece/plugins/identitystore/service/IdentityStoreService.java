@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
+import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
@@ -106,15 +107,11 @@ import java.util.Map;
 public final class IdentityStoreService
 {
     // Beans
-    private static final String BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST = "identitystore.attributes.changelisteners.list";
-    private static final String BEAN_IDENTITY_CHANGE_LISTENERS_LIST = "identitystore.identity.changelisteners.list";
     private static final String BEAN_APPLICATION_CODE_DELETE_AUTHORIZED_LIST = "identitystore.application.code.delete.authorized.list";
 
     // Other constants
     private static final String ERROR_NO_IDENTITY_PROVIDED = "Neither the guid, nor the cid, nor the identity attributes are provided !!!";
     private static final String ERROR_DELETE_UNAUTHORIZED = "Provided application code is not authorized to delete an identity";
-    private static List<AttributeChangeListener> _attributeChangelistListeners;
-    private static List<IdentityChangeListener> _identityChangeListListeners;
     private static List<String> _listDeleteAuthorizedApplicationCodes;
 
     /**
@@ -151,7 +148,7 @@ public final class IdentityStoreService
         }
         else
         {
-            if ( !StringUtils.isEmpty( strConnectionId ) )
+            if ( StringUtils.isNotEmpty( strConnectionId ) )
             {
                 identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
@@ -171,8 +168,8 @@ public final class IdentityStoreService
 
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
-        identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.CREATE.getValue( ) ) );
-        notifyListenersIdentityChange( identityChange );
+        identityChange.setChangeType( IdentityChangeType.CREATE );
+        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
         return identity;
     }
@@ -213,7 +210,7 @@ public final class IdentityStoreService
                     IdentityChange identityChange = new IdentityChange( );
                     identityChange.setIdentity( identity );
                     identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.CREATE.getValue( ) ) );
-                    notifyListenersIdentityChange( identityChange );
+                    IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
                 }
                 catch( IdentityNotFoundException e )
                 {
@@ -397,7 +394,7 @@ public final class IdentityStoreService
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
         identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.UPDATE.getValue( ) ) );
-        notifyListenersIdentityChange( identityChange );
+        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
         return identity;
     }
@@ -503,7 +500,7 @@ public final class IdentityStoreService
             IdentityChange identityChange = new IdentityChange( );
             identityChange.setIdentity( identity );
             identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.DELETE.getValue( ) ) );
-            notifyListenersIdentityChange( identityChange );
+            IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
         }
     }
 
@@ -609,7 +606,7 @@ public final class IdentityStoreService
                 handleFile( attribute, file );
             }
 
-            AttributeChange change = getAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author, certificate, bCreate );
+            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author, certificate, bCreate );
 
             if ( bCreate )
             {
@@ -620,63 +617,10 @@ public final class IdentityStoreService
                 IdentityAttributeHome.update( attribute );
             }
 
-            notifyListenersAttributeChange( change );
+            IdentityStoreNotifyListenerService.notifyListenersAttributeChange( change );
         }
 
         identity.getAttributes( ).put( attributeKey.getKeyName( ), attribute );
-    }
-
-    /**
-     * create and return an AttributeChange from input params
-     *
-     * @param identity
-     *            modified identity
-     * @param strKey
-     *            attribute key which is modified
-     * @param strValue
-     *            attribute new value
-     * @param strOldValue
-     *            attribute old value
-     * @param author
-     *            author of change
-     * @param certificate
-     *            attribute certificate if it s a certification case
-     * @param bIsCreation
-     *            true if attribute is a new one, false if it s an update
-     * @return AttributeChange from input params
-     */
-    private static AttributeChange getAttributeChange( Identity identity, String strKey, String strValue, String strOldValue, ChangeAuthor author,
-            AttributeCertificate certificate, boolean bIsCreation )
-    {
-        AttributeChange change = new AttributeChange( );
-        change.setIdentityId( identity.getId( ) );
-        change.setIdentityConnectionId( identity.getConnectionId( ) );
-        change.setCustomerId( identity.getCustomerId( ) );
-        change.setIdentityName( identity.getFirstName( ) + " " + identity.getFamilyName( ) );
-        change.setChangedKey( strKey );
-        change.setOldValue( strOldValue );
-        change.setNewValue( strValue );
-        change.setAuthorName( author.getUserName( ) );
-        change.setAuthorId( author.getEmail( ) );
-        change.setAuthorService( author.getApplication( ) );
-        change.setAuthorType( author.getType( ) );
-        change.setDateChange( new Timestamp( ( new Date( ) ).getTime( ) ) );
-
-        if ( certificate != null )
-        {
-            change.setCertifier( certificate.getCertifier( ) );
-        }
-
-        if ( bIsCreation )
-        {
-            change.setChangeType( AttributeChangeType.CREATE );
-        }
-        else
-        {
-            change.setChangeType( AttributeChangeType.UPDATE );
-        }
-
-        return change;
     }
 
     /**
@@ -713,63 +657,4 @@ public final class IdentityStoreService
             attribute.setValue( StringUtils.EMPTY );
         }
     }
-
-    /**
-     * Notify an attribute change to all registered listeners
-     *
-     * @param change
-     *            The change
-     */
-    private static void notifyListenersAttributeChange( AttributeChange change )
-    {
-        if ( _attributeChangelistListeners == null )
-        {
-            _attributeChangelistListeners = SpringContextService.getBean( BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST );
-
-            StringBuilder sbLog = new StringBuilder( );
-            sbLog.append( "IdentityStore - loading listeners  : " );
-
-            for ( AttributeChangeListener listener : _attributeChangelistListeners )
-            {
-                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
-            }
-
-            AppLogService.info( sbLog.toString( ) );
-        }
-
-        for ( AttributeChangeListener listener : _attributeChangelistListeners )
-        {
-            listener.processAttributeChange( change );
-        }
-    }
-
-    /**
-     * Notify an identityChange to all registered listeners
-     *
-     * @param identityChange
-     *            The identityChange
-     */
-    private static void notifyListenersIdentityChange( IdentityChange identityChange )
-    {
-        if ( _identityChangeListListeners == null )
-        {
-            _identityChangeListListeners = SpringContextService.getBean( BEAN_IDENTITY_CHANGE_LISTENERS_LIST );
-
-            StringBuilder sbLog = new StringBuilder( );
-            sbLog.append( "IdentityStore - loading listeners  : " );
-
-            for ( IdentityChangeListener listener : _identityChangeListListeners )
-            {
-                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
-            }
-
-            AppLogService.info( sbLog.toString( ) );
-        }
-
-        for ( IdentityChangeListener listener : _identityChangeListListeners )
-        {
-            listener.processIdentityChange( identityChange );
-        }
-    }
-
 }

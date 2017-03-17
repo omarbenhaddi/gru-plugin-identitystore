@@ -36,5 +36,14 @@
             <feature-url>jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp</feature-url>
             <feature-icon-url/>
       </admin-feature>
-    </admin-features>    
+    </admin-features>
+    
+    <!-- RBAC Resources -->
+    <rbac-resource-types>
+        <rbac-resource-type>
+            <rbac-resource-type-class>
+                fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService
+            </rbac-resource-type-class>
+        </rbac-resource-type>
+    </rbac-resource-types>
 </plug-in>

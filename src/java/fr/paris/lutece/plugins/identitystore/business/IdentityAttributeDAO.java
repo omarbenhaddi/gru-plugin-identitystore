@@ -218,6 +218,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             AttributeKey attribute = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
 
             identityAttribute.setAttributeKey( attribute );
+            identityAttribute.setIdIdentity( nIdentityId );
             identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );
@@ -285,6 +286,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
             attribute.setAttributeKey( attributeKey );
+            attribute.setIdIdentity( nIdentityId );
             attribute.setValue( daoUtil.getString( nIndex++ ) );
 
             int nCertificateId = daoUtil.getInt( nIndex++ );
@@ -370,6 +372,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             nCertificateId = daoUtil.getInt( nIndex++ );
             nIdFile = daoUtil.getInt( nIndex++ );
             attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+            attribute.setIdIdentity( nIdentityId );
         }
         daoUtil.free( );
 
