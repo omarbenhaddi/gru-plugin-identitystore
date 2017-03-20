@@ -55,11 +55,15 @@ public class IdentityManagementResourceIdService extends ResourceIdService
     public static final String PERMISSION_CREATE_IDENTITY = "CREATE_IDENTITY";
     public static final String PERMISSION_MODIFY_IDENTITY = "MODIFY_IDENTITY";
     public static final String PERMISSION_DELETE_IDENTITY = "DELETE_IDENTITY";
+    public static final String PERMISSION_VIEW_IDENTITY = "VIEW_IDENTITY";
+    public static final String PERMISSION_ATTRIBUTS_HISTO = "ATTRIBUTS_HISTO";
     public static final String RESOURCE_TYPE = "IDENTITY";
     private static final String PROPERTY_LABEL_RESOURCE_TYPE = "identitystore.identity.resourceType";
     private static final String PROPERTY_LABEL_CREATE_IDENTITY = "identitystore.identity.permission.label.create";
     private static final String PROPERTY_LABEL_MODIFY_IDENTITY = "identitystore.identity.permission.label.modify";
     private static final String PROPERTY_LABEL_DELETE_IDENTITY = "identitystore.identity.permission.label.delete";
+    private static final String PROPERTY_LABEL_VIEW_IDENTITY = "identitystore.identity.permission.label.view";
+    private static final String PROPERTY_LABEL_ATTRIBUTS_HISTO = "identitystore.identity.permission.label.attributs_histo";
 
     /**
      * Constructor
@@ -94,6 +98,16 @@ public class IdentityManagementResourceIdService extends ResourceIdService
         p = new Permission( );
         p.setPermissionKey( PERMISSION_DELETE_IDENTITY );
         p.setPermissionTitleKey( PROPERTY_LABEL_DELETE_IDENTITY );
+        rt.registerPermission( p );
+
+        p = new Permission( );
+        p.setPermissionKey( PERMISSION_VIEW_IDENTITY );
+        p.setPermissionTitleKey( PROPERTY_LABEL_VIEW_IDENTITY );
+        rt.registerPermission( p );
+
+        p = new Permission( );
+        p.setPermissionKey( PERMISSION_ATTRIBUTS_HISTO );
+        p.setPermissionTitleKey( PROPERTY_LABEL_ATTRIBUTS_HISTO );
         rt.registerPermission( p );
 
         ResourceTypeManager.registerResourceType( rt );

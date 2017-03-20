@@ -191,6 +191,7 @@ public final class IdentityAttributeHome
 
     /**
      * get attribute change event in history table
+     * from the newest to the latest change
      *
      * @param strAttributeKey
      *            attributekey

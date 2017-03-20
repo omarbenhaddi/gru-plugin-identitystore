@@ -165,6 +165,7 @@ public interface IIdentityAttributeDAO
 
     /**
      * return list of attribute change history for an identity attribute
+     * from the newest to the latest change
      * 
      * @param nIdentityId
      *            identityId

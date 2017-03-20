@@ -75,7 +75,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, "
             + "author_id, author_email, author_type, author_service, certifier_name "
             + "FROM identitystore_history_identity_attribute "
-            + " WHERE  attribute_key = ? AND id_identity = ?";
+            + " WHERE  attribute_key = ? AND id_identity = ? ORDER BY modification_date DESC";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_history_identity_attribute WHERE id_identity = ?";
 
     /**

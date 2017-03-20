@@ -56,9 +56,12 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.web.constants.Messages;
 import fr.paris.lutece.util.url.UrlItem;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,11 +96,14 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Markers
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
-    private static final String MARK_ATTRIBUTE_CHANGE_LIST = "attributes_change_list";
+    private static final String MARK_ATTRIBUTES_CHANGE_MAP = "attributes_change_map";
+    private static final String MARK_ATTRIBUTES_CURRENT_MAP = "attributes_current_map";
     private static final String MARK_QUERY = "query";
     private static final String MARK_HAS_CREATE_ROLE = "createIdentityRole";
     private static final String MARK_HAS_MODIFY_ROLE = "modifyIdentityRole";
     private static final String MARK_HAS_DELETE_ROLE = "deleteIdentityRole";
+    private static final String MARK_HAS_VIEW_ROLE = "viewIdentityRole";
+    private static final String MARK_HAS_ATTRIBUTS_HISTO_ROLE = "histoAttributsRole";
     private static final String JSP_MANAGE_IDENTITIES = "jsp/admin/plugins/identitystore/ManageIdentities.jsp";
 
     // Properties
@@ -168,6 +174,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_MODIFY_IDENTITY, getUser( ) ) );
         model.put( MARK_HAS_DELETE_ROLE,
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_DELETE_IDENTITY, getUser( ) ) );
+        model.put( MARK_HAS_VIEW_ROLE,
+                IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_VIEW_IDENTITY, getUser( ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES, TEMPLATE_MANAGE_IDENTITIES, model );
     }
@@ -381,8 +389,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         IdentityHome.update( _identity );
         IdentityAttribute idAttrFirstName = _identity.getAttributes( ).get( _attrKeyFirstName.getKeyName( ) );
+        String strCurrentFirstName = idAttrFirstName.getValue( );
         String strRequestFirstName = request.getParameter( PARAMETER_FIRST_NAME );
-        boolean bUpdateFirstName = !StringUtils.equals( idAttrFirstName.getValue( ), strRequestFirstName );
+        boolean bUpdateFirstName = !StringUtils.equals( strCurrentFirstName, strRequestFirstName );
         if ( bUpdateFirstName )
         {
             idAttrFirstName.setValue( strRequestFirstName );
@@ -390,8 +399,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             _identity.getAttributes( ).put( _attrKeyFirstName.getKeyName( ), idAttrFirstName );
         }
         IdentityAttribute idAttrLastName = _identity.getAttributes( ).get( _attrKeyLastName.getKeyName( ) );
+        String strCurrentLastName = idAttrLastName.getValue( );
         String strRequestLastName = request.getParameter( PARAMETER_FAMILY_NAME );
-        boolean bUpdateLastName = !StringUtils.equals( idAttrLastName.getValue( ), strRequestLastName );
+        boolean bUpdateLastName = !StringUtils.equals( strCurrentLastName, strRequestLastName );
         if ( bUpdateLastName )
         {
             idAttrLastName.setValue( strRequestLastName );
@@ -409,13 +419,13 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         if ( bUpdateFirstName )
         {
             AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( )
-                    .getKeyName( ), idAttrFirstName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrFirstName.getCertificate( ), false );
+                    .getKeyName( ), idAttrFirstName.getValue( ), strCurrentFirstName, getAuthor( ), idAttrFirstName.getCertificate( ), false );
             IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeFirstName );
         }
         if ( bUpdateLastName )
         {
             AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity,
-                    idAttrLastName.getAttributeKey( ).getKeyName( ), idAttrLastName.getValue( ), StringUtils.EMPTY, getAuthor( ),
+                    idAttrLastName.getAttributeKey( ).getKeyName( ), idAttrLastName.getValue( ), strCurrentLastName, getAuthor( ),
                     idAttrLastName.getCertificate( ), false );
             IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeLastName );
         }
@@ -433,12 +443,18 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @View( VIEW_IDENTITY )
     public String getViewIdentity( HttpServletRequest request )
     {
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_VIEW_IDENTITY, getUser( ) ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
 
         _identity = IdentityHome.findByPrimaryKey( nId );
 
         Map<String, Object> model = getModel( );
         model.put( MARK_IDENTITY, _identity );
+        model.put( MARK_HAS_ATTRIBUTS_HISTO_ROLE,
+                IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_ATTRIBUTS_HISTO, getUser( ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITY, TEMPLATE_VIEW_IDENTITY, model );
     }
@@ -453,16 +469,28 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @View( value = VIEW_ATTRIBUTE_HISTORY )
     public String getAttributeHistoryView( HttpServletRequest request )
     {
-        String strAttributeKey = request.getParameter( PARAMETER_ATTRIBUTE_KEY );
-        List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>( );
-
-        if ( ( _identity != null ) && StringUtils.isNotBlank( strAttributeKey ) )
+        if ( !IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_ATTRIBUTS_HISTO, getUser( ) ) )
         {
-            lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey );
+            return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
+        }
+        //here we use a LinkedHashMap to have same attributs order as in viewIdentity 
+        Map<String, List<AttributeChange>> mapAttributesChange = new LinkedHashMap<String, List<AttributeChange>>( );
+        Map<String, IdentityAttribute> mapCurrentAttributes = new HashMap<String, IdentityAttribute>( );
+
+        if ( _identity != null && MapUtils.isNotEmpty( _identity.getAttributes( ) ) )
+        {
+        	for ( String strAttributeKey : _identity.getAttributes( ).keySet( ) )
+            {
+        		mapCurrentAttributes.put( strAttributeKey, _identity.getAttributes( ).get( strAttributeKey ) );
+            	List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>( );
+                lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey );
+                mapAttributesChange.put( strAttributeKey, lstAttributeChange );
+            }
         }
 
         Map<String, Object> model = getModel( );
-        model.put( MARK_ATTRIBUTE_CHANGE_LIST, lstAttributeChange );
+        model.put( MARK_ATTRIBUTES_CHANGE_MAP, mapAttributesChange );
+        model.put( MARK_ATTRIBUTES_CURRENT_MAP, mapCurrentAttributes );
 
         return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_ATTRIBUTE_HISTORY, model );
     }
