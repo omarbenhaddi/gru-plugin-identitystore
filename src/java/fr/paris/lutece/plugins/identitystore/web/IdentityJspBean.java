@@ -473,16 +473,16 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED, AdminMessage.TYPE_STOP ) );
         }
-        //here we use a LinkedHashMap to have same attributs order as in viewIdentity 
+        // here we use a LinkedHashMap to have same attributs order as in viewIdentity
         Map<String, List<AttributeChange>> mapAttributesChange = new LinkedHashMap<String, List<AttributeChange>>( );
         Map<String, IdentityAttribute> mapCurrentAttributes = new HashMap<String, IdentityAttribute>( );
 
         if ( _identity != null && MapUtils.isNotEmpty( _identity.getAttributes( ) ) )
         {
-        	for ( String strAttributeKey : _identity.getAttributes( ).keySet( ) )
+            for ( String strAttributeKey : _identity.getAttributes( ).keySet( ) )
             {
-        		mapCurrentAttributes.put( strAttributeKey, _identity.getAttributes( ).get( strAttributeKey ) );
-            	List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>( );
+                mapCurrentAttributes.put( strAttributeKey, _identity.getAttributes( ).get( strAttributeKey ) );
+                List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>( );
                 lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey );
                 mapAttributesChange.put( strAttributeKey, lstAttributeChange );
             }
