@@ -247,6 +247,43 @@
                 }
             }
         },
+        "/certify": {
+            "post": {
+                "description": "certify `Identity` attributes.\n",
+                "Consumes": [
+                    "multipart/form-data"
+                ],
+                "Produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                        "in": "body",
+                        "name": "body",
+                        "description": "identity attributes to certify",
+                        "required": true,
+                        "schema": {
+                            "type": "json",
+                            "todo": "todo" 
+                        }
+                    }],
+                "responses": {
+                    "200": {
+                        "description": "Successful response"
+                    },
+                    "400": {
+                        "description": "Bad request, input parameters are invalid",
+                        "examples": {
+                            "application/json": {
+                                "response": {
+                                    "message": "connection_id is null or empty",
+                                    "status": "Bad Request"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/identity/file/": {
             "get": {
                 "description": "Gets an attribute file for a given parameter\n",

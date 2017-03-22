@@ -658,4 +658,11 @@ public final class IdentityStoreService
             attribute.setValue( StringUtils.EMPTY );
         }
     }
+    
+    public static void certifyAttributes( IdentityChangeDto _identityChangeDto )
+    {
+        
+    }
+
+    
 }
