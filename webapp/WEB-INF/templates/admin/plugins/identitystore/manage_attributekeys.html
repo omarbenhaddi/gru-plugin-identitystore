@@ -40,14 +40,14 @@
             </td>
 			<#else>
             <td>
-                ${attributekey.keyName}
+                ${attributekey.keyName!''}
             </td>
             </#if>
             <td>
-                ${attributekey.description}
+                ${attributekey.description!''}
             </td>
             <td>
-                ${attributekey.keyType.defaultLabel}
+                ${attributekey.keyType.defaultLabel!''}
             </td>
         <td>
             <a href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp?view=modifyAttributeKey&id=${attributekey.id}"
