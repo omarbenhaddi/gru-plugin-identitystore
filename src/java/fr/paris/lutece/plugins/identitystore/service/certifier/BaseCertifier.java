@@ -71,9 +71,7 @@ public class BaseCertifier implements Certifier
     }
 
     /**
-     * Returns the Code
-     *
-     * @return The Code
+     * @{@inheritDoc}
      */
     public String getCode()
     {
@@ -178,6 +176,15 @@ public class BaseCertifier implements Certifier
     public void setCertifiableAttributesList( List list )
     {
         _listCertifiableAttributes = list;
+    }
+    
+    /**
+     * @{@inheritDoc}
+     */
+    @Override
+    public List<String> getCertifiableAttributesList( )
+    {
+        return _listCertifiableAttributes;
     }
 
     /**

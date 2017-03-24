@@ -37,6 +37,7 @@ package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.portal.service.util.LuteceService;
+import java.util.List;
 
 /**
  * Certifier
@@ -52,4 +53,16 @@ public interface Certifier extends LuteceService
      *              if the certifier is not found
      */
     void certify( IdentityDto identity , String strClientCode ) throws CertifierNotFoundException;
+    
+    /**
+     * Get the certifiable attribute keys list
+     * @return a list of certifiable attributes keys 
+     */
+    List<String> getCertifiableAttributesList( );
+    
+    /**
+     * Get the certification code
+     * @return the certification code
+     */
+    String getCode( );
 }

@@ -1,0 +1,40 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributecertifier" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.manage_certifiers.title.title">
+    </@boxHeader>
+    <@headerButtons>
+
+        <form class="form-inline pull-right" method="post" name="manage_certifiers" action="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp">
+            <@actionButtons button1Name="view_manageAttributeCertifiers" i18nValue1Key="portal.util.labelBack" />
+        </form>
+        
+    </@headerButtons>
+    <@boxBody>    
+    <div class="clearfix"></div>
+    
+    <@table>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.manage_attributekeys.columnName}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnKeyName}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnDescription}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list certifier_attributes_certifiable as attributekey >
+                <tr>
+                    <td>
+                        ${attributekey.name}
+                    </td>
+                    <td>
+                        ${attributekey.keyName!''}
+                    </td>
+                    <td>
+                        ${attributekey.description!''}
+                    </td>
+                </tr>
+            </#list>
+    </@table>
+  </@boxBody>
+</@rowBox>

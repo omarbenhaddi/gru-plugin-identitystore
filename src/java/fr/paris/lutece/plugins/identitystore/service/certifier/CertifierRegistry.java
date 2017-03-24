@@ -71,7 +71,7 @@ public class CertifierRegistry
             _mapCertifiers = new HashMap<>();
             for( Certifier certifier : list )
             {
-                _mapCertifiers.put( certifier.getName() , certifier );
+                _mapCertifiers.put( certifier.getCode( ) , certifier );
                 AppLogService.info( "New identitystore certifier registered : " + certifier.getName() );
             }
         }
