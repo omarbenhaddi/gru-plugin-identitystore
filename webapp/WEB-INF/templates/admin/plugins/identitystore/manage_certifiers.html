@@ -15,7 +15,6 @@
     </@boxHeader>
     <@boxBody>    
     <@messages infos=infos />
-    <@paginationAdmin paginator=paginator combo=1 />
     <div class="clearfix"></div>
     
     <@table>
@@ -25,7 +24,6 @@
             <th>#i18n{identitystore.manage_certifiers.columnCode}</th>
             <th>#i18n{identitystore.manage_certifiers.columnDescription}</th>
             <th>#i18n{identitystore.manage_certifiers.columnLogo}</th>
-            <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
             <#list attributecertifier_list as certifier >
@@ -41,24 +39,12 @@
                 ${certifier.description}
             </td>
             <td>
-                <img src="image?resource_type=certifier_logo&id=${certifier.id}" width="40" height="40" />
+                <img src="${certifier.iconUrl}" width="40" height="40" />
             </td>
-        <td>
-            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?view=modifyAttributeCertifier&id=${certifier.id}"
-               class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
-                <i class="fa fa-pencil"></i>
-            </a>
-
-            <a href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?action=confirmRemoveAttributeCertifier&id=${certifier.id}"
-               class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >
-                <i class="fa fa-trash"></i>
-            </a>
-        </td>
         </tr>
         </#list>
     </@table>
 
-    <@paginationAdmin paginator=paginator />
 
   </@boxBody>
 </@rowBox>

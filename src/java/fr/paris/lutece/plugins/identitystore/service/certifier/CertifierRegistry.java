@@ -37,6 +37,7 @@ package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ import java.util.Map;
 public class CertifierRegistry 
 {
     private static CertifierRegistry _singleton;
-    private static Map<String, CertifierService> _mapCertifiers;
+    private static Map<String, Certifier> _mapCertifiers;
     
     /**
      * Private constructor;
@@ -66,9 +67,9 @@ public class CertifierRegistry
         if( _singleton == null )
         {
             _singleton = new CertifierRegistry();
-            List<CertifierService> list = SpringContextService.getBeansOfType( CertifierService.class );
+            List<Certifier> list = SpringContextService.getBeansOfType( Certifier.class );
             _mapCertifiers = new HashMap<>();
-            for( CertifierService certifier : list )
+            for( Certifier certifier : list )
             {
                 _mapCertifiers.put( certifier.getName() , certifier );
                 AppLogService.info( "New identitystore certifier registered : " + certifier.getName() );
@@ -83,14 +84,19 @@ public class CertifierRegistry
      * @return The certifier
      * @throws CertifierNotFoundException if the certifier is not found
      */
-    public CertifierService getCertifier( String strCertifierCode ) throws CertifierNotFoundException
+    public Certifier getCertifier( String strCertifierCode ) throws CertifierNotFoundException
     {
-        CertifierService certifier = _mapCertifiers.get( strCertifierCode );
+        Certifier certifier = _mapCertifiers.get( strCertifierCode );
         if( certifier == null )
         {
             throw new CertifierNotFoundException( "Unknown certifier : " + strCertifierCode );
         }
         return certifier;        
+    }
+
+    public Collection<Certifier> getCertifiersList()
+    {
+        return _mapCertifiers.values();
     }
     
 }

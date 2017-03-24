@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
+import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
@@ -42,6 +44,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.util.url.UrlItem;
+import java.util.Collection;
 
 import org.apache.commons.fileupload.FileItem;
 
@@ -112,8 +115,9 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     {
         _certifier = null;
 
-        List<AttributeCertifier> listAttributeCertifiers = AttributeCertifierHome.getAttributeCertifiersList( );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers, JSP_MANAGE_ATTRIBUTECERTIFIERS );
+        Collection<Certifier> listAttributeCertifiers = CertifierRegistry.instance().getCertifiersList( );
+        Map<String, Object> model = getModel();
+        model.put( MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_MANAGE_ATTRIBUTECERTIFIERS, model );
     }

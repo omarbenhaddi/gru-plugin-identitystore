@@ -70,7 +70,6 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCertifyRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCreateRequest;
@@ -87,6 +86,7 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import javax.ws.rs.FormParam;
+import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
 
 /**
  * REST service for channel resource
@@ -182,7 +182,7 @@ public final class IdentityStoreRestService
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( strIdentityChange );
-            CertifierService certifier = CertifierRegistry.instance().getCertifier( strCertifierCode );
+            Certifier certifier = CertifierRegistry.instance().getCertifier( strCertifierCode );
             certifier.certify( identityChangeDto.getIdentity() , identityChangeDto.getAuthor().getApplicationCode() );
             IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( identityChangeDto, _objectMapper );
 

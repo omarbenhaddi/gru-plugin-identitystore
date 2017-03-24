@@ -39,9 +39,9 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.portal.service.util.LuteceService;
 
 /**
- * CertifierService
+ * Certifier
  */
-public interface CertifierService extends LuteceService
+public interface Certifier extends LuteceService
 {
 
     /**
