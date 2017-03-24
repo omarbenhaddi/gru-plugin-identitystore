@@ -48,6 +48,5 @@ public class IdentityStorePlugin extends PluginDefaultImplementation
     @Override
     public void init( )
     {
-        CertifierLogoService.getInstance( ).register( );
     }
 }

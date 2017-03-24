@@ -46,8 +46,8 @@ public class AttributeCertificate implements Serializable
 
     // Variables declarations
     private int _nId;
-    private int _nIdCertifier;
-    private String _strCertifier;
+    private String _strCertifierCode;
+    private String _strCertifierName;
     private Timestamp _dateCertificateDate;
     private int _nCertificateLevel;
     private Timestamp _dateExpirationDate;
@@ -71,27 +71,6 @@ public class AttributeCertificate implements Serializable
     public void setId( int nId )
     {
         _nId = nId;
-    }
-
-    /**
-     * Returns the IdCertifier
-     *
-     * @return The IdCertifier
-     */
-    public int getIdCertifier( )
-    {
-        return _nIdCertifier;
-    }
-
-    /**
-     * Sets the IdCertifier
-     *
-     * @param nIdCertifier
-     *            The IdCertifier
-     */
-    public void setIdCertifier( int nIdCertifier )
-    {
-        _nIdCertifier = nIdCertifier;
     }
 
     /**
@@ -158,23 +137,44 @@ public class AttributeCertificate implements Serializable
     }
 
     /**
-     * Returns the Certifier
+     * Returns the Certifier code
      *
-     * @return The Certifier
+     * @return The Certifier code
      */
-    public String getCertifier( )
+    public String getCertifierCode( )
     {
-        return _strCertifier;
+        return _strCertifierCode;
     }
 
     /**
-     * Sets the Certifier
+     * Sets the Certifier code
      *
      * @param strCertifier
-     *            The Certifier
+     *            The Certifier code
      */
-    public void setCertifier( String strCertifier )
+    public void setCertifierCode( String strCertifierCode )
     {
-        _strCertifier = strCertifier;
+        _strCertifierCode = strCertifierCode;
+    }
+    
+    /**
+     * Returns the Certifier name
+     *
+     * @return The Certifier name
+     */
+    public String getCertifierName( )
+    {
+        return _strCertifierName;
+    }
+
+    /**
+     * Sets the Certifier name
+     *
+     * @param strCertifierName
+     *            The Certifier name
+     */
+    public void setCertifierName( String strCertifierName )
+    {
+        _strCertifierName = strCertifierName;
     }
 }

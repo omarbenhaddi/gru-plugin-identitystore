@@ -48,6 +48,8 @@ public interface Certifier extends LuteceService
      * Certify attributes
      * @param identity The identity data
      * @param strClientCode The client application code
+     * @throws CertifierNotFoundException
+     *              if the certifier is not found
      */
-    void certify( IdentityDto identity , String strClientCode );
+    void certify( IdentityDto identity , String strClientCode ) throws CertifierNotFoundException;
 }

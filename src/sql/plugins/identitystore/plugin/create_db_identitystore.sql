@@ -52,27 +52,12 @@ PRIMARY KEY ( id_identity , id_attribute )
 );
 
 --
--- Structure for table identitystore_attribute_certifier
---
-
-CREATE TABLE identitystore_attribute_certifier (
-id_attribute_certifier int(6) NOT NULL,
-name varchar(50) NOT NULL default '' UNIQUE,
-code varchar(50) NOT NULL default '' UNIQUE,
-description varchar(255) NOT NULL default '',
-logo_file LONG VARBINARY NULL,
-logo_mime_type VARCHAR(50) DEFAULT NULL,
-PRIMARY KEY ( id_attribute_certifier ),
-INDEX( code )
-);
-
---
 -- Structure for table identitystore_attribute_certificate
 --
 
 CREATE TABLE identitystore_attribute_certificate (
 id_attribute_certificate int(6) NOT NULL,
-id_certifier int(11) NOT NULL default '0',
+certifier_code varchar(255) NOT NULL default '',
 certificate_date timestamp NOT NULL,
 certificate_level int(11) NOT NULL default '0',
 expiration_date timestamp,

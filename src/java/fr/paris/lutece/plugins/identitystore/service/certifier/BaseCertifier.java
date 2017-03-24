@@ -34,8 +34,6 @@
 package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
@@ -191,12 +189,11 @@ public class BaseCertifier implements Certifier
     @Override
     public void certify( IdentityDto identityDto, String strClientCode )
     {
-        AttributeCertifier certifier = AttributeCertifierHome.findByCode( _strCode );
         AttributeCertificate certificate = new AttributeCertificate();
         certificate.setCertificateDate( new Timestamp( new Date().getTime() ) );
         certificate.setCertificateLevel( _nCertificateLevel );
-        certificate.setIdCertifier( certifier.getId() );
-        certificate.setCertifier( certifier.getName() );
+        certificate.setCertifierName( _strName );
+        certificate.setCertifierCode( _strCode );
 
         if( _nExpirationDelay != NO_CERTIFICATE_EXPIRATION_DELAY )
         {

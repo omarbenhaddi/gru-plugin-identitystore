@@ -36,10 +36,13 @@ package fr.paris.lutece.plugins.identitystore.business;
 import java.util.List;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
+import java.util.ArrayList;
 
 /**
  * This class provides instances management methods (create, find, ...) for AttributeCertificate objects
@@ -105,7 +108,18 @@ public final class AttributeCertificateHome
      */
     public static AttributeCertificate findByPrimaryKey( int nKey )
     {
-        return _dao.load( nKey, _plugin );
+        AttributeCertificate certificate = _dao.load( nKey, _plugin );
+        try
+        {
+            certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
+        }
+        catch (CertifierNotFoundException e)
+        {
+            //Certifier not found
+            return new AttributeCertificate( );
+        }
+        
+        return certificate;
     }
 
     /**
@@ -115,7 +129,24 @@ public final class AttributeCertificateHome
      */
     public static List<AttributeCertificate> getAttributeCertificatesList( )
     {
-        return _dao.selectAttributeCertificatesList( _plugin );
+        List<AttributeCertificate> listAttributeCertificate = _dao.selectAttributeCertificatesList( _plugin );
+        List<AttributeCertificate> returnListAttributeCertificate = new ArrayList<AttributeCertificate>( );
+        
+        for ( AttributeCertificate certificate : listAttributeCertificate )
+        {
+            try
+            {
+                certificate.setCertifierName(
+                    CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
+                returnListAttributeCertificate.add( certificate );
+            }
+            catch (CertifierNotFoundException e)
+            {
+                //No certifier found for this certificate
+            }
+            
+        }
+        return returnListAttributeCertificate;
     }
 
     /**

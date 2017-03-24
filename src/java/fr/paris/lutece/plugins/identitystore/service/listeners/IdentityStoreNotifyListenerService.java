@@ -164,7 +164,7 @@ public final class IdentityStoreNotifyListenerService
 
         if ( certificate != null )
         {
-            change.setCertifier( certificate.getCertifier( ) );
+            change.setCertifier( certificate.getCertifierCode( ) );
         }
 
         if ( bIsCreation )
