@@ -61,8 +61,14 @@ public interface Certifier extends LuteceService
     List<String> getCertifiableAttributesList( );
     
     /**
-     * Get the certification code
-     * @return the certification code
+     * Get the certifier code
+     * @return the certifier code
      */
     String getCode( );
+    
+    /**
+     * Get the Icon URL
+     * @return The Icon URL
+     */
+    String getIconUrl();
 }

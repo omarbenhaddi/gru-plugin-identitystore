@@ -139,10 +139,9 @@ public class BaseCertifier implements Certifier
     }
 
     /**
-     * Returns the IconUrl
-     *
-     * @return The IconUrl
+     * {@inheritDoc } 
      */
+    @Override
     public String getIconUrl()
     {
         return _strIconUrl;
