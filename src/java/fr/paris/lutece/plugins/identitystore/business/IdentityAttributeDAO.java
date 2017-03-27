@@ -70,9 +70,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     // Historical
     private static final String SQL_QUERY_NEW_HISTORY_PK = "SELECT max( id_history ) FROM identitystore_history_identity_attribute";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute "
-            + "( id_history, id_identity,change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, author_id, author_email, author_type, author_service, certifier_name) "
-            + "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, identity_name, attribute_key, attribute_new_value, attribute_old_value, "
+            + "( id_history, id_identity,change_type, identity_connection_id, attribute_key, attribute_new_value, attribute_old_value, author_id, author_email, author_type, author_service, certifier_name) "
+            + "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, attribute_key, attribute_new_value, attribute_old_value, "
             + "author_id, author_email, author_type, author_service, certifier_name "
             + "FROM identitystore_history_identity_attribute "
             + " WHERE  attribute_key = ? AND id_identity = ? ORDER BY modification_date DESC";
@@ -416,7 +416,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         daoUtil.setInt( nIndex++, attributeChange.getIdentityId( ) );
         daoUtil.setInt( nIndex++, attributeChange.getChangeType( ).getValue( ) );
         daoUtil.setString( nIndex++, attributeChange.getIdentityConnectionId( ) );
-        daoUtil.setString( nIndex++, attributeChange.getIdentityName( ) );
         daoUtil.setString( nIndex++, attributeChange.getChangedKey( ) );
         daoUtil.setString( nIndex++, attributeChange.getNewValue( ) );
         daoUtil.setString( nIndex++, attributeChange.getOldValue( ) );
@@ -446,7 +445,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             attributeChange.setDateChange( daoUtil.getTimestamp( nIndex++ ) );
             attributeChange.setChangeType( AttributeChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
             attributeChange.setIdentityConnectionId( daoUtil.getString( nIndex++ ) );
-            attributeChange.setIdentityName( daoUtil.getString( nIndex++ ) );
             attributeChange.setChangedKey( daoUtil.getString( nIndex++ ) );
             attributeChange.setNewValue( daoUtil.getString( nIndex++ ) );
             attributeChange.setOldValue( daoUtil.getString( nIndex++ ) );

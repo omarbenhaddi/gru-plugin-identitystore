@@ -59,10 +59,9 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -341,7 +340,12 @@ public final class IdentityStoreService
         identity.setConnectionId( strConnectionId );
         IdentityHome.create( identity );
 
-        identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ) );
+        if( identityChangeDtoInitialized != null && identityChangeDtoInitialized.getIdentity( ) != null && MapUtils.isNotEmpty( identityChangeDtoInitialized.getIdentity( ).getAttributes( ) ) )
+        {
+        	//Update has to be done only if external info has something, elsewhere ERROR_NO_IDENTITY_PROVIDED will be thrown by update
+        	//IdentityInfoExternalService impl HAVE TO throw an IDENTITY_NOT_FOUND in case of identity doesn't exist
+        	identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ) );
+        }
 
         if ( AppLogService.isDebugEnabled( ) )
         {

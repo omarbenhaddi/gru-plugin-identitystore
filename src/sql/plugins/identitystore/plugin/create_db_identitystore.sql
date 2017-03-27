@@ -112,7 +112,6 @@ id_history int(11) NOT NULL,
 change_type int(3) NOT NULL,
 id_identity int(11) NOT NULL,
 identity_connection_id varchar(100),
-identity_name varchar(50) NOT NULL default '',
 attribute_key varchar(50) NOT NULL,
 attribute_new_value varchar(255) NOT NULL default '',
 attribute_old_value varchar(255) NOT NULL default '',
@@ -131,6 +130,7 @@ PRIMARY KEY ( id_history )
 
 ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_identity FOREIGN KEY ( id_identity ) REFERENCES identitystore_identity ( id_identity );
 ALTER TABLE identitystore_identity_attribute ADD CONSTRAINT fk_identity_attribute_id_attribute FOREIGN KEY ( id_attribute ) REFERENCES identitystore_attribute ( id_attribute );
+ALTER TABLE identitystore_identity_attribute ADD INDEX ix_attribute_value USING BTREE (attribute_value(50) ASC);
 ALTER TABLE identitystore_attribute_right ADD CONSTRAINT fk_attribute_right_id_client_app FOREIGN KEY ( id_client_app ) REFERENCES identitystore_client_application ( id_client_app );
 ALTER TABLE identitystore_attribute_right ADD CONSTRAINT fk_attribute_right_id_attribute FOREIGN KEY ( id_attribute ) REFERENCES identitystore_attribute ( id_attribute );
 ALTER TABLE identitystore_history_identity_attribute ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY ( id_identity ) REFERENCES identitystore_identity ( id_identity );
