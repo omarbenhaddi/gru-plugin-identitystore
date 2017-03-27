@@ -340,11 +340,12 @@ public final class IdentityStoreService
         identity.setConnectionId( strConnectionId );
         IdentityHome.create( identity );
 
-        if( identityChangeDtoInitialized != null && identityChangeDtoInitialized.getIdentity( ) != null && MapUtils.isNotEmpty( identityChangeDtoInitialized.getIdentity( ).getAttributes( ) ) )
+        if ( identityChangeDtoInitialized != null && identityChangeDtoInitialized.getIdentity( ) != null
+                && MapUtils.isNotEmpty( identityChangeDtoInitialized.getIdentity( ).getAttributes( ) ) )
         {
-        	//Update has to be done only if external info has something, elsewhere ERROR_NO_IDENTITY_PROVIDED will be thrown by update
-        	//IdentityInfoExternalService impl HAVE TO throw an IDENTITY_NOT_FOUND in case of identity doesn't exist
-        	identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ) );
+            // Update has to be done only if external info has something, elsewhere ERROR_NO_IDENTITY_PROVIDED will be thrown by update
+            // IdentityInfoExternalService impl HAVE TO throw an IDENTITY_NOT_FOUND in case of identity doesn't exist
+            identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ) );
         }
 
         if ( AppLogService.isDebugEnabled( ) )
