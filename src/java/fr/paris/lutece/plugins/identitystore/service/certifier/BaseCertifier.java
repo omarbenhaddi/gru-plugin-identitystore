@@ -53,13 +53,13 @@ public class BaseCertifier implements Certifier
 {
     private static final int NO_CERTIFICATE_EXPIRATION_DELAY = -1;
 
-    private String _strCode;
-    private String _strName;
-    private String _strDescription;
-    private int _nCertificateLevel;
-    private String _strIconUrl;
-    private int _nExpirationDelay;
-    private static List<String> _listCertifiableAttributes;
+    protected String _strCode;
+    protected String _strName;
+    protected String _strDescription;
+    protected int _nCertificateLevel;
+    protected String _strIconUrl;
+    protected int _nExpirationDelay;
+    protected static List<String> _listCertifiableAttributes;
 
     /**
      * {@inheritDoc }

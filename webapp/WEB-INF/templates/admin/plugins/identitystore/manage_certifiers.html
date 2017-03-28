@@ -34,7 +34,7 @@
                 <img src="${certifier.iconUrl}" width="40" height="40" />
             </td>
             <td>
-                <@actionButtons button1Name="view_certifierAttributesCertifiable" icon1="fa fa-eye" i18nValue1Key="identitystore.manage_certifiers.buttonViewAttributesCertifiable" url1="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?view=certifierAttributesCertifiable&certifier_code=${certifier.code}"/>
+                <@aButton href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?view=certifierAttributesCertifiable&certifier_code=${certifier.code}"  title='#i18n{identitystore.manage_certifiers.buttonViewAttributesCertifiable}' buttonIcon="eye" size='' />
             </td>
         </tr>
         </#list>
