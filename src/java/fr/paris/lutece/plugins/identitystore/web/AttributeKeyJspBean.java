@@ -33,9 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
+import fr.paris.lutece.plugins.identitystore.business.AttributeApplicationsRight;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
+import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -60,6 +64,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String TEMPLATE_MANAGE_ATTRIBUTEKEYS = "/admin/plugins/identitystore/manage_attributekeys.html";
     private static final String TEMPLATE_CREATE_ATTRIBUTEKEY = "/admin/plugins/identitystore/create_attributekey.html";
     private static final String TEMPLATE_MODIFY_ATTRIBUTEKEY = "/admin/plugins/identitystore/modify_attributekey.html";
+    private static final String TEMPLATE_APP_RIGHT_ATTRIBUTES = "/admin/plugins/identitystore/view_apprightattributes.html";
 
     // Parameters
     private static final String PARAMETER_ID_ATTRIBUTEKEY = "id";
@@ -69,10 +74,12 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTEKEYS = "identitystore.manage_attributekeys.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_MODIFY_ATTRIBUTEKEY = "identitystore.modify_attributekey.pageTitle";
     private static final String PROPERTY_PAGE_TITLE_CREATE_ATTRIBUTEKEY = "identitystore.create_attributekey.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_APP_RIGHT_ATTRIBUTES = "identitystore.view_appRightAttributes.pageTitle";
     private static final String PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE = "identitystore.validation.attributekey.KeyName.duplicate";
 
     // Markers
     private static final String MARK_ATTRIBUTEKEY_LIST = "attributekey_list";
+    private static final String MARK_ATTRIBUTE_APPS_RIGHT_MAP = "attribute_apps_right_map";
     private static final String MARK_ATTRIBUTEKEY = "attributekey";
     private static final String MARK_KEYTYPE_LIST = "keytype_list";
     private static final String MARK_WEBAPP_URL = "webapp_url";
@@ -89,6 +96,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String VIEW_MANAGE_ATTRIBUTEKEYS = "manageAttributeKeys";
     private static final String VIEW_CREATE_ATTRIBUTEKEY = "createAttributeKey";
     private static final String VIEW_MODIFY_ATTRIBUTEKEY = "modifyAttributeKey";
+    private static final String VIEW_APP_RIGHT_ATTRIBUTES = "appRightAttributes";
 
     // Actions
     private static final String ACTION_CREATE_ATTRIBUTEKEY = "createAttributeKey";
@@ -267,5 +275,25 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     {
         model.put( MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );
         model.put( MARK_LOCALE, AdminUserService.getLocale( request ).getLanguage( ) );
+    }
+
+    /**
+     * Returns the display of attribute with application rights
+     *
+     * @param request
+     *            The Http request
+     * @return The HTML info
+     */
+    @View( VIEW_APP_RIGHT_ATTRIBUTES )
+    public String getApplicationRight( HttpServletRequest request )
+    {
+        List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( );
+        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys, JSP_MANAGE_ATTRIBUTEKEYS + "?view="
+                + VIEW_APP_RIGHT_ATTRIBUTES );
+
+        Map<String, AttributeApplicationsRight> mapAttributeApplicationsRight = ClientApplicationHome.getAttributeApplicationsRight( );
+        model.put( MARK_ATTRIBUTE_APPS_RIGHT_MAP, mapAttributeApplicationsRight );
+
+        return getPage( PROPERTY_PAGE_TITLE_APP_RIGHT_ATTRIBUTES, TEMPLATE_APP_RIGHT_ATTRIBUTES, model );
     }
 }

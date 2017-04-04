@@ -36,6 +36,9 @@ package fr.paris.lutece.plugins.identitystore.business;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -54,6 +57,10 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ? WHERE id_client_app = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_client_app FROM identitystore_client_application";
+    private static final String SQL_QUERY_SELECTALL_CERTIFICATE_APP = "SELECT certifier_code FROM identitystore_client_application_certifiers WHERE id_client_app = ? ";
+    private static final String SQL_QUERY_ADD_CERTIFICATE_APP = "INSERT INTO identitystore_client_application_certifiers (id_client_app, certifier_code) VALUES ( ?, ? )";
+    private static final String SQL_QUERY_DELETE_CERTIFICATE_APP = "DELETE FROM identitystore_client_application_certifiers WHERE id_client_app = ? AND certifier_code = ?";
+    private static final String SQL_QUERY_DELETE_ALL_CERTIFICATE_APP = "DELETE FROM identitystore_client_application_certifiers WHERE id_client_app = ? ";
 
     /**
      * Generates a new primary key
@@ -247,5 +254,84 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.free( );
 
         return clientApplication;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Certifier> getCertifiers( int nKey, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CERTIFICATE_APP, plugin );
+        daoUtil.setInt( 1, nKey );
+        daoUtil.executeQuery( );
+
+        List<Certifier> listCertifiers = new ArrayList<Certifier>( );
+
+        while ( daoUtil.next( ) )
+        {
+            String strCertifCode = daoUtil.getString( 1 );
+            try
+            {
+                Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
+                listCertifiers.add( certifier );
+            }
+            catch( CertifierNotFoundException e )
+            {
+                // delete ref ??
+                // be careful of daoUtil.free( ) !
+            }
+        }
+
+        daoUtil.free( );
+
+        return listCertifiers;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addCertifier( int nKey, String strCertifier, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_ADD_CERTIFICATE_APP, plugin );
+
+        int nIndex = 1;
+
+        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.setString( nIndex++, strCertifier );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteCertifier( int nKey, String strCertifier, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_CERTIFICATE_APP, plugin );
+
+        int nIndex = 1;
+
+        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.setString( nIndex++, strCertifier );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void cleanCertifiers( int nKey, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_CERTIFICATE_APP, plugin );
+
+        int nIndex = 1;
+
+        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,22 +31,70 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
+package fr.paris.lutece.plugins.identitystore.service.certifier;
+
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.portal.service.util.LuteceService;
+
+import java.util.List;
 
 /**
- * IdentityStorePlugin
+ * Certifier
  */
-public class IdentityStorePlugin extends PluginDefaultImplementation
+public interface Certifier extends LuteceService
 {
-    public static final String PLUGIN_NAME = "identitystore";
+    public static final int NO_CERTIFICATE_EXPIRATION_DELAY = -1;
 
     /**
-     * Initialize the Plugin
+     * Certify attributes
+     * 
+     * @param identity
+     *            The identity data
+     * @param strClientCode
+     *            The client application code
      */
-    @Override
-    public void init( )
-    {
-    }
+    void certify( IdentityDto identity, String strClientCode );
+
+    /**
+     * Get the certifier code
+     * 
+     * @return the certifier code
+     */
+    String getCode( );
+
+    /**
+     * Get the Icon URL
+     * 
+     * @return The Icon URL
+     */
+    String getIconUrl( );
+
+    /**
+     * Returns the Description
+     * 
+     * @return The Description
+     */
+    String getDescription( );
+
+    /**
+     * Returns the CertificateLevel
+     * 
+     * @return The CertificateLevel
+     */
+    int getCertificateLevel( );
+
+    /**
+     * Returns the Certification expiration delay have to return NO_CERTIFICATE_EXPIRATION_DELAY if no expiration
+     * 
+     * @return the certification expiration delay
+     */
+    int getCertificationExpirationDelay( );
+
+    /**
+     * Get the certifiable attribute keys list
+     * 
+     * @return a list of certifiable attributes keys
+     */
+    List<String> getCertifiableAttributesList( );
 }

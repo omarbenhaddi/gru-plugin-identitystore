@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.business;
 
 import java.util.List;
+import java.util.Map;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 
@@ -87,4 +88,11 @@ public interface IAttributeRightDAO
      *            the Plugin
      */
     void removeApplicationRights( ClientApplication clientApp, Plugin plugin );
+
+    /**
+     * @param plugin
+     *            the Plugin
+     * @return map of all attribute wich have application rights
+     */
+    Map<String, AttributeApplicationsRight> getAttributeApplicationsRight( Plugin plugin );
 }

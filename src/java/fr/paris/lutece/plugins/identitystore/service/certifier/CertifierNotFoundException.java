@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,22 +31,25 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation;
+package fr.paris.lutece.plugins.identitystore.service.certifier;
+
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 /**
- * IdentityStorePlugin
+ * CertifierNotFoundException
  */
-public class IdentityStorePlugin extends PluginDefaultImplementation
+public class CertifierNotFoundException extends Exception
 {
-    public static final String PLUGIN_NAME = "identitystore";
-
     /**
-     * Initialize the Plugin
+     * Constructor
+     * 
+     * @param strMessage
+     *            The message
      */
-    @Override
-    public void init( )
+    public CertifierNotFoundException( String strMessage )
     {
+        super( strMessage );
+        AppLogService.error( strMessage );
     }
 }

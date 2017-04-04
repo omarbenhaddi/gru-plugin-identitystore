@@ -34,11 +34,13 @@
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
+import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides instances management methods (create, find, ...) for IdentityAttribute objects
@@ -144,6 +146,14 @@ public final class ClientApplicationHome
     }
 
     /**
+     * @return map of all attribute wich have application rights
+     */
+    public static Map<String, AttributeApplicationsRight> getAttributeApplicationsRight( )
+    {
+        return _daoAttributeRights.getAttributeApplicationsRight( _plugin );
+    }
+
+    /**
      * remove all rights of application
      *
      * @param clientApp
@@ -166,5 +176,57 @@ public final class ClientApplicationHome
         {
             _daoAttributeRights.insert( attributeRight, _plugin );
         }
+    }
+
+    /*
+     * methods for link certifier and ClientApplication
+     */
+    /**
+     * Retrieve certifiers allowed for a given ClientApplication
+     *
+     * @param clientApp
+     *            client application
+     * @return list of allowed certifiers
+     */
+    public static List<Certifier> getCertifiers( ClientApplication clientApp )
+    {
+        return _daoClientApplication.getCertifiers( clientApp.getId( ), _plugin );
+    }
+
+    /**
+     * Add a certifier to a ClientApplication
+     *
+     * @param clientApp
+     *            client application
+     * @param certifier
+     *            The certifier
+     */
+    public static void addCertifier( ClientApplication clientApp, Certifier certifier )
+    {
+        _daoClientApplication.addCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
+    }
+
+    /**
+     * Delete a certifier to a ClientApplication
+     *
+     * @param clientApp
+     *            client application
+     * @param certifier
+     *            The certifier
+     */
+    public static void deleteCertifier( ClientApplication clientApp, Certifier certifier )
+    {
+        _daoClientApplication.deleteCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
+    }
+
+    /**
+     * Delete all certifier to a ClientApplication
+     *
+     * @param clientApp
+     *            client application
+     */
+    public static void cleanCertifiers( ClientApplication clientApp )
+    {
+        _daoClientApplication.cleanCertifiers( clientApp.getId( ), _plugin );
     }
 }

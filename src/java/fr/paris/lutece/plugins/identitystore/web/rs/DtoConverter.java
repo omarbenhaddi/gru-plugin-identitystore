@@ -34,14 +34,15 @@
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifier;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertifierHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
+import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.CertificateDto;
@@ -113,13 +114,26 @@ public final class DtoConverter
 
                 if ( attribute.getCertificate( ) != null )
                 {
-                    AttributeCertifier certifier = AttributeCertifierHome.findByPrimaryKey( attribute.getCertificate( ).getIdCertifier( ) );
                     CertificateDto certifDto = new CertificateDto( );
-                    certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
-                    certifDto.setCertifierCode( certifier.getCode( ) );
-                    certifDto.setCertifierName( certifier.getName( ) );
-                    certifDto.setCertifierLevel( attribute.getCertificate( ).getCertificateLevel( ) );
-                    attrDto.setCertificate( certifDto );
+                    try
+                    {
+                        Certifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
+
+                        certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
+                        certifDto.setCertifierCode( attribute.getCertificate( ).getCertifierCode( ) );
+                        certifDto.setCertifierName( certifier.getName( ) );
+                        certifDto.setCertifierLevel( attribute.getCertificate( ).getCertificateLevel( ) );
+                    }
+                    catch( CertifierNotFoundException e )
+                    {
+                        // Identity contrains attribute certified with a certifier not found;
+                        // We dont populate the attrDto with an empty certificate
+                    }
+                    finally
+                    {
+                        attrDto.setCertificate( certifDto );
+                    }
+
                 }
 
                 mapAttributeDto.put( attrDto.getKey( ), attrDto );
@@ -180,10 +194,12 @@ public final class DtoConverter
      *            certificate dto (can be null)
      * @return certificate initialized from Dto datas, null if provided dto is null
      * @throws AppException
-     *             if provided certifier code is unknown or its expiration date is already expired
+     *             if expiration date is already expired
+     * @throws CertifierNotFoundException
+     *             if certifier not found for given code
      *
      */
-    public static AttributeCertificate getCertificate( CertificateDto certificateDto ) throws AppException
+    public static AttributeCertificate getCertificate( CertificateDto certificateDto ) throws AppException, CertifierNotFoundException
     {
         AttributeCertificate attributeCertificate = null;
 
@@ -191,18 +207,13 @@ public final class DtoConverter
         {
             attributeCertificate = new AttributeCertificate( );
             attributeCertificate.setCertificateLevel( certificateDto.getCertifierLevel( ) );
-            attributeCertificate.setCertifier( certificateDto.getCertifierName( ) );
+            attributeCertificate.setCertifierCode( certificateDto.getCertifierCode( ) );
+            attributeCertificate.setCertifierName( certificateDto.getCertifierName( ) );
 
-            AttributeCertifier certifier = AttributeCertifierHome.findByCode( certificateDto.getCertifierCode( ) );
+            // check existence of certifier, with given certifier code; throws CertifierNotFoundException
+            CertifierRegistry.instance( ).getCertifier( attributeCertificate.getCertifierCode( ) );
 
-            if ( certifier == null )
-            {
-                throw new AppException( "Unknown Certifier code, provided code=" + certificateDto.getCertifierCode( ) );
-            }
-
-            attributeCertificate.setIdCertifier( certifier.getId( ) );
             attributeCertificate.setCertificateDate( new Timestamp( ( new Date( ) ).getTime( ) ) );
-
             if ( ( certificateDto.getCertificateExpirationDate( ) != null ) && certificateDto.getCertificateExpirationDate( ).before( new Date( ) ) )
             {
                 throw new AppException( "Certificate expiration date is expired =" + certificateDto.getCertificateExpirationDate( ) );

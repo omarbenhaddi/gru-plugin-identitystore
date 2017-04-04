@@ -463,8 +463,16 @@ public final class IdentityStoreService
             {
                 file = mapAttachedFiles.get( attributeDto.getValue( ) );
             }
+            AttributeCertificate certificate = new AttributeCertificate( );
+            try
+            {
+                certificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
+            }
+            catch( Exception e )
+            {
+                // Unable to get the certificate from the Dto; set the updateAttribute with empty certificate
+            }
 
-            AttributeCertificate certificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
             setAttribute( identity, attributeDto.getKey( ), attributeDto.getValue( ), file, author, certificate );
             sb.append( attributeDto.getKey( ) + "," );
         }
@@ -588,7 +596,8 @@ public final class IdentityStoreService
 
         // attribute value changed or attribute has new certification
         if ( !bValueUnchanged
-                || ( ( certificate != null ) && ( ( attributeCertifPrev == null ) || ( certificate.getIdCertifier( ) != attributeCertifPrev.getIdCertifier( ) ) ) ) )
+                || ( ( certificate != null ) && ( ( attributeCertifPrev == null ) || ( !certificate.getCertifierCode( ).equals(
+                        attributeCertifPrev.getCertifierCode( ) ) ) ) ) )
         {
             if ( certificate != null )
             {
@@ -663,4 +672,10 @@ public final class IdentityStoreService
             attribute.setValue( StringUtils.EMPTY );
         }
     }
+
+    public static void certifyAttributes( IdentityChangeDto _identityChangeDto )
+    {
+
+    }
+
 }

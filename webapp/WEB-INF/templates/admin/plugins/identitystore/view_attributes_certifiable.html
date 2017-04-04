@@ -1,0 +1,57 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributecertifier" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.manage_certifiers.view_attributs.title">
+    </@boxHeader>
+    <@headerButtons>
+
+        <form class="form-inline pull-right" method="post" name="manage_certifiers" action="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp">
+			<button class="btn btn-secondary btn-flat" type="submit">
+				<i class="fa fa-close"></i>
+				#i18n{portal.util.labelBack}
+			</button>
+        </form>
+        
+    </@headerButtons>
+    <@boxBody>    
+    <div class="clearfix"></div>
+    
+    <@table>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.manage_attributekeys.columnName}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnKeyName}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnDescription}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list certifier_attributes_certifiable as attributekey >
+              <#if attributekey.id=-1>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>  
+                    <td>
+                        ${attributekey.keyName!''}
+                    </td>
+                    <td> 
+                        #i18n{identitystore.manage_certifiers.view_attributs.undefined}
+                    </td>
+                </tr>
+              <#else>
+                <tr>
+                    <td>
+                        ${attributekey.name}
+                    </td>  
+                    <td>
+                        ${attributekey.keyName!''}
+                    </td>
+                    <td> 
+                        ${attributekey.description!''}
+                    </td>
+                </tr>
+              </#if>
+            </#list>
+    </@table>
+  </@boxBody>
+</@rowBox>

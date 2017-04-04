@@ -1,0 +1,37 @@
+<#include "../adminidentities_tabs.html" />
+<@tabs tab="clientapplication" />
+
+<@rowBoxHeader i18nTitleKey="identitystore.modify_clientapplication_certificator.pageTitle">
+<form class="form-horizontal" method="post" name="modify_clientapplication_certificator" action="jsp/admin/plugins/identitystore/ManageClientApplications.jsp">
+        <@messages errors=errors />
+        <input type="hidden" id="id" name="id" value="${clientapplication.id}"/>
+		
+        <@table>
+			<tr>
+				<th>#i18n{identitystore.modify_clientapplication_certificator.labelCertificateur}</th>
+				<th>#i18n{identitystore.modify_clientapplication_certificator.labelAuthorize}</th>
+			</tr>
+        	<#if certifiers?? && certifiers?has_content>
+        	  <#list certifiers as certif>
+       	    <tr>
+       	    	<td>
+       	    		${certif.name}
+       	    		<#if certif.iconUrl!='' >
+       	    		<img src="${certif.iconUrl}" width="40" height="40" />
+       	    		</#if>
+       	    	</td>
+       	    	<td>
+		        <#assign checked="">
+		        <#if map_clientapplication_certifs?? && map_clientapplication_certifs?has_content && map_clientapplication_certifs[certif.code]?? && map_clientapplication_certifs[certif.code]>
+		        	<#assign checked="checked">
+		        </#if>
+					<input id="certif_auth" name="certif_auth" type="checkbox" value="${certif.code}" ${checked}>
+       	    	</td>
+       	    </tr>
+        	  </#list>
+        	</#if>
+        </@table>
+		
+        <@actionButtons button1Name="action_manageClientApplicationCertificate" button2Name="view_modifyClientApplication"/>
+    </form>
+</@rowBoxHeader>

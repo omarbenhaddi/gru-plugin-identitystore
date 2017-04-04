@@ -5,6 +5,7 @@
 DROP TABLE IF EXISTS identitystore_history_identity_attribute;
 DROP TABLE IF EXISTS identitystore_attribute_right;
 DROP TABLE IF EXISTS identitystore_client_application;
+DROP TABLE IF EXISTS identitystore_client_application_certifiers;
 DROP TABLE IF EXISTS identitystore_identity_attribute;
 DROP TABLE IF EXISTS identitystore_attribute_certificate;
 DROP TABLE IF EXISTS identitystore_attribute_certifier;
@@ -52,27 +53,12 @@ PRIMARY KEY ( id_identity , id_attribute )
 );
 
 --
--- Structure for table identitystore_attribute_certifier
---
-
-CREATE TABLE identitystore_attribute_certifier (
-id_attribute_certifier int(6) NOT NULL,
-name varchar(50) NOT NULL default '' UNIQUE,
-code varchar(50) NOT NULL default '' UNIQUE,
-description varchar(255) NOT NULL default '',
-logo_file LONG VARBINARY NULL,
-logo_mime_type VARCHAR(50) DEFAULT NULL,
-PRIMARY KEY ( id_attribute_certifier ),
-INDEX( code )
-);
-
---
 -- Structure for table identitystore_attribute_certificate
 --
 
 CREATE TABLE identitystore_attribute_certificate (
 id_attribute_certificate int(6) NOT NULL,
-id_certifier int(11) NOT NULL default '0',
+certifier_code varchar(255) NOT NULL default '',
 certificate_date timestamp NOT NULL,
 certificate_level int(11) NOT NULL default '0',
 expiration_date timestamp,
@@ -80,16 +66,27 @@ PRIMARY KEY (id_attribute_certificate)
 );
 
 --
+-- Structure for table identitystore_client_application_certifiers
+--
+
+CREATE TABLE identitystore_client_application_certifiers (
+id_client_app int(6) NOT NULL,
+certifier_code varchar(255) NOT NULL default '',
+PRIMARY KEY (id_client_app, certifier_code),
+INDEX (id_client_app)
+);
+
+
+--
 -- Structure for table identitystore_client_application
 --
 
-CREATE TABLE identitystore_client_application (
+CREATE TABLE identitystore_client_application_certifiers (
 id_client_app int(6) NOT NULL,
 name varchar(100) NOT NULL UNIQUE,
 code varchar(100) NOT NULL UNIQUE,
 PRIMARY KEY (id_client_app)
 );
-
 --
 -- Structure for table identitystore_client_access_control_list
 --

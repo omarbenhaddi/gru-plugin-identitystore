@@ -39,8 +39,8 @@ import java.sql.Timestamp;
 
 public class AttributeCertificateBusinessTest extends LuteceTestCase
 {
-    private final static int IDCERTIFIER1 = 1;
-    private final static int IDCERTIFIER2 = 2;
+    private final static String CERTIFIERCODE1 = "certifiercode1";
+    private final static String CERTIFIERCODE2 = "certifiercode2";
     private final static Timestamp CERTIFICATEDATE1 = new Timestamp( 1000000L );
     private final static Timestamp CERTIFICATEDATE2 = new Timestamp( 2000000L );
     private final static int CERTIFICATELEVEL1 = 1;
@@ -52,7 +52,7 @@ public class AttributeCertificateBusinessTest extends LuteceTestCase
     {
         // Initialize an object
         AttributeCertificate attributeCertificate = new AttributeCertificate( );
-        attributeCertificate.setIdCertifier( IDCERTIFIER1 );
+        attributeCertificate.setCertifierCode( CERTIFIERCODE1 );
         attributeCertificate.setCertificateDate( CERTIFICATEDATE1 );
         attributeCertificate.setCertificateLevel( CERTIFICATELEVEL1 );
         attributeCertificate.setExpirationDate( EXPIRATIONDATE1 );
@@ -61,19 +61,19 @@ public class AttributeCertificateBusinessTest extends LuteceTestCase
         AttributeCertificateHome.create( attributeCertificate );
 
         AttributeCertificate attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
-        assertEquals( attributeCertificateStored.getIdCertifier( ), attributeCertificate.getIdCertifier( ) );
+        assertEquals( attributeCertificateStored.getCertifierCode( ), attributeCertificate.getCertifierCode( ) );
         assertEquals( attributeCertificateStored.getCertificateDate( ), attributeCertificate.getCertificateDate( ) );
         assertEquals( attributeCertificateStored.getCertificateLevel( ), attributeCertificate.getCertificateLevel( ) );
         assertEquals( attributeCertificateStored.getExpirationDate( ), attributeCertificate.getExpirationDate( ) );
 
         // Update test
-        attributeCertificate.setIdCertifier( IDCERTIFIER2 );
+        attributeCertificate.setCertifierCode( CERTIFIERCODE2 );
         attributeCertificate.setCertificateDate( CERTIFICATEDATE2 );
         attributeCertificate.setCertificateLevel( CERTIFICATELEVEL2 );
         attributeCertificate.setExpirationDate( EXPIRATIONDATE2 );
         AttributeCertificateHome.update( attributeCertificate );
         attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
-        assertEquals( attributeCertificateStored.getIdCertifier( ), attributeCertificate.getIdCertifier( ) );
+        assertEquals( attributeCertificateStored.getCertifierCode( ), attributeCertificate.getCertifierCode( ) );
         assertEquals( attributeCertificateStored.getCertificateDate( ), attributeCertificate.getCertificateDate( ) );
         assertEquals( attributeCertificateStored.getCertificateLevel( ), attributeCertificate.getCertificateLevel( ) );
         assertEquals( attributeCertificateStored.getExpirationDate( ), attributeCertificate.getExpirationDate( ) );

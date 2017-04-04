@@ -9,8 +9,7 @@
 
     <bean id="identitystore.identityDAO" class="fr.paris.lutece.plugins.identitystore.business.IdentityDAO" />  
     <bean id="identitystore.attributeKeyDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeKeyDAO" />  
-    <bean id="identitystore.identityAttributeDAO" class="fr.paris.lutece.plugins.identitystore.business.IdentityAttributeDAO" />  
-    <bean id="identitystore.attributeCertifierDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeCertifierDAO" />  
+    <bean id="identitystore.identityAttributeDAO" class="fr.paris.lutece.plugins.identitystore.business.IdentityAttributeDAO" />   
     <bean id="identitystore.attributeCertificateDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeCertificateDAO" />  
     <bean id="identitystore.attributeRightDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeRightDAO" />  
     <bean id="identitystore.clientApplicationDAO" class="fr.paris.lutece.plugins.identitystore.business.ClientApplicationDAO" />
@@ -39,5 +38,5 @@
     </bean>
     
     <bean id="identitystore.identityInfoExternalProvider" class="fr.paris.lutece.plugins.identitystore.service.external.MockIdentityInfoExternalProvider" />
-
+    
 </beans>
