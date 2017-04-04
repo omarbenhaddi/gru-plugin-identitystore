@@ -1,0 +1,75 @@
+<#include "adminidentities_tabs.html" />
+<@tabs tab="attributekey" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.view_appRightAttributes.title.title">
+        <@headerButtons>        
+        <form class="form-inline" method="post" name="manage_attributekeys" action="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
+            <@actionButtons button1Name="view_manageAttributeKeys" icon1="" i18nValue1Key="portal.util.labelBack" />
+        </form>        
+    	</@headerButtons>
+    </@boxHeader>
+    <@boxBody>    
+    <@paginationAdmin paginator=paginator combo=1 />
+    	<div class="clearfix"></div>
+    
+    <@table>
+        <tr>
+            <th>#i18n{identitystore.view_appRightAttributes.columnName}</th>
+            <th>#i18n{identitystore.view_appRightAttributes.columnKeyName}</th>
+            <th>#i18n{identitystore.view_appRightAttributes.columnRead}</th>
+            <th>#i18n{identitystore.view_appRightAttributes.columnWrite}</th>
+            <th>#i18n{identitystore.view_appRightAttributes.columnCertification}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list attributekey_list as attributekey >
+        <tr>
+            <td>
+                ${attributekey.name}
+            </td>
+            
+			<#if ( attributekey.keyName?length > 33 ) >
+            <td title="${attributekey.keyName}">
+                ${attributekey.keyName[0..30]}...
+            </td>
+			<#else>
+            <td>
+                ${attributekey.keyName!''}
+            </td>
+            </#if>
+            
+            <#if attribute_apps_right_map[attributekey.keyName]?? >
+            <td>
+            	<#list attribute_apps_right_map[attributekey.keyName].readApplications as readApp >
+            	${readApp}<br>
+            	</#list>
+            </td>
+            <td>
+            	<#list attribute_apps_right_map[attributekey.keyName].writeApplications as writeApp >
+            	${writeApp}<br>
+            	</#list>
+            </td>
+            <td>
+            	<#list attribute_apps_right_map[attributekey.keyName].certifApplications as certifApp >
+            	${certifApp}<br>
+            	</#list>
+            </td>
+            <#else>
+            <td></td>
+            <td></td>
+            </#if>
+            
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+  	</@boxBody>
+	<div class="box-footer">
+        <@headerButtons>        
+        <form class="form-inline" method="post" name="manage_attributekeys" action="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
+            <@actionButtons button1Name="view_manageAttributeKeys" icon1="" i18nValue1Key="portal.util.labelBack" />
+        </form>        
+    	</@headerButtons>
+	</div>
+</@rowBox>

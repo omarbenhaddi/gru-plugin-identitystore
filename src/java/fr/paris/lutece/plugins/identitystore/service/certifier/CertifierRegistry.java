@@ -37,10 +37,11 @@ package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * CertifierRegistry
@@ -62,17 +63,17 @@ public class CertifierRegistry
      * Returns the unique instance
      * @return The instance
      */
-    public static CertifierRegistry instance()
+    public static CertifierRegistry instance( )
     {
         if( _singleton == null )
         {
-            _singleton = new CertifierRegistry();
+            _singleton = new CertifierRegistry( );
             List<Certifier> list = SpringContextService.getBeansOfType( Certifier.class );
-            _mapCertifiers = new HashMap<>();
+            _mapCertifiers = new TreeMap<String, Certifier>( );
             for( Certifier certifier : list )
             {
                 _mapCertifiers.put( certifier.getCode( ) , certifier );
-                AppLogService.info( "New identitystore certifier registered : " + certifier.getName() );
+                AppLogService.info( "New identitystore certifier registered : " + certifier.getName( ) );
             }
         }
         return _singleton;
@@ -94,9 +95,9 @@ public class CertifierRegistry
         return certifier;        
     }
 
-    public Collection<Certifier> getCertifiersList()
+    public Collection<Certifier> getCertifiersList( )
     {
-        return _mapCertifiers.values();
+        return _mapCertifiers.values( );
     }
     
 }

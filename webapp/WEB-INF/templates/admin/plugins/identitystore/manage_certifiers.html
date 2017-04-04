@@ -31,10 +31,15 @@
                 ${certifier.description}
             </td>
             <td>
+            	<#if certifier.iconUrl != ''>
                 <img src="${certifier.iconUrl}" width="40" height="40" />
+                </#if>
             </td>
             <td>
-                <@aButton href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?view=certifierAttributesCertifiable&certifier_code=${certifier.code}"  title='#i18n{identitystore.manage_certifiers.buttonViewAttributesCertifiable}' buttonIcon="eye" size='' />
+				<a class="btn" href="jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp?view=certifierAttributesCertifiable&certifier_code=${certifier.code}" title="#i18n{identitystore.manage_certifiers.buttonViewAttributesCertifiable}">
+					<i class="fa fa-eye"></i>
+					<span>#i18n{identitystore.manage_certifiers.buttonViewAttributesCertifiable}</span>					
+				</a>
             </td>
         </tr>
         </#list>

@@ -40,13 +40,15 @@ import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFound
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * This class provides the user interface to manage AttributeCertifier features ( manage, create, modify, remove )
@@ -72,6 +74,9 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     
     // Parameters
     private static final String PARAMETER_CERTIFIER_CODE = "certifier_code";
+    
+    // Undefined attribut
+    private static final int UNDEFINED_ATTRIBUT_ID = -1;
 
 
     /**
@@ -108,7 +113,15 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
                 for ( String key : listAttributeCertifiable )
                 {
                     AttributeKey attributeKey = AttributeKeyHome.findByKey( key );
-                    listAttributeKeys.add( attributeKey );
+                    if( attributeKey==null )
+                    {
+                    	attributeKey = new AttributeKey( );
+                    	attributeKey.setId( UNDEFINED_ATTRIBUT_ID );
+                    	attributeKey.setKeyName( key );
+                    	attributeKey.setName( StringUtils.EMPTY );
+                    	
+                    }
+                	listAttributeKeys.add( attributeKey );
                 }
                 model.put( MARK_CERTIFIER, certifier );
                 model.put( MARK_CERTIFIER_ATTRIBUTES_CERTIFIABLE, listAttributeKeys );

@@ -49,7 +49,6 @@ public class AttributeChange
     private int _nAuthorType;
     private String _strIdentityConnectionId;
     private String _strCustomerId;
-    private String _strIdentityName;
     private String _strChangedKey;
     private String _strOldValue;
     private String _strNewValue;
@@ -201,27 +200,6 @@ public class AttributeChange
     public void setCustomerId( String strCustomerId )
     {
         _strCustomerId = strCustomerId;
-    }
-
-    /**
-     * Returns the IdentityName
-     *
-     * @return The IdentityName
-     */
-    public String getIdentityName( )
-    {
-        return _strIdentityName;
-    }
-
-    /**
-     * Sets the IdentityName
-     *
-     * @param strIdentityName
-     *            The IdentityName
-     */
-    public void setIdentityName( String strIdentityName )
-    {
-        _strIdentityName = strIdentityName;
     }
 
     /**

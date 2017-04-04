@@ -152,7 +152,6 @@ public final class IdentityStoreNotifyListenerService
         change.setIdentityId( identity.getId( ) );
         change.setIdentityConnectionId( identity.getConnectionId( ) );
         change.setCustomerId( identity.getCustomerId( ) );
-        change.setIdentityName( identity.getFirstName( ) + " " + identity.getFamilyName( ) );
         change.setChangedKey( strKey );
         change.setOldValue( strOldValue );
         change.setNewValue( strValue );

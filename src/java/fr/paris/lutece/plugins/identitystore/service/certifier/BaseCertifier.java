@@ -51,16 +51,22 @@ import java.util.List;
  */
 public class BaseCertifier implements Certifier
 {
-    private static final int NO_CERTIFICATE_EXPIRATION_DELAY = -1;
-
     protected String _strCode;
     protected String _strName;
     protected String _strDescription;
     protected int _nCertificateLevel;
     protected String _strIconUrl;
     protected int _nExpirationDelay;
-    protected static List<String> _listCertifiableAttributes;
+    protected List<String> _listCertifiableAttributes;
 
+    /**
+     * @{@inheritDoc}
+     */
+    public String getCode()
+    {
+        return _strCode;
+    }
+    
     /**
      * {@inheritDoc }
      */
@@ -71,11 +77,48 @@ public class BaseCertifier implements Certifier
     }
 
     /**
-     * @{@inheritDoc}
+     * {@inheritDoc } 
      */
-    public String getCode()
+    @Override
+    public String getIconUrl()
     {
-        return _strCode;
+        return _strIconUrl;
+    }
+
+    /**
+     * {@inheritDoc } 
+     */
+    @Override
+    public String getDescription()
+    {
+        return _strDescription;
+    }
+
+    /**
+     * {@inheritDoc } 
+     */
+    @Override
+    public int getCertificateLevel()
+    {
+        return _nCertificateLevel;
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public int getCertificationExpirationDelay()
+    {
+	    return _nExpirationDelay;
+    }
+
+	/**
+     * {@inheritDoc } 
+     */
+    @Override
+    public List<String> getCertifiableAttributesList( )
+    {
+        return _listCertifiableAttributes;
     }
 
     /**
@@ -99,16 +142,6 @@ public class BaseCertifier implements Certifier
     }
 
     /**
-     * Returns the Description
-     *
-     * @return The Description
-     */
-    public String getDescription()
-    {
-        return _strDescription;
-    }
-
-    /**
      * Sets the Description
      *
      * @param strDescription The Description
@@ -119,16 +152,6 @@ public class BaseCertifier implements Certifier
     }
 
     /**
-     * Returns the CertificateLevel
-     *
-     * @return The CertificateLevel
-     */
-    public int getCertificateLevel()
-    {
-        return _nCertificateLevel;
-    }
-
-    /**
      * Sets the CertificateLevel
      *
      * @param nCertificateLevel The CertificateLevel
@@ -136,15 +159,6 @@ public class BaseCertifier implements Certifier
     public void setCertificateLevel( int nCertificateLevel )
     {
         _nCertificateLevel = nCertificateLevel;
-    }
-
-    /**
-     * {@inheritDoc } 
-     */
-    @Override
-    public String getIconUrl()
-    {
-        return _strIconUrl;
     }
 
     /**
@@ -172,18 +186,9 @@ public class BaseCertifier implements Certifier
      *
      * @param list The list
      */
-    public void setCertifiableAttributesList( List list )
+    public void setCertifiableAttributesList( List<String> list )
     {
         _listCertifiableAttributes = list;
-    }
-    
-    /**
-     * @{@inheritDoc}
-     */
-    @Override
-    public List<String> getCertifiableAttributesList( )
-    {
-        return _listCertifiableAttributes;
     }
 
     /**
