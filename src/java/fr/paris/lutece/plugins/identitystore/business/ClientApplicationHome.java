@@ -144,13 +144,13 @@ public final class ClientApplicationHome
     {
         return _daoAttributeRights.selectAttributeRights( clientApp, _plugin );
     }
-    
+
     /**
      * @return map of all attribute wich have application rights
      */
     public static Map<String, AttributeApplicationsRight> getAttributeApplicationsRight( )
     {
-    	return _daoAttributeRights.getAttributeApplicationsRight( _plugin );
+        return _daoAttributeRights.getAttributeApplicationsRight( _plugin );
     }
 
     /**
@@ -177,7 +177,7 @@ public final class ClientApplicationHome
             _daoAttributeRights.insert( attributeRight, _plugin );
         }
     }
-    
+
     /*
      * methods for link certifier and ClientApplication
      */
@@ -190,9 +190,9 @@ public final class ClientApplicationHome
      */
     public static List<Certifier> getCertifiers( ClientApplication clientApp )
     {
-    	return _daoClientApplication.getCertifiers( clientApp.getId( ), _plugin );
+        return _daoClientApplication.getCertifiers( clientApp.getId( ), _plugin );
     }
-    
+
     /**
      * Add a certifier to a ClientApplication
      *
@@ -203,9 +203,9 @@ public final class ClientApplicationHome
      */
     public static void addCertifier( ClientApplication clientApp, Certifier certifier )
     {
-    	_daoClientApplication.addCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
+        _daoClientApplication.addCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
     }
-    
+
     /**
      * Delete a certifier to a ClientApplication
      *
@@ -216,9 +216,9 @@ public final class ClientApplicationHome
      */
     public static void deleteCertifier( ClientApplication clientApp, Certifier certifier )
     {
-    	_daoClientApplication.deleteCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
+        _daoClientApplication.deleteCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
     }
-    
+
     /**
      * Delete all certifier to a ClientApplication
      *
@@ -227,6 +227,6 @@ public final class ClientApplicationHome
      */
     public static void cleanCertifiers( ClientApplication clientApp )
     {
-    	_daoClientApplication.cleanCertifiers( clientApp.getId( ), _plugin );
+        _daoClientApplication.cleanCertifiers( clientApp.getId( ), _plugin );
     }
 }

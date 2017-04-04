@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -46,33 +45,34 @@ import java.util.TreeMap;
 /**
  * CertifierRegistry
  */
-public class CertifierRegistry 
+public class CertifierRegistry
 {
     private static CertifierRegistry _singleton;
     private static Map<String, Certifier> _mapCertifiers;
-    
+
     /**
      * Private constructor;
      */
-    private CertifierRegistry()
+    private CertifierRegistry( )
     {
-        
+
     }
-    
+
     /**
      * Returns the unique instance
+     * 
      * @return The instance
      */
     public static CertifierRegistry instance( )
     {
-        if( _singleton == null )
+        if ( _singleton == null )
         {
             _singleton = new CertifierRegistry( );
             List<Certifier> list = SpringContextService.getBeansOfType( Certifier.class );
             _mapCertifiers = new TreeMap<String, Certifier>( );
-            for( Certifier certifier : list )
+            for ( Certifier certifier : list )
             {
-                _mapCertifiers.put( certifier.getCode( ) , certifier );
+                _mapCertifiers.put( certifier.getCode( ), certifier );
                 AppLogService.info( "New identitystore certifier registered : " + certifier.getName( ) );
             }
         }
@@ -80,24 +80,27 @@ public class CertifierRegistry
     }
 
     /**
-     * Get a certifier by its code 
-     * @param strCertifierCode The code
+     * Get a certifier by its code
+     * 
+     * @param strCertifierCode
+     *            The code
      * @return The certifier
-     * @throws CertifierNotFoundException if the certifier is not found
+     * @throws CertifierNotFoundException
+     *             if the certifier is not found
      */
     public Certifier getCertifier( String strCertifierCode ) throws CertifierNotFoundException
     {
         Certifier certifier = _mapCertifiers.get( strCertifierCode );
-        if( certifier == null )
+        if ( certifier == null )
         {
             throw new CertifierNotFoundException( "Unknown certifier : " + strCertifierCode );
         }
-        return certifier;        
+        return certifier;
     }
 
     public Collection<Certifier> getCertifiersList( )
     {
         return _mapCertifiers.values( );
     }
-    
+
 }

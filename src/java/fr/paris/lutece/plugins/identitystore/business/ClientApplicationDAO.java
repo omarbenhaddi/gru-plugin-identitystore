@@ -256,13 +256,13 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         return clientApplication;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Certifier> getCertifiers( int nKey, Plugin plugin )
     {
-    	DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CERTIFICATE_APP, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CERTIFICATE_APP, plugin );
         daoUtil.setInt( 1, nKey );
         daoUtil.executeQuery( );
 
@@ -270,17 +270,17 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
 
         while ( daoUtil.next( ) )
         {
-        	String strCertifCode = daoUtil.getString( 1 );
-        	try
-        	{
-        		Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
-        		listCertifiers.add( certifier );
-        	}
-        	catch ( CertifierNotFoundException e )
-        	{
-        		//delete ref ??
-        		//be careful of daoUtil.free( ) !
-        	}
+            String strCertifCode = daoUtil.getString( 1 );
+            try
+            {
+                Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
+                listCertifiers.add( certifier );
+            }
+            catch( CertifierNotFoundException e )
+            {
+                // delete ref ??
+                // be careful of daoUtil.free( ) !
+            }
         }
 
         daoUtil.free( );
@@ -288,50 +288,50 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         return listCertifiers;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addCertifier( int nKey, String strCertifier, Plugin plugin )
     {
-    	 DAOUtil daoUtil = new DAOUtil( SQL_QUERY_ADD_CERTIFICATE_APP, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_ADD_CERTIFICATE_APP, plugin );
 
-         int nIndex = 1;
+        int nIndex = 1;
 
-         daoUtil.setInt( nIndex++, nKey );
-         daoUtil.setString( nIndex++, strCertifier );
-         daoUtil.executeUpdate( );
-         daoUtil.free( );	    
+        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.setString( nIndex++, strCertifier );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteCertifier( int nKey, String strCertifier, Plugin plugin )
     {
-	   	 DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_CERTIFICATE_APP, plugin );
-	
-	     int nIndex = 1;
-	
-	     daoUtil.setInt( nIndex++, nKey );
-	     daoUtil.setString( nIndex++, strCertifier );
-	     daoUtil.executeUpdate( );
-	     daoUtil.free( );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_CERTIFICATE_APP, plugin );
+
+        int nIndex = 1;
+
+        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.setString( nIndex++, strCertifier );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void cleanCertifiers( int nKey, Plugin plugin )
     {
-	   	 DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_CERTIFICATE_APP, plugin );
-	 	
-	     int nIndex = 1;
-	
-	     daoUtil.setInt( nIndex++, nKey );
-	     daoUtil.executeUpdate( );
-	     daoUtil.free( );   
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_CERTIFICATE_APP, plugin );
+
+        int nIndex = 1;
+
+        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
     }
 }

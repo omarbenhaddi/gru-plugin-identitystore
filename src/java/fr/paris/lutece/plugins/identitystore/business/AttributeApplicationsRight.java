@@ -41,72 +41,76 @@ import java.util.List;
  */
 public class AttributeApplicationsRight
 {
-	private String _strAttributeKey;
-	private List<String> _listReadApplications = new ArrayList<String>( );
-	private List<String> _listWriteApplications = new ArrayList<String>( );
-	private List<String> _listCertifApplications = new ArrayList<String>( );
-	
-	/**
-	 * @return the strAttributeKey
-	 */
-	public String getAttributeKey()
-	{
-		return _strAttributeKey;
-	}
-	
-	/**
-	 * @param strAttributeKey the strAttributeKey to set
-	 */
-	public void setAttributeKey( String strAttributeKey )
-	{
-		this._strAttributeKey = strAttributeKey;
-	}
-	
-	/**
-	 * @return the listReadApplications
-	 */
-	public List<String> getReadApplications( )
-	{
-		return _listReadApplications;
-	}
-	
-	/**
-	 * @param strApplicationCode an application code with read right
-	 */
-	public void addReadApplication( String strApplicationCode )
-	{
-		this._listReadApplications.add( strApplicationCode );
-	}
-	
-	/**
-	 * @return the listWriteApplications
-	 */
-	public List<String> getWriteApplications( )
-	{
-		return _listWriteApplications;
-	}
-	
-	/**
-	 * @param strApplicationCode an application code with write right
-	 */
-	public void addWriteApplication( String strApplicationCode )
-	{
-		this._listWriteApplications.add( strApplicationCode );
-	}
-	
-	/**
-	 * @return the listCertifApplications
-	 */
-	public List<String> getCertifApplications( )
-	{
-		return _listCertifApplications;
-	}
-	
-	/**
-	 * @param strApplicationCode an application code with certification right
-	 */
-	public void addCertifApplication( String strApplicationCode )
-	{
-		this._listCertifApplications.add( strApplicationCode );
-	}
+    private String _strAttributeKey;
+    private List<String> _listReadApplications = new ArrayList<String>( );
+    private List<String> _listWriteApplications = new ArrayList<String>( );
+    private List<String> _listCertifApplications = new ArrayList<String>( );
+
+    /**
+     * @return the strAttributeKey
+     */
+    public String getAttributeKey( )
+    {
+        return _strAttributeKey;
+    }
+
+    /**
+     * @param strAttributeKey
+     *            the strAttributeKey to set
+     */
+    public void setAttributeKey( String strAttributeKey )
+    {
+        this._strAttributeKey = strAttributeKey;
+    }
+
+    /**
+     * @return the listReadApplications
+     */
+    public List<String> getReadApplications( )
+    {
+        return _listReadApplications;
+    }
+
+    /**
+     * @param strApplicationCode
+     *            an application code with read right
+     */
+    public void addReadApplication( String strApplicationCode )
+    {
+        this._listReadApplications.add( strApplicationCode );
+    }
+
+    /**
+     * @return the listWriteApplications
+     */
+    public List<String> getWriteApplications( )
+    {
+        return _listWriteApplications;
+    }
+
+    /**
+     * @param strApplicationCode
+     *            an application code with write right
+     */
+    public void addWriteApplication( String strApplicationCode )
+    {
+        this._listWriteApplications.add( strApplicationCode );
+    }
+
+    /**
+     * @return the listCertifApplications
+     */
+    public List<String> getCertifApplications( )
+    {
+        return _listCertifApplications;
+    }
+
+    /**
+     * @param strApplicationCode
+     *            an application code with certification right
+     */
+    public void addCertifApplication( String strApplicationCode )
+    {
+        this._listCertifApplications.add( strApplicationCode );
+    }
 }

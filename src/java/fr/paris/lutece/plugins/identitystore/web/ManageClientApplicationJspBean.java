@@ -288,7 +288,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     @View( VIEW_MANAGE_CLIENTAPPLICATION_CERTIFICATOR )
     public String getManageClientApplicationCertificators( HttpServletRequest request )
     {
-    	int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
+        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
 
         if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
         {
@@ -298,11 +298,11 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         Map<String, Object> model = getModel( );
         model.put( MARK_CLIENTAPPLICATION, _clientApplication );
         model.put( MARK_CERTIFIERS, CertifierRegistry.instance( ).getCertifiersList( ) );
-        //here we use a map as freemarker version doesn't support seq_contains
+        // here we use a map as freemarker version doesn't support seq_contains
         Map<String, Boolean> mapCertifierClientApp = new HashMap<String, Boolean>( );
         for ( Certifier certifier : ClientApplicationHome.getCertifiers( _clientApplication ) )
         {
-        	mapCertifierClientApp.put( certifier.getCode( ), Boolean.TRUE );
+            mapCertifierClientApp.put( certifier.getCode( ), Boolean.TRUE );
         }
         model.put( MARK_CLIENTAPPLICATION_CERTIF_CODE_MAP, mapCertifierClientApp );
 
@@ -319,29 +319,29 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     @Action( ACTION_MANAGE_CLIENTAPPLICATION_CERTIFICATOR )
     public String doManageClientApplicationCertificators( HttpServletRequest request )
     {
-    	int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
-    	String[] tCertifiers = request.getParameterValues( PARAMETER_CERTIFIERS_AUTH );
+        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
+        String [ ] tCertifiers = request.getParameterValues( PARAMETER_CERTIFIERS_AUTH );
 
         if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
         {
-        	return redirect( request, VIEW_MANAGE_CLIENTAPPLICATION_CERTIFICATOR, PARAMETER_ID_CLIENTAPPLICATION, nId);
+            return redirect( request, VIEW_MANAGE_CLIENTAPPLICATION_CERTIFICATOR, PARAMETER_ID_CLIENTAPPLICATION, nId );
         }
-        //we have to remove deselected certifier and add new selected certifier
+        // we have to remove deselected certifier and add new selected certifier
         ClientApplicationHome.cleanCertifiers( _clientApplication );
         for ( String strCertifierCode : tCertifiers )
         {
-        	try
-        	{
-        		Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-        		ClientApplicationHome.addCertifier( _clientApplication, certifier );
-        	}
-        	catch ( CertifierNotFoundException e )
-        	{
-        		AppLogService.debug( e );
-        	}        	
+            try
+            {
+                Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+                ClientApplicationHome.addCertifier( _clientApplication, certifier );
+            }
+            catch( CertifierNotFoundException e )
+            {
+                AppLogService.debug( e );
+            }
         }
 
-        return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId);
+        return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
     }
 
     /**
@@ -354,22 +354,22 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     @Action( ACTION_REMOVE_CLIENTAPPLICATION_CERTIFICATOR )
     public String doClientApplicationCertificator( HttpServletRequest request )
     {
-    	int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
-    	if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
+        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
+        if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
         {
-        	return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
+            return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
         }
         String strCertifierCode = request.getParameter( PARAMETER_CERTIFIER_CODE );
-        
-    	try
-    	{
-    		Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-    		ClientApplicationHome.deleteCertifier( _clientApplication, certifier );
-    	}
-    	catch ( CertifierNotFoundException e )
-    	{
-    		AppLogService.debug( e );
-    	}
+
+        try
+        {
+            Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+            ClientApplicationHome.deleteCertifier( _clientApplication, certifier );
+        }
+        catch( CertifierNotFoundException e )
+        {
+            AppLogService.debug( e );
+        }
 
         return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
     }

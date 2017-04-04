@@ -468,11 +468,11 @@ public final class IdentityStoreService
             {
                 certificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
             }
-            catch (Exception e)
+            catch( Exception e )
             {
-                //Unable to get the certificate from the Dto; set the updateAttribute with empty certificate
+                // Unable to get the certificate from the Dto; set the updateAttribute with empty certificate
             }
-            
+
             setAttribute( identity, attributeDto.getKey( ), attributeDto.getValue( ), file, author, certificate );
             sb.append( attributeDto.getKey( ) + "," );
         }
@@ -596,7 +596,8 @@ public final class IdentityStoreService
 
         // attribute value changed or attribute has new certification
         if ( !bValueUnchanged
-                || ( ( certificate != null ) && ( ( attributeCertifPrev == null ) || ( !certificate.getCertifierCode( ).equals( attributeCertifPrev.getCertifierCode( ) ) ) ) ) )
+                || ( ( certificate != null ) && ( ( attributeCertifPrev == null ) || ( !certificate.getCertifierCode( ).equals(
+                        attributeCertifPrev.getCertifierCode( ) ) ) ) ) )
         {
             if ( certificate != null )
             {
@@ -671,11 +672,10 @@ public final class IdentityStoreService
             attribute.setValue( StringUtils.EMPTY );
         }
     }
-    
+
     public static void certifyAttributes( IdentityChangeDto _identityChangeDto )
     {
-        
+
     }
 
-    
 }

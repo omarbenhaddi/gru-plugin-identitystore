@@ -118,22 +118,22 @@ public final class DtoConverter
                     try
                     {
                         Certifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
-                        
+
                         certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
                         certifDto.setCertifierCode( attribute.getCertificate( ).getCertifierCode( ) );
                         certifDto.setCertifierName( certifier.getName( ) );
                         certifDto.setCertifierLevel( attribute.getCertificate( ).getCertificateLevel( ) );
                     }
-                    catch (CertifierNotFoundException e)
+                    catch( CertifierNotFoundException e )
                     {
-                        //Identity contrains attribute certified with a certifier not found;
-                        //We dont populate the attrDto with an empty certificate
+                        // Identity contrains attribute certified with a certifier not found;
+                        // We dont populate the attrDto with an empty certificate
                     }
                     finally
                     {
                         attrDto.setCertificate( certifDto );
                     }
-                    
+
                 }
 
                 mapAttributeDto.put( attrDto.getKey( ), attrDto );
@@ -209,10 +209,10 @@ public final class DtoConverter
             attributeCertificate.setCertificateLevel( certificateDto.getCertifierLevel( ) );
             attributeCertificate.setCertifierCode( certificateDto.getCertifierCode( ) );
             attributeCertificate.setCertifierName( certificateDto.getCertifierName( ) );
-            
-            //check existence of certifier, with given certifier code; throws CertifierNotFoundException
+
+            // check existence of certifier, with given certifier code; throws CertifierNotFoundException
             CertifierRegistry.instance( ).getCertifier( attributeCertificate.getCertifierCode( ) );
-            
+
             attributeCertificate.setCertificateDate( new Timestamp( ( new Date( ) ).getTime( ) ) );
             if ( ( certificateDto.getCertificateExpirationDate( ) != null ) && certificateDto.getCertificateExpirationDate( ).before( new Date( ) ) )
             {
@@ -222,7 +222,7 @@ public final class DtoConverter
             if ( certificateDto.getCertificateExpirationDate( ) != null )
             {
                 attributeCertificate.setExpirationDate( new Timestamp( ( certificateDto.getCertificateExpirationDate( ) ).getTime( ) ) );
-            }                 
+            }
         }
 
         return attributeCertificate;

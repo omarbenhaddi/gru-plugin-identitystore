@@ -143,54 +143,54 @@ public final class AttributeRightDAO implements IAttributeRightDAO
         daoUtil.free( );
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, AttributeApplicationsRight> getAttributeApplicationsRight( Plugin plugin )
     {
-    	Map<String, AttributeApplicationsRight> mapApplicationsRight = new HashMap<String, AttributeApplicationsRight>( );
+        Map<String, AttributeApplicationsRight> mapApplicationsRight = new HashMap<String, AttributeApplicationsRight>( );
 
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_RIGHTS, plugin );
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )
         {
-        	int nIndex = 1;
+            int nIndex = 1;
 
             String strAttributKey = daoUtil.getString( nIndex++ );
             String strApplicationCode = daoUtil.getString( nIndex++ );
             boolean bHasRead = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
             boolean bHasWrite = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
             boolean bHasCertif = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
-            
+
             AttributeApplicationsRight attributeApplicationsRight;
-            if( mapApplicationsRight.containsKey( strAttributKey ) )
+            if ( mapApplicationsRight.containsKey( strAttributKey ) )
             {
-            	attributeApplicationsRight = mapApplicationsRight.get( strAttributKey );
+                attributeApplicationsRight = mapApplicationsRight.get( strAttributKey );
             }
             else
             {
-            	attributeApplicationsRight = new AttributeApplicationsRight( );
-            	attributeApplicationsRight.setAttributeKey( strAttributKey );
+                attributeApplicationsRight = new AttributeApplicationsRight( );
+                attributeApplicationsRight.setAttributeKey( strAttributKey );
             }
-            
-            if( bHasRead )
+
+            if ( bHasRead )
             {
-            	attributeApplicationsRight.addReadApplication( strApplicationCode );
+                attributeApplicationsRight.addReadApplication( strApplicationCode );
             }
-            if( bHasWrite )
+            if ( bHasWrite )
             {
-            	attributeApplicationsRight.addWriteApplication( strApplicationCode );
+                attributeApplicationsRight.addWriteApplication( strApplicationCode );
             }
-            if( bHasCertif )
+            if ( bHasCertif )
             {
-            	attributeApplicationsRight.addCertifApplication( strApplicationCode );
+                attributeApplicationsRight.addCertifApplication( strApplicationCode );
             }
 
             mapApplicationsRight.put( strAttributKey, attributeApplicationsRight );
         }
-        
+
         daoUtil.free( );
 
         return mapApplicationsRight;

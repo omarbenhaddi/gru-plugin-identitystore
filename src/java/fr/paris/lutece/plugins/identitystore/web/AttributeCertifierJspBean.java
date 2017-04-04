@@ -71,13 +71,12 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     // Views
     private static final String VIEW_MANAGE_ATTRIBUTECERTIFIERS = "manageAttributeCertifiers";
     private static final String VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE = "certifierAttributesCertifiable";
-    
+
     // Parameters
     private static final String PARAMETER_CERTIFIER_CODE = "certifier_code";
-    
+
     // Undefined attribut
     private static final int UNDEFINED_ATTRIBUT_ID = -1;
-
 
     /**
      * Build the Manage View
@@ -89,20 +88,20 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     @View( value = VIEW_MANAGE_ATTRIBUTECERTIFIERS, defaultView = true )
     public String getManageAttributeCertifiers( HttpServletRequest request )
     {
-        Collection<Certifier> listAttributeCertifiers = CertifierRegistry.instance().getCertifiersList( );
-        Map<String, Object> model = getModel();
+        Collection<Certifier> listAttributeCertifiers = CertifierRegistry.instance( ).getCertifiersList( );
+        Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_MANAGE_ATTRIBUTECERTIFIERS, model );
     }
-    
+
     @View( value = VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE )
     public String getCertifierAttributesCertifiable( HttpServletRequest request )
     {
         String strCertifierCode = request.getParameter( PARAMETER_CERTIFIER_CODE );
-        
-        Map<String,Object> model = getModel( );
-        
+
+        Map<String, Object> model = getModel( );
+
         if ( strCertifierCode != null )
         {
             try
@@ -113,28 +112,26 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
                 for ( String key : listAttributeCertifiable )
                 {
                     AttributeKey attributeKey = AttributeKeyHome.findByKey( key );
-                    if( attributeKey==null )
+                    if ( attributeKey == null )
                     {
-                    	attributeKey = new AttributeKey( );
-                    	attributeKey.setId( UNDEFINED_ATTRIBUT_ID );
-                    	attributeKey.setKeyName( key );
-                    	attributeKey.setName( StringUtils.EMPTY );
-                    	
+                        attributeKey = new AttributeKey( );
+                        attributeKey.setId( UNDEFINED_ATTRIBUT_ID );
+                        attributeKey.setKeyName( key );
+                        attributeKey.setName( StringUtils.EMPTY );
+
                     }
-                	listAttributeKeys.add( attributeKey );
+                    listAttributeKeys.add( attributeKey );
                 }
                 model.put( MARK_CERTIFIER, certifier );
                 model.put( MARK_CERTIFIER_ATTRIBUTES_CERTIFIABLE, listAttributeKeys );
             }
-            catch (CertifierNotFoundException e)
+            catch( CertifierNotFoundException e )
             {
-                 //Unable to find certifier
+                // Unable to find certifier
             }
         }
-        
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE, model );
     }
-    
-    
+
 }

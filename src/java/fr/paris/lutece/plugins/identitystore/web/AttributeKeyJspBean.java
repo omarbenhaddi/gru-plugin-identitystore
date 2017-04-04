@@ -276,7 +276,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         model.put( MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );
         model.put( MARK_LOCALE, AdminUserService.getLocale( request ).getLanguage( ) );
     }
-    
+
     /**
      * Returns the display of attribute with application rights
      *
@@ -288,8 +288,9 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String getApplicationRight( HttpServletRequest request )
     {
         List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys, JSP_MANAGE_ATTRIBUTEKEYS+"?view="+VIEW_APP_RIGHT_ATTRIBUTES );
-        
+        Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys, JSP_MANAGE_ATTRIBUTEKEYS + "?view="
+                + VIEW_APP_RIGHT_ATTRIBUTES );
+
         Map<String, AttributeApplicationsRight> mapAttributeApplicationsRight = ClientApplicationHome.getAttributeApplicationsRight( );
         model.put( MARK_ATTRIBUTE_APPS_RIGHT_MAP, mapAttributeApplicationsRight );
 

@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
@@ -49,45 +48,53 @@ public interface Certifier extends LuteceService
 
     /**
      * Certify attributes
-     * @param identity The identity data
-     * @param strClientCode The client application code
+     * 
+     * @param identity
+     *            The identity data
+     * @param strClientCode
+     *            The client application code
      */
-    void certify( IdentityDto identity , String strClientCode );
-    
+    void certify( IdentityDto identity, String strClientCode );
+
     /**
      * Get the certifier code
+     * 
      * @return the certifier code
      */
     String getCode( );
-    
+
     /**
      * Get the Icon URL
+     * 
      * @return The Icon URL
      */
     String getIconUrl( );
 
-	/**
-	 * Returns the Description
-	 * @return The Description
-	 */
-	String getDescription( );
+    /**
+     * Returns the Description
+     * 
+     * @return The Description
+     */
+    String getDescription( );
 
     /**
      * Returns the CertificateLevel
+     * 
      * @return The CertificateLevel
      */
-	int getCertificateLevel( );
-	
-	/**
-	 * Returns the Certification expiration delay
-	 * have to return NO_CERTIFICATE_EXPIRATION_DELAY if no expiration
-	 * @return the certification expiration delay
-	 */
-	int getCertificationExpirationDelay( );
-    
+    int getCertificateLevel( );
+
+    /**
+     * Returns the Certification expiration delay have to return NO_CERTIFICATE_EXPIRATION_DELAY if no expiration
+     * 
+     * @return the certification expiration delay
+     */
+    int getCertificationExpirationDelay( );
+
     /**
      * Get the certifiable attribute keys list
-     * @return a list of certifiable attributes keys 
+     * 
+     * @return a list of certifiable attributes keys
      */
     List<String> getCertifiableAttributesList( );
 }

@@ -60,60 +60,60 @@ public class BaseCertifier implements Certifier
     protected List<String> _listCertifiableAttributes;
 
     /**
-     * @{@inheritDoc}
+     * @{@inheritDoc
      */
-    public String getCode()
+    public String getCode( )
     {
         return _strCode;
     }
-    
+
     /**
      * {@inheritDoc }
      */
     @Override
-    public String getName()
+    public String getName( )
     {
         return _strName;
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
-    public String getIconUrl()
+    public String getIconUrl( )
     {
         return _strIconUrl;
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
-    public String getDescription()
+    public String getDescription( )
     {
         return _strDescription;
     }
 
     /**
-     * {@inheritDoc } 
+     * {@inheritDoc }
      */
     @Override
-    public int getCertificateLevel()
+    public int getCertificateLevel( )
     {
         return _nCertificateLevel;
     }
 
     /**
-	 * {@inheritDoc}
-	 */
+     * {@inheritDoc}
+     */
     @Override
-    public int getCertificationExpirationDelay()
+    public int getCertificationExpirationDelay( )
     {
-	    return _nExpirationDelay;
+        return _nExpirationDelay;
     }
 
-	/**
-     * {@inheritDoc } 
+    /**
+     * {@inheritDoc }
      */
     @Override
     public List<String> getCertifiableAttributesList( )
@@ -124,7 +124,8 @@ public class BaseCertifier implements Certifier
     /**
      * Sets the Code
      *
-     * @param strCode The Code
+     * @param strCode
+     *            The Code
      */
     public void setCode( String strCode )
     {
@@ -134,7 +135,8 @@ public class BaseCertifier implements Certifier
     /**
      * Sets the Name
      *
-     * @param strName The Name
+     * @param strName
+     *            The Name
      */
     public void setName( String strName )
     {
@@ -144,7 +146,8 @@ public class BaseCertifier implements Certifier
     /**
      * Sets the Description
      *
-     * @param strDescription The Description
+     * @param strDescription
+     *            The Description
      */
     public void setDescription( String strDescription )
     {
@@ -154,7 +157,8 @@ public class BaseCertifier implements Certifier
     /**
      * Sets the CertificateLevel
      *
-     * @param nCertificateLevel The CertificateLevel
+     * @param nCertificateLevel
+     *            The CertificateLevel
      */
     public void setCertificateLevel( int nCertificateLevel )
     {
@@ -164,7 +168,8 @@ public class BaseCertifier implements Certifier
     /**
      * Sets the IconUrl
      *
-     * @param strIconUrl The IconUrl
+     * @param strIconUrl
+     *            The IconUrl
      */
     public void setIconUrl( String strIconUrl )
     {
@@ -174,7 +179,8 @@ public class BaseCertifier implements Certifier
     /**
      * Sets the ExpirationDelay
      *
-     * @param nExpirationDelay The ExpirationDelay
+     * @param nExpirationDelay
+     *            The ExpirationDelay
      */
     public void setExpirationDelay( int nExpirationDelay )
     {
@@ -184,7 +190,8 @@ public class BaseCertifier implements Certifier
     /**
      * Setter for Spring Context
      *
-     * @param list The list
+     * @param list
+     *            The list
      */
     public void setCertifiableAttributesList( List<String> list )
     {
@@ -194,37 +201,39 @@ public class BaseCertifier implements Certifier
     /**
      * Certify the attribute change
      *
-     * @param identityDto The identity data
-     * @param strClientCode the client code
+     * @param identityDto
+     *            The identity data
+     * @param strClientCode
+     *            the client code
      */
     @Override
     public void certify( IdentityDto identityDto, String strClientCode )
     {
-        AttributeCertificate certificate = new AttributeCertificate();
-        certificate.setCertificateDate( new Timestamp( new Date().getTime() ) );
+        AttributeCertificate certificate = new AttributeCertificate( );
+        certificate.setCertificateDate( new Timestamp( new Date( ).getTime( ) ) );
         certificate.setCertificateLevel( _nCertificateLevel );
         certificate.setCertifierName( _strName );
         certificate.setCertifierCode( _strCode );
 
-        if( _nExpirationDelay != NO_CERTIFICATE_EXPIRATION_DELAY )
+        if ( _nExpirationDelay != NO_CERTIFICATE_EXPIRATION_DELAY )
         {
-            Calendar c = Calendar.getInstance();
-            c.setTime( new Date() );
+            Calendar c = Calendar.getInstance( );
+            c.setTime( new Date( ) );
             c.add( Calendar.DATE, _nExpirationDelay );
-            certificate.setExpirationDate( new Timestamp( c.getTime().getTime() ) );
+            certificate.setExpirationDate( new Timestamp( c.getTime( ).getTime( ) ) );
         }
 
-        ChangeAuthor author = new ChangeAuthor();
+        ChangeAuthor author = new ChangeAuthor( );
         author.setApplication( _strName );
-        author.setType( AuthorType.TYPE_USER_OWNER.getTypeValue() );
+        author.setType( AuthorType.TYPE_USER_OWNER.getTypeValue( ) );
 
-        Identity identity = IdentityHome.findByConnectionId( identityDto.getConnectionId() );
-        for( String strField : _listCertifiableAttributes )
+        Identity identity = IdentityHome.findByConnectionId( identityDto.getConnectionId( ) );
+        for ( String strField : _listCertifiableAttributes )
         {
-            AttributeDto attribute = identityDto.getAttributes().get( strField );
-            if( ( attribute != null ) && ( attribute.getValue() != null ) )
+            AttributeDto attribute = identityDto.getAttributes( ).get( strField );
+            if ( ( attribute != null ) && ( attribute.getValue( ) != null ) )
             {
-                IdentityStoreService.setAttribute( identity, strField, attribute.getValue(), author, certificate );
+                IdentityStoreService.setAttribute( identity, strField, attribute.getValue( ), author, certificate );
             }
         }
 

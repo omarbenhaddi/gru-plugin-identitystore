@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -40,11 +39,13 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 /**
  * CertifierNotFoundException
  */
-public class CertifierNotFoundException extends Exception 
+public class CertifierNotFoundException extends Exception
 {
     /**
      * Constructor
-     * @param strMessage The message 
+     * 
+     * @param strMessage
+     *            The message
      */
     public CertifierNotFoundException( String strMessage )
     {

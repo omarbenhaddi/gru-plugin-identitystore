@@ -127,7 +127,7 @@ public interface IClientApplicationDAO
      * @return The ClientApplication
      */
     ClientApplication selectByCode( String strCode, Plugin plugin );
-    
+
     /*
      * methods for link certifier and ClientApplication
      */
@@ -140,8 +140,8 @@ public interface IClientApplicationDAO
      *            The plugin
      * @return list of allowed certifiers
      */
-    List<Certifier> getCertifiers( int nKey, Plugin plugin);
-    
+    List<Certifier> getCertifiers( int nKey, Plugin plugin );
+
     /**
      * Add a certifier to a ClientApplication
      *
@@ -152,8 +152,8 @@ public interface IClientApplicationDAO
      * @param plugin
      *            The plugin
      */
-    void addCertifier( int nKey, String strCertifier, Plugin plugin);
-    
+    void addCertifier( int nKey, String strCertifier, Plugin plugin );
+
     /**
      * Delete a certifier to a ClientApplication
      *
@@ -164,8 +164,8 @@ public interface IClientApplicationDAO
      * @param plugin
      *            The plugin
      */
-    void deleteCertifier( int nKey, String strCertifier, Plugin plugin);
-    
+    void deleteCertifier( int nKey, String strCertifier, Plugin plugin );
+
     /**
      * Delete all certifiers to a ClientApplication
      *
@@ -174,5 +174,5 @@ public interface IClientApplicationDAO
      * @param plugin
      *            The plugin
      */
-    void cleanCertifiers( int nKey, Plugin plugin);
+    void cleanCertifiers( int nKey, Plugin plugin );
 }

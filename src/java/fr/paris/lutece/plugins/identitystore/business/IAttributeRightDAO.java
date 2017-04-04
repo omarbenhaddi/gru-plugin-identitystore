@@ -88,7 +88,7 @@ public interface IAttributeRightDAO
      *            the Plugin
      */
     void removeApplicationRights( ClientApplication clientApp, Plugin plugin );
-    
+
     /**
      * @param plugin
      *            the Plugin

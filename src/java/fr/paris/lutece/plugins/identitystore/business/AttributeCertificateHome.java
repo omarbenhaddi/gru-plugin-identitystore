@@ -113,12 +113,12 @@ public final class AttributeCertificateHome
         {
             certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
         }
-        catch (CertifierNotFoundException e)
+        catch( CertifierNotFoundException e )
         {
-            //Certifier not found
+            // Certifier not found
             return new AttributeCertificate( );
         }
-        
+
         return certificate;
     }
 
@@ -131,20 +131,19 @@ public final class AttributeCertificateHome
     {
         List<AttributeCertificate> listAttributeCertificate = _dao.selectAttributeCertificatesList( _plugin );
         List<AttributeCertificate> returnListAttributeCertificate = new ArrayList<AttributeCertificate>( );
-        
+
         for ( AttributeCertificate certificate : listAttributeCertificate )
         {
             try
             {
-                certificate.setCertifierName(
-                    CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
+                certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
                 returnListAttributeCertificate.add( certificate );
             }
-            catch (CertifierNotFoundException e)
+            catch( CertifierNotFoundException e )
             {
-                //No certifier found for this certificate
+                // No certifier found for this certificate
             }
-            
+
         }
         return returnListAttributeCertificate;
     }

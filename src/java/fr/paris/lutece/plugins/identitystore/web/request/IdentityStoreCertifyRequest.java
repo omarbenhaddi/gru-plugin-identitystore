@@ -32,7 +32,6 @@
  * License 1.0
  */
 
-
 package fr.paris.lutece.plugins.identitystore.web.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

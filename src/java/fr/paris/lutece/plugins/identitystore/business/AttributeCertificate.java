@@ -159,7 +159,7 @@ public class AttributeCertificate implements Serializable
     {
         _strCertifierCode = strCertifierCode;
     }
-    
+
     /**
      * Returns the Certifier name
      *
@@ -180,22 +180,23 @@ public class AttributeCertificate implements Serializable
     {
         _strCertifierName = strCertifierName;
     }
-    
+
     /**
      * Get the Icon URL
+     * 
      * @return the Icon URL
      */
-    public String getCertifierIconUrl()
+    public String getCertifierIconUrl( )
     {
         try
         {
-            Certifier certifier = CertifierRegistry.instance().getCertifier( _strCertifierCode );
-            return certifier.getIconUrl();
+            Certifier certifier = CertifierRegistry.instance( ).getCertifier( _strCertifierCode );
+            return certifier.getIconUrl( );
         }
         catch( CertifierNotFoundException ex )
         {
             return "";
         }
-        
+
     }
 }

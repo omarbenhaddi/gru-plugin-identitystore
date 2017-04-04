@@ -173,17 +173,17 @@ public final class IdentityStoreRestService
             return getErrorResponse( exception );
         }
     }
-    
+
     @POST
     @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
-    public Response certifyIdentityAttributes(  @FormParam( Constants.PARAM_IDENTITY_CHANGE ) String strIdentityChange, 
-             @FormParam( Constants.PARAM_CERTIFIER_CODE ) String strCertifierCode )
+    public Response certifyIdentityAttributes( @FormParam( Constants.PARAM_IDENTITY_CHANGE ) String strIdentityChange,
+            @FormParam( Constants.PARAM_CERTIFIER_CODE ) String strCertifierCode )
     {
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( strIdentityChange );
-            Certifier certifier = CertifierRegistry.instance().getCertifier( strCertifierCode );
-            certifier.certify( identityChangeDto.getIdentity() , identityChangeDto.getAuthor().getApplicationCode() );
+            Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+            certifier.certify( identityChangeDto.getIdentity( ), identityChangeDto.getAuthor( ).getApplicationCode( ) );
             IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( identityChangeDto, _objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
@@ -341,7 +341,7 @@ public final class IdentityStoreRestService
      * Fetches the object {@link IdentityChangeDto} from multi-part data
      *
      * @param strIdentityChange
-     *            
+     * 
      * @return the IdentityChangeDto
      * @throws IOException
      *             if an error occurs during the treatment
@@ -358,11 +358,10 @@ public final class IdentityStoreRestService
         {
             throw new AppException( "Error parsing json request " + strIdentityChange );
         }
- 
+
         return identityChangeDto;
     }
 
-    
     /**
      * Fetches the attached files from the specified multi-part data
      *
@@ -401,9 +400,10 @@ public final class IdentityStoreRestService
 
     private String fetchCertifierCode( FormDataMultiPart formParams )
     {
-        return formParams.getField( Constants.PARAM_CERTIFIER_CODE ).getValue();
-        
+        return formParams.getField( Constants.PARAM_CERTIFIER_CODE ).getValue( );
+
     }
+
     /**
      * build error response from exception
      *
