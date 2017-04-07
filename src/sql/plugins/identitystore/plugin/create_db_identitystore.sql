@@ -81,7 +81,7 @@ INDEX (id_client_app)
 -- Structure for table identitystore_client_application
 --
 
-CREATE TABLE identitystore_client_application_certifiers (
+CREATE TABLE identitystore_client_application (
 id_client_app int(6) NOT NULL,
 name varchar(100) NOT NULL UNIQUE,
 code varchar(100) NOT NULL UNIQUE,
