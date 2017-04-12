@@ -34,11 +34,9 @@
 
 package fr.paris.lutece.plugins.identitystore.service.certifier;
 
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -48,7 +46,7 @@ import java.util.TreeMap;
 public class CertifierRegistry
 {
     private static CertifierRegistry _singleton;
-    private static Map<String, Certifier> _mapCertifiers;
+    private static Map<String, AbstractCertifier> _mapCertifiers;
 
     /**
      * Private constructor;
@@ -68,13 +66,7 @@ public class CertifierRegistry
         if ( _singleton == null )
         {
             _singleton = new CertifierRegistry( );
-            List<Certifier> list = SpringContextService.getBeansOfType( Certifier.class );
-            _mapCertifiers = new TreeMap<String, Certifier>( );
-            for ( Certifier certifier : list )
-            {
-                _mapCertifiers.put( certifier.getCode( ), certifier );
-                AppLogService.info( "New identitystore certifier registered : " + certifier.getName( ) );
-            }
+            _mapCertifiers = new TreeMap<String, AbstractCertifier>( );
         }
         return _singleton;
     }
@@ -88,19 +80,34 @@ public class CertifierRegistry
      * @throws CertifierNotFoundException
      *             if the certifier is not found
      */
-    public Certifier getCertifier( String strCertifierCode ) throws CertifierNotFoundException
+    public AbstractCertifier getCertifier( String strCertifierCode ) throws CertifierNotFoundException
     {
-        Certifier certifier = _mapCertifiers.get( strCertifierCode );
+    	AbstractCertifier certifier = _mapCertifiers.get( strCertifierCode );
         if ( certifier == null )
         {
             throw new CertifierNotFoundException( "Unknown certifier : " + strCertifierCode );
         }
         return certifier;
     }
+    
+    /**
+     * Add a certifier to the registry
+     * @param certifier
+     */
+    public void register( AbstractCertifier certifier )
+    {
+    	_mapCertifiers.put( certifier.getCode( ), certifier );
+        AppLogService.info( "New identitystore certifier registered : " + certifier.getName( ) );
+    }
 
-    public Collection<Certifier> getCertifiersList( )
+    public Collection<AbstractCertifier> getCertifiersList( )
     {
         return _mapCertifiers.values( );
+    }
+
+    public Map<String, AbstractCertifier> getCertifiers( )
+    {
+        return _mapCertifiers;
     }
 
 }

@@ -89,7 +89,7 @@ public class IdentityBusinessTest extends LuteceTestCase
         assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
 
         // List test
-        IdentityHome.getIdentitysList( );
+        IdentityHome.getCustomerIdsList( );
 
         // Delete test
         IdentityHome.remove( identity.getId( ) );

@@ -36,12 +36,14 @@ package fr.paris.lutece.plugins.identitystore.web.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import static fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreRequest.ERROR_JSON_MAPPING;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.portal.service.util.AppException;
 
 /**
@@ -51,6 +53,7 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
 {
 
     private IdentityChangeDto _identityChangeDto;
+    private AbstractCertifier _certifier;
     private ObjectMapper _objectMapper;
 
     /**
@@ -61,10 +64,11 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
      * @param objectMapper
      *            for json transformation
      */
-    public IdentityStoreCertifyRequest( IdentityChangeDto identityChangeDto, ObjectMapper objectMapper )
+    public IdentityStoreCertifyRequest( IdentityChangeDto identityChangeDto, AbstractCertifier certifier, ObjectMapper objectMapper )
     {
         super( );
         this._identityChangeDto = identityChangeDto;
+        this._certifier = certifier;
         this._objectMapper = objectMapper;
     }
 
@@ -81,6 +85,7 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
         IdentityRequestValidator.instance( ).checkIdentity( _identityChangeDto.getIdentity( ).getConnectionId( ),
                 _identityChangeDto.getIdentity( ).getCustomerId( ) );
         IdentityRequestValidator.instance( ).checkClientApplication( _identityChangeDto.getAuthor( ).getApplicationCode( ) );
+        IdentityRequestValidator.instance( ).checkCertification( _identityChangeDto.getIdentity( ), _identityChangeDto.getAuthor( ).getApplicationCode( ), _certifier );
     }
 
     /**
@@ -92,9 +97,20 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        IdentityStoreService.certifyAttributes( _identityChangeDto );
+    	IdentityDto identityDto = _identityChangeDto.getIdentity( );
+    	String strClientAppCode = _identityChangeDto.getAuthor( ).getApplicationCode( );
+    	_certifier.certify( identityDto, strClientAppCode );
+    	
+    	Identity identity = IdentityStoreService.getOrCreateIdentity( identityDto.getConnectionId( ), identityDto.getCustomerId( ), strClientAppCode );
 
-        return "{ \"certification\": \"OK\"";
+    	try
+        {
+            return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new AppException( ERROR_JSON_MAPPING, e );
+        }
     }
 
 }

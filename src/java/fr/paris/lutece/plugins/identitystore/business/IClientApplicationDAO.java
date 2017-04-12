@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -140,7 +140,18 @@ public interface IClientApplicationDAO
      *            The plugin
      * @return list of allowed certifiers
      */
-    List<Certifier> getCertifiers( int nKey, Plugin plugin );
+    List<AbstractCertifier> getCertifiers( int nKey, Plugin plugin );
+    
+    /**
+     * Retrieve ClientApplication allowed for a given certifier
+     *
+     * @param strCertifier
+     *            The identifier of the certifier
+     * @param plugin
+     *            The plugin
+     * @return list of allowed ClientApplication
+     */
+    List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin );
 
     /**
      * Add a certifier to a ClientApplication

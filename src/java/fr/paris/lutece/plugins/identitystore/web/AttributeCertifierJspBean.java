@@ -35,7 +35,9 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplication;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
@@ -45,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -59,6 +62,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     // Templates
     private static final String TEMPLATE_MANAGE_ATTRIBUTECERTIFIERS = "/admin/plugins/identitystore/manage_certifiers.html";
     private static final String TEMPLATE_VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE = "/admin/plugins/identitystore/view_attributes_certifiable.html";
+    private static final String TEMPLATE_VIEW_CERTIFIER_APPLICATION_CLIENTE = "/admin/plugins/identitystore/view_certifier_appcliente.html";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS = "identitystore.manage_certifiers.pageTitle";
@@ -67,11 +71,13 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     private static final String MARK_ATTRIBUTECERTIFIER_LIST = "attributecertifier_list";
     private static final String MARK_CERTIFIER_ATTRIBUTES_CERTIFIABLE = "certifier_attributes_certifiable";
     private static final String MARK_CERTIFIER = "certifier";
+    private static final String MARK_CERTIFIER_APPCLIENTE_MAP = "certifier_appcliente_map";
 
     // Views
     private static final String VIEW_MANAGE_ATTRIBUTECERTIFIERS = "manageAttributeCertifiers";
     private static final String VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE = "certifierAttributesCertifiable";
-
+    private static final String VIEW_CERTIFIER_APPLICATION_CLIENTE = "certifierApplicationCliente";
+    
     // Parameters
     private static final String PARAMETER_CERTIFIER_CODE = "certifier_code";
 
@@ -79,7 +85,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     private static final int UNDEFINED_ATTRIBUT_ID = -1;
 
     /**
-     * Build the Manage View
+     * Build the default Manage View
      *
      * @param request
      *            The HTTP request
@@ -88,13 +94,20 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     @View( value = VIEW_MANAGE_ATTRIBUTECERTIFIERS, defaultView = true )
     public String getManageAttributeCertifiers( HttpServletRequest request )
     {
-        Collection<Certifier> listAttributeCertifiers = CertifierRegistry.instance( ).getCertifiersList( );
+        Collection<AbstractCertifier> listAttributeCertifiers = CertifierRegistry.instance( ).getCertifiersList( );
         Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_MANAGE_ATTRIBUTECERTIFIERS, model );
     }
-
+    
+    /**
+     * Build the attributs of a certifier View
+     *
+     * @param request
+     *            The HTTP request
+     * @return The page
+     */
     @View( value = VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE )
     public String getCertifierAttributesCertifiable( HttpServletRequest request )
     {
@@ -106,7 +119,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
         {
             try
             {
-                Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+            	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
                 List<String> listAttributeCertifiable = certifier.getCertifiableAttributesList( );
                 List<AttributeKey> listAttributeKeys = new ArrayList<AttributeKey>( );
                 for ( String key : listAttributeCertifiable )
@@ -132,6 +145,30 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
         }
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE, model );
+    }
+    
+    /**
+     * Build application cliente by certifier View
+     *
+     * @param request
+     *            The HTTP request
+     * @return The page
+     */
+    @View( value = VIEW_CERTIFIER_APPLICATION_CLIENTE )
+    public String getCertifierApplicationCliente( HttpServletRequest request )
+    {
+    	Map<String, Object> model = getModel( );
+    	Collection<AbstractCertifier> listAttributeCertifiers = CertifierRegistry.instance( ).getCertifiersList( );
+        model.put( MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers );
+        
+    	Map<String,List<ClientApplication>> mapCertifierAppcliente = new TreeMap<String, List<ClientApplication>>( );    	
+    	for ( AbstractCertifier certifier : listAttributeCertifiers )
+        {
+    		mapCertifierAppcliente.put( certifier.getCode( ), ClientApplicationHome.getClientApplications( certifier ) );
+        }
+    	model.put( MARK_CERTIFIER_APPCLIENTE_MAP, mapCertifierAppcliente );
+
+        return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_VIEW_CERTIFIER_APPLICATION_CLIENTE, model );
     }
 
 }

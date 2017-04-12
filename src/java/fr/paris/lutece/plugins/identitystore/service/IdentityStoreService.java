@@ -597,7 +597,7 @@ public final class IdentityStoreService
         // attribute value changed or attribute has new certification
         if ( !bValueUnchanged
                 || ( ( certificate != null ) && ( ( attributeCertifPrev == null ) || ( !certificate.getCertifierCode( ).equals(
-                        attributeCertifPrev.getCertifierCode( ) ) ) ) ) )
+                        attributeCertifPrev.getCertifierCode( ) ) ) || attributeCertifPrev.getCertificateLevel( )<=certificate.getCertificateLevel( ) ) ) )
         {
             if ( certificate != null )
             {
@@ -672,10 +672,4 @@ public final class IdentityStoreService
             attribute.setValue( StringUtils.EMPTY );
         }
     }
-
-    public static void certifyAttributes( IdentityChangeDto _identityChangeDto )
-    {
-
-    }
-
 }

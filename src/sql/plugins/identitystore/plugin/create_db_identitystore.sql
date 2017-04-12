@@ -61,7 +61,7 @@ id_attribute_certificate int(6) NOT NULL,
 certifier_code varchar(255) NOT NULL default '',
 certificate_date timestamp NOT NULL,
 certificate_level int(11) NOT NULL default '0',
-expiration_date timestamp,
+expiration_date timestamp NULL default NULL,
 PRIMARY KEY (id_attribute_certificate)
 );
 

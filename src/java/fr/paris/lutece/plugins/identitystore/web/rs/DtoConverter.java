@@ -40,7 +40,7 @@ import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
@@ -53,7 +53,6 @@ import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.Timestamp;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -117,7 +116,7 @@ public final class DtoConverter
                     CertificateDto certifDto = new CertificateDto( );
                     try
                     {
-                        Certifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
+                    	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
 
                         certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
                         certifDto.setCertifierCode( attribute.getCertificate( ).getCertifierCode( ) );

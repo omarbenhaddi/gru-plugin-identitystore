@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -188,9 +188,20 @@ public final class ClientApplicationHome
      *            client application
      * @return list of allowed certifiers
      */
-    public static List<Certifier> getCertifiers( ClientApplication clientApp )
+    public static List<AbstractCertifier> getCertifiers( ClientApplication clientApp )
     {
         return _daoClientApplication.getCertifiers( clientApp.getId( ), _plugin );
+    }
+    /**
+     * Retrieve ClientApplications allowed for a given certifier
+     *
+     * @param certifier
+     *            The certifier
+     * @return list of allowed ClientApplications
+     */
+    public static List<ClientApplication> getClientApplications( AbstractCertifier certifier )
+    {
+        return _daoClientApplication.getClientApplications( certifier.getCode( ), _plugin );
     }
 
     /**
@@ -201,7 +212,7 @@ public final class ClientApplicationHome
      * @param certifier
      *            The certifier
      */
-    public static void addCertifier( ClientApplication clientApp, Certifier certifier )
+    public static void addCertifier( ClientApplication clientApp, AbstractCertifier certifier )
     {
         _daoClientApplication.addCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
     }
@@ -214,7 +225,7 @@ public final class ClientApplicationHome
      * @param certifier
      *            The certifier
      */
-    public static void deleteCertifier( ClientApplication clientApp, Certifier certifier )
+    public static void deleteCertifier( ClientApplication clientApp, AbstractCertifier certifier )
     {
         _daoClientApplication.deleteCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
     }

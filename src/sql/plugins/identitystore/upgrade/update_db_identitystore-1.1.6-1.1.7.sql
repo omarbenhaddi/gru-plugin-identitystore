@@ -11,3 +11,5 @@ certifier_code varchar(255) NOT NULL default '',
 PRIMARY KEY (id_client_app, certifier_code),
 INDEX (id_client_app)
 );
+
+ALTER TABLE identitystore_attribute_certificate CHANGE COLUMN expiration_date expiration_date TIMESTAMP NULL DEFAULT NULL;

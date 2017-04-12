@@ -115,8 +115,8 @@ public final class AttributeCertificateHome
         }
         catch( CertifierNotFoundException e )
         {
-            // Certifier not found
-            return new AttributeCertificate( );
+            // Certifier not found, maybe deleted
+            return certificate;
         }
 
         return certificate;

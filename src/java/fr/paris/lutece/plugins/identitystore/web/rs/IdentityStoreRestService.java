@@ -69,6 +69,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCertifyRequest;
@@ -85,8 +86,6 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
-import javax.ws.rs.FormParam;
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
 
 /**
  * REST service for channel resource
@@ -176,15 +175,15 @@ public final class IdentityStoreRestService
 
     @POST
     @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
-    public Response certifyIdentityAttributes( @FormParam( Constants.PARAM_IDENTITY_CHANGE ) String strIdentityChange,
-            @FormParam( Constants.PARAM_CERTIFIER_CODE ) String strCertifierCode )
+    public Response certifyIdentityAttributes( FormDataMultiPart formParams )
     {
         try
         {
-            IdentityChangeDto identityChangeDto = fetchIdentityChange( strIdentityChange );
-            Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-            certifier.certify( identityChangeDto.getIdentity( ), identityChangeDto.getAuthor( ).getApplicationCode( ) );
-            IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( identityChangeDto, _objectMapper );
+            IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
+            String strCertifierCode = fetchCertifierCode( formParams );
+            AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+            
+            IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( identityChangeDto, certifier, _objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
         }
@@ -338,31 +337,6 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * Fetches the object {@link IdentityChangeDto} from multi-part data
-     *
-     * @param strIdentityChange
-     * 
-     * @return the IdentityChangeDto
-     * @throws IOException
-     *             if an error occurs during the treatment
-     */
-    private IdentityChangeDto fetchIdentityChange( String strIdentityChange ) throws IOException
-    {
-        IdentityChangeDto identityChangeDto = null;
-
-        if ( JSONUtils.mayBeJSON( strIdentityChange ) )
-        {
-            identityChangeDto = getIdentityChangeFromJson( strIdentityChange );
-        }
-        else
-        {
-            throw new AppException( "Error parsing json request " + strIdentityChange );
-        }
-
-        return identityChangeDto;
-    }
-
-    /**
      * Fetches the attached files from the specified multi-part data
      *
      * @param formParams
@@ -398,10 +372,23 @@ public final class IdentityStoreRestService
         return mapAttachedFiles;
     }
 
-    private String fetchCertifierCode( FormDataMultiPart formParams )
+    private String fetchCertifierCode( FormDataMultiPart formParams ) throws IOException
     {
-        return formParams.getField( Constants.PARAM_CERTIFIER_CODE ).getValue( );
+        String strCertifierCode = StringUtils.EMPTY;
 
+        for ( BodyPart part : formParams.getBodyParts( ) )
+        {
+            InputStream inputStream = part.getEntityAs( InputStream.class );
+            ContentDisposition contentDispo = part.getContentDisposition( );
+
+            if ( StringUtils.isBlank( contentDispo.getFileName( ) ) && part.getMediaType( ).isCompatible( MediaType.TEXT_PLAIN_TYPE )
+                    && Constants.PARAM_CERTIFIER_CODE.equals( contentDispo.getParameters( ).get( Constants.PARAMETER_NAME ) ) )
+            {
+                // content-body of request
+            	strCertifierCode = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
+            }
+        }
+        return strCertifierCode;
     }
 
     /**

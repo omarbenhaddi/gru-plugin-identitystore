@@ -33,11 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
-import java.io.Serializable;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
@@ -190,7 +190,7 @@ public class AttributeCertificate implements Serializable
     {
         try
         {
-            Certifier certifier = CertifierRegistry.instance( ).getCertifier( _strCertifierCode );
+        	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( _strCertifierCode );
             return certifier.getIconUrl( );
         }
         catch( CertifierNotFoundException ex )

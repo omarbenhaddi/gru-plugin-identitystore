@@ -54,6 +54,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity SET id_identity = ?, connection_id = ?, customer_id = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity";
     private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS = "SELECT customer_id FROM identitystore_identity";
+    private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS_WITH_LIMIT = "SELECT customer_id FROM identitystore_identity ORDER BY id_identity ASC LIMIT ?, ?";
     private static final String SQL_QUERY_SELECT_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE connection_id = ?";
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE customer_id = ?";
     private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity FROM identitystore_identity WHERE connection_id = ?";
@@ -176,34 +177,7 @@ public final class IdentityDAO implements IIdentityDAO
         daoUtil.free( );
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<Identity> selectIdentitysList( Plugin plugin )
-    {
-        List<Identity> identityList = new ArrayList<Identity>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
-        {
-            Identity identity = new Identity( );
-            identity = getIdentityFromQuery( daoUtil );
-            identityList.add( identity );
-        }
-
-        daoUtil.free( );
-
-        for ( Identity identity : identityList )
-        {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ) ) );
-        }
-
-        return identityList;
-    }
-
-    /**
+	/**
      * {@inheritDoc }
      */
     @Override
@@ -211,6 +185,30 @@ public final class IdentityDAO implements IIdentityDAO
     {
         List<String> listIds = new ArrayList<String>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS, plugin );
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            String identity = daoUtil.getString( 1 );
+            listIds.add( identity );
+        }
+
+        daoUtil.free( );
+
+        return listIds;
+    }
+
+    /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public List<String> selectCustomerIdsList( int nStart, int nLimit, Plugin plugin )
+    {
+    	List<String> listIds = new ArrayList<String>( );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_WITH_LIMIT, plugin );
+        daoUtil.setInt(1, nStart);
+        daoUtil.setInt(2, nLimit);
+        
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )

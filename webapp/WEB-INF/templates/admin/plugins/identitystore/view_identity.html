@@ -35,7 +35,7 @@
             <td>
                 <#if attribute.certificate ??>
                     <span class="badge">${attribute.certificate.certificateLevel}</span>
-                    <span class="label label-success"> <i class="fa fa-check"> </i> information certifi&eacute;e</span>
+                    <span class="label label-success" style="display:block;"> <i class="fa fa-check"> </i> information certifi&eacute;e</span>
                 </#if>
             </td>
             <td>
@@ -44,11 +44,20 @@
                 </#if>
             </td>
             <td>
-                <#if attribute.certificate ??>
-                
+                <#if attribute.certificate ??>                
+            	<#if attribute.certificate.certifierIconUrl != ''>
                     <img src="${attribute.certificate.certifierIconUrl}" height="20" width="20">
+				</#if>
+				<#if attribute.certificate.certifierName ??>
                     <strong> ${attribute.certificate.certifierName} </strong><br>
-                    <small>Date d'expiration : ${attribute.certificate.expirationDate!}</small>
+				<#else>
+					${attribute.certificate.certifierCode}<br>
+				</#if>
+					<#if attribute.certificate.expirationDate ??> 
+                    <small>Date d'expiration : ${attribute.certificate.expirationDate}</small>
+					<#else>
+					<small>Pas d'expiration</small>
+					</#if>
                 </#if>
             </td>
         </tr>

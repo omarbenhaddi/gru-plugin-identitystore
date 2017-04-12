@@ -90,15 +90,6 @@ public interface IIdentityDAO
     Identity load( int nKey, Plugin plugin );
 
     /**
-     * Load the data of all the identity objects and returns them as a list
-     *
-     * @param plugin
-     *            the Plugin
-     * @return The list which contains the data of all the identity objects
-     */
-    List<Identity> selectIdentitysList( Plugin plugin );
-
-    /**
      * Load the customer id of all the identity objects and returns them as a list
      *
      * @param plugin
@@ -106,6 +97,18 @@ public interface IIdentityDAO
      * @return The list which contains the customer id of all the identity objects
      */
     List<String> selectCustomerIdsList( Plugin plugin );
+
+    /**
+     * Load the data of nLimit customerIds from the nStart identity and returns them as a list
+     * 
+     * @param nStart the count of customerId from where started
+     * @param nLimit the max count of customerId to retrieve
+     * @param plugin
+     *            the Plugin
+     *
+     * @return the list which contains nLimit customerId 
+     */
+    List<String> selectCustomerIdsList( int nStart, int nLimit, Plugin plugin );
 
     /**
      * Load the data of all the identity objects and returns them as a referenceList

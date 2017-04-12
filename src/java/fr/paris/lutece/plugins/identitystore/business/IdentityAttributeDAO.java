@@ -76,6 +76,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             + "author_id, author_email, author_type, author_service, certifier_name "
             + "FROM identitystore_history_identity_attribute "
             + " WHERE  attribute_key = ? AND id_identity = ? ORDER BY modification_date DESC";
+    private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_history_identity_attribute WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_history_identity_attribute WHERE id_identity = ?";
 
     /**
@@ -461,4 +462,25 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         return listAttributeChange;
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public int getLastIdHistory( String strConnectionId, String strCertifierCode, Plugin plugin )
+    {
+    	DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GRU_CERTIFIER_ID, plugin );
+        daoUtil.setString( 1, strCertifierCode );
+        daoUtil.setString( 2, strConnectionId );
+        daoUtil.executeQuery( );
+        int nIdHistory = -1;
+        if ( daoUtil.next( ) )
+        {
+        	nIdHistory = daoUtil.getInt( 1 );
+        }
+        daoUtil.free( );
+        
+        return nIdHistory;
+    }
+    
 }

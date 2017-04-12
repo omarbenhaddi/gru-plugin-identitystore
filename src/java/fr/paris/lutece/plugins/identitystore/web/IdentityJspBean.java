@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
 import fr.paris.lutece.portal.service.message.AdminMessage;
@@ -84,7 +85,6 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_ID_IDENTITY = "id";
     private static final String PARAMETER_FIRST_NAME = "first_name";
     private static final String PARAMETER_FAMILY_NAME = "family_name";
-    private static final String PARAMETER_ATTRIBUTE_KEY = "attribute_key";
     private static final String PARAMETER_QUERY = "query";
 
     // Properties for page titles
@@ -98,6 +98,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String MARK_IDENTITY = "identity";
     private static final String MARK_ATTRIBUTES_CHANGE_MAP = "attributes_change_map";
     private static final String MARK_ATTRIBUTES_CURRENT_MAP = "attributes_current_map";
+    private static final String MARK_CERTIFIERS_MAP = "certifiers_map";
     private static final String MARK_QUERY = "query";
     private static final String MARK_HAS_CREATE_ROLE = "createIdentityRole";
     private static final String MARK_HAS_MODIFY_ROLE = "modifyIdentityRole";
@@ -491,6 +492,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTES_CHANGE_MAP, mapAttributesChange );
         model.put( MARK_ATTRIBUTES_CURRENT_MAP, mapCurrentAttributes );
+        model.put( MARK_CERTIFIERS_MAP, CertifierRegistry.instance( ).getCertifiers( ) );
 
         return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_ATTRIBUTE_HISTORY, model );
     }

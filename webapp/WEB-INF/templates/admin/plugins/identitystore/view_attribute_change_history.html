@@ -4,6 +4,7 @@
             <th>#i18n{identitystore.view_change_history.attribut}</th>
             <th>#i18n{identitystore.view_change_history.date}</th>
             <th>#i18n{identitystore.view_change_history.value}</th>
+            <th>#i18n{identitystore.view_change_history.certificate}</th>
         </tr>    
         <#if attributes_change_map??  && attributes_change_map?has_content>
           <tbody>
@@ -30,9 +31,19 @@
                     	<#else>
                 	<td>&nbsp;</td>
                     	</#if>
+                    	<#if change.certifier??>
+                    		<#if certifiers_map?? && certifiers_map?has_content && certifiers_map[change.certifier]??>
+                    <td>${certifiers_map[change.certifier].name}</td>
+                    		<#else>
+                    <td>${change.certifier}</td>                    		
+                    		</#if>
+                    	<#else>
+                    <td>&nbsp;</td>
+                    	</#if>
                     </#list>
                 <#else>
                 	<td>${attributes_current_map[key].attributeKey.name}</td>
+                	<td>&nbsp;</td>
                 	<td>&nbsp;</td>
                 	<td>&nbsp;</td>
                 </#if>

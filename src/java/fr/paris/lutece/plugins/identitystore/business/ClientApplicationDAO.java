@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.identitystore.business;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -58,6 +58,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_client_app FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_CERTIFICATE_APP = "SELECT certifier_code FROM identitystore_client_application_certifiers WHERE id_client_app = ? ";
+    private static final String SQL_QUERY_SELECTALL_APP_CERTIFIER = "SELECT ica.id_client_app, ica.name, ica.code FROM identitystore_client_application ica JOIN identitystore_client_application_certifiers icac ON ica.id_client_app=icac.id_client_app WHERE icac.certifier_code = ? ORDER BY ica.id_client_app";
     private static final String SQL_QUERY_ADD_CERTIFICATE_APP = "INSERT INTO identitystore_client_application_certifiers (id_client_app, certifier_code) VALUES ( ?, ? )";
     private static final String SQL_QUERY_DELETE_CERTIFICATE_APP = "DELETE FROM identitystore_client_application_certifiers WHERE id_client_app = ? AND certifier_code = ?";
     private static final String SQL_QUERY_DELETE_ALL_CERTIFICATE_APP = "DELETE FROM identitystore_client_application_certifiers WHERE id_client_app = ? ";
@@ -260,26 +261,25 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
      * {@inheritDoc}
      */
     @Override
-    public List<Certifier> getCertifiers( int nKey, Plugin plugin )
+    public List<AbstractCertifier> getCertifiers( int nKey, Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CERTIFICATE_APP, plugin );
         daoUtil.setInt( 1, nKey );
         daoUtil.executeQuery( );
 
-        List<Certifier> listCertifiers = new ArrayList<Certifier>( );
+        List<AbstractCertifier> listCertifiers = new ArrayList<AbstractCertifier>( );
 
         while ( daoUtil.next( ) )
         {
             String strCertifCode = daoUtil.getString( 1 );
             try
             {
-                Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
+            	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
                 listCertifiers.add( certifier );
             }
             catch( CertifierNotFoundException e )
             {
-                // delete ref ??
-                // be careful of daoUtil.free( ) !
+                // nothing
             }
         }
 
@@ -287,8 +287,40 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
 
         return listCertifiers;
     }
+    
 
     /**
+	 * {@inheritDoc}
+	 */
+    @Override
+    public List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin )
+    {
+
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_APP_CERTIFIER, plugin );
+        daoUtil.setString( 1, strCertifier );
+        daoUtil.executeQuery( );
+
+        List<ClientApplication> listClientApplications = new ArrayList<ClientApplication>( );
+        ClientApplication clientApplication = null;
+
+        while ( daoUtil.next( ) )
+        {
+            clientApplication = new ClientApplication( );
+
+            int nIndex = 1;
+
+            clientApplication.setId( daoUtil.getInt( nIndex++ ) );
+            clientApplication.setName( daoUtil.getString( nIndex++ ) );
+            clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+            listClientApplications.add( clientApplication );
+        }
+
+        daoUtil.free( );
+
+        return listClientApplications;
+    }
+
+	/**
      * {@inheritDoc}
      */
     @Override

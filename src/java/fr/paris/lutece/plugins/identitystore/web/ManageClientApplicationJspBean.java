@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
-import fr.paris.lutece.plugins.identitystore.service.certifier.Certifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.message.AdminMessage;
@@ -300,7 +300,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         model.put( MARK_CERTIFIERS, CertifierRegistry.instance( ).getCertifiersList( ) );
         // here we use a map as freemarker version doesn't support seq_contains
         Map<String, Boolean> mapCertifierClientApp = new HashMap<String, Boolean>( );
-        for ( Certifier certifier : ClientApplicationHome.getCertifiers( _clientApplication ) )
+        for ( AbstractCertifier certifier : ClientApplicationHome.getCertifiers( _clientApplication ) )
         {
             mapCertifierClientApp.put( certifier.getCode( ), Boolean.TRUE );
         }
@@ -332,7 +332,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         {
             try
             {
-                Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+            	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
                 ClientApplicationHome.addCertifier( _clientApplication, certifier );
             }
             catch( CertifierNotFoundException e )
@@ -363,7 +363,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
         try
         {
-            Certifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+        	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
             ClientApplicationHome.deleteCertifier( _clientApplication, certifier );
         }
         catch( CertifierNotFoundException e )
