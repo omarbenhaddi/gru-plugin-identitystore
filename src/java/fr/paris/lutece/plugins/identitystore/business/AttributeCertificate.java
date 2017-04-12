@@ -190,7 +190,7 @@ public class AttributeCertificate implements Serializable
     {
         try
         {
-        	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( _strCertifierCode );
+            AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( _strCertifierCode );
             return certifier.getIconUrl( );
         }
         catch( CertifierNotFoundException ex )

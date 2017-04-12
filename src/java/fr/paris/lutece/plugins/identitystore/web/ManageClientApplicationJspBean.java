@@ -332,7 +332,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         {
             try
             {
-            	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
                 ClientApplicationHome.addCertifier( _clientApplication, certifier );
             }
             catch( CertifierNotFoundException e )
@@ -363,7 +363,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
         try
         {
-        	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+            AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
             ClientApplicationHome.deleteCertifier( _clientApplication, certifier );
         }
         catch( CertifierNotFoundException e )

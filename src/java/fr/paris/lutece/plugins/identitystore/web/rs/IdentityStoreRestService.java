@@ -182,7 +182,7 @@ public final class IdentityStoreRestService
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
             String strCertifierCode = fetchCertifierCode( formParams );
             AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-            
+
             IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( identityChangeDto, certifier, _objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
@@ -385,7 +385,7 @@ public final class IdentityStoreRestService
                     && Constants.PARAM_CERTIFIER_CODE.equals( contentDispo.getParameters( ).get( Constants.PARAMETER_NAME ) ) )
             {
                 // content-body of request
-            	strCertifierCode = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
+                strCertifierCode = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
             }
         }
         return strCertifierCode;

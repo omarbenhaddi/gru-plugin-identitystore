@@ -67,12 +67,12 @@ public abstract class AbstractCertifier
     protected String _strIconUrl;
     protected int _nExpirationDelay;
     protected List<String> _listCertifiableAttributes;
-    
+
     public AbstractCertifier( String strCode )
     {
-    	super( );
-    	this._strCode = strCode;
-    	CertifierRegistry.instance( ).register( this );
+        super( );
+        this._strCode = strCode;
+        CertifierRegistry.instance( ).register( this );
     }
 
     /**
@@ -84,9 +84,10 @@ public abstract class AbstractCertifier
     {
         return _strCode;
     }
-    
+
     /**
      * Get the certifier name
+     * 
      * @return the certifier name
      */
     public String getName( )
@@ -114,7 +115,7 @@ public abstract class AbstractCertifier
     {
         return _strDescription;
     }
-    
+
     /**
      * Sets the Description
      *
@@ -153,10 +154,10 @@ public abstract class AbstractCertifier
      * @return The Icon URL
      */
     public String getIconUrl( )
-     {
-         return _strIconUrl;
-     }
-    
+    {
+        return _strIconUrl;
+    }
+
     /**
      * Sets the IconUrl
      *
@@ -209,19 +210,26 @@ public abstract class AbstractCertifier
     {
         _listCertifiableAttributes = list;
     }
-    
+
     /**
      * Method to override by children of BaseCertifier if something have to be done before create the certificate
-     * @param identityDto identity to change
-     * @param strClientAppCode Client application code
+     * 
+     * @param identityDto
+     *            identity to change
+     * @param strClientAppCode
+     *            Client application code
      */
     protected abstract void beforeCertify( IdentityDto identityDto, String strClientAppCode );
-    
+
     /**
      * Method to override by children of BaseCertifier if something have to be done after create the certificate
-     * @param identityDto identity updated
-     * @param strClientAppCode Client application code
-     * @param listCertifiedAttribut list of all attribute key which have been certified
+     * 
+     * @param identityDto
+     *            identity updated
+     * @param strClientAppCode
+     *            Client application code
+     * @param listCertifiedAttribut
+     *            list of all attribute key which have been certified
      */
     protected abstract void afterCertify( IdentityDto identityDto, String strClientAppCode, List<String> listCertifiedAttribut );
 
@@ -235,8 +243,8 @@ public abstract class AbstractCertifier
      */
     final public void certify( IdentityDto identityDto, String strClientAppCode )
     {
-    	beforeCertify( identityDto, strClientAppCode );
-    	
+        beforeCertify( identityDto, strClientAppCode );
+
         AttributeCertificate certificate = new AttributeCertificate( );
         certificate.setCertificateDate( new Timestamp( new Date( ).getTime( ) ) );
         certificate.setCertificateLevel( _nCertificateLevel );
@@ -257,29 +265,30 @@ public abstract class AbstractCertifier
 
         Identity identity = IdentityHome.findByConnectionId( identityDto.getConnectionId( ), strClientAppCode );
         List<String> listCertifiedAttribut = new ArrayList<String>( );
-        
+
         for ( String strField : _listCertifiableAttributes )
         {
             AttributeDto attribute = identityDto.getAttributes( ).get( strField );
             IdentityAttribute attributeDB = null;
-            if ( identity!=null && MapUtils.isNotEmpty( identity.getAttributes( ) ) )
-    		{
-            	attributeDB = identity.getAttributes( ).get( strField );
-    		}
+            if ( identity != null && MapUtils.isNotEmpty( identity.getAttributes( ) ) )
+            {
+                attributeDB = identity.getAttributes( ).get( strField );
+            }
             if ( ( attribute != null ) && ( attribute.getValue( ) != null ) )
             {
-            	if( attributeDB != null && attributeDB.getCertificate( ) != null && attributeDB.getCertificate( ).getCertificateLevel( ) > _nCertificateLevel )
-            	{
-            		AppLogService.info( "Attribut [" + strField + "] has been certified by [" + attributeDB.getCertificate( ).getCertifierCode( ) + "] which have a higher certificate level" );
-            	}
-            	else
-            	{
-            		IdentityStoreService.setAttribute( identity, strField, attribute.getValue( ), author, certificate );
-            		listCertifiedAttribut.add( strField );
-            	}
+                if ( attributeDB != null && attributeDB.getCertificate( ) != null && attributeDB.getCertificate( ).getCertificateLevel( ) > _nCertificateLevel )
+                {
+                    AppLogService.info( "Attribut [" + strField + "] has been certified by [" + attributeDB.getCertificate( ).getCertifierCode( )
+                            + "] which have a higher certificate level" );
+                }
+                else
+                {
+                    IdentityStoreService.setAttribute( identity, strField, attribute.getValue( ), author, certificate );
+                    listCertifiedAttribut.add( strField );
+                }
             }
         }
 
-        afterCertify( DtoConverter.convertToDto( identity, strClientAppCode ), strClientAppCode, listCertifiedAttribut );    	
+        afterCertify( DtoConverter.convertToDto( identity, strClientAppCode ), strClientAppCode, listCertifiedAttribut );
     }
 }

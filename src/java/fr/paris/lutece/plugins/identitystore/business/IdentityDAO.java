@@ -177,7 +177,7 @@ public final class IdentityDAO implements IIdentityDAO
         daoUtil.free( );
     }
 
-	/**
+    /**
      * {@inheritDoc }
      */
     @Override
@@ -199,16 +199,16 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     /**
-	 * {@inheritDoc}
-	 */
+     * {@inheritDoc}
+     */
     @Override
     public List<String> selectCustomerIdsList( int nStart, int nLimit, Plugin plugin )
     {
-    	List<String> listIds = new ArrayList<String>( );
+        List<String> listIds = new ArrayList<String>( );
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_WITH_LIMIT, plugin );
-        daoUtil.setInt(1, nStart);
-        daoUtil.setInt(2, nLimit);
-        
+        daoUtil.setInt( 1, nStart );
+        daoUtil.setInt( 2, nLimit );
+
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )

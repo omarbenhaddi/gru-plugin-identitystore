@@ -101,12 +101,14 @@ public interface IIdentityDAO
     /**
      * Load the data of nLimit customerIds from the nStart identity and returns them as a list
      * 
-     * @param nStart the count of customerId from where started
-     * @param nLimit the max count of customerId to retrieve
+     * @param nStart
+     *            the count of customerId from where started
+     * @param nLimit
+     *            the max count of customerId to retrieve
      * @param plugin
      *            the Plugin
      *
-     * @return the list which contains nLimit customerId 
+     * @return the list which contains nLimit customerId
      */
     List<String> selectCustomerIdsList( int nStart, int nLimit, Plugin plugin );
 

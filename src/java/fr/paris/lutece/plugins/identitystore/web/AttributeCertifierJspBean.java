@@ -77,7 +77,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     private static final String VIEW_MANAGE_ATTRIBUTECERTIFIERS = "manageAttributeCertifiers";
     private static final String VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE = "certifierAttributesCertifiable";
     private static final String VIEW_CERTIFIER_APPLICATION_CLIENTE = "certifierApplicationCliente";
-    
+
     // Parameters
     private static final String PARAMETER_CERTIFIER_CODE = "certifier_code";
 
@@ -100,7 +100,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_MANAGE_ATTRIBUTECERTIFIERS, model );
     }
-    
+
     /**
      * Build the attributs of a certifier View
      *
@@ -119,7 +119,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
         {
             try
             {
-            	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
                 List<String> listAttributeCertifiable = certifier.getCertifiableAttributesList( );
                 List<AttributeKey> listAttributeKeys = new ArrayList<AttributeKey>( );
                 for ( String key : listAttributeCertifiable )
@@ -146,7 +146,7 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_VIEW_CERTIFIER_ATTRIBUTES_CERTIFIABLE, model );
     }
-    
+
     /**
      * Build application cliente by certifier View
      *
@@ -157,16 +157,16 @@ public class AttributeCertifierJspBean extends AdminIdentitiesJspBean
     @View( value = VIEW_CERTIFIER_APPLICATION_CLIENTE )
     public String getCertifierApplicationCliente( HttpServletRequest request )
     {
-    	Map<String, Object> model = getModel( );
-    	Collection<AbstractCertifier> listAttributeCertifiers = CertifierRegistry.instance( ).getCertifiersList( );
+        Map<String, Object> model = getModel( );
+        Collection<AbstractCertifier> listAttributeCertifiers = CertifierRegistry.instance( ).getCertifiersList( );
         model.put( MARK_ATTRIBUTECERTIFIER_LIST, listAttributeCertifiers );
-        
-    	Map<String,List<ClientApplication>> mapCertifierAppcliente = new TreeMap<String, List<ClientApplication>>( );    	
-    	for ( AbstractCertifier certifier : listAttributeCertifiers )
+
+        Map<String, List<ClientApplication>> mapCertifierAppcliente = new TreeMap<String, List<ClientApplication>>( );
+        for ( AbstractCertifier certifier : listAttributeCertifiers )
         {
-    		mapCertifierAppcliente.put( certifier.getCode( ), ClientApplicationHome.getClientApplications( certifier ) );
+            mapCertifierAppcliente.put( certifier.getCode( ), ClientApplicationHome.getClientApplications( certifier ) );
         }
-    	model.put( MARK_CERTIFIER_APPCLIENTE_MAP, mapCertifierAppcliente );
+        model.put( MARK_CERTIFIER_APPCLIENTE_MAP, mapCertifierAppcliente );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTECERTIFIERS, TEMPLATE_VIEW_CERTIFIER_APPLICATION_CLIENTE, model );
     }

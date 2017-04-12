@@ -141,7 +141,7 @@ public interface IClientApplicationDAO
      * @return list of allowed certifiers
      */
     List<AbstractCertifier> getCertifiers( int nKey, Plugin plugin );
-    
+
     /**
      * Retrieve ClientApplication allowed for a given certifier
      *

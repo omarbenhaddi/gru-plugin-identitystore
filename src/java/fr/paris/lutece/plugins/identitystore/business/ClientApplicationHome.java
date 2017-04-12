@@ -192,6 +192,7 @@ public final class ClientApplicationHome
     {
         return _daoClientApplication.getCertifiers( clientApp.getId( ), _plugin );
     }
+
     /**
      * Retrieve ClientApplications allowed for a given certifier
      *

@@ -274,7 +274,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             String strCertifCode = daoUtil.getString( 1 );
             try
             {
-            	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
+                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifCode );
                 listCertifiers.add( certifier );
             }
             catch( CertifierNotFoundException e )
@@ -287,11 +287,10 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
 
         return listCertifiers;
     }
-    
 
     /**
-	 * {@inheritDoc}
-	 */
+     * {@inheritDoc}
+     */
     @Override
     public List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin )
     {
@@ -320,7 +319,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         return listClientApplications;
     }
 
-	/**
+    /**
      * {@inheritDoc}
      */
     @Override

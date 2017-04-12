@@ -202,18 +202,20 @@ public final class IdentityAttributeHome
     {
         return _dao.getAttributeChangeHistory( nIdentityId, strAttributeKey, _plugin );
     }
-    
-    
+
     /**
-     * return last id of history change for a given connection_id and certifier_name
-     * USE for gru_certifier id generation
-     * @param strConnectionId connection id of the identity
-     * @param strCertifierName name of the certifier
-     * @param plugin plugin
+     * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation
+     * 
+     * @param strConnectionId
+     *            connection id of the identity
+     * @param strCertifierName
+     *            name of the certifier
+     * @param plugin
+     *            plugin
      * @return id of history
      */
     public static int getLastIdHistory( String strConnectionId, String strCertifierName )
     {
-    	return _dao.getLastIdHistory( strConnectionId, strCertifierName, _plugin );
+        return _dao.getLastIdHistory( strConnectionId, strCertifierName, _plugin );
     }
 }

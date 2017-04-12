@@ -463,24 +463,24 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         return listAttributeChange;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getLastIdHistory( String strConnectionId, String strCertifierCode, Plugin plugin )
     {
-    	DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GRU_CERTIFIER_ID, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GRU_CERTIFIER_ID, plugin );
         daoUtil.setString( 1, strCertifierCode );
         daoUtil.setString( 2, strConnectionId );
         daoUtil.executeQuery( );
         int nIdHistory = -1;
         if ( daoUtil.next( ) )
         {
-        	nIdHistory = daoUtil.getInt( 1 );
+            nIdHistory = daoUtil.getInt( 1 );
         }
         daoUtil.free( );
-        
+
         return nIdHistory;
     }
-    
+
 }

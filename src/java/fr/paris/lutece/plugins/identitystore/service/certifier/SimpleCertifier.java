@@ -42,29 +42,29 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
  */
 public class SimpleCertifier extends AbstractCertifier
 {
-	/**
-	 * @param strCode
-	 */
+    /**
+     * @param strCode
+     */
     public SimpleCertifier( String strCode )
     {
-	    super(strCode);
+        super( strCode );
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void beforeCertify( IdentityDto identityDto, String strClientAppCode )
-	{
-		// nothing, it's the simple
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void beforeCertify( IdentityDto identityDto, String strClientAppCode )
+    {
+        // nothing, it's the simple
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void afterCertify( IdentityDto identityDto, String strClientAppCode, List<String> listCertifiedAttribut )
-	{
-		// nothing, it's the simple
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void afterCertify( IdentityDto identityDto, String strClientAppCode, List<String> listCertifiedAttribut )
+    {
+        // nothing, it's the simple
+    }
 }

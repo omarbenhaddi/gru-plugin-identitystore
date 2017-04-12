@@ -275,11 +275,10 @@ public final class IdentityRequestValidator
             }
         }
     }
-    
+
     /**
-     * Check certification authorization, in this order
-     * - clientApplication has to got the certifier
-     * - certifier and clientApplication must have certification right on all attributs of the identitychange given
+     * Check certification authorization, in this order - clientApplication has to got the certifier - certifier and clientApplication must have certification
+     * right on all attributs of the identitychange given
      * 
      * @param identityChange
      *            the identity change
@@ -292,46 +291,46 @@ public final class IdentityRequestValidator
      */
     public void checkCertification( IdentityDto identityDto, String strClientAppCode, AbstractCertifier certifier ) throws AppException
     {
-    	if( MapUtils.isEmpty( identityDto.getAttributes( ) ) )
-    	{
-    		throw new AppException( "No attributes given for certification ");
-    	}
-    	ClientApplication clientApp = ClientApplicationHome.findByCode( strClientAppCode );
-    	List<AttributeRight> listRights = ClientApplicationHome.selectApplicationRights( clientApp );
-    	List<AbstractCertifier> listCertifier = ClientApplicationHome.getCertifiers( clientApp );
-    	//rule 1, client application has the certifier
-    	boolean  bCertifierOk = false;
-    	for ( AbstractCertifier certifierApp : listCertifier )
+        if ( MapUtils.isEmpty( identityDto.getAttributes( ) ) )
         {
-	        if( certifierApp.getCode( ).equals( certifier.getCode( ) ) )
-	        {
-	        	bCertifierOk = true;
-	        	break;
-	        }
+            throw new AppException( "No attributes given for certification " );
         }
-    	if( ! bCertifierOk )
-    	{
-    		throw new AppException( "ClientApplication [" + strClientAppCode + "] has no right to use certifier [" + certifier.getCode( ) + "]");
-    	}
-    	
-    	//next check all attribute is certifiable
-    	List<String> listAttributsCertifier = certifier.getCertifiableAttributesList( );
-    	for ( String strAttributeKey : identityDto.getAttributes( ).keySet( ) )
+        ClientApplication clientApp = ClientApplicationHome.findByCode( strClientAppCode );
+        List<AttributeRight> listRights = ClientApplicationHome.selectApplicationRights( clientApp );
+        List<AbstractCertifier> listCertifier = ClientApplicationHome.getCertifiers( clientApp );
+        // rule 1, client application has the certifier
+        boolean bCertifierOk = false;
+        for ( AbstractCertifier certifierApp : listCertifier )
         {
-	        if( ! listAttributsCertifier.contains( strAttributeKey ) )
-	        {
-	        	throw new AppException( "Certifier [" + certifier.getCode( ) + "] has no right to certify [" + strAttributeKey + "]");
-	        }
-	        else
-	        {
-	        	for ( AttributeRight attributeRight : listRights )
+            if ( certifierApp.getCode( ).equals( certifier.getCode( ) ) )
+            {
+                bCertifierOk = true;
+                break;
+            }
+        }
+        if ( !bCertifierOk )
+        {
+            throw new AppException( "ClientApplication [" + strClientAppCode + "] has no right to use certifier [" + certifier.getCode( ) + "]" );
+        }
+
+        // next check all attribute is certifiable
+        List<String> listAttributsCertifier = certifier.getCertifiableAttributesList( );
+        for ( String strAttributeKey : identityDto.getAttributes( ).keySet( ) )
+        {
+            if ( !listAttributsCertifier.contains( strAttributeKey ) )
+            {
+                throw new AppException( "Certifier [" + certifier.getCode( ) + "] has no right to certify [" + strAttributeKey + "]" );
+            }
+            else
+            {
+                for ( AttributeRight attributeRight : listRights )
                 {
-	                if( attributeRight.getAttributeKey( ).getKeyName( ).equals( strAttributeKey ) && ! attributeRight.isCertifiable( ) )
-	                {
-	                	throw new AppException( "ClientApplication [" + strClientAppCode + "] has no right to certify [" + strAttributeKey + "]");
-	                }
+                    if ( attributeRight.getAttributeKey( ).getKeyName( ).equals( strAttributeKey ) && !attributeRight.isCertifiable( ) )
+                    {
+                        throw new AppException( "ClientApplication [" + strClientAppCode + "] has no right to certify [" + strAttributeKey + "]" );
+                    }
                 }
-	        }
+            }
         }
     }
 }

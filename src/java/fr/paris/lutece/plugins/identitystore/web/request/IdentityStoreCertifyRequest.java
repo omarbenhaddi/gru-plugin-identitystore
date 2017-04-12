@@ -85,7 +85,8 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
         IdentityRequestValidator.instance( ).checkIdentity( _identityChangeDto.getIdentity( ).getConnectionId( ),
                 _identityChangeDto.getIdentity( ).getCustomerId( ) );
         IdentityRequestValidator.instance( ).checkClientApplication( _identityChangeDto.getAuthor( ).getApplicationCode( ) );
-        IdentityRequestValidator.instance( ).checkCertification( _identityChangeDto.getIdentity( ), _identityChangeDto.getAuthor( ).getApplicationCode( ), _certifier );
+        IdentityRequestValidator.instance( ).checkCertification( _identityChangeDto.getIdentity( ), _identityChangeDto.getAuthor( ).getApplicationCode( ),
+                _certifier );
     }
 
     /**
@@ -97,13 +98,13 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-    	IdentityDto identityDto = _identityChangeDto.getIdentity( );
-    	String strClientAppCode = _identityChangeDto.getAuthor( ).getApplicationCode( );
-    	_certifier.certify( identityDto, strClientAppCode );
-    	
-    	Identity identity = IdentityStoreService.getOrCreateIdentity( identityDto.getConnectionId( ), identityDto.getCustomerId( ), strClientAppCode );
+        IdentityDto identityDto = _identityChangeDto.getIdentity( );
+        String strClientAppCode = _identityChangeDto.getAuthor( ).getApplicationCode( );
+        _certifier.certify( identityDto, strClientAppCode );
 
-    	try
+        Identity identity = IdentityStoreService.getOrCreateIdentity( identityDto.getConnectionId( ), identityDto.getCustomerId( ), strClientAppCode );
+
+        try
         {
             return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
         }

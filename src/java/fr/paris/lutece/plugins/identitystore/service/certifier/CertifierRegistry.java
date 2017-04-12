@@ -82,21 +82,22 @@ public class CertifierRegistry
      */
     public AbstractCertifier getCertifier( String strCertifierCode ) throws CertifierNotFoundException
     {
-    	AbstractCertifier certifier = _mapCertifiers.get( strCertifierCode );
+        AbstractCertifier certifier = _mapCertifiers.get( strCertifierCode );
         if ( certifier == null )
         {
             throw new CertifierNotFoundException( "Unknown certifier : " + strCertifierCode );
         }
         return certifier;
     }
-    
+
     /**
      * Add a certifier to the registry
+     * 
      * @param certifier
      */
     public void register( AbstractCertifier certifier )
     {
-    	_mapCertifiers.put( certifier.getCode( ), certifier );
+        _mapCertifiers.put( certifier.getCode( ), certifier );
         AppLogService.info( "New identitystore certifier registered : " + certifier.getName( ) );
     }
 

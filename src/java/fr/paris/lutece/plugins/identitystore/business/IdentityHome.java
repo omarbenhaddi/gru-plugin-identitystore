@@ -207,13 +207,14 @@ public final class IdentityHome
     {
         return _dao.selectByAttributeValue( strAttributeValue, _plugin );
     }
-    
+
     /**
-     * Load the data of nLimit customerIds from the nStart identity and returns them as a list
-     * If nLimit is set to -1, no limit is used
+     * Load the data of nLimit customerIds from the nStart identity and returns them as a list If nLimit is set to -1, no limit is used
      * 
-     * @param nStart the count of customerId from where started
-     * @param nLimit the max count of customerId to retrieve
+     * @param nStart
+     *            the count of customerId from where started
+     * @param nLimit
+     *            the max count of customerId to retrieve
      *
      * @return the list which contains the data of all the identity objects
      */

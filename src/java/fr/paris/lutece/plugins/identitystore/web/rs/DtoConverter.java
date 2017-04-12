@@ -116,7 +116,7 @@ public final class DtoConverter
                     CertificateDto certifDto = new CertificateDto( );
                     try
                     {
-                    	AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
+                        AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
 
                         certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
                         certifDto.setCertifierCode( attribute.getCertificate( ).getCertifierCode( ) );
