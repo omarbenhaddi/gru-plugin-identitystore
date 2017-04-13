@@ -320,6 +320,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     public String doManageClientApplicationCertificators( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
+        // WARNING getParameterValues give null if nothing is selected
         String [ ] tCertifiers = request.getParameterValues( PARAMETER_CERTIFIERS_AUTH );
 
         if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
@@ -328,16 +329,19 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         }
         // we have to remove deselected certifier and add new selected certifier
         ClientApplicationHome.cleanCertifiers( _clientApplication );
-        for ( String strCertifierCode : tCertifiers )
+        if ( tCertifiers != null )
         {
-            try
+            for ( String strCertifierCode : tCertifiers )
             {
-                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-                ClientApplicationHome.addCertifier( _clientApplication, certifier );
-            }
-            catch( CertifierNotFoundException e )
-            {
-                AppLogService.debug( e );
+                try
+                {
+                    AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+                    ClientApplicationHome.addCertifier( _clientApplication, certifier );
+                }
+                catch( CertifierNotFoundException e )
+                {
+                    AppLogService.debug( e );
+                }
             }
         }
 
