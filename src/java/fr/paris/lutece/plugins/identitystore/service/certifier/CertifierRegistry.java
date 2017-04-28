@@ -98,7 +98,7 @@ public class CertifierRegistry
     public void register( AbstractCertifier certifier )
     {
         _mapCertifiers.put( certifier.getCode( ), certifier );
-        AppLogService.info( "New identitystore certifier registered : " + certifier.getName( ) );
+        AppLogService.info( "New identitystore certifier registered : " + certifier.getCode( ) );
     }
 
     public Collection<AbstractCertifier> getCertifiersList( )
