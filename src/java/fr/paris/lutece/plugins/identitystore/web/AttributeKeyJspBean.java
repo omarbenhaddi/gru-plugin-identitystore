@@ -86,6 +86,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
     // Properties
     private static final String MESSAGE_CONFIRM_REMOVE_ATTRIBUTEKEY = "identitystore.message.confirmRemoveAttributeKey";
+    private static final String MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS = "identitystore.message.cannotRemoveReferenceAttributeExists";
 
     // Validations
     private static final String VALIDATION_ATTRIBUTES_PREFIX = "identitystore.model.entity.attributekey.attribute.";
@@ -214,6 +215,10 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String doRemoveAttributeKey( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTEKEY ) );
+        if( AttributeKeyHome.checkAttributeId( nId ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
+        }
         AttributeKeyHome.remove( nId );
         addInfo( INFO_ATTRIBUTEKEY_REMOVED, getLocale( ) );
 

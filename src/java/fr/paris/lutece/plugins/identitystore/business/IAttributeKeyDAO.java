@@ -117,4 +117,15 @@ public interface IAttributeKeyDAO
      * @return the attributeKey matching key, null if no attributes matches
      */
     AttributeKey selectByKey( String strKey, Plugin plugin );
+
+    /**
+     * check if id attribute is used in other tables
+     * 
+     * @param nAttributeId
+     *            The Attribute ID
+     * @param plugin
+     *            plugin
+     * @return id of history
+     */
+    boolean checkAttributeId( int nAttributeId, Plugin plugin );
 }
