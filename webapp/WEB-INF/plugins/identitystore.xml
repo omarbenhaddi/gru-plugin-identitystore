@@ -33,7 +33,7 @@
             <feature-title>identitystore.adminFeature.AdminIdentities.name</feature-title>
             <feature-description>identitystore.adminFeature.AdminIdentities.description</feature-description>
             <feature-level>0</feature-level>
-            <feature-url>jsp/admin/plugins/identitystore/ManageAttributeCertifiers.jsp</feature-url>
+            <feature-url>jsp/admin/plugins/identitystore/ManageClientApplications.jsp</feature-url>
             <feature-icon-url/>
       </admin-feature>
     </admin-features>
