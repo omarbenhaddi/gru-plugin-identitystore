@@ -196,6 +196,12 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String getConfirmRemoveAttributeKey( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTEKEY ) );
+
+        if( AttributeKeyHome.checkAttributeId( nId ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
+        }
+
         UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_ATTRIBUTEKEY ) );
         url.addParameter( PARAMETER_ID_ATTRIBUTEKEY, nId );
 

@@ -125,7 +125,7 @@ public interface IAttributeKeyDAO
      *            The Attribute ID
      * @param plugin
      *            plugin
-     * @return id of history
+     * @return true if id is used in other tables
      */
     boolean checkAttributeId( int nAttributeId, Plugin plugin );
 }

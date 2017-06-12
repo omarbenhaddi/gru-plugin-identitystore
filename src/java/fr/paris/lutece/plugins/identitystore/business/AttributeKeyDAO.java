@@ -53,7 +53,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute SET id_attribute = ?, name = ?, key_name = ?, description = ?, key_type = ? WHERE id_attribute = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, description, key_type FROM identitystore_attribute";
     private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, description, key_type FROM identitystore_attribute WHERE key_name = ?";
-    private static final String SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED = "SELECT count(*) FROM identitystore_attribute WHERE id_attribute = ? AND ( EXISTS( SELECT * FROM identitystore_attribute_right WHERE id_attribute = ? ) OR EXISTS( SELECT * FROM identitystore_identity_attribute WHERE id_attribute = ? ) )";
+    private static final String SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED = "SELECT count(*) FROM identitystore_attribute WHERE id_attribute = ? AND ( EXISTS( SELECT * FROM identitystore_attribute_right WHERE id_attribute = ? ) OR EXISTS( SELECT * FROM identitystore_identity_attribute WHERE id_attribute = ? ) OR EXISTS( SELECT * FROM identitystore_history_identity_attribute WHERE attribute_key IN  ( SELECT key_name FROM identitystore_attribute WHERE id_attribute = ? ) ) )";
 
     /**
      * Generates a new primary key
@@ -251,6 +251,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         daoUtil.setInt( 1, nAttributeId );
         daoUtil.setInt( 2, nAttributeId );
         daoUtil.setInt( 3, nAttributeId );
+        daoUtil.setInt( 4, nAttributeId );
         daoUtil.executeQuery( );
 
         int nCount = 0;
