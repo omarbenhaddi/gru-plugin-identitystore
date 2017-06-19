@@ -139,4 +139,17 @@ public final class AttributeKeyHome
     {
         return _dao.selectAttributeKeysReferenceList( _plugin );
     }
+
+    /**
+     * Check reference in other tables of the attributeKey whose identifier is specified in parameter
+     *
+     * @param nKey
+     *            The attributeKey Id
+     * 
+     * @return true if reference exists
+     */
+    public static boolean checkAttributeId( int nKey )
+    {
+        return _dao.checkAttributeId( nKey, _plugin );
+    }
 }
