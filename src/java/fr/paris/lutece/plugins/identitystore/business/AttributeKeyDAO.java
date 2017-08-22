@@ -263,7 +263,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
 
         daoUtil.free( );
 
-        return !(nCount == 0);
+        return !( nCount == 0 );
     }
 
 }

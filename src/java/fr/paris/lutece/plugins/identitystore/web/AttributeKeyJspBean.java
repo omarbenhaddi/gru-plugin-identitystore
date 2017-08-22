@@ -197,7 +197,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTEKEY ) );
 
-        if( AttributeKeyHome.checkAttributeId( nId ) )
+        if ( AttributeKeyHome.checkAttributeId( nId ) )
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
         }
@@ -221,7 +221,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String doRemoveAttributeKey( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTEKEY ) );
-        if( AttributeKeyHome.checkAttributeId( nId ) )
+        if ( AttributeKeyHome.checkAttributeId( nId ) )
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
         }

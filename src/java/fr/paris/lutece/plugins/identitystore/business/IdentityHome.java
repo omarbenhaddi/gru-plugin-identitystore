@@ -174,6 +174,20 @@ public final class IdentityHome
     }
 
     /**
+     * Find all identities by connection ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
+     *
+     * @param strConnectionId
+     *            The connection ID
+     * @return A list of Identity
+     */
+    public static List<Identity> findAllByConnectionId( String strConnectionId )
+    {
+        List<Identity> listIdentity = _dao.selectAllByConnectionId( strConnectionId, _plugin );
+
+        return listIdentity;
+    }
+
+    /**
      * Find by customer ID
      *
      * @param strCustomerId
@@ -195,17 +209,46 @@ public final class IdentityHome
     }
 
     /**
+     * Find all identities by customer ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
+     *
+     * @param strCustomerId
+     *            The connection ID
+     * @return A list of Identity
+     */
+    public static List<Identity> findAllByCustomerId( String strCustomerId )
+    {
+        List<Identity> listIdentity = _dao.selectAllByCustomerId( strCustomerId, _plugin );
+
+        return listIdentity;
+    }
+
+    /**
      * Find by attribute value
      *
+     * @param strAttributeValue
+     *            The attribute value
+     * @return The Identity
+     */
+    public static List<Identity> findByAttributeValue( String strAttributeId, String strAttributeValue )
+    {
+        return _dao.selectByAttributeValue( strAttributeId, strAttributeValue, _plugin );
+    }
+
+    /**
+     * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
+     * search. Otherwise performs an exact search.
+     * 
+     * @param strAttributeId
+     *            The attribute identifier
      * @param strAttributeValue
      *            The attribute value
      * @param strClientAppCode
      *            code of application client which requires infos
      * @return The Identity
      */
-    public static List<Identity> findByAttributeValue( String strAttributeValue )
+    public static List<Identity> findByAllAttributesValue( String strAttributeValue )
     {
-        return _dao.selectByAttributeValue( strAttributeValue, _plugin );
+        return _dao.selectByAllAttributesValue( strAttributeValue, _plugin );
     }
 
     /**

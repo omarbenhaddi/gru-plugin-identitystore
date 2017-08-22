@@ -13,10 +13,12 @@
     </@boxHeader>
     <@boxBody>    
     <@messages infos=infos />
-    
     <form class="form-inline" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
         <div class="input-group">
-            <input class="form-control" type="text" name="query" placeholder="#i18n{identitystore.manage_identities.searchPlaceHolder}" value="${query!''}" />
+			<@comboWithParams name="query_filter" default_value="${query_filter!}" additionalParameters=" id=\"query_filter\" class=\"form-control\" " items=query_filter_list />
+		</div>
+		<div class="input-group col-sm-6">
+			<input class="form-control" type="text" name="query" placeholder="#i18n{identitystore.manage_identities.searchPlaceHolder}" value="${query!''}" />
             <span class="input-group-btn">
                 <button class="btn btn-default" type="submit">
                     <span class="fa fa-search"></span>
