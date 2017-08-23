@@ -53,9 +53,9 @@ public final class IdentityConstants
     public static final String ALL_ATTRIBUTES_FILTER = "all";
     public static final String GUID_FILTER = "guid";
     public static final String CID_FILTER = "cid";
-    public static final String ATTRIBUTE_USER_GUID_LABEL = "identitystore.manage_identities.columnConnectionId";
-    public static final String ATTRIBUTE_USER_CID_LABEL = "identitystore.manage_identities.columnCustomerId";
-    public static final String ATTRIBUTE_ALL_LABEL = "identitystore.manage_identities.allAttributes";
+    public static final String ATTRIBUTE_USER_GUID_LABEL = "identitystore.search_identities.columnConnectionId";
+    public static final String ATTRIBUTE_USER_CID_LABEL = "identitystore.search_identities.columnCustomerId";
+    public static final String ATTRIBUTE_ALL_LABEL = "identitystore.search_identities.allAttributes";
 
     /**
      * private constructor
