@@ -72,6 +72,7 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreAppRightsRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCertifyRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCreateRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreDeleteRequest;
@@ -295,6 +296,30 @@ public final class IdentityStoreRestService
         response.header( "Content-Type", file.getMimeType( ) );
 
         return response.build( );
+    }
+    
+    /**
+     * Gives list of application rights according to its application code, it miss must be consistent otherwise an AppException is thrown
+     *
+     * @param strHeaderClientAppCode
+     *            client code
+     * @return the applications rights
+     */
+    @GET
+    @Path( Constants.APPLICATION_RIGHTS_PATH )
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response getApplicationRights( @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
+    {
+        try
+        {
+        	IdentityStoreAppRightsRequest identityStoreAppRightsRequest = new IdentityStoreAppRightsRequest( strClientAppCode, _objectMapper );
+
+            return Response.ok( identityStoreAppRightsRequest.doRequest( ) ).build( );
+        }
+        catch( Exception exception )
+        {
+            return getErrorResponse( exception );
+        }
     }
 
     /**
