@@ -297,7 +297,7 @@ public final class IdentityStoreRestService
 
         return response.build( );
     }
-    
+
     /**
      * Gives list of application rights according to its application code, it miss must be consistent otherwise an AppException is thrown
      *
@@ -312,7 +312,7 @@ public final class IdentityStoreRestService
     {
         try
         {
-        	IdentityStoreAppRightsRequest identityStoreAppRightsRequest = new IdentityStoreAppRightsRequest( strClientAppCode, _objectMapper );
+            IdentityStoreAppRightsRequest identityStoreAppRightsRequest = new IdentityStoreAppRightsRequest( strClientAppCode, _objectMapper );
 
             return Response.ok( identityStoreAppRightsRequest.doRequest( ) ).build( );
         }

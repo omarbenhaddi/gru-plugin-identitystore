@@ -48,35 +48,34 @@ public class IdentityStoreAppRightsRequest extends IdentityStoreRequest
 
     private String _strClientAppCode;
     private ObjectMapper _objectMapper;
-    
-    
-	/**
-	 * @param strClientAppCode
-	 * @param objectMapper
-	 */
-	public IdentityStoreAppRightsRequest( String strClientAppCode, ObjectMapper objectMapper )
-	{
-		super( );
-		this._strClientAppCode = strClientAppCode;
-		this._objectMapper = objectMapper;
-	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void validRequest( ) throws AppException
-	{
-		IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
-	}
+    /**
+     * @param strClientAppCode
+     * @param objectMapper
+     */
+    public IdentityStoreAppRightsRequest( String strClientAppCode, ObjectMapper objectMapper )
+    {
+        super( );
+        this._strClientAppCode = strClientAppCode;
+        this._objectMapper = objectMapper;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected String doSpecificRequest( ) throws AppException
-	{
-		try
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validRequest( ) throws AppException
+    {
+        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String doSpecificRequest( ) throws AppException
+    {
+        try
         {
             return _objectMapper.writeValueAsString( IdentityStoreService.getApplicationRights( _strClientAppCode ) );
         }
