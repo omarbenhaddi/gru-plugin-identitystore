@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -134,9 +135,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Session variable to store working values
     private Identity _identity;
     private String _strQuery;
-    private AttributeKey _attrKeyFirstName = AttributeKeyHome.findByKey( AppPropertiesService
+    private final AttributeKey _attrKeyFirstName = AttributeKeyHome.findByKey( AppPropertiesService
             .getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_NAME_GIVEN ) );
-    private AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService
+    private final AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService
             .getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_PREFERRED_NAME ) );
 
     /**
@@ -226,8 +227,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         }
 
         IdentityHome.create( _identity );
-        IdentityAttribute idAttrFirstName = saveFirstNameAttribute( request.getParameter( PARAMETER_FIRST_NAME ) );
-        IdentityAttribute idAttrLastName = saveLastNameAttribute( request.getParameter( PARAMETER_FAMILY_NAME ) );
+        IdentityAttribute idAttrFirstName = newAttribute( _identity, _attrKeyFirstName, request.getParameter( PARAMETER_FIRST_NAME ) );
+        IdentityAttribute idAttrLastName = newAttribute( _identity, _attrKeyLastName, request.getParameter( PARAMETER_FAMILY_NAME ) );
+        saveAttributes( _identity );
         addInfo( INFO_IDENTITY_CREATED, getLocale( ) );
 
         // notify listeners
@@ -247,37 +249,54 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     }
 
     /**
-     * save firstname in attribute s table
-     *
-     * @param strFirstName
-     *            firstname to save
+     * Creates an instance of {@code IdentityAttribute} and sets it into the specified identity
+     * 
+     * @param identity
+     *            the identity where the attribute is added
+     * @param attributeKey
+     *            the attribute key
+     * @param strValue
+     *            the attribute value
+     * @return the created instance
      */
-    private IdentityAttribute saveFirstNameAttribute( String strFirstName )
+    private static IdentityAttribute newAttribute( Identity identity, AttributeKey attributeKey, String strValue )
     {
-        IdentityAttribute idAttrFirstName = new IdentityAttribute( );
-        idAttrFirstName.setValue( strFirstName );
-        idAttrFirstName.setAttributeKey( _attrKeyFirstName );
-        idAttrFirstName.setIdIdentity( _identity.getId( ) );
-        IdentityAttributeHome.create( idAttrFirstName );
-        return idAttrFirstName;
+        IdentityAttribute identityAttribute = new IdentityAttribute( );
+        identityAttribute.setAttributeKey( attributeKey );
+        identityAttribute.setValue( strValue );
+        identityAttribute.setIdIdentity( identity.getId( ) );
+
+        identity.getAttributes( ).put( attributeKey.getKeyName( ), identityAttribute );
+
+        return identityAttribute;
     }
 
     /**
-     * save lastname in attribute s table
-     *
-     * @param strLastName
-     *            lastname to save
+     * Saves all the attributes of the specified identity
+     * 
+     * @param identity
+     *            the identity containing the attributes
      */
-    private IdentityAttribute saveLastNameAttribute( String strLastName )
+    private static void saveAttributes( Identity identity )
     {
-        IdentityAttribute idAttrLastName = new IdentityAttribute( );
-        idAttrLastName.setValue( strLastName );
-        idAttrLastName.setAttributeKey( _attrKeyLastName );
-        idAttrLastName.setIdIdentity( _identity.getId( ) );
-        IdentityAttributeHome.create( idAttrLastName );
-        return idAttrLastName;
+        Map<String, IdentityAttribute> mapIdentityAttributes = identity.getAttributes( );
+
+        for ( Entry<String, IdentityAttribute> entry : mapIdentityAttributes.entrySet( ) )
+        {
+            IdentityAttribute identityAttribute = mapIdentityAttributes.get( entry.getKey( ) );
+
+            if ( identityAttribute != null )
+            {
+                IdentityAttributeHome.create( identityAttribute );
+            }
+        }
     }
 
+    /**
+     * Gives the author
+     * 
+     * @return the author
+     */
     private ChangeAuthor getAuthor( )
     {
         ChangeAuthor author = new ChangeAuthor( );
