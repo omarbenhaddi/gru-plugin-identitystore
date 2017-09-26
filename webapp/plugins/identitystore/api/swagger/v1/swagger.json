@@ -246,6 +246,66 @@
                     }
                 }
             }
+        },        
+        "/identity/apprights": {
+            "get": {
+                "description": "Gets application rights.\n",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                        "name": "client_code",
+                        "in": "header",
+                        "description": "application code",
+                        "required": true,
+                        "type": "string",
+                        "format": "string"
+                    }],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "examples": {
+                            "application/json": {
+                                "application_rights": {
+                                    "application_code": "azerty",
+                                    "attribut_rights": [
+                                        {
+                                            "key": "address_number",
+                                            "readable": true,
+                                            "writable": true,
+                                            "certifiers": []
+                                        },
+                                        {
+                                            "key": "address_building",
+                                            "readable": true,
+                                            "writable": true,
+                                            "certifiers": ["certif_1","certif_2"]
+                                        },
+                                        {
+                                            "key": "address_stair",
+                                            "readable": false,
+                                            "writable": false,
+                                            "certifiers": []
+                                        },
+                                        {
+                                            "key": "phone",
+                                            "readable": true,
+                                            "writable": false,
+                                            "certifiers": []
+                                        },
+                                        {
+                                            "key": "revenu_2016",
+                                            "readable": false,
+                                            "writable": true,
+                                            "certifiers": ["certif_1"]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         },
         "/certify": {
             "post": {

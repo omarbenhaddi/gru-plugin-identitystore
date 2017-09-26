@@ -48,6 +48,7 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceI
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -55,6 +56,7 @@ import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.web.constants.Messages;
+import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.url.UrlItem;
 
 import org.apache.commons.collections.MapUtils;
@@ -87,6 +89,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_FIRST_NAME = "first_name";
     private static final String PARAMETER_FAMILY_NAME = "family_name";
     private static final String PARAMETER_QUERY = "query";
+    private static final String PARAMETER_QUERY_FILTER = "query_filter";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES = "identitystore.manage_identities.pageTitle";
@@ -101,6 +104,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String MARK_ATTRIBUTES_CURRENT_MAP = "attributes_current_map";
     private static final String MARK_CERTIFIERS_MAP = "certifiers_map";
     private static final String MARK_QUERY = "query";
+    private static final String MARK_QUERY_FILTER = "query_filter";
+    private static final String MARK_QUERY_FILTER_REFLIST = "query_filter_list";
     private static final String MARK_HAS_CREATE_ROLE = "createIdentityRole";
     private static final String MARK_HAS_MODIFY_ROLE = "modifyIdentityRole";
     private static final String MARK_HAS_DELETE_ROLE = "deleteIdentityRole";
@@ -135,6 +140,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Session variable to store working values
     private Identity _identity;
     private String _strQuery;
+    private String _strQueryFilter;
     private final AttributeKey _attrKeyFirstName = AttributeKeyHome.findByKey( AppPropertiesService
             .getProperty( IdentityConstants.PROPERTY_ATTRIBUTE_USER_NAME_GIVEN ) );
     private final AttributeKey _attrKeyLastName = AttributeKeyHome.findByKey( AppPropertiesService
@@ -152,16 +158,43 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         _identity = null;
         String strQuery = request.getParameter( PARAMETER_QUERY );
+        String strQueryFilter = request.getParameter( PARAMETER_QUERY_FILTER );
 
         if ( strQuery != null )
         {
             _strQuery = strQuery;
         }
 
+        if ( StringUtils.isNotEmpty( strQueryFilter ) )
+        {
+            _strQueryFilter = strQueryFilter;
+        }
+
         List<Identity> listIdentities;
         if ( _strQuery != null )
         {
-            listIdentities = IdentityHome.findByAttributeValue( _strQuery );
+            if ( _strQueryFilter != null )
+            {
+                switch( _strQueryFilter )
+                {
+                    case IdentityConstants.GUID_FILTER:
+                        listIdentities = IdentityHome.findAllByConnectionId( _strQuery );
+                        break;
+                    case IdentityConstants.CID_FILTER:
+                        listIdentities = IdentityHome.findAllByCustomerId( _strQuery );
+                        break;
+                    case IdentityConstants.ALL_ATTRIBUTES_FILTER:
+                        listIdentities = IdentityHome.findByAllAttributesValue( _strQuery );
+                        break;
+                    default:
+                        listIdentities = IdentityHome.findByAttributeValue( _strQueryFilter, _strQuery );
+                        break;
+                }
+            }
+            else
+            {
+                listIdentities = IdentityHome.findByAllAttributesValue( _strQuery );
+            }
         }
         else
         {
@@ -170,6 +203,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, listIdentities, JSP_MANAGE_IDENTITIES );
         model.put( MARK_QUERY, _strQuery );
+        model.put( MARK_QUERY_FILTER, _strQueryFilter );
+        model.put( MARK_QUERY_FILTER_REFLIST, buildQueryFilterRefList( ) );
         model.put( MARK_HAS_CREATE_ROLE,
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) );
         model.put( MARK_HAS_MODIFY_ROLE,
@@ -180,6 +215,22 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_VIEW_IDENTITY, getUser( ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES, TEMPLATE_MANAGE_IDENTITIES, model );
+    }
+
+    /**
+     * Build a ReferenceList containing the identity search query filters
+     *
+     * @return the ReferenceList
+     */
+    private ReferenceList buildQueryFilterRefList( )
+    {
+        ReferenceList refList = new ReferenceList( );
+        refList.addItem( IdentityConstants.GUID_FILTER, I18nService.getLocalizedString( IdentityConstants.ATTRIBUTE_USER_GUID_LABEL, getLocale( ) ) );
+        refList.addItem( IdentityConstants.CID_FILTER, I18nService.getLocalizedString( IdentityConstants.ATTRIBUTE_USER_CID_LABEL, getLocale( ) ) );
+        refList.addAll( AttributeKeyHome.getAttributeKeysReferenceList( ) );
+        refList.addItem( IdentityConstants.ALL_ATTRIBUTES_FILTER, I18nService.getLocalizedString( IdentityConstants.ATTRIBUTE_ALL_LABEL, getLocale( ) ) );
+
+        return refList;
     }
 
     /**

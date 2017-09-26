@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
@@ -45,12 +46,15 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
+import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AppRightDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.ApplicationRightsDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
@@ -579,6 +583,44 @@ public final class IdentityStoreService
             identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.DELETE.getValue( ) ) );
             IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
         }
+    }
+
+    /**
+     * generate the ApplicationRightsDto of a given application
+     * 
+     * @param strClientAppCode
+     *            the code application
+     * @return ApplicationRightsDto filled
+     */
+    public static ApplicationRightsDto getApplicationRights( String strClientAppCode )
+    {
+        ClientApplication clientApp = ClientApplicationHome.findByCode( strClientAppCode );
+        List<AttributeRight> listAttributeRight = ClientApplicationHome.selectApplicationRights( clientApp );
+        List<AbstractCertifier> listCertifier = ClientApplicationHome.getCertifiers( clientApp );
+        ApplicationRightsDto appRightsDto = new ApplicationRightsDto( );
+        appRightsDto.setApplicationCode( clientApp.getCode( ) );
+        for ( AttributeRight attrRight : listAttributeRight )
+        {
+            if ( attrRight.isReadable( ) || attrRight.isWritable( ) )
+            {
+                AppRightDto appRightDto = new AppRightDto( );
+                appRightDto.setAttributeKey( attrRight.getAttributeKey( ).getKeyName( ) );
+                appRightDto.setReadable( attrRight.isReadable( ) );
+                appRightDto.setWritable( attrRight.isWritable( ) );
+                if ( attrRight.isCertifiable( ) )
+                {
+                    for ( AbstractCertifier certifier : listCertifier )
+                    {
+                        if ( certifier.getCertifiableAttributesList( ).contains( attrRight.getAttributeKey( ).getKeyName( ) ) )
+                        {
+                            appRightDto.addCertifier( certifier.getCode( ) );
+                        }
+                    }
+                }
+                appRightsDto.addAppRight( appRightDto );
+            }
+        }
+        return appRightsDto;
     }
 
     /**

@@ -106,6 +106,7 @@ public final class DtoConverter
                     if ( attRight.getAttributeKey( ).getKeyName( ).equals( attributeKey.getKeyName( ) ) )
                     {
                         attrDto.setCertified( attribute.getCertificate( ) != null );
+                        attrDto.setWritable( attRight.isWritable( ) );
 
                         break;
                     }

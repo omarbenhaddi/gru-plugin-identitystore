@@ -155,7 +155,21 @@ public interface IIdentityDAO
     int selectIdByConnectionId( String strConnectionId, Plugin plugin );
 
     /**
-     * Find by Attribute value
+     * Find by a given Attribute value
+     * 
+     * @param strAttributeId
+     *            The value to match
+     * @param strAttributeValue
+     *            The value to match
+     * @param plugin
+     *            The plugin
+     * @return The identity
+     */
+    List<Identity> selectByAttributeValue( String strAttributeId, String strAttributeValue, Plugin plugin );
+
+    /**
+     * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
+     * search. Otherwise performs an exact search.
      * 
      * @param strAttributeValue
      *            The value to match
@@ -163,5 +177,23 @@ public interface IIdentityDAO
      *            The plugin
      * @return The identity
      */
-    List<Identity> selectByAttributeValue( String strAttributeValue, Plugin plugin );
+    List<Identity> selectByAllAttributesValue( String strAttributeValue, Plugin plugin );
+
+    /**
+     * Find all identities by customer ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
+     *
+     * @param strCustomerId
+     *            The customer ID
+     * @return A list of Identity
+     */
+    List<Identity> selectAllByCustomerId( String strCustomerId, Plugin _plugin );
+
+    /**
+     * Find all identities by connection ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
+     *
+     * @param strConnectionId
+     *            The connection ID
+     * @return A list of Identity
+     */
+    List<Identity> selectAllByConnectionId( String strConnectionId, Plugin _plugin );
 }

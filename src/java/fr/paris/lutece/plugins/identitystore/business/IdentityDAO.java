@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * This class provides Data Access methods for Identity objects
  */
@@ -60,6 +62,13 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity FROM identitystore_identity WHERE connection_id = ?";
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id "
             + " FROM identitystore_identity a,  identitystore_identity_attribute b " + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
+    private static final String SQL_QUERY_FILTER_ATTRIBUTE = " AND b.id_attribute = ? ";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE connection_id ";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE customer_id ";
+    private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id  FROM identitystore_identity a,  identitystore_identity_attribute b "
+            + " WHERE (a.id_identity = b.id_identity AND b.attribute_value LIKE ? )" + " OR a.customer_id LIKE ? OR a.connection_id LIKE ?";
+    private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id  FROM identitystore_identity a,  identitystore_identity_attribute b "
+            + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
 
     /**
      * Generates a new primary key
@@ -323,7 +332,7 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<Identity> selectByAttributeValue( String strAttributeValue, Plugin plugin )
+    public List<Identity> selectByAttributeValue( String strAttributeId, String strAttributeValue, Plugin plugin )
     {
         List<Identity> listIdentities = new ArrayList<Identity>( );
         String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTE;
@@ -337,8 +346,125 @@ public final class IdentityDAO implements IIdentityDAO
         {
             strSQL += " = ?";
         }
+
+        if ( StringUtils.isNotEmpty( strAttributeId ) )
+        {
+            strSQL += SQL_QUERY_FILTER_ATTRIBUTE;
+        }
+
         DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
         daoUtil.setString( 1, strValue );
+
+        if ( StringUtils.isNotEmpty( strAttributeId ) )
+        {
+            daoUtil.setString( 2, strAttributeId );
+        }
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            Identity identity = new Identity( );
+            identity = getIdentityFromQuery( daoUtil );
+            listIdentities.add( identity );
+        }
+
+        daoUtil.free( );
+
+        return listIdentities;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Identity> selectByAllAttributesValue( String strAttributeValue, Plugin plugin )
+    {
+        List<Identity> listIdentities = new ArrayList<Identity>( );
+        String strSQL = SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID;
+
+        if ( strAttributeValue.contains( "*" ) )
+        {
+            strAttributeValue = strAttributeValue.replace( '*', '%' );
+            strSQL = SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE;
+        }
+
+        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
+        daoUtil.setString( 1, strAttributeValue );
+        daoUtil.setString( 2, strAttributeValue );
+        daoUtil.setString( 3, strAttributeValue );
+
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            Identity identity = new Identity( );
+            identity = getIdentityFromQuery( daoUtil );
+            listIdentities.add( identity );
+        }
+
+        daoUtil.free( );
+
+        return listIdentities;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Identity> selectAllByCustomerId( String strCustomerId, Plugin plugin )
+    {
+        List<Identity> listIdentities = new ArrayList<Identity>( );
+        String strSQL = SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID;
+
+        if ( strCustomerId.contains( "*" ) )
+        {
+            strCustomerId = strCustomerId.replace( '*', '%' );
+            strSQL += "LIKE ?";
+        }
+        else
+        {
+            strSQL += "= ?";
+        }
+
+        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
+        daoUtil.setString( 1, strCustomerId );
+
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            Identity identity = new Identity( );
+            identity = getIdentityFromQuery( daoUtil );
+            listIdentities.add( identity );
+        }
+
+        daoUtil.free( );
+
+        return listIdentities;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Identity> selectAllByConnectionId( String strConnectionId, Plugin plugin )
+    {
+        List<Identity> listIdentities = new ArrayList<Identity>( );
+        String strSQL = SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID;
+
+        if ( strConnectionId.contains( "*" ) )
+        {
+            strConnectionId = strConnectionId.replace( '*', '%' );
+            strSQL += "LIKE ?";
+        }
+        else
+        {
+            strSQL += "= ?";
+        }
+
+        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
+        daoUtil.setString( 1, strConnectionId );
+
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )

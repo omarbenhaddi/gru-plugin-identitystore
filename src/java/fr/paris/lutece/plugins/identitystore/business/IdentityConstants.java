@@ -43,12 +43,19 @@ public final class IdentityConstants
     public static final String PROPERTY_APPLICATION_CODE = "identitystore.application.code";
     public static final String PROPERTY_ATTRIBUTE_USER_NAME_GIVEN = "identitystore.identity.attribute.user.name.given";
     public static final String PROPERTY_ATTRIBUTE_USER_PREFERRED_NAME = "identitystore.identity.attribute.user.name.preferred-username";
-    public static final String PROPERTY_ATTRIBUTE_USER_FAMILY_NAME = "identitystore.identity.attribute.user.name.family.name";   
+    public static final String PROPERTY_ATTRIBUTE_USER_FAMILY_NAME = "identitystore.identity.attribute.user.name.family.name";
     public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_ONLINE_EMAIL = "identitystore.identity.attribute.user.home-info.online.email";
     public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_TELECOM_TELEPHONE_NUMBER = "identitystore.identity.attribute.user.home-info.telecom.telephone.number";
     public static final String PROPERTY_ATTRIBUTE_USER_HOMEINFO_TELECOM_MOBILE_NUMBER = "identitystore.identity.attribute.user.home-info.telecom.mobile.number";
     public static final String PROPERTY_ATTRIBUTE_USER_GENDER = "identitystore.identity.attribute.user.gender";
     public static final String PROPERTY_ATTRIBUTE_USER_BDATE = "identitystore.identity.attribute.user.bdate";
+
+    public static final String ALL_ATTRIBUTES_FILTER = "all";
+    public static final String GUID_FILTER = "guid";
+    public static final String CID_FILTER = "cid";
+    public static final String ATTRIBUTE_USER_GUID_LABEL = "identitystore.search_identities.columnConnectionId";
+    public static final String ATTRIBUTE_USER_CID_LABEL = "identitystore.search_identities.columnCustomerId";
+    public static final String ATTRIBUTE_ALL_LABEL = "identitystore.search_identities.allAttributes";
 
     /**
      * private constructor
