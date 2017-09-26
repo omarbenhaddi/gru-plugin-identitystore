@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,14 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplication;
+import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
+import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
@@ -113,6 +116,8 @@ public final class IdentityStoreService
     private static final String ERROR_DELETE_UNAUTHORIZED = "Provided application code is not authorized to delete an identity";
     private static List<String> _listDeleteAuthorizedApplicationCodes;
 
+    private static IdentityEncryptionService _identityEncryptionService = IdentityEncryptionService.getInstance( );
+
     /**
      * private constructor
      */
@@ -129,11 +134,14 @@ public final class IdentityStoreService
      *            the files to create
      * @return the created identity
      */
-    public static Identity createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    public static IdentityDto createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
     {
-        String strCustomerId = identityChangeDto.getIdentity( ).getCustomerId( );
-        String strConnectionId = identityChangeDto.getIdentity( ).getConnectionId( );
         String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
+        ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
+        IdentityDto identityDtoEncrypted = identityChangeDto.getIdentity( );
+        IdentityDto identityDtoDecrypted = _identityEncryptionService.decrypt( identityDtoEncrypted, clientApplication );
+        String strCustomerId = identityDtoDecrypted.getCustomerId( );
+        String strConnectionId = identityDtoDecrypted.getConnectionId( );
         Identity identity = null;
 
         if ( StringUtils.isNotEmpty( strCustomerId ) )
@@ -170,7 +178,9 @@ public final class IdentityStoreService
         identityChange.setChangeType( IdentityChangeType.CREATE );
         IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
-        return identity;
+        identityDtoDecrypted = DtoConverter.convertToDto( identity, strClientAppCode );
+
+        return _identityEncryptionService.encrypt( identityDtoDecrypted, clientApplication );
     }
 
     /**
@@ -182,12 +192,49 @@ public final class IdentityStoreService
      *            customer id
      * @param strClientAppCode
      *            client application code
-     * @return identity , null if no identity found
+     * @return the identity
      * @throws AppException
      *             if provided connectionId and customerId are not consistent
+     * @throws IdentityNotFoundException
+     *             if the identity cannot be found
      */
-    public static Identity getOrCreateIdentity( String strConnectionId, String strCustomerId, String strClientAppCode )
+    public static IdentityDto getOrCreateIdentity( String strConnectionId, String strCustomerId, String strClientAppCode )
     {
+        ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
+        IdentityDto identityDtoEncrypted = new IdentityDto( );
+        identityDtoEncrypted.setConnectionId( strConnectionId );
+        identityDtoEncrypted.setCustomerId( strCustomerId );
+        IdentityDto identityDtoDecrypted = _identityEncryptionService.decrypt( identityDtoEncrypted, clientApplication );
+
+        Identity identity = getOrCreateIdentity( identityDtoDecrypted, strClientAppCode );
+
+        identityDtoDecrypted = DtoConverter.convertToDto( identity, strClientAppCode );
+
+        return _identityEncryptionService.encrypt( identityDtoDecrypted, clientApplication );
+    }
+
+    /**
+     * <p>
+     * Gets an identity
+     * </p>
+     * <p>
+     * If no identity is found then tries to create a new one with attributes based on external provider data
+     * </p>
+     *
+     * @param identityDto
+     *            the identity to find
+     * @param strClientAppCode
+     *            client application code
+     * @return the identity
+     * @throws AppException
+     *             if the connectionId and customerId of the provided identity are not consistent
+     * @throws IdentityNotFoundException
+     *             if the identity cannot be found
+     */
+    private static Identity getOrCreateIdentity( IdentityDto identityDto, String strClientAppCode )
+    {
+        String strConnectionId = identityDto.getConnectionId( );
+        String strCustomerId = identityDto.getCustomerId( );
         Identity identity = null;
 
         if ( StringUtils.isNotBlank( strConnectionId ) )
@@ -196,8 +243,12 @@ public final class IdentityStoreService
 
             if ( ( identity != null ) && ( StringUtils.isNotEmpty( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
             {
-                throw new AppException( "inconsistent " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND " + Constants.PARAM_ID_CUSTOMER
-                        + "(" + strCustomerId + ")" + " params provided " );
+                String strMessage = "inconsistency between the connection id and the customer id";
+                StringBuilder sb = new StringBuilder( strMessage );
+                sb.append( " : connection id = " ).append( strConnectionId ).append( " AND customer id = " ).append( strCustomerId ).append( ")" );
+
+                AppLogService.error( sb.toString( ) );
+                throw new AppException( strMessage );
             }
 
             if ( identity == null )
@@ -225,8 +276,12 @@ public final class IdentityStoreService
 
         if ( identity == null )
         {
-            throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CONNECTION + "(" + strConnectionId + ")" + " AND "
-                    + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
+            String strMessage = "No identity found for the provided connection id and customer id";
+            StringBuilder sb = new StringBuilder( strMessage );
+            sb.append( " : connection id = " ).append( strConnectionId ).append( " AND customer id = " ).append( strCustomerId ).append( ")" );
+
+            AppLogService.error( sb.toString( ) );
+            throw new IdentityNotFoundException( strMessage );
         }
 
         return identity;
@@ -360,36 +415,36 @@ public final class IdentityStoreService
     /**
      * Updates an existing identity.
      *
-     * @param identity
-     *            the identity to complete.
      * @param identityChangeDto
      *            the object {@code IdentityChangeDto} containing the information to perform the creation
      * @param mapAttachedFiles
      *            the files to create
      * @return the updated identity
      */
-    public static Identity updateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    public static IdentityDto updateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
     {
-        Identity identity = getOrCreateIdentity( identityChangeDto.getIdentity( ).getConnectionId( ), identityChangeDto.getIdentity( ).getCustomerId( ),
-                identityChangeDto.getAuthor( ).getApplicationCode( ) );
+        AuthorDto authorDto = identityChangeDto.getAuthor( );
+        String strClientAppCode = authorDto.getApplicationCode( );
+        ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
+        IdentityDto identityDtoEncrypted = identityChangeDto.getIdentity( );
+        IdentityDto identityDtoDecrypted = _identityEncryptionService.decrypt( identityDtoEncrypted, clientApplication );
+
+        Identity identity = getOrCreateIdentity( identityDtoDecrypted, strClientAppCode );
 
         if ( identity == null )
         {
-            throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "("
-                    + identityChangeDto.getIdentity( ).getConnectionId( ) + ")" + " AND " + Constants.PARAM_ID_CUSTOMER + "("
-                    + identityChangeDto.getIdentity( ).getCustomerId( ) + ")" );
+            throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + identityDtoEncrypted.getConnectionId( ) + ")"
+                    + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + identityDtoEncrypted.getCustomerId( ) + ")" );
         }
 
-        IdentityDto identityDto = identityChangeDto.getIdentity( );
-        AuthorDto authorDto = identityChangeDto.getAuthor( );
-        Map<String, AttributeDto> mapAttributes = identityDto.getAttributes( );
+        Map<String, AttributeDto> mapAttributes = identityDtoDecrypted.getAttributes( );
 
         if ( ( mapAttributes != null ) && !mapAttributes.isEmpty( ) )
         {
             IdentityRequestValidator.instance( ).checkIdentityChange( identityChangeDto );
-            IdentityRequestValidator.instance( ).checkAttributes( identityDto, authorDto.getApplicationCode( ), mapAttachedFiles );
+            IdentityRequestValidator.instance( ).checkAttributes( identityDtoDecrypted, strClientAppCode, mapAttachedFiles );
 
-            updateAttributes( identity, identityDto, authorDto, mapAttachedFiles );
+            updateAttributes( identity, identityDtoDecrypted, authorDto, mapAttachedFiles );
         }
         else
         {
@@ -401,7 +456,9 @@ public final class IdentityStoreService
         identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.UPDATE.getValue( ) ) );
         IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
-        return identity;
+        identityDtoDecrypted = DtoConverter.convertToDto( identity, strClientAppCode );
+
+        return _identityEncryptionService.encrypt( identityDtoDecrypted, clientApplication );
     }
 
     /**
@@ -490,6 +547,13 @@ public final class IdentityStoreService
      */
     public static void removeIdentity( String strConnectionId, String strClientApplicationCode )
     {
+
+        ClientApplication clientApplication = fetchClientApplication( strClientApplicationCode );
+        IdentityDto identityDtoEncrypted = new IdentityDto( );
+        identityDtoEncrypted.setConnectionId( strConnectionId );
+        IdentityDto identityDtoDecrypted = _identityEncryptionService.decrypt( identityDtoEncrypted, clientApplication );
+        String strConnectionIdDecrypted = identityDtoDecrypted.getConnectionId( );
+
         if ( _listDeleteAuthorizedApplicationCodes == null )
         {
             _listDeleteAuthorizedApplicationCodes = SpringContextService.getBean( BEAN_APPLICATION_CODE_DELETE_AUTHORIZED_LIST );
@@ -500,7 +564,7 @@ public final class IdentityStoreService
             throw new IdentityStoreException( ERROR_DELETE_UNAUTHORIZED );
         }
 
-        Identity identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientApplicationCode );
+        Identity identity = IdentityStoreService.getIdentityByConnectionId( strConnectionIdDecrypted, strClientApplicationCode );
 
         if ( identity == null )
         {
@@ -508,7 +572,7 @@ public final class IdentityStoreService
         }
         else
         {
-            IdentityHome.removeByConnectionId( strConnectionId );
+            IdentityHome.removeByConnectionId( strConnectionIdDecrypted );
 
             IdentityChange identityChange = new IdentityChange( );
             identityChange.setIdentity( identity );
@@ -672,5 +736,26 @@ public final class IdentityStoreService
             attribute.setFile( null );
             attribute.setValue( StringUtils.EMPTY );
         }
+    }
+
+    /**
+     * Finds the client application with the specified code
+     *
+     * @param strClientApplicationCode
+     *            the client application code
+     * @return the client application
+     * @throws AppException
+     *             if the client application cannot be found
+     */
+    private static ClientApplication fetchClientApplication( String strClientApplicationCode ) throws AppException
+    {
+        ClientApplication clientApplication = ClientApplicationHome.findByCode( strClientApplicationCode );
+
+        if ( clientApplication == null )
+        {
+            throw new AppException( "The client application " + strClientApplicationCode + " is unknown " );
+        }
+
+        return clientApplication;
     }
 }

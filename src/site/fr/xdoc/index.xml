@@ -9,6 +9,15 @@
                 <p>
 				Ce plugin stocke des identités. Une identité est composée d'attributes. Chasue attributes peut être lu, écrit ou certifié par l'application appelant le service.</p>
             </subsection>
+            <subsection name="Cryptage des identités">
+                <p>
+                Le plugin peut utiliser des identités ayant leurs identifiants cryptés. Ce mécanisme permet d'avoir un identifiant spécifique par fournisseur de services. Par conséquent, l'identifiant n'est pas partagé.
+                </p>
+                <p>
+                Pour utiliser le cryptage, le site doit contenir une classe implémentant l'interface <code>fr.paris.lutece.plugins.identitystore.service.encryption.IIdentityEncryptionService</code> de la librairie <code>gru-library-identitystore</code>.
+                Par exemple, ajoutez le plugin <code>gru-plugin-grukeydiversification</code> dans le <code>pom.xml</code> du site. The cryptage est alors activé.
+                </p>
+            </subsection>
             <subsection name="Configuration">
                 <p>
 					The bean appelé <code>identitystore.identityInfoExternalProvider</code> doit être défini via la configuration Spring. Le bean doit implémenter l'interface Java <code>fr.paris.lutece.plugins.identitystore.service.external.IIdentityInfoExternalProvider</code>. Il est utilisé pour créer une identité à partir d'une source externe quand un id de connexion est fourni dans la méthode web <em>create</em>.

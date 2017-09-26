@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import javax.validation.constraints.Size;
  * class representing Client application
  *
  */
-public class ClientApplication implements Serializable
+public class ClientApplication implements IClientApplication, Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -100,10 +100,10 @@ public class ClientApplication implements Serializable
     }
 
     /**
-     * Returns the Code
+     * {@inheritDoc}
      *
-     * @return The Code
      */
+    @Override
     public String getCode( )
     {
         return _strCode;

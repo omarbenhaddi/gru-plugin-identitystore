@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2015, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,8 @@ package fr.paris.lutece.plugins.identitystore.web.request;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
-import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
@@ -102,11 +100,11 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
         String strClientAppCode = _identityChangeDto.getAuthor( ).getApplicationCode( );
         _certifier.certify( identityDto, strClientAppCode );
 
-        Identity identity = IdentityStoreService.getOrCreateIdentity( identityDto.getConnectionId( ), identityDto.getCustomerId( ), strClientAppCode );
+        identityDto = IdentityStoreService.getOrCreateIdentity( identityDto.getConnectionId( ), identityDto.getCustomerId( ), strClientAppCode );
 
         try
         {
-            return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, strClientAppCode ) );
+            return _objectMapper.writeValueAsString( identityDto );
         }
         catch( JsonProcessingException e )
         {

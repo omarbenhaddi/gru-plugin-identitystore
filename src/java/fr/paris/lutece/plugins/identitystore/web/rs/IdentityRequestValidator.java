@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,13 +111,6 @@ public final class IdentityRequestValidator
         if ( StringUtils.isBlank( strClientCode ) )
         {
             throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
-        }
-
-        ClientApplication clientApp = ClientApplicationHome.findByCode( strClientCode );
-
-        if ( clientApp == null )
-        {
-            throw new AppException( Constants.PARAM_CLIENT_CODE + " : " + strClientCode + " is unknown " );
         }
     }
 

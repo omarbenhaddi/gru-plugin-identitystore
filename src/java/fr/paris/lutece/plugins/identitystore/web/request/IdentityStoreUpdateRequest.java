@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,10 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 
@@ -99,11 +98,11 @@ public class IdentityStoreUpdateRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        Identity identity = IdentityStoreService.updateIdentity( _identityChangeDto, _mapAttachedFiles );
+        IdentityDto identityDto = IdentityStoreService.updateIdentity( _identityChangeDto, _mapAttachedFiles );
 
         try
         {
-            return _objectMapper.writeValueAsString( DtoConverter.convertToDto( identity, _identityChangeDto.getAuthor( ).getApplicationCode( ) ) );
+            return _objectMapper.writeValueAsString( identityDto );
         }
         catch( JsonProcessingException e )
         {
