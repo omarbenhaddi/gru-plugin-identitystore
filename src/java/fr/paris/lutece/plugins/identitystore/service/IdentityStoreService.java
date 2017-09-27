@@ -594,7 +594,7 @@ public final class IdentityStoreService
      */
     public static ApplicationRightsDto getApplicationRights( String strClientAppCode )
     {
-        ClientApplication clientApp = ClientApplicationHome.findByCode( strClientAppCode );
+        ClientApplication clientApp = fetchClientApplication( strClientAppCode );
         List<AttributeRight> listAttributeRight = ClientApplicationHome.selectApplicationRights( clientApp );
         List<AbstractCertifier> listCertifier = ClientApplicationHome.getCertifiers( clientApp );
         ApplicationRightsDto appRightsDto = new ApplicationRightsDto( );
