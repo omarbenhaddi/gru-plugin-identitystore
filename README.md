@@ -1,5 +1,7 @@
 ![](http://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=gru-plugin-identitystore-deploy)
-# Plugin identitystore
+# Plugin Identity Store
+
+![](http://dev.lutece.paris.fr/plugins/plugin-identitystore/images/identitystore.png)
 
 ## Introduction
 
