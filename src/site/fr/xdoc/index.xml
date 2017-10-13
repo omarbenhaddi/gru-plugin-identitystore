@@ -1,32 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
     <properties>
-        <title>Plugin identitystore</title>
+        <title>Plugin Identity Store</title>
     </properties>
     <body>
-        <section name="Plugin identitystore">
+        <section name="Plugin Identity Store">
+            <p>
+                <img src="images/identitystore.png" />
+            </p>
             <subsection name="Introduction">
                 <p>
-				Ce plugin stocke des identités. Une identité est composée d'attributes. Chasue attributes peut être lu, écrit ou certifié par l'application appelant le service.</p>
+                    Ce plugin permet de constituer un référentiel d'identités. Couplé à un système d'authentification, il offre une service
+                    de <b>Fournisseur d'Identités (FI)</b>.
+                </p>
+                <p> 
+                    Une identité est composée d'attributs. L'accès aux attributs se fait via une API REST. 
+                    Chaque attribut peut être lu, écrit ou certifié par une application cliente de l'API si
+                    elle dispose des autorisations adéquates. 
+                </p>
+                <p> 
+                    Les applications clientes sont aussi dénommées <b>Fournisseurs de Service (FS)</b>.
+                </p>
             </subsection>
-            <subsection name="Cryptage des identités">
+            <subsection name="Diversification des identifiants">
                 <p>
-                Le plugin peut utiliser des identités ayant leurs identifiants cryptés. Ce mécanisme permet d'avoir un identifiant spécifique par fournisseur de services. Par conséquent, l'identifiant n'est pas partagé.
+                    Le plugin peut utiliser des identités ayant des identifiants cryptés de . 
+                    Ce mécanisme permet d'avoir un identifiant spécifique par fournisseur de services. Par conséquent, l'identifiant n'est pas partagé.
                 </p>
                 <p>
-                Pour utiliser le cryptage, le site doit contenir une classe implémentant l'interface <code>fr.paris.lutece.plugins.identitystore.service.encryption.IIdentityEncryptionService</code> de la librairie <code>gru-library-identitystore</code>.
-                Par exemple, ajoutez le plugin <code>gru-plugin-grukeydiversification</code> dans le <code>pom.xml</code> du site. The cryptage est alors activé.
+                    Pour utiliser le cryptage, le site doit contenir une classe implémentant l'interface <code>fr.paris.lutece.plugins.identitystore.service.encryption.IIdentityEncryptionService</code> de la librairie <code>gru-library-identitystore</code>.
+                    Par exemple, ajoutez le plugin <code>gru-plugin-grukeydiversification</code> dans le <code>pom.xml</code> du site. Le cryptage est alors activé.
                 </p>
             </subsection>
             <subsection name="Configuration">
                 <p>
-					The bean appelé <code>identitystore.identityInfoExternalProvider</code> doit être défini via la configuration Spring. Le bean doit implémenter l'interface Java <code>fr.paris.lutece.plugins.identitystore.service.external.IIdentityInfoExternalProvider</code>. Il est utilisé pour créer une identité à partir d'une source externe quand un id de connexion est fourni dans la méthode web <em>create</em>.
-				</p>
+                    Le bean appelé <code>identitystore.identityInfoExternalProvider</code> doit être défini via la configuration Spring. Le bean doit implémenter l'interface Java <code>fr.paris.lutece.plugins.identitystore.service.external.IIdentityInfoExternalProvider</code>. Il est utilisé pour créer une identité à partir d'une source externe quand un id de connexion est fourni dans la méthode web <em>create</em>.
+                </p>
             </subsection>
             <subsection name="Usage">
                 <p>
-					Le plugin expose des méthodes web pour gérer les identités. Consulter la page <em>/jsp/site/Portal.jsp?page=swaggerui</em> pour plus d'informations à propos de ces méthodes.
-				</p>
+                    Le plugin expose des méthodes web pour gérer les identités. Consulter la page <em>/jsp/site/Portal.jsp?page=swaggerui</em> pour plus d'informations à propos de ces méthodes.
+                </p>
             </subsection>
         </section>
     </body>
