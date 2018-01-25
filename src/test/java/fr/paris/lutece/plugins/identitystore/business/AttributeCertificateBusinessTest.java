@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,50 +33,64 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import fr.paris.lutece.test.LuteceTestCase;
-
 import java.sql.Timestamp;
+
+import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
+import fr.paris.lutece.test.LuteceTestCase;
 
 public class AttributeCertificateBusinessTest extends LuteceTestCase
 {
-    private final static String CERTIFIERCODE1 = "certifiercode1";
-    private final static String CERTIFIERCODE2 = "certifiercode2";
-    private final static Timestamp CERTIFICATEDATE1 = new Timestamp( 1000000L );
-    private final static Timestamp CERTIFICATEDATE2 = new Timestamp( 2000000L );
-    private final static int CERTIFICATELEVEL1 = 1;
-    private final static int CERTIFICATELEVEL2 = 2;
-    private final static Timestamp EXPIRATIONDATE1 = new Timestamp( 1000000L );
-    private final static Timestamp EXPIRATIONDATE2 = new Timestamp( 2000000L );
 
-    public void testBusiness( )
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void setUp( ) throws Exception
+    {
+        super.setUp( );
+
+        IdentityStoreTestContext.initContext( );
+    }
+
+    public void testBusiness( ) throws CertifierNotFoundException
     {
         // Initialize an object
-        AttributeCertificate attributeCertificate = new AttributeCertificate( );
-        attributeCertificate.setCertifierCode( CERTIFIERCODE1 );
-        attributeCertificate.setCertificateDate( CERTIFICATEDATE1 );
-        attributeCertificate.setCertificateLevel( CERTIFICATELEVEL1 );
-        attributeCertificate.setExpirationDate( EXPIRATIONDATE1 );
+        AttributeCertificate attributeCertificate = CertifierRegistry.instance( ).getCertifier( IdentityStoreTestContext.CERTIFIER1_CODE )
+                .generateCertificate( );
+        // MYSQL doesn't managed nanosecond
+        Timestamp cert1Date = attributeCertificate.getCertificateDate( );
+        cert1Date.setNanos( 0 );
+        Timestamp cert1ExpDate = attributeCertificate.getExpirationDate( );
+        cert1ExpDate.setNanos( 0 );
 
         // Create test
         AttributeCertificateHome.create( attributeCertificate );
 
         AttributeCertificate attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
-        assertEquals( attributeCertificateStored.getCertifierCode( ), attributeCertificate.getCertifierCode( ) );
-        assertEquals( attributeCertificateStored.getCertificateDate( ), attributeCertificate.getCertificateDate( ) );
-        assertEquals( attributeCertificateStored.getCertificateLevel( ), attributeCertificate.getCertificateLevel( ) );
-        assertEquals( attributeCertificateStored.getExpirationDate( ), attributeCertificate.getExpirationDate( ) );
+        assertEquals( attributeCertificate.getCertifierCode( ), attributeCertificateStored.getCertifierCode( ) );
+        assertEquals( cert1Date.getTime( ), attributeCertificateStored.getCertificateDate( ).getTime( ) );
+        assertEquals( attributeCertificate.getCertificateLevel( ), attributeCertificateStored.getCertificateLevel( ) );
+        assertEquals( cert1ExpDate.getTime( ), attributeCertificateStored.getExpirationDate( ).getTime( ) );
 
         // Update test
-        attributeCertificate.setCertifierCode( CERTIFIERCODE2 );
-        attributeCertificate.setCertificateDate( CERTIFICATEDATE2 );
-        attributeCertificate.setCertificateLevel( CERTIFICATELEVEL2 );
-        attributeCertificate.setExpirationDate( EXPIRATIONDATE2 );
-        AttributeCertificateHome.update( attributeCertificate );
-        attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate.getId( ) );
-        assertEquals( attributeCertificateStored.getCertifierCode( ), attributeCertificate.getCertifierCode( ) );
-        assertEquals( attributeCertificateStored.getCertificateDate( ), attributeCertificate.getCertificateDate( ) );
-        assertEquals( attributeCertificateStored.getCertificateLevel( ), attributeCertificate.getCertificateLevel( ) );
-        assertEquals( attributeCertificateStored.getExpirationDate( ), attributeCertificate.getExpirationDate( ) );
+        AttributeCertificate attributeCertificate2 = CertifierRegistry.instance( ).getCertifier( IdentityStoreTestContext.CERTIFIER2_CODE )
+                .generateCertificate( );
+        // MYSQL doesn't managed nanosecond
+        Timestamp cert2Date = attributeCertificate2.getCertificateDate( );
+        cert2Date.setNanos( 0 );
+        Timestamp cert2ExpDate = attributeCertificate2.getExpirationDate( );
+        cert2ExpDate.setNanos( 0 );
+
+        attributeCertificate2.setId( attributeCertificate.getId( ) );
+        AttributeCertificateHome.update( attributeCertificate2 );
+
+        attributeCertificateStored = AttributeCertificateHome.findByPrimaryKey( attributeCertificate2.getId( ) );
+        assertEquals( attributeCertificate2.getCertifierCode( ), attributeCertificateStored.getCertifierCode( ) );
+        assertEquals( cert2Date.getTime( ), attributeCertificateStored.getCertificateDate( ).getTime( ) );
+        assertEquals( attributeCertificate2.getCertificateLevel( ), attributeCertificateStored.getCertificateLevel( ) );
+        assertEquals( cert2ExpDate.getTime( ), attributeCertificateStored.getExpirationDate( ).getTime( ) );
 
         // List test
         AttributeCertificateHome.getAttributeCertificatesList( );

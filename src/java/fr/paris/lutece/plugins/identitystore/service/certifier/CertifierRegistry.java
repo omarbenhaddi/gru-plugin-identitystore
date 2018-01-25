@@ -43,7 +43,7 @@ import java.util.TreeMap;
 /**
  * CertifierRegistry
  */
-public class CertifierRegistry
+public final class CertifierRegistry
 {
     private static CertifierRegistry _singleton;
     private static Map<String, AbstractCertifier> _mapCertifiers;
@@ -94,6 +94,7 @@ public class CertifierRegistry
      * Add a certifier to the registry
      * 
      * @param certifier
+     *            the certifier to register
      */
     public void register( AbstractCertifier certifier )
     {
@@ -101,11 +102,17 @@ public class CertifierRegistry
         AppLogService.info( "New identitystore certifier registered : " + certifier.getCode( ) );
     }
 
+    /**
+     * @return list of registered certifiers
+     */
     public Collection<AbstractCertifier> getCertifiersList( )
     {
         return _mapCertifiers.values( );
     }
 
+    /**
+     * @return map of registered certifiers with theirs code key
+     */
     public Map<String, AbstractCertifier> getCertifiers( )
     {
         return _mapCertifiers;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,7 @@ public class AttributeChange
     private Timestamp _dateChange;
     private int _nIdentityId;
     private String _strAuthorId;
-    private String _strAuthorName;
-    private String _strAuthorService;
+    private String _strAuthorApplication;
     private int _nAuthorType;
     private String _strIdentityConnectionId;
     private String _strCustomerId;
@@ -62,7 +61,11 @@ public class AttributeChange
      */
     public Timestamp getDateChange( )
     {
-        return _dateChange;
+    	if( _dateChange!= null )
+    	{
+    		return (Timestamp) _dateChange.clone( );
+    	}
+    	return null;
     }
 
     /**
@@ -73,7 +76,14 @@ public class AttributeChange
      */
     public void setDateChange( Timestamp dateChange )
     {
-        _dateChange = dateChange;
+    	if( dateChange!= null )
+    	{
+    		_dateChange = (Timestamp) dateChange.clone( );
+    	}
+    	else
+    	{
+    		_dateChange = null;
+    	}
     }
 
     /**
@@ -98,45 +108,24 @@ public class AttributeChange
     }
 
     /**
-     * Returns the AuthorName
+     * Returns the AuthorApplication
      *
-     * @return The AuthorName
+     * @return The AuthorApplication
      */
-    public String getAuthorName( )
+    public String getAuthorApplication( )
     {
-        return _strAuthorName;
+        return _strAuthorApplication;
     }
 
     /**
-     * Sets the AuthorName
+     * Sets the AuthorApplication
      *
-     * @param strAuthorName
-     *            The AuthorName
+     * @param strAuthorApplication
+     *            The AuthorApplication
      */
-    public void setAuthorName( String strAuthorName )
+    public void setAuthorApplication( String strAuthorApplication )
     {
-        _strAuthorName = strAuthorName;
-    }
-
-    /**
-     * Returns the AuthorService
-     *
-     * @return The AuthorService
-     */
-    public String getAuthorService( )
-    {
-        return _strAuthorService;
-    }
-
-    /**
-     * Sets the AuthorService
-     *
-     * @param strAuthorService
-     *            The AuthorService
-     */
-    public void setAuthorService( String strAuthorService )
-    {
-        _strAuthorService = strAuthorService;
+        _strAuthorApplication = strAuthorApplication;
     }
 
     /**

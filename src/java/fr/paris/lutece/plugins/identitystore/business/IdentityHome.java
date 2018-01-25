@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -225,6 +225,8 @@ public final class IdentityHome
     /**
      * Find by attribute value
      *
+     * @param strAttributeId
+     *            The attribute identifier
      * @param strAttributeValue
      *            The attribute value
      * @return The Identity
@@ -238,13 +240,9 @@ public final class IdentityHome
      * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
      * search. Otherwise performs an exact search.
      * 
-     * @param strAttributeId
-     *            The attribute identifier
      * @param strAttributeValue
      *            The attribute value
-     * @param strClientAppCode
-     *            code of application client which requires infos
-     * @return The Identity
+     * @return list of Identity
      */
     public static List<Identity> findByAllAttributesValue( String strAttributeValue )
     {

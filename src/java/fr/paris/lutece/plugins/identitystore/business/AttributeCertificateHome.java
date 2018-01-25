@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,14 +109,18 @@ public final class AttributeCertificateHome
     public static AttributeCertificate findByPrimaryKey( int nKey )
     {
         AttributeCertificate certificate = _dao.load( nKey, _plugin );
-        try
+
+        if ( certificate != null )
         {
-            certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
-        }
-        catch( CertifierNotFoundException e )
-        {
-            // Certifier not found, maybe deleted
-            return certificate;
+            try
+            {
+                certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
+            }
+            catch( CertifierNotFoundException e )
+            {
+                // Certifier not found, maybe deleted
+                return certificate;
+            }
         }
 
         return certificate;

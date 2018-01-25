@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,6 +100,8 @@ public final class DtoConverter
                 attrDto.setKey( attributeKey.getKeyName( ) );
                 attrDto.setValue( attribute.getValue( ) );
                 attrDto.setType( attributeKey.getKeyType( ).getCode( ) );
+                attrDto.setLastUpdateApplicationCode( attribute.getLastUpdateApplicationCode( ) );
+                attrDto.setStatus( attribute.getStatus( ) );
 
                 for ( AttributeRight attRight : lstRights )
                 {
@@ -126,7 +128,7 @@ public final class DtoConverter
                     }
                     catch( CertifierNotFoundException e )
                     {
-                        // Identity contrains attribute certified with a certifier not found;
+                        // Identity contains attribute certified with a certifier not found;
                         // We dont populate the attrDto with an empty certificate
                     }
                     finally
@@ -161,8 +163,7 @@ public final class DtoConverter
         if ( authorDto != null )
         {
             author = new ChangeAuthor( );
-            author.setApplication( authorDto.getApplicationName( ) );
-            author.setUserName( authorDto.getUserName( ) );
+            author.setApplicationCode( authorDto.getApplicationCode( ) );
 
             if ( ( authorDto.getType( ) != AuthorType.TYPE_APPLICATION.getTypeValue( ) )
                     && ( authorDto.getType( ) != AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) )
@@ -171,12 +172,12 @@ public final class DtoConverter
                 throw new AppException( "type provided is unknown type=" + authorDto.getType( ) );
             }
 
-            if ( ( authorDto.getType( ) == AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) ) && StringUtils.isEmpty( authorDto.getEmail( ) ) )
+            if ( ( authorDto.getType( ) == AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) ) && StringUtils.isEmpty( authorDto.getId( ) ) )
             {
-                throw new AppException( "email field is missing" );
+                throw new AppException( "id field is missing" );
             }
 
-            author.setEmail( authorDto.getEmail( ) );
+            author.setAuthorId( authorDto.getId( ) );
             author.setType( authorDto.getType( ) );
         }
         else

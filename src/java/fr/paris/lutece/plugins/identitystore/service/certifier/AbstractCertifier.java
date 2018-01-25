@@ -34,24 +34,11 @@
 package fr.paris.lutece.plugins.identitystore.service.certifier;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.collections.MapUtils;
-
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.Identity;
-import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
-import fr.paris.lutece.portal.service.util.AppLogService;
 
 /**
  *
@@ -60,14 +47,19 @@ public abstract class AbstractCertifier
 {
     public static final int NO_CERTIFICATE_EXPIRATION_DELAY = -1;
 
-    protected String _strCode;
-    protected String _strName;
-    protected String _strDescription;
-    protected int _nCertificateLevel;
-    protected String _strIconUrl;
-    protected int _nExpirationDelay;
-    protected List<String> _listCertifiableAttributes;
+    private String _strCode;
+    private String _strName;
+    private String _strDescription;
+    private int _nCertificateLevel;
+    private String _strIconUrl;
+    private int _nExpirationDelay;
+    private List<String> _listCertifiableAttributes;
 
+    /**
+     * constructor with code for registration
+     * 
+     * @param strCode the code
+     */
     public AbstractCertifier( String strCode )
     {
         super( );
@@ -212,38 +204,12 @@ public abstract class AbstractCertifier
     }
 
     /**
-     * Method to override by children of BaseCertifier if something have to be done before create the certificate
+     * generate an AttributeCertificate
      * 
-     * @param identityDto
-     *            identity to change
-     * @param strClientAppCode
-     *            Client application code
+     * @return AttributeCertificate
      */
-    protected abstract void beforeCertify( IdentityDto identityDto, String strClientAppCode );
-
-    /**
-     * Method to override by children of BaseCertifier if something have to be done after create the certificate
-     * 
-     * @param identityDto
-     *            identity updated
-     * @param strClientAppCode
-     *            Client application code
-     * @param listCertifiedAttribut
-     *            list of all attribute key which have been certified
-     */
-    protected abstract void afterCertify( IdentityDto identityDto, String strClientAppCode, List<String> listCertifiedAttribut );
-
-    /**
-     * Certify attributes
-     * 
-     * @param identity
-     *            The identity data
-     * @param strClientAppCode
-     *            the client code
-     */
-    final public void certify( IdentityDto identityDto, String strClientAppCode )
+    public final AttributeCertificate generateCertificate( )
     {
-        beforeCertify( identityDto, strClientAppCode );
 
         AttributeCertificate certificate = new AttributeCertificate( );
         certificate.setCertificateDate( new Timestamp( new Date( ).getTime( ) ) );
@@ -258,37 +224,6 @@ public abstract class AbstractCertifier
             c.add( Calendar.DATE, _nExpirationDelay );
             certificate.setExpirationDate( new Timestamp( c.getTime( ).getTime( ) ) );
         }
-
-        ChangeAuthor author = new ChangeAuthor( );
-        author.setApplication( _strName );
-        author.setType( AuthorType.TYPE_USER_OWNER.getTypeValue( ) );
-
-        Identity identity = IdentityHome.findByConnectionId( identityDto.getConnectionId( ), strClientAppCode );
-        List<String> listCertifiedAttribut = new ArrayList<String>( );
-
-        for ( String strField : _listCertifiableAttributes )
-        {
-            AttributeDto attribute = identityDto.getAttributes( ).get( strField );
-            IdentityAttribute attributeDB = null;
-            if ( identity != null && MapUtils.isNotEmpty( identity.getAttributes( ) ) )
-            {
-                attributeDB = identity.getAttributes( ).get( strField );
-            }
-            if ( ( attribute != null ) && ( attribute.getValue( ) != null ) )
-            {
-                if ( attributeDB != null && attributeDB.getCertificate( ) != null && attributeDB.getCertificate( ).getCertificateLevel( ) > _nCertificateLevel )
-                {
-                    AppLogService.info( "Attribut [" + strField + "] has been certified by [" + attributeDB.getCertificate( ).getCertifierCode( )
-                            + "] which have a higher certificate level" );
-                }
-                else
-                {
-                    IdentityStoreService.setAttribute( identity, strField, attribute.getValue( ), author, certificate );
-                    listCertifiedAttribut.add( strField );
-                }
-            }
-        }
-
-        afterCertify( DtoConverter.convertToDto( identity, strClientAppCode ), strClientAppCode, listCertifiedAttribut );
+        return certificate;
     }
 }

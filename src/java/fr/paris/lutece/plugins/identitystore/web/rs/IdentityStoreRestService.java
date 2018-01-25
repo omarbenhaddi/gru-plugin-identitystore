@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,11 +69,8 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreAppRightsRequest;
-import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCertifyRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCreateRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreDeleteRequest;
 import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreGetRequest;
@@ -174,26 +171,6 @@ public final class IdentityStoreRestService
         }
     }
 
-    @POST
-    @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
-    public Response certifyIdentityAttributes( FormDataMultiPart formParams )
-    {
-        try
-        {
-            IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
-            String strCertifierCode = fetchCertifierCode( formParams );
-            AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-
-            IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( identityChangeDto, certifier, _objectMapper );
-
-            return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
-    }
-
     /**
      * Creates an identity <b>only if the identity does not already exist</b>.<br/>
      * The identity is created from the provided attributes. <br/>
@@ -232,8 +209,10 @@ public final class IdentityStoreRestService
      *
      * @param strConnectionId
      *            the connection ID
-     * @param strClientAppCode
-     *            the client code
+     * @param strHeaderClientAppCode
+     *            the client code from header
+     * @param strQueryClientAppCode
+     *            the client code from query
      * @return a OK message if the deletion has been performed, a KO message otherwise
      */
     @DELETE
@@ -262,8 +241,10 @@ public final class IdentityStoreRestService
      *
      * @param strConnectionId
      *            connectionId (must not be empty)
-     * @param strClientAppCode
-     *            client application code (must not be empty)
+     * @param strHeaderClientAppCode
+     *            the client code from header
+     * @param strQueryClientAppCode
+     *            the client code from query
      * @param strAttributeKey
      *            attribute key containing file (must not be empty)
      * @return http 200 Response containing requested file, http 400 otherwise
@@ -301,8 +282,8 @@ public final class IdentityStoreRestService
     /**
      * Gives list of application rights according to its application code, it miss must be consistent otherwise an AppException is thrown
      *
-     * @param strHeaderClientAppCode
-     *            client code
+     * @param strClientAppCode
+     *            client code from header
      * @return the applications rights
      */
     @GET
@@ -385,7 +366,7 @@ public final class IdentityStoreRestService
                 PhysicalFile physicalFile = new PhysicalFile( );
                 physicalFile.setValue( IOUtils.toByteArray( inputStream ) );
 
-                fr.paris.lutece.portal.business.file.File file = new fr.paris.lutece.portal.business.file.File( );
+                File file = new File( );
                 file.setPhysicalFile( physicalFile );
                 file.setMimeType( part.getMediaType( ).getType( ) + "/" + part.getMediaType( ).getSubtype( ) );
                 file.setSize( physicalFile.getValue( ).length );
@@ -397,41 +378,22 @@ public final class IdentityStoreRestService
         return mapAttachedFiles;
     }
 
-    private String fetchCertifierCode( FormDataMultiPart formParams ) throws IOException
-    {
-        String strCertifierCode = StringUtils.EMPTY;
-
-        for ( BodyPart part : formParams.getBodyParts( ) )
-        {
-            InputStream inputStream = part.getEntityAs( InputStream.class );
-            ContentDisposition contentDispo = part.getContentDisposition( );
-
-            if ( StringUtils.isBlank( contentDispo.getFileName( ) ) && part.getMediaType( ).isCompatible( MediaType.TEXT_PLAIN_TYPE )
-                    && Constants.PARAM_CERTIFIER_CODE.equals( contentDispo.getParameters( ).get( Constants.PARAMETER_NAME ) ) )
-            {
-                // content-body of request
-                strCertifierCode = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
-            }
-        }
-        return strCertifierCode;
-    }
-
     /**
      * build error response from exception
      *
-     * @param e
-     *            exception
+     * @param exception
+     *            the exception
      * @return ResponseDto from exception
      */
-    private Response getErrorResponse( Exception e )
+    private Response getErrorResponse( Exception exception )
     {
         // For security purpose, send a generic message
         String strMessage = null;
         Status status = null;
 
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + e, e );
+        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + exception, exception );
 
-        if ( e instanceof IdentityNotFoundException )
+        if ( exception instanceof IdentityNotFoundException )
         {
             strMessage = ERROR_NO_IDENTITY_FOUND;
             status = Status.NOT_FOUND;

@@ -287,14 +287,14 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( _identity );
         identityChange.setChangeType( IdentityChangeType.CREATE );
-        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+        IdentityStoreNotifyListenerService.instance( ).notifyListenersIdentityChange( identityChange );
 
         AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( ).getKeyName( ),
                 idAttrFirstName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrFirstName.getCertificate( ), true );
-        IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeFirstName );
+        IdentityStoreNotifyListenerService.instance( ).notifyListenersAttributeChange( changeFirstName );
         AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrLastName.getAttributeKey( ).getKeyName( ),
                 idAttrLastName.getValue( ), StringUtils.EMPTY, getAuthor( ), idAttrLastName.getCertificate( ), true );
-        IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeLastName );
+        IdentityStoreNotifyListenerService.instance( ).notifyListenersAttributeChange( changeLastName );
 
         return redirectView( request, VIEW_MANAGE_IDENTITIES );
     }
@@ -351,10 +351,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private ChangeAuthor getAuthor( )
     {
         ChangeAuthor author = new ChangeAuthor( );
-        author.setApplication( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_APPLICATION_CODE ) );
-        author.setEmail( getUser( ).getEmail( ) );
+        author.setApplicationCode( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_APPLICATION_CODE ) );
+        author.setAuthorId( getUser( ).getEmail( ) );
         author.setType( AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) );
-        author.setUserName( getUser( ).getFirstName( ) );
         return author;
     }
 
@@ -404,7 +403,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
         identityChange.setChangeType( IdentityChangeType.DELETE );
-        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+        IdentityStoreNotifyListenerService.instance( ).notifyListenersIdentityChange( identityChange );
 
         return redirectView( request, VIEW_MANAGE_IDENTITIES );
     }
@@ -485,20 +484,20 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( _identity );
         identityChange.setChangeType( IdentityChangeType.UPDATE );
-        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+        IdentityStoreNotifyListenerService.instance( ).notifyListenersIdentityChange( identityChange );
 
         if ( bUpdateFirstName )
         {
             AttributeChange changeFirstName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity, idAttrFirstName.getAttributeKey( )
                     .getKeyName( ), idAttrFirstName.getValue( ), strCurrentFirstName, getAuthor( ), idAttrFirstName.getCertificate( ), false );
-            IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeFirstName );
+            IdentityStoreNotifyListenerService.instance( ).notifyListenersAttributeChange( changeFirstName );
         }
         if ( bUpdateLastName )
         {
             AttributeChange changeLastName = IdentityStoreNotifyListenerService.buildAttributeChange( _identity,
                     idAttrLastName.getAttributeKey( ).getKeyName( ), idAttrLastName.getValue( ), strCurrentLastName, getAuthor( ),
                     idAttrLastName.getCertificate( ), false );
-            IdentityStoreNotifyListenerService.notifyListenersAttributeChange( changeLastName );
+            IdentityStoreNotifyListenerService.instance( ).notifyListenersAttributeChange( changeLastName );
         }
 
         return redirectView( request, VIEW_MANAGE_IDENTITIES );
@@ -553,8 +552,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             for ( String strAttributeKey : _identity.getAttributes( ).keySet( ) )
             {
                 mapCurrentAttributes.put( strAttributeKey, _identity.getAttributes( ).get( strAttributeKey ) );
-                List<AttributeChange> lstAttributeChange = new ArrayList<AttributeChange>( );
-                lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey );
+                List<AttributeChange> lstAttributeChange = IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey );
                 mapAttributesChange.put( strAttributeKey, lstAttributeChange );
             }
         }

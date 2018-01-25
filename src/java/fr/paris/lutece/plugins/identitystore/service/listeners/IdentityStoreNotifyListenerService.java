@@ -57,15 +57,60 @@ public final class IdentityStoreNotifyListenerService
     private static final String BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST = "identitystore.attributes.changelisteners.list";
     private static final String BEAN_IDENTITY_CHANGE_LISTENERS_LIST = "identitystore.identity.changelisteners.list";
 
-    // Other constants
-    private static List<AttributeChangeListener> _attributeChangelistListeners;
-    private static List<IdentityChangeListener> _identityChangeListListeners;
+    // singleton
+    private static IdentityStoreNotifyListenerService _singleton;
+
+    // List
+    private List<AttributeChangeListener> _attributeChangelistListeners;
+    private List<IdentityChangeListener> _identityChangeListListeners;
 
     /**
      * private constructor
      */
     private IdentityStoreNotifyListenerService( )
     {
+        // init attributeChangelistListeners
+        _attributeChangelistListeners = SpringContextService.getBean( BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST );
+
+        StringBuilder sbLog = new StringBuilder( );
+        sbLog.append( "IdentityStore - loading listeners  : " );
+
+        for ( AttributeChangeListener listener : _attributeChangelistListeners )
+        {
+            sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
+        }
+
+        AppLogService.info( sbLog.toString( ) );
+
+        // init identityChangeListListeners
+        if ( _identityChangeListListeners == null )
+        {
+            _identityChangeListListeners = SpringContextService.getBean( BEAN_IDENTITY_CHANGE_LISTENERS_LIST );
+
+            sbLog = new StringBuilder( );
+            sbLog.append( "IdentityStore - loading listeners  : " );
+
+            for ( IdentityChangeListener listener : _identityChangeListListeners )
+            {
+                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
+            }
+
+            AppLogService.info( sbLog.toString( ) );
+        }
+    }
+
+    /**
+     * Returns the unique instance
+     * 
+     * @return The instance
+     */
+    public static IdentityStoreNotifyListenerService instance( )
+    {
+        if ( _singleton == null )
+        {
+            _singleton = new IdentityStoreNotifyListenerService( );
+        }
+        return _singleton;
     }
 
     /**
@@ -74,23 +119,8 @@ public final class IdentityStoreNotifyListenerService
      * @param change
      *            The change
      */
-    public static void notifyListenersAttributeChange( AttributeChange change )
+    public void notifyListenersAttributeChange( AttributeChange change )
     {
-        if ( _attributeChangelistListeners == null )
-        {
-            _attributeChangelistListeners = SpringContextService.getBean( BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST );
-
-            StringBuilder sbLog = new StringBuilder( );
-            sbLog.append( "IdentityStore - loading listeners  : " );
-
-            for ( AttributeChangeListener listener : _attributeChangelistListeners )
-            {
-                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
-            }
-
-            AppLogService.info( sbLog.toString( ) );
-        }
-
         for ( AttributeChangeListener listener : _attributeChangelistListeners )
         {
             listener.processAttributeChange( change );
@@ -103,23 +133,8 @@ public final class IdentityStoreNotifyListenerService
      * @param identityChange
      *            The identityChange
      */
-    public static void notifyListenersIdentityChange( IdentityChange identityChange )
+    public void notifyListenersIdentityChange( IdentityChange identityChange )
     {
-        if ( _identityChangeListListeners == null )
-        {
-            _identityChangeListListeners = SpringContextService.getBean( BEAN_IDENTITY_CHANGE_LISTENERS_LIST );
-
-            StringBuilder sbLog = new StringBuilder( );
-            sbLog.append( "IdentityStore - loading listeners  : " );
-
-            for ( IdentityChangeListener listener : _identityChangeListListeners )
-            {
-                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
-            }
-
-            AppLogService.info( sbLog.toString( ) );
-        }
-
         for ( IdentityChangeListener listener : _identityChangeListListeners )
         {
             listener.processIdentityChange( identityChange );
@@ -155,9 +170,8 @@ public final class IdentityStoreNotifyListenerService
         change.setChangedKey( strKey );
         change.setOldValue( strOldValue );
         change.setNewValue( strValue );
-        change.setAuthorName( author.getUserName( ) );
-        change.setAuthorId( author.getEmail( ) );
-        change.setAuthorService( author.getApplication( ) );
+        change.setAuthorId( author.getAuthorId( ) );
+        change.setAuthorApplication( author.getApplicationCode( ) );
         change.setAuthorType( author.getType( ) );
         change.setDateChange( new Timestamp( ( new Date( ) ).getTime( ) ) );
 

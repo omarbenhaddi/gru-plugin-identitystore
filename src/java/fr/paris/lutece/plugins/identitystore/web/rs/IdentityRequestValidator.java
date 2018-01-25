@@ -48,6 +48,8 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
@@ -273,16 +275,15 @@ public final class IdentityRequestValidator
      * Check certification authorization, in this order - clientApplication has to got the certifier - certifier and clientApplication must have certification
      * right on all attributs of the identitychange given
      * 
-     * @param identityChange
-     *            the identity change
+     * @param identityDto
+     *            the identity to check
      * @param strClientAppCode
      *            application code to check right
-     * @param certifier
-     *            the certifier
      * @throws AppException
      *             thrown if one of this rule is not ok
+     * @throws CertifierNotFoundException
      */
-    public void checkCertification( IdentityDto identityDto, String strClientAppCode, AbstractCertifier certifier ) throws AppException
+    public void checkCertification( IdentityDto identityDto, String strClientAppCode ) throws AppException
     {
         if ( MapUtils.isEmpty( identityDto.getAttributes( ) ) )
         {
@@ -291,28 +292,44 @@ public final class IdentityRequestValidator
         ClientApplication clientApp = ClientApplicationHome.findByCode( strClientAppCode );
         List<AttributeRight> listRights = ClientApplicationHome.selectApplicationRights( clientApp );
         List<AbstractCertifier> listCertifier = ClientApplicationHome.getCertifiers( clientApp );
-        // rule 1, client application has the certifier
-        boolean bCertifierOk = false;
-        for ( AbstractCertifier certifierApp : listCertifier )
-        {
-            if ( certifierApp.getCode( ).equals( certifier.getCode( ) ) )
-            {
-                bCertifierOk = true;
-                break;
-            }
-        }
-        if ( !bCertifierOk )
-        {
-            throw new AppException( "ClientApplication [" + strClientAppCode + "] has no right to use certifier [" + certifier.getCode( ) + "]" );
-        }
 
-        // next check all attribute is certifiable
-        List<String> listAttributsCertifier = certifier.getCertifiableAttributesList( );
+        // for each attribute retrieve certifier to control rights
         for ( String strAttributeKey : identityDto.getAttributes( ).keySet( ) )
         {
+            if ( identityDto.getAttributes( ).get( strAttributeKey ).getCertificate( ) == null )
+            {
+                continue;
+            }
+            // rule 1, client application has the certifier and the certifier exists
+            String strCertifierCode = identityDto.getAttributes( ).get( strAttributeKey ).getCertificate( ).getCertifierCode( );
+            boolean bCertifierOk = false;
+            List<String> listAttributsCertifier;
+            try
+            {
+                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+                listAttributsCertifier = certifier.getCertifiableAttributesList( );
+            }
+            catch( CertifierNotFoundException e )
+            {
+                throw new AppException( "Certifier [" + strCertifierCode + "] doesn't exists" );
+            }
+            for ( AbstractCertifier certifierApp : listCertifier )
+            {
+                if ( certifierApp.getCode( ).equals( strCertifierCode ) )
+                {
+                    bCertifierOk = true;
+                    break;
+                }
+            }
+            if ( !bCertifierOk )
+            {
+                throw new AppException( "ClientApplication [" + strClientAppCode + "] has no right to use certifier [" + strCertifierCode + "]" );
+            }
+
+            // rule 2 application and certifier allow on attribute
             if ( !listAttributsCertifier.contains( strAttributeKey ) )
             {
-                throw new AppException( "Certifier [" + certifier.getCode( ) + "] has no right to certify [" + strAttributeKey + "]" );
+                throw new AppException( "Certifier [" + strCertifierCode + "] has no right to certify [" + strAttributeKey + "]" );
             }
             else
             {

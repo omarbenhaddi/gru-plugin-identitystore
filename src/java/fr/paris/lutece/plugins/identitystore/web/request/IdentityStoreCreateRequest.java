@@ -63,6 +63,8 @@ public class IdentityStoreCreateRequest extends IdentityStoreRequest
      * 
      * @param identityChangeDto
      *            the dto of identity's change
+     * @param mapAttachedFiles
+     *            list of attached files for attributes
      * @param objectMapper
      *            for json transformation
      */
@@ -109,7 +111,7 @@ public class IdentityStoreCreateRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        IdentityDto identityDto = IdentityStoreService.createIdentity( _identityChangeDto, _mapAttachedFiles );
+        IdentityDto identityDto = IdentityStoreService.getOrCreateIdentity( _identityChangeDto, _mapAttachedFiles );
 
         try
         {

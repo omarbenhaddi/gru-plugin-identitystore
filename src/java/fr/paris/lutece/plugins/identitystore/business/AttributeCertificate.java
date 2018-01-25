@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,11 @@ public class AttributeCertificate implements Serializable
      */
     public Timestamp getCertificateDate( )
     {
-        return _dateCertificateDate;
+    	if( _dateCertificateDate!= null )
+    	{
+    		return (Timestamp) _dateCertificateDate.clone( );
+    	}
+    	return null;
     }
 
     /**
@@ -94,7 +98,14 @@ public class AttributeCertificate implements Serializable
      */
     public void setCertificateDate( Timestamp dateCertificateDate )
     {
-        _dateCertificateDate = dateCertificateDate;
+    	if( dateCertificateDate!= null )
+    	{
+    		_dateCertificateDate = (Timestamp) dateCertificateDate.clone( );
+    	}
+    	else
+    	{
+    		_dateCertificateDate = null;
+    	}
     }
 
     /**
@@ -125,7 +136,11 @@ public class AttributeCertificate implements Serializable
      */
     public Timestamp getExpirationDate( )
     {
-        return _dateExpirationDate;
+    	if( _dateExpirationDate!= null )
+    	{
+    		return (Timestamp) _dateExpirationDate.clone( );
+    	}
+    	return null;
     }
 
     /**
@@ -136,7 +151,14 @@ public class AttributeCertificate implements Serializable
      */
     public void setExpirationDate( Timestamp dateExpirationDate )
     {
-        _dateExpirationDate = dateExpirationDate;
+    	if( dateExpirationDate!= null )
+    	{
+    		_dateExpirationDate = (Timestamp) dateExpirationDate.clone( );
+    	}
+    	else
+    	{
+    		_dateExpirationDate = null;
+    	}
     }
 
     /**

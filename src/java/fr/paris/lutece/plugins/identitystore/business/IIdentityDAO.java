@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.util.List;
  */
 public interface IIdentityDAO
 {
-    public final static String BEAN_NAME = "identitystore.identityDAO";
+    String BEAN_NAME = "identitystore.identityDAO";
 
     /**
      * Insert a new record in the table.
@@ -184,16 +184,20 @@ public interface IIdentityDAO
      *
      * @param strCustomerId
      *            The customer ID
+     * @param plugin
+     *            The plugin
      * @return A list of Identity
      */
-    List<Identity> selectAllByCustomerId( String strCustomerId, Plugin _plugin );
+    List<Identity> selectAllByCustomerId( String strCustomerId, Plugin plugin );
 
     /**
      * Find all identities by connection ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
      *
      * @param strConnectionId
      *            The connection ID
+     * @param plugin
+     *            The plugin
      * @return A list of Identity
      */
-    List<Identity> selectAllByConnectionId( String strConnectionId, Plugin _plugin );
+    List<Identity> selectAllByConnectionId( String strConnectionId, Plugin plugin );
 }

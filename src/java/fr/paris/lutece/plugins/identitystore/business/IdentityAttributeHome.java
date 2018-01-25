@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -210,8 +210,6 @@ public final class IdentityAttributeHome
      *            connection id of the identity
      * @param strCertifierName
      *            name of the certifier
-     * @param plugin
-     *            plugin
      * @return id of history
      */
     public static int getLastIdHistory( String strConnectionId, String strCertifierName )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,32 +35,12 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
-import java.sql.Date;
-
 public class IdentityBusinessTest extends LuteceTestCase
 {
     private final static String CONNECTIONID1 = "ConnectionId1";
     private final static String CONNECTIONID2 = "ConnectionId2";
     private final static String CUSTOMERID1 = "48376eb6-b6c9-4247-931c-351a8182d297";
     private final static String CUSTOMERID2 = "c966a0a2-e12a-4c74-b52f-2d03b9466df8";
-    private final static String FIRSTNAME1 = "FirstName1";
-    private final static String FIRSTNAME2 = "FirstName2";
-    private final static String FAMILYNAME1 = "FamilyName1";
-    private final static String FAMILYNAME2 = "FamilyName2";
-    private final static int GENDER1 = 1;
-    private final static int GENDER2 = 2;
-    private final static Date BIRTHDATE1 = new Date( 1000000L );
-    private final static Date BIRTHDATE2 = new Date( 2000000L );
-    private final static String BIRTHPLACE1 = "Birthplace1";
-    private final static String BIRTHPLACE2 = "Birthplace2";
-    private final static String EMAIL1 = "Email1";
-    private final static String EMAIL2 = "Email2";
-    private final static String PREFERREDUSERNAME1 = "PreferredUsername1";
-    private final static String PREFERREDUSERNAME2 = "PreferredUsername2";
-    private final static String ADDRESS1 = "Address1";
-    private final static String ADDRESS2 = "Address2";
-    private final static String PHONE1 = "Phone1";
-    private final static String PHONE2 = "Phone2";
 
     public void testBusiness( )
     {
@@ -73,20 +53,20 @@ public class IdentityBusinessTest extends LuteceTestCase
         IdentityHome.create( identity );
 
         Identity identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
-        assertEquals( identityStored.getConnectionId( ), identity.getConnectionId( ) );
-        assertEquals( identityStored.getCustomerId( ), identity.getCustomerId( ) );
-        assertEquals( identityStored.getFirstName( ), identity.getFirstName( ) );
-        assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
+        assertEquals( identity.getConnectionId( ), identityStored.getConnectionId( ) );
+        assertEquals( identity.getCustomerId( ), identityStored.getCustomerId( ) );
+        assertEquals( identity.getFirstName( ), identityStored.getFirstName( ) );
+        assertEquals( identity.getFamilyName( ), identityStored.getFamilyName( ) );
 
         // Update test
         identity.setConnectionId( CONNECTIONID2 );
         identity.setCustomerId( CUSTOMERID2 );
         IdentityHome.update( identity );
         identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
-        assertEquals( identityStored.getConnectionId( ), identity.getConnectionId( ) );
-        assertEquals( identityStored.getCustomerId( ), identity.getCustomerId( ) );
-        assertEquals( identityStored.getFirstName( ), identity.getFirstName( ) );
-        assertEquals( identityStored.getFamilyName( ), identity.getFamilyName( ) );
+        assertEquals( identity.getConnectionId( ), identityStored.getConnectionId( ) );
+        assertEquals( identity.getCustomerId( ), identityStored.getCustomerId( ) );
+        assertEquals( identity.getFirstName( ), identityStored.getFirstName( ) );
+        assertEquals( identity.getFamilyName( ), identityStored.getFamilyName( ) );
 
         // List test
         IdentityHome.getCustomerIdsList( );

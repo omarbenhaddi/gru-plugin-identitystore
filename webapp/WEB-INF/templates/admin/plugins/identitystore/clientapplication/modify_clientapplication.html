@@ -7,6 +7,7 @@
         <input type="hidden" id="id" name="id" value="${clientapplication.id}"/>
         <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelName" inputName="name" mandatory=true value="${clientapplication.name}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelCode" inputName="code" mandatory=true value="${clientapplication.code}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelCode.help" />
+        <@fieldInputCheckBox i18nLabelKey="identitystore.modify_clientapplication.labelIsAuthorizedDeleteValue" inputName="isAuthorizedDeleteValue" value="1" checked=clientapplication.isAuthorizedDeleteValue i18nHelpBlockKey="identitystore.modify_clientapplication.labelIsAuthorizedDeleteValue.help" />
         
         <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manageClientApplicationCertificate&id=${clientapplication.id}"
            class="btn btn-primary pull-right" title="#i18n{identitystore.modify_clientapplication.buttonManageClientApplicationCertificate}" >

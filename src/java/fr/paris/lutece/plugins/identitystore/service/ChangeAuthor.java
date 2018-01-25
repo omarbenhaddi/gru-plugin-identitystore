@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,72 +39,50 @@ package fr.paris.lutece.plugins.identitystore.service;
 public class ChangeAuthor
 {
     // Variables declarations
-    private String _strApplication;
-    private String _strUserName;
-    private String _strEmail;
+    private String _strApplicationCode;
+    private String _strAuthorId;
     private int _nType;
 
     /**
-     * Returns the Application
+     * Returns the ApplicationCode
      *
-     * @return The Application
+     * @return The ApplicationCode
      */
-    public String getApplication( )
+    public String getApplicationCode( )
     {
-        return _strApplication;
+        return _strApplicationCode;
     }
 
     /**
-     * Sets the Application
+     * Sets the ApplicationCode
      *
-     * @param strApplication
-     *            The Application
+     * @param strApplicationCode
+     *            The ApplicationCode
      */
-    public void setApplication( String strApplication )
+    public void setApplicationCode( String strApplicationCode )
     {
-        _strApplication = strApplication;
+        _strApplicationCode = strApplicationCode;
     }
 
     /**
-     * Returns the UserName
+     * Returns the strAuthorId
      *
-     * @return The UserName
+     * @return The strAuthorId
      */
-    public String getUserName( )
+    public String getAuthorId( )
     {
-        return _strUserName;
+        return _strAuthorId;
     }
 
     /**
-     * Sets the UserName
+     * Sets the strAuthorId
      *
-     * @param strUserName
-     *            The UserName
+     * @param strAuthorId
+     *            The AuthorId
      */
-    public void setUserName( String strUserName )
+    public void setAuthorId( String strAuthorId )
     {
-        _strUserName = strUserName;
-    }
-
-    /**
-     * Returns the strEmail
-     *
-     * @return The strEmail
-     */
-    public String getEmail( )
-    {
-        return _strEmail;
-    }
-
-    /**
-     * Sets the strEmail
-     *
-     * @param strEmail
-     *            The email
-     */
-    public void setEmail( String strEmail )
-    {
-        _strEmail = strEmail;
+        _strAuthorId = strAuthorId;
     }
 
     /**

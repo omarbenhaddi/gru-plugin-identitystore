@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,11 +57,10 @@ public class LoggingListener implements AttributeChangeListener
     public void processAttributeChange( AttributeChange change )
     {
         StringBuilder sbLog = new StringBuilder( );
-        sbLog.append( "Change for identity '" ).append( "' [ID:" ).append( change.getIdentityConnectionId( ) ).append( "] " ).append( " by '" )
-                .append( change.getAuthorName( ) ).append( "' [ID:" ).append( change.getAuthorId( ) ).append( "] " ).append( " via service : '" )
-                .append( change.getAuthorService( ) ).append( "' on " ).append( change.getDateChange( ) ).append( " Key changed : '" )
-                .append( change.getChangedKey( ) ).append( "' New value : '" ).append( change.getNewValue( ) ).append( "' Old value : '" )
-                .append( change.getOldValue( ) ).append( "'" );
+        sbLog.append( "Change for identity '" ).append( "' [ID:" ).append( change.getIdentityConnectionId( ) ).append( "] " ).append( " by " ).append( " [ID:" )
+                .append( change.getAuthorId( ) ).append( "] " ).append( " via application : '" ).append( change.getAuthorApplication( ) ).append( "' on " )
+                .append( change.getDateChange( ) ).append( " Key changed : '" ).append( change.getChangedKey( ) ).append( "' New value : '" )
+                .append( change.getNewValue( ) ).append( "' Old value : '" ).append( change.getOldValue( ) ).append( "'" );
 
         _logger.info( sbLog.toString( ) );
     }

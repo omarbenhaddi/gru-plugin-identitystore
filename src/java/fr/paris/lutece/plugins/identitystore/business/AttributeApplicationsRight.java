@@ -42,9 +42,9 @@ import java.util.List;
 public class AttributeApplicationsRight
 {
     private String _strAttributeKey;
-    private List<String> _listReadApplications = new ArrayList<String>( );
-    private List<String> _listWriteApplications = new ArrayList<String>( );
-    private List<String> _listCertifApplications = new ArrayList<String>( );
+    private final List<String> _listReadApplications = new ArrayList<String>( );
+    private final List<String> _listWriteApplications = new ArrayList<String>( );
+    private final List<String> _listCertifApplications = new ArrayList<String>( );
 
     /**
      * @return the strAttributeKey

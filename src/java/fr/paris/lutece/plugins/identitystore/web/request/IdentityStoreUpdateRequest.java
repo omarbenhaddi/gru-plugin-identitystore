@@ -61,6 +61,8 @@ public class IdentityStoreUpdateRequest extends IdentityStoreRequest
      * 
      * @param identityChangeDto
      *            the dto of identity's change
+     * @param mapAttachedFiles
+     *            list of attached files for attributes
      * @param objectMapper
      *            for json transformation
      */
@@ -87,6 +89,7 @@ public class IdentityStoreUpdateRequest extends IdentityStoreRequest
         IdentityRequestValidator.instance( ).checkClientApplication( _identityChangeDto.getAuthor( ).getApplicationCode( ) );
         IdentityRequestValidator.instance( ).checkAttributes( _identityChangeDto.getIdentity( ), _identityChangeDto.getAuthor( ).getApplicationCode( ),
                 _mapAttachedFiles );
+        IdentityRequestValidator.instance( ).checkCertification( _identityChangeDto.getIdentity( ), _identityChangeDto.getAuthor( ).getApplicationCode( ) );
     }
 
     /**

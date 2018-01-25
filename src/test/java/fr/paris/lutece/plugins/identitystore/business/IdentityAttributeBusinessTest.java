@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,20 +33,17 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
 import fr.paris.lutece.test.LuteceTestCase;
 
 public class IdentityAttributeBusinessTest extends LuteceTestCase
 {
-    private static final String APPLICATION_CODE = "MyApplication";
-
-    private final static int IDIDENTITY1 = 1;
-    private final static int IDIDENTITY2 = 2;
-    private final static int IDATTRIBUTE1 = 1;
-    private final static int IDATTRIBUTE2 = 2;
+    private final static int IDIDENTITY1 = 101;
+    private final static int IDATTRIBUTE1 = 1; // gender
     private final static String ATTRIBUTEVALUE1 = "AttributeValue1";
     private final static String ATTRIBUTEVALUE2 = "AttributeValue2";
-    private final static int IDCERTIFICATION1 = 1;
-    private final static int IDCERTIFICATION2 = 2;
+    private final static int IDCERTIFICATION1 = 101;
+    private final static int IDCERTIFICATION2 = 102;
 
     public void testBusiness( )
     {
@@ -64,25 +61,21 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
 
         IdentityAttribute identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity( ), identityAttribute
                 .getAttributeKey( ).getId( ) );
-        assertEquals( identityAttributeStored.getIdIdentity( ), identityAttribute.getIdIdentity( ) );
-        assertEquals( identityAttributeStored.getAttributeKey( ).getId( ), identityAttribute.getAttributeKey( ).getId( ) );
-        assertEquals( identityAttributeStored.getValue( ), identityAttribute.getValue( ) );
-        assertEquals( identityAttributeStored.getIdCertificate( ), identityAttribute.getIdCertificate( ) );
+        assertEquals( identityAttribute.getIdIdentity( ), identityAttributeStored.getIdIdentity( ) );
+        assertEquals( identityAttribute.getAttributeKey( ).getId( ), identityAttributeStored.getAttributeKey( ).getId( ) );
+        assertEquals( identityAttribute.getValue( ), identityAttributeStored.getValue( ) );
+        assertEquals( identityAttribute.getIdCertificate( ), identityAttributeStored.getIdCertificate( ) );
 
         // Update test
-        attributeKey.setId( IDATTRIBUTE2 );
-        identityAttribute.setIdIdentity( IDIDENTITY2 );
         identityAttribute.setValue( ATTRIBUTEVALUE2 );
         identityAttribute.setIdCertificate( IDCERTIFICATION2 );
         IdentityAttributeHome.update( identityAttribute );
         identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );
-        assertEquals( identityAttributeStored.getIdIdentity( ), identityAttribute.getIdIdentity( ) );
-        assertEquals( identityAttributeStored.getAttributeKey( ).getId( ), identityAttribute.getAttributeKey( ).getId( ) );
-        assertEquals( identityAttributeStored.getValue( ), identityAttribute.getValue( ) );
-        assertEquals( identityAttributeStored.getIdCertificate( ), identityAttribute.getIdCertificate( ) );
+        assertEquals( identityAttribute.getValue( ), identityAttributeStored.getValue( ) );
+        assertEquals( identityAttribute.getIdCertificate( ), identityAttributeStored.getIdCertificate( ) );
 
         // List test
-        IdentityAttributeHome.getAttributes( 1, APPLICATION_CODE );
+        IdentityAttributeHome.getAttributes( 1, IdentityStoreTestContext.SAMPLE_APPCODE );
 
         // Delete test
         IdentityAttributeHome.remove( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );

@@ -49,6 +49,7 @@ attribute_value long varchar NULL,
 id_certification int(11) NOT NULL default '0',
 id_file int(11) default '0',
 lastupdate_date timestamp NOT NULL default CURRENT_TIMESTAMP,
+lastupdate_application VARCHAR(100) NULL,
 PRIMARY KEY ( id_identity , id_attribute )
 );
 
@@ -85,6 +86,7 @@ CREATE TABLE identitystore_client_application (
 id_client_app int(6) NOT NULL,
 name varchar(100) NOT NULL UNIQUE,
 code varchar(100) NOT NULL UNIQUE,
+is_application_authorized_to_delete_value INT(1) NOT NULL DEFAULT 0,
 PRIMARY KEY (id_client_app)
 );
 --
@@ -113,9 +115,8 @@ attribute_key varchar(50) NOT NULL,
 attribute_new_value varchar(255) NOT NULL default '',
 attribute_old_value varchar(255) NOT NULL default '',
 author_id varchar(255) default '',
-author_email varchar(255) default '',
 author_type int(2) NOT NULL,
-author_service varchar(255) default '',
+author_application varchar(255) default '',
 certifier_name varchar(255) default '',
 modification_date timestamp NOT NULL default CURRENT_TIMESTAMP,
 PRIMARY KEY ( id_history )

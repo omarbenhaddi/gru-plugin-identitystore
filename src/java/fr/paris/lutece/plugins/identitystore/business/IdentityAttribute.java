@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.portal.business.file.File;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -58,6 +59,9 @@ public class IdentityAttribute implements Serializable
     private File _file;
     private AttributeCertificate _certificate;
     private Timestamp _dateLastUpdate;
+    private String _strLastUpdateApplicationCode;
+    // for DTO conversion, not stored in DB
+    private AttributeStatusDto _status;
 
     /**
      * Returns the IdIdentity
@@ -186,7 +190,11 @@ public class IdentityAttribute implements Serializable
      */
     public Timestamp getLastUpdateDate( )
     {
-        return _dateLastUpdate;
+    	if( _dateLastUpdate!= null )
+    	{
+    		return (Timestamp) _dateLastUpdate.clone( );
+    	}
+    	return null;
     }
 
     /**
@@ -195,6 +203,48 @@ public class IdentityAttribute implements Serializable
      */
     public void setLastUpdateDate( Timestamp dateLastUpdate )
     {
-        this._dateLastUpdate = dateLastUpdate;
+    	if( dateLastUpdate!= null )
+    	{
+    		_dateLastUpdate = (Timestamp) dateLastUpdate.clone( );
+    	}
+    	else
+    	{
+    		_dateLastUpdate = null;
+    	}
     }
+
+    /**
+     * @return the lastUpdateApplicationCode
+     */
+    public String getLastUpdateApplicationCode( )
+    {
+        return _strLastUpdateApplicationCode;
+    }
+
+    /**
+     * @param strLastUpdateApplicationCode
+     *            the lastUpdateApplicationCode to set
+     */
+    public void setLastUpdateApplicationCode( String strLastUpdateApplicationCode )
+    {
+        this._strLastUpdateApplicationCode = strLastUpdateApplicationCode;
+    }
+
+    /**
+     * @return the sStatus for WS
+     */
+    public AttributeStatusDto getStatus( )
+    {
+        return _status;
+    }
+
+    /**
+     * @param status
+     *            the status to set for WS response
+     */
+    public void setStatus( AttributeStatusDto status )
+    {
+        this._status = status;
+    }
+
 }

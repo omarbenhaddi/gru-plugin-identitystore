@@ -33,12 +33,16 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.request;
 
+import java.util.HashMap;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 
 /**
@@ -96,7 +100,10 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        IdentityDto identityDto = IdentityStoreService.getOrCreateIdentity( _strConnectionId, _strCustomerId, _strClientAppCode );
+        IdentityChangeDto identityChangeDto = IdentityStoreService.buildIdentityChange( _strClientAppCode );
+        identityChangeDto.getIdentity( ).setConnectionId( _strConnectionId );
+        identityChangeDto.getIdentity( ).setCustomerId( _strCustomerId );
+        IdentityDto identityDto = IdentityStoreService.getOrCreateIdentity( identityChangeDto, new HashMap<String, File>( ) );
 
         try
         {

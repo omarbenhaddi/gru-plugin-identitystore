@@ -51,7 +51,9 @@ public class IdentityStoreAppRightsRequest extends IdentityStoreRequest
 
     /**
      * @param strClientAppCode
+     *            the application code
      * @param objectMapper
+     *            the JSON mapper
      */
     public IdentityStoreAppRightsRequest( String strClientAppCode, ObjectMapper objectMapper )
     {

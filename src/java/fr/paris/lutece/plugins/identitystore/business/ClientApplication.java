@@ -56,6 +56,7 @@ public class ClientApplication implements IClientApplication, Serializable
     @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Code.notEmpty}" )
     @Size( max = 100, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
     private String _strCode;
+    private boolean _bIsAuthorizedDeleteValue;
 
     /**
      * Returns the Id
@@ -119,4 +120,22 @@ public class ClientApplication implements IClientApplication, Serializable
     {
         _strCode = strCode;
     }
+
+    /**
+     * @return the isAuthorizedDeleteValue
+     */
+    public boolean getIsAuthorizedDeleteValue( )
+    {
+        return _bIsAuthorizedDeleteValue;
+    }
+
+    /**
+     * @param bIsAuthorizedDeleteValue
+     *            the isAuthorizedDeleteValue to set
+     */
+    public void setIsAuthorizedDeleteValue( boolean bIsAuthorizedDeleteValue )
+    {
+        this._bIsAuthorizedDeleteValue = bIsAuthorizedDeleteValue;
+    }
+
 }

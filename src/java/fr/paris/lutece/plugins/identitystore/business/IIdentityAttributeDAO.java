@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import fr.paris.lutece.util.ReferenceList;
  */
 public interface IIdentityAttributeDAO
 {
-    public final static String BEAN_NAME = "identitystore.identityAttributeDAO";
+    String BEAN_NAME = "identitystore.identityAttributeDAO";
 
     /**
      * Insert a new record in the table.

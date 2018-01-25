@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
 {
     private final static String KEYNAME1 = "KeyName1";
     private final static String KEYNAME2 = "KeyName2";
+    private final static String NAME1 = "Name1";
+    private final static String NAME2 = "Name2";
     private final static String KEYDESCRIPTION1 = "KeyDescription1";
     private final static String KEYDESCRIPTION2 = "KeyDescription2";
 
@@ -47,6 +49,7 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
         // Initialize an object
         AttributeKey attributeKey = new AttributeKey( );
         attributeKey.setKeyName( KEYNAME1 );
+        attributeKey.setName( NAME1 );
         attributeKey.setDescription( KEYDESCRIPTION1 );
         attributeKey.setKeyType( KeyType.STRING );
 
@@ -54,19 +57,20 @@ public class AttributeKeyBusinessTest extends LuteceTestCase
         AttributeKeyHome.create( attributeKey );
 
         AttributeKey attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId( ) );
-        assertEquals( attributeKeyStored.getKeyName( ), attributeKey.getKeyName( ) );
-        assertEquals( attributeKeyStored.getDescription( ), attributeKey.getDescription( ) );
-        assertEquals( attributeKeyStored.getKeyType( ), attributeKey.getKeyType( ) );
+        assertEquals( attributeKey.getKeyName( ), attributeKeyStored.getKeyName( ) );
+        assertEquals( attributeKey.getDescription( ), attributeKeyStored.getDescription( ) );
+        assertEquals( attributeKey.getKeyType( ), attributeKeyStored.getKeyType( ) );
 
         // Update test
         attributeKey.setKeyName( KEYNAME2 );
+        attributeKey.setName( NAME2 );
         attributeKey.setDescription( KEYDESCRIPTION2 );
         attributeKey.setKeyType( KeyType.STRING );
         AttributeKeyHome.update( attributeKey );
         attributeKeyStored = AttributeKeyHome.findByPrimaryKey( attributeKey.getId( ) );
-        assertEquals( attributeKeyStored.getKeyName( ), attributeKey.getKeyName( ) );
-        assertEquals( attributeKeyStored.getDescription( ), attributeKey.getDescription( ) );
-        assertEquals( attributeKeyStored.getKeyType( ), attributeKey.getKeyType( ) );
+        assertEquals( attributeKey.getKeyName( ), attributeKeyStored.getKeyName( ) );
+        assertEquals( attributeKey.getDescription( ), attributeKeyStored.getDescription( ) );
+        assertEquals( attributeKey.getKeyType( ), attributeKeyStored.getKeyType( ) );
 
         // List test
         AttributeKeyHome.getAttributeKeysList( );

@@ -131,6 +131,15 @@ public class IdentityManagementResourceIdService extends ResourceIdService
         return StringUtils.EMPTY;
     }
 
+    /**
+     * Check if a user has a permission
+     * 
+     * @param strPermission
+     *            the permission to check
+     * @param adminUser
+     *            the user to check
+     * @return true if user is allowed
+     */
     public static boolean isAuthorized( String strPermission, AdminUser adminUser )
     {
         return RBACService.isAuthorized( RESOURCE_TYPE, RBAC.WILDCARD_RESOURCES_ID, strPermission, adminUser );

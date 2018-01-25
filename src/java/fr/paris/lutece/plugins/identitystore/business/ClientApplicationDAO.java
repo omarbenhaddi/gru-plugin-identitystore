@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,15 +50,15 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_client_app ) FROM identitystore_client_application";
-    private static final String SQL_QUERY_SELECT = "SELECT id_client_app, name, code FROM identitystore_client_application WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_client_app, name, code FROM identitystore_client_application WHERE code = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_client_application ( id_client_app, name, code ) VALUES ( ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_client_app, name, code, is_application_authorized_to_delete_value FROM identitystore_client_application WHERE id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_client_app, name, code, is_application_authorized_to_delete_value FROM identitystore_client_application WHERE code = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_client_application ( id_client_app, name, code, is_application_authorized_to_delete_value ) VALUES ( ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_client_application WHERE id_client_app = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ? WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code FROM identitystore_client_application";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_client_application SET id_client_app = ?, name = ?, code = ?, is_application_authorized_to_delete_value = ? WHERE id_client_app = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_client_app, name, code, is_application_authorized_to_delete_value FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_client_app FROM identitystore_client_application";
     private static final String SQL_QUERY_SELECTALL_CERTIFICATE_APP = "SELECT certifier_code FROM identitystore_client_application_certifiers WHERE id_client_app = ? ";
-    private static final String SQL_QUERY_SELECTALL_APP_CERTIFIER = "SELECT ica.id_client_app, ica.name, ica.code FROM identitystore_client_application ica JOIN identitystore_client_application_certifiers icac ON ica.id_client_app=icac.id_client_app WHERE icac.certifier_code = ? ORDER BY ica.id_client_app";
+    private static final String SQL_QUERY_SELECTALL_APP_CERTIFIER = "SELECT ica.id_client_app, ica.name, ica.code, ica.is_application_authorized_to_delete_value FROM identitystore_client_application ica JOIN identitystore_client_application_certifiers icac ON ica.id_client_app=icac.id_client_app WHERE icac.certifier_code = ? ORDER BY ica.id_client_app";
     private static final String SQL_QUERY_ADD_CERTIFICATE_APP = "INSERT INTO identitystore_client_application_certifiers (id_client_app, certifier_code) VALUES ( ?, ? )";
     private static final String SQL_QUERY_DELETE_CERTIFICATE_APP = "DELETE FROM identitystore_client_application_certifiers WHERE id_client_app = ? AND certifier_code = ?";
     private static final String SQL_QUERY_DELETE_ALL_CERTIFICATE_APP = "DELETE FROM identitystore_client_application_certifiers WHERE id_client_app = ? ";
@@ -101,6 +101,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.setInt( nIndex++, clientApplication.getId( ) );
         daoUtil.setString( nIndex++, clientApplication.getName( ) );
         daoUtil.setString( nIndex++, clientApplication.getCode( ) );
+        daoUtil.setBoolean( nIndex++, clientApplication.getIsAuthorizedDeleteValue( ) );
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }
@@ -126,6 +127,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+            clientApplication.setIsAuthorizedDeleteValue( daoUtil.getBoolean( nIndex++ ) );
         }
 
         daoUtil.free( );
@@ -157,6 +159,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
         daoUtil.setInt( nIndex++, clientApplication.getId( ) );
         daoUtil.setString( nIndex++, clientApplication.getName( ) );
         daoUtil.setString( nIndex++, clientApplication.getCode( ) );
+        daoUtil.setBoolean( nIndex++, clientApplication.getIsAuthorizedDeleteValue( ) );
         daoUtil.setInt( nIndex, clientApplication.getId( ) );
 
         daoUtil.executeUpdate( );
@@ -181,6 +184,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+            clientApplication.setIsAuthorizedDeleteValue( daoUtil.getBoolean( nIndex++ ) );
             clientApplicationList.add( clientApplication );
         }
 
@@ -250,6 +254,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+            clientApplication.setIsAuthorizedDeleteValue( daoUtil.getBoolean( nIndex++ ) );
         }
 
         daoUtil.free( );
@@ -311,6 +316,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             clientApplication.setId( daoUtil.getInt( nIndex++ ) );
             clientApplication.setName( daoUtil.getString( nIndex++ ) );
             clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+            clientApplication.setIsAuthorizedDeleteValue( daoUtil.getBoolean( nIndex++ ) );
             listClientApplications.add( clientApplication );
         }
 
@@ -359,9 +365,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_CERTIFICATE_APP, plugin );
 
-        int nIndex = 1;
-
-        daoUtil.setInt( nIndex++, nKey );
+        daoUtil.setInt( 1, nKey );
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }

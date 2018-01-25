@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import java.util.HashMap;
@@ -63,6 +64,8 @@ public class MockIdentityInfoExternalProvider implements IIdentityInfoExternalPr
 
         AuthorDto authorDto = new AuthorDto( );
         authorDto.setApplicationCode( APPLICATION_CODE );
+        authorDto.setType( AuthorType.TYPE_APPLICATION.getTypeValue( ) );
+        authorDto.setId( APPLICATION_CODE );
         identityChangeDto.setAuthor( authorDto );
 
         IdentityDto identityDto = new IdentityDto( );

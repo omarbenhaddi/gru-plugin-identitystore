@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.List;
  */
 public interface IClientApplicationDAO
 {
-    public static final String BEAN_NAME = "identitystore.clientApplicationDAO";
+    String BEAN_NAME = "identitystore.clientApplicationDAO";
 
     /**
      * Insert a new record in the table.

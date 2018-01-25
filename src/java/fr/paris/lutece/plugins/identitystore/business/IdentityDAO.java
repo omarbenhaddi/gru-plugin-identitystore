@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -363,8 +363,7 @@ public final class IdentityDAO implements IIdentityDAO
 
         while ( daoUtil.next( ) )
         {
-            Identity identity = new Identity( );
-            identity = getIdentityFromQuery( daoUtil );
+            Identity identity = getIdentityFromQuery( daoUtil );
             listIdentities.add( identity );
         }
 
@@ -382,23 +381,23 @@ public final class IdentityDAO implements IIdentityDAO
         List<Identity> listIdentities = new ArrayList<Identity>( );
         String strSQL = SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID;
 
+        String strFinalAttributeValue = strAttributeValue;
         if ( strAttributeValue.contains( "*" ) )
         {
-            strAttributeValue = strAttributeValue.replace( '*', '%' );
+            strFinalAttributeValue = strAttributeValue.replace( '*', '%' );
             strSQL = SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE;
         }
 
         DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
-        daoUtil.setString( 1, strAttributeValue );
-        daoUtil.setString( 2, strAttributeValue );
-        daoUtil.setString( 3, strAttributeValue );
+        daoUtil.setString( 1, strFinalAttributeValue );
+        daoUtil.setString( 2, strFinalAttributeValue );
+        daoUtil.setString( 3, strFinalAttributeValue );
 
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )
         {
-            Identity identity = new Identity( );
-            identity = getIdentityFromQuery( daoUtil );
+            Identity identity = getIdentityFromQuery( daoUtil );
             listIdentities.add( identity );
         }
 
@@ -416,9 +415,10 @@ public final class IdentityDAO implements IIdentityDAO
         List<Identity> listIdentities = new ArrayList<Identity>( );
         String strSQL = SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID;
 
+        String strFinalCustomerId = strCustomerId;
         if ( strCustomerId.contains( "*" ) )
         {
-            strCustomerId = strCustomerId.replace( '*', '%' );
+            strFinalCustomerId = strCustomerId.replace( '*', '%' );
             strSQL += "LIKE ?";
         }
         else
@@ -427,14 +427,13 @@ public final class IdentityDAO implements IIdentityDAO
         }
 
         DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
-        daoUtil.setString( 1, strCustomerId );
+        daoUtil.setString( 1, strFinalCustomerId );
 
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )
         {
-            Identity identity = new Identity( );
-            identity = getIdentityFromQuery( daoUtil );
+            Identity identity = getIdentityFromQuery( daoUtil );
             listIdentities.add( identity );
         }
 
@@ -452,9 +451,10 @@ public final class IdentityDAO implements IIdentityDAO
         List<Identity> listIdentities = new ArrayList<Identity>( );
         String strSQL = SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID;
 
+        String strFinalConnectionId = strConnectionId;
         if ( strConnectionId.contains( "*" ) )
         {
-            strConnectionId = strConnectionId.replace( '*', '%' );
+            strFinalConnectionId = strConnectionId.replace( '*', '%' );
             strSQL += "LIKE ?";
         }
         else
@@ -463,14 +463,13 @@ public final class IdentityDAO implements IIdentityDAO
         }
 
         DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
-        daoUtil.setString( 1, strConnectionId );
+        daoUtil.setString( 1, strFinalConnectionId );
 
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )
         {
-            Identity identity = new Identity( );
-            identity = getIdentityFromQuery( daoUtil );
+            Identity identity = getIdentityFromQuery( daoUtil );
             listIdentities.add( identity );
         }
 

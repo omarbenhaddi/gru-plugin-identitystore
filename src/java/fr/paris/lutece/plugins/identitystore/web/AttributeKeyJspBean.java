@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2016, Mairie de Paris
+ * Copyright (c) 2002-2017, Mairie de Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -280,6 +280,12 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
     }
 
+    /**
+     * fill model for richText
+     * 
+     * @param request the request
+     * @param model the model
+     */
     private static void storeRichText( HttpServletRequest request, Map<String, Object> model )
     {
         model.put( MARK_WEBAPP_URL, AppPathService.getBaseUrl( request ) );

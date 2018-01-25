@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
@@ -55,11 +56,13 @@ import fr.paris.lutece.plugins.identitystore.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AppRightDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.ApplicationRightsDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -138,7 +141,7 @@ public final class IdentityStoreService
      *            the files to create
      * @return the created identity
      */
-    public static IdentityDto createIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    public static IdentityDto getOrCreateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
     {
         String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
         ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
@@ -147,10 +150,11 @@ public final class IdentityStoreService
         String strCustomerId = identityDtoDecrypted.getCustomerId( );
         String strConnectionId = identityDtoDecrypted.getConnectionId( );
         Identity identity = null;
+        boolean bIdentityCreated = false;
 
         if ( StringUtils.isNotEmpty( strCustomerId ) )
         {
-            identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
+            identity = getIdentityByCustomerId( strCustomerId, strClientAppCode );
 
             if ( identity == null )
             {
@@ -161,26 +165,33 @@ public final class IdentityStoreService
         {
             if ( StringUtils.isNotEmpty( strConnectionId ) )
             {
-                identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
+                identity = getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
                 if ( identity == null )
                 {
-                    identity = IdentityStoreService.createIdentity( strConnectionId );
-                    identity = IdentityStoreService.updateIdentity( identity, identityChangeDto, mapAttachedFiles );
+                    identity = createIdentity( strConnectionId, strClientAppCode );
+                    bIdentityCreated = true;
+                    identity = completeIdentity( identity, identityChangeDto, mapAttachedFiles, clientApplication.getCode( ),
+                            clientApplication.getIsAuthorizedDeleteValue( ) );
                 }
             }
             else
             {
                 identity = new Identity( );
-                IdentityHome.create( identity );
-                updateIdentity( identity, identityChangeDto, mapAttachedFiles );
+                identity = IdentityHome.create( identity );
+                bIdentityCreated = true;
+                identity = completeIdentity( identity, identityChangeDto, mapAttachedFiles, clientApplication.getCode( ),
+                        clientApplication.getIsAuthorizedDeleteValue( ) );
             }
         }
 
-        IdentityChange identityChange = new IdentityChange( );
-        identityChange.setIdentity( identity );
-        identityChange.setChangeType( IdentityChangeType.CREATE );
-        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+        if ( bIdentityCreated )
+        {
+            IdentityChange identityChange = new IdentityChange( );
+            identityChange.setIdentity( identity );
+            identityChange.setChangeType( IdentityChangeType.CREATE );
+            IdentityStoreNotifyListenerService.instance( ).notifyListenersIdentityChange( identityChange );
+        }
 
         identityDtoDecrypted = DtoConverter.convertToDto( identity, strClientAppCode );
 
@@ -188,41 +199,33 @@ public final class IdentityStoreService
     }
 
     /**
-     * get identity from connectionId or customerId If no identity is found then a new one be created with attributes based on external provider data
+     * Creates a basic identityChange
      *
-     * @param strConnectionId
-     *            connection id
-     * @param strCustomerId
-     *            customer id
      * @param strClientAppCode
      *            client application code
-     * @return the identity
+     * @return the identityChange
      * @throws AppException
-     *             if provided connectionId and customerId are not consistent
-     * @throws IdentityNotFoundException
-     *             if the identity cannot be found
+     *             if the connectionId and customerId are empty
      */
-    public static IdentityDto getOrCreateIdentity( String strConnectionId, String strCustomerId, String strClientAppCode )
+    public static IdentityChangeDto buildIdentityChange( String strClientAppCode )
     {
-        ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
-        IdentityDto identityDtoEncrypted = new IdentityDto( );
-        identityDtoEncrypted.setConnectionId( strConnectionId );
-        identityDtoEncrypted.setCustomerId( strCustomerId );
-        IdentityDto identityDtoDecrypted = _identityEncryptionService.decrypt( identityDtoEncrypted, clientApplication );
+        IdentityDto identityDto = new IdentityDto( );
 
-        Identity identity = getOrCreateIdentity( identityDtoDecrypted, strClientAppCode );
+        AuthorDto authorDto = new AuthorDto( );
+        authorDto.setApplicationCode( strClientAppCode );
+        authorDto.setType( AuthorType.TYPE_APPLICATION.getTypeValue( ) );
+        authorDto.setId( strClientAppCode );
 
-        identityDtoDecrypted = DtoConverter.convertToDto( identity, strClientAppCode );
+        IdentityChangeDto identityChangeDto = new IdentityChangeDto( );
+        identityChangeDto.setAuthor( authorDto );
+        identityChangeDto.setIdentity( identityDto );
 
-        return _identityEncryptionService.encrypt( identityDtoDecrypted, clientApplication );
+        return identityChangeDto;
     }
 
     /**
      * <p>
      * Gets an identity
-     * </p>
-     * <p>
-     * If no identity is found then tries to create a new one with attributes based on external provider data
      * </p>
      *
      * @param identityDto
@@ -235,7 +238,7 @@ public final class IdentityStoreService
      * @throws IdentityNotFoundException
      *             if the identity cannot be found
      */
-    private static Identity getOrCreateIdentity( IdentityDto identityDto, String strClientAppCode )
+    private static Identity getExistingIdentity( IdentityDto identityDto, String strClientAppCode )
     {
         String strConnectionId = identityDto.getConnectionId( );
         String strCustomerId = identityDto.getCustomerId( );
@@ -243,7 +246,7 @@ public final class IdentityStoreService
 
         if ( StringUtils.isNotBlank( strConnectionId ) )
         {
-            identity = IdentityStoreService.getIdentityByConnectionId( strConnectionId, strClientAppCode );
+            identity = getIdentityByConnectionId( strConnectionId, strClientAppCode );
 
             if ( ( identity != null ) && ( StringUtils.isNotEmpty( strCustomerId ) ) && ( !identity.getCustomerId( ).equals( strCustomerId ) ) )
             {
@@ -254,28 +257,10 @@ public final class IdentityStoreService
                 AppLogService.error( sb.toString( ) );
                 throw new AppException( strMessage );
             }
-
-            if ( identity == null )
-            {
-                try
-                {
-                    identity = IdentityStoreService.createIdentity( strConnectionId );
-
-                    IdentityChange identityChange = new IdentityChange( );
-                    identityChange.setIdentity( identity );
-                    identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.CREATE.getValue( ) ) );
-                    IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
-                }
-                catch( IdentityNotFoundException e )
-                {
-                    // Identity not found in External provider : creation is aborted
-                    AppLogService.info( "Could not create an identity from external source" );
-                }
-            }
         }
         else
         {
-            identity = IdentityStoreService.getIdentityByCustomerId( strCustomerId, strClientAppCode );
+            identity = getIdentityByCustomerId( strCustomerId, strClientAppCode );
         }
 
         if ( identity == null )
@@ -289,46 +274,6 @@ public final class IdentityStoreService
         }
 
         return identity;
-    }
-
-    /**
-     * returns attributes from connection id
-     *
-     * @param strConnectionId
-     *            connection id
-     * @return full attributes list for user identified by connection id
-     */
-    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId )
-    {
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
-
-        if ( identity != null )
-        {
-            return IdentityAttributeHome.getAttributes( identity.getId( ) );
-        }
-
-        return null;
-    }
-
-    /**
-     * returns attributes from connection id
-     *
-     * @param strConnectionId
-     *            connection id
-     * @param strClientApplicationCode
-     *            application code who requested attributes
-     * @return attributes list according to application rights for user identified by connection id
-     */
-    public static Map<String, IdentityAttribute> getAttributesByConnectionId( String strConnectionId, String strClientApplicationCode )
-    {
-        Identity identity = IdentityHome.findByConnectionId( strConnectionId );
-
-        if ( identity != null )
-        {
-            return IdentityAttributeHome.getAttributes( identity.getId( ), strClientApplicationCode );
-        }
-
-        return null;
     }
 
     /**
@@ -387,11 +332,13 @@ public final class IdentityStoreService
      *
      * @param strConnectionId
      *            the connection id used to initialize the identity
+     * @param strClientAppCode
+     *            , the application code chich requires creation
      * @return the initialized identity
      * @throws IdentityNotFoundException
      *             if no identity can be retrieve from external source
      */
-    private static Identity createIdentity( String strConnectionId ) throws IdentityNotFoundException
+    private static Identity createIdentity( String strConnectionId, String strClientAppCode ) throws IdentityNotFoundException
     {
         IdentityChangeDto identityChangeDtoInitialized = IdentityInfoExternalService.instance( ).getIdentityInfo( strConnectionId );
 
@@ -404,7 +351,7 @@ public final class IdentityStoreService
         {
             // Update has to be done only if external info has something, elsewhere ERROR_NO_IDENTITY_PROVIDED will be thrown by update
             // IdentityInfoExternalService impl HAVE TO throw an IDENTITY_NOT_FOUND in case of identity doesn't exist
-            identity = updateIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ) );
+            identity = completeIdentity( identity, identityChangeDtoInitialized, new HashMap<String, File>( ), strClientAppCode, true );
         }
 
         if ( AppLogService.isDebugEnabled( ) )
@@ -417,29 +364,24 @@ public final class IdentityStoreService
     }
 
     /**
-     * Updates an existing identity.
+     * Updates an existing identity. Manage certification as defined in api documentation
      *
      * @param identityChangeDto
      *            the object {@code IdentityChangeDto} containing the information to perform the creation
      * @param mapAttachedFiles
      *            the files to create
-     * @return the updated identity
+     * @return the updated identity with status on attribute
      */
     public static IdentityDto updateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
     {
+        // init dtos
         AuthorDto authorDto = identityChangeDto.getAuthor( );
         String strClientAppCode = authorDto.getApplicationCode( );
         ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
         IdentityDto identityDtoEncrypted = identityChangeDto.getIdentity( );
         IdentityDto identityDtoDecrypted = _identityEncryptionService.decrypt( identityDtoEncrypted, clientApplication );
-
-        Identity identity = getOrCreateIdentity( identityDtoDecrypted, strClientAppCode );
-
-        if ( identity == null )
-        {
-            throw new IdentityNotFoundException( "no identity found for " + Constants.PARAM_ID_CONNECTION + "(" + identityDtoEncrypted.getConnectionId( ) + ")"
-                    + " AND " + Constants.PARAM_ID_CUSTOMER + "(" + identityDtoEncrypted.getCustomerId( ) + ")" );
-        }
+        Identity identity = getExistingIdentity( identityDtoDecrypted, strClientAppCode );
+        // identity can't be null here, getExistingIdentity throw exception in this case
 
         Map<String, AttributeDto> mapAttributes = identityDtoDecrypted.getAttributes( );
 
@@ -447,26 +389,29 @@ public final class IdentityStoreService
         {
             IdentityRequestValidator.instance( ).checkIdentityChange( identityChangeDto );
             IdentityRequestValidator.instance( ).checkAttributes( identityDtoDecrypted, strClientAppCode, mapAttachedFiles );
+            IdentityRequestValidator.instance( ).checkCertification( identityDtoDecrypted, strClientAppCode );
 
-            updateAttributes( identity, identityDtoDecrypted, authorDto, mapAttachedFiles );
+            updateAttributes( identity, identityDtoDecrypted, authorDto, mapAttachedFiles, clientApplication.getCode( ),
+                    clientApplication.getIsAuthorizedDeleteValue( ) );
         }
         else
         {
             throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
         }
 
+        // listener
         IdentityChange identityChange = new IdentityChange( );
         identityChange.setIdentity( identity );
         identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.UPDATE.getValue( ) ) );
-        IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+        IdentityStoreNotifyListenerService.instance( ).notifyListenersIdentityChange( identityChange );
 
+        // return
         identityDtoDecrypted = DtoConverter.convertToDto( identity, strClientAppCode );
-
         return _identityEncryptionService.encrypt( identityDtoDecrypted, clientApplication );
     }
 
     /**
-     * Updates an existing identity.
+     * create Attributes from an identityChange of creation process
      *
      * @param identity
      *            the identity to complete.
@@ -474,9 +419,14 @@ public final class IdentityStoreService
      *            the object {@code IdentityChangeDto} containing the information to perform the creation
      * @param mapAttachedFiles
      *            the files to create
+     * @param bAppCanDelete
+     *            true if application can delete a non certified attribute
+     * @param strClientAppCode
+     *            client application code
      * @return the updated identity
      */
-    private static Identity updateIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    private static Identity completeIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles,
+            String strClientAppCode, boolean bAppCanDelete )
     {
         IdentityDto identityDto = identityChangeDto.getIdentity( );
         AuthorDto authorDto = identityChangeDto.getAuthor( );
@@ -487,7 +437,7 @@ public final class IdentityStoreService
             IdentityRequestValidator.instance( ).checkIdentityChange( identityChangeDto );
             IdentityRequestValidator.instance( ).checkAttributes( identityDto, authorDto.getApplicationCode( ), mapAttachedFiles );
 
-            updateAttributes( identity, identityDto, authorDto, mapAttachedFiles );
+            createAttributes( identity, identityDto, authorDto, mapAttachedFiles, strClientAppCode );
         }
         else
         {
@@ -498,7 +448,7 @@ public final class IdentityStoreService
     }
 
     /**
-     * check if new identity attributes have errors and returns them
+     * check if new identity attributes have errors and returns them. Manage certification as defined in api documentation
      *
      * @param identity
      *            the identity
@@ -508,11 +458,56 @@ public final class IdentityStoreService
      *            author responsible for modification
      * @param mapAttachedFiles
      *            map containing File matching key attribute name
-     *
+     * @param strClientAppCode
+     *            client application code
      */
-    private static void updateAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto, Map<String, File> mapAttachedFiles )
+    private static void createAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto, Map<String, File> mapAttachedFiles,
+            String strClientAppCode )
     {
-        StringBuilder sb = new StringBuilder( "Fields successfully updated : " );
+        StringBuilder sb = new StringBuilder( "Fields create result : " );
+        ChangeAuthor author = DtoConverter.getAuthor( authorDto );
+
+        for ( AttributeDto attributeDto : identityDto.getAttributes( ).values( ) )
+        {
+            File file = null;
+            AttributeKey attributeKey = AttributeKeyHome.findByKey( attributeDto.getKey( ) );
+            if ( attributeKey.getKeyType( ).equals( KeyType.FILE ) && StringUtils.isNotBlank( attributeDto.getValue( ) ) )
+            {
+                file = mapAttachedFiles.get( attributeDto.getValue( ) );
+            }
+            
+            IdentityAttribute newAttribute = new IdentityAttribute( );
+            newAttribute.setAttributeKey( attributeKey );
+            newAttribute.setValue( attributeDto.getValue( ) );
+            newAttribute.setCertificate( null );
+            
+            AttributeStatusDto attrStatus = setAttribute( identity, newAttribute, file, author, strClientAppCode, true );
+            sb.append( attributeDto.getKey( ) + "[" + attrStatus.getStatusCode( ) + "], " );
+        }
+
+        AppLogService.debug( sb.toString( ) );
+    }
+
+    /**
+     * check if new identity attributes have errors and returns them. Manage certification as defined in api documentation
+     *
+     * @param identity
+     *            the identity
+     * @param identityDto
+     *            new identity to update connectionId of identity which will be updated
+     * @param authorDto
+     *            author responsible for modification
+     * @param mapAttachedFiles
+     *            map containing File matching key attribute name
+     * @param strClientAppCode
+     *            client application code
+     * @param bAppCanDelete
+     *            true if application can delete a non certified attribute
+     */
+    private static void updateAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto, Map<String, File> mapAttachedFiles,
+            String strClientAppCode, boolean bAppCanDelete )
+    {
+        StringBuilder sb = new StringBuilder( "Fields update result : " );
         ChangeAuthor author = DtoConverter.getAuthor( authorDto );
 
         for ( AttributeDto attributeDto : identityDto.getAttributes( ).values( ) )
@@ -524,18 +519,27 @@ public final class IdentityStoreService
             {
                 file = mapAttachedFiles.get( attributeDto.getValue( ) );
             }
-            AttributeCertificate certificate = new AttributeCertificate( );
+            AttributeCertificate certificate = null;
             try
             {
-                certificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
+                AttributeCertificate requestCertificate = DtoConverter.getCertificate( attributeDto.getCertificate( ) );
+                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( requestCertificate.getCertifierCode( ) );
+                certificate = certifier.generateCertificate( );
             }
             catch( Exception e )
             {
                 // Unable to get the certificate from the Dto; set the updateAttribute with empty certificate
+                AppLogService
+                        .debug( "Unable to retrieve certificate for attribute [" + attributeDto.getKey( ) + "] of identity [" + identity.getId( ) + "]", e );
             }
+            
+            IdentityAttribute updateAttribute = new IdentityAttribute( );
+            updateAttribute.setAttributeKey( attributeKey );
+            updateAttribute.setValue( attributeDto.getValue( ) );
+            updateAttribute.setCertificate( certificate );
 
-            setAttribute( identity, attributeDto.getKey( ), attributeDto.getValue( ), file, author, certificate );
-            sb.append( attributeDto.getKey( ) + "," );
+            AttributeStatusDto attrStatus = setAttribute( identity, updateAttribute, file, author, strClientAppCode, bAppCanDelete );
+            sb.append( attributeDto.getKey( ) + "[" + attrStatus.getStatusCode( ) + "], " );
         }
 
         AppLogService.debug( sb.toString( ) );
@@ -568,7 +572,7 @@ public final class IdentityStoreService
             throw new IdentityStoreException( ERROR_DELETE_UNAUTHORIZED );
         }
 
-        Identity identity = IdentityStoreService.getIdentityByConnectionId( strConnectionIdDecrypted, strClientApplicationCode );
+        Identity identity = getIdentityByConnectionId( strConnectionIdDecrypted, strClientApplicationCode );
 
         if ( identity == null )
         {
@@ -581,7 +585,7 @@ public final class IdentityStoreService
             IdentityChange identityChange = new IdentityChange( );
             identityChange.setIdentity( identity );
             identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.DELETE.getValue( ) ) );
-            IdentityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            IdentityStoreNotifyListenerService.instance( ).notifyListenersIdentityChange( identityChange );
         }
     }
 
@@ -624,125 +628,171 @@ public final class IdentityStoreService
     }
 
     /**
-     * Set an attribute value associated to an identity
+     * Set an attribute value associated to an identity. Manage certification as defined in api documentation
      *
      * @param identity
      *            identity
-     * @param strKey
-     *            The key to set
-     * @param strValue
-     *            The value
-     * @param author
-     *            The author of the change
-     * @param certificate
-     *            The certificate. May be null
-     */
-    public static void setAttribute( Identity identity, String strKey, String strValue, ChangeAuthor author, AttributeCertificate certificate )
-    {
-        setAttribute( identity, strKey, strValue, null, author, certificate );
-    }
-
-    /**
-     * Set an attribute value associated to an identity
-     *
-     * @param identity
-     *            identity
-     * @param strKey
-     *            The key to set
-     * @param strValue
-     *            The value
+     * @param requestAttribute
+     *            The attribute to create or update
      * @param file
      *            file to upload, null if attribute type is not file
      * @param author
      *            The author of the change
-     * @param certificate
-     *            The certificate. May be null
+     * @param strClientAppCode
+     *            client application code
+     * @param bAppCanDelete
+     *            true if application can delete a non certified attribute
+     * @return AttributStatusDto with statusCode according to the resulted operation
      */
-    private static void setAttribute( Identity identity, String strKey, String strValue, File file, ChangeAuthor author, AttributeCertificate certificate )
+    private static AttributeStatusDto setAttribute( Identity identity, IdentityAttribute requestAttribute, File file, ChangeAuthor author, String strClientAppCode, boolean bAppCanDelete )
     {
-        AttributeKey attributeKey = AttributeKeyHome.findByKey( strKey );
-        boolean bValueUnchanged = false;
-
-        if ( attributeKey == null )
-        {
-            throw new AppException( "Invalid attribute key : " + strKey );
-        }
-
-        String strCorrectValue = ( strValue == null ) ? StringUtils.EMPTY : strValue;
+        String strCorrectValue = ( requestAttribute.getValue( ) == null ) ? StringUtils.EMPTY : requestAttribute.getValue( );
 
         boolean bCreate = false;
+        boolean bValueUnchanged = false; 
 
-        IdentityAttribute attribute = IdentityAttributeHome.findByPrimaryKey( identity.getId( ), attributeKey.getId( ) );
+        IdentityAttribute dbAttribute = IdentityAttributeHome.findByPrimaryKey( identity.getId( ), requestAttribute.getAttributeKey( ).getId( ) );
         String strAttrOldValue = StringUtils.EMPTY;
 
-        if ( attribute == null )
+        if ( dbAttribute == null )
         {
-            attribute = new IdentityAttribute( );
-            attribute.setAttributeKey( attributeKey );
-            attribute.setIdIdentity( identity.getId( ) );
+        	dbAttribute = new IdentityAttribute( );
+        	dbAttribute.setAttributeKey( requestAttribute.getAttributeKey( ) );
+        	dbAttribute.setIdIdentity( identity.getId( ) );
             bCreate = true;
         }
         else
         {
-            strAttrOldValue = attribute.getValue( );
+            strAttrOldValue = dbAttribute.getValue( );
 
-            if ( attribute.getValue( ).equals( strCorrectValue ) && ( attributeKey.getKeyType( ) != KeyType.FILE ) )
+            if ( strCorrectValue.equals( strAttrOldValue ) && ( requestAttribute.getAttributeKey( ).getKeyType( ) != KeyType.FILE ) )
             {
-                AppLogService.debug( "no change on attribute key=" + strKey + " value=" + strCorrectValue + " for Id=" + identity.getId( ) );
+                AppLogService.debug( "no change on attribute key=" + requestAttribute.getAttributeKey( ).getKeyName( ) + " value=" + strCorrectValue + " for Id=" + identity.getId( ) );
                 bValueUnchanged = true;
             }
         }
 
         AttributeCertificate attributeCertifPrev = null;
-
-        if ( attribute.getIdCertificate( ) != 0 )
+        if ( dbAttribute.getIdCertificate( ) != 0 )
         {
-            attributeCertifPrev = AttributeCertificateHome.findByPrimaryKey( attribute.getIdCertificate( ) );
+            attributeCertifPrev = AttributeCertificateHome.findByPrimaryKey( dbAttribute.getIdCertificate( ) );
         }
 
-        // attribute value changed or attribute has new certification
-        if ( !bValueUnchanged
-                || ( ( certificate != null ) && ( ( attributeCertifPrev == null )
-                        || ( !certificate.getCertifierCode( ).equals( attributeCertifPrev.getCertifierCode( ) ) ) || attributeCertifPrev.getCertificateLevel( ) <= certificate
-                        .getCertificateLevel( ) ) ) )
+        AttributeStatusDto attrStatus;
+        if ( attributeCertifPrev == null && requestAttribute.getCertificate( ) == null )
         {
-            if ( certificate != null )
+            attrStatus = new AttributeStatusDto( );
+            attrStatus.setStatusCode( AttributeStatusDto.OK_CODE );
+            if ( bValueUnchanged )
             {
-                AttributeCertificateHome.create( certificate );
-                attribute.setIdCertificate( certificate.getId( ) );
+                attrStatus.setStatusCode( AttributeStatusDto.INFO_NO_CHANGE_REQUEST_CODE );
+            }
+            else
+                if ( StringUtils.isEmpty( strCorrectValue ) && !bAppCanDelete )
+                {
+                    attrStatus.setStatusCode( AttributeStatusDto.INFO_DELETE_NOT_ALLOW_CODE );
+                }
+        }
+        else
+        {
+            attrStatus = buildAttributeStatus( attributeCertifPrev, requestAttribute.getCertificate( ) );
+        }
+
+        if ( AttributeStatusDto.OK_CODE.equals( attrStatus.getStatusCode( ) ) )
+        {
+            dbAttribute.setLastUpdateApplicationCode( strClientAppCode );
+            // create certificate
+            if ( attrStatus.getNewCertifier( ) != null )
+            {
+                AttributeCertificateHome.create( requestAttribute.getCertificate( ) );
+                dbAttribute.setIdCertificate( requestAttribute.getCertificate( ).getId( ) );
+                dbAttribute.setCertificate( requestAttribute.getCertificate( ) );
+            }
+
+            // update or create attribute
+            if ( !bValueUnchanged )
+            {
+                attrStatus.setNewValue( strCorrectValue );
+                dbAttribute.setValue( strCorrectValue );
+            }
+            if ( bCreate )
+            {
+                IdentityAttributeHome.create( dbAttribute );
             }
             else
             {
-                if ( attributeCertifPrev != null )
+                IdentityAttributeHome.update( dbAttribute );
+            }
+
+            if ( requestAttribute.getAttributeKey( ).getKeyType( ) == KeyType.FILE )
+            {
+                handleFile( dbAttribute, file );
+            }
+
+            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, requestAttribute.getAttributeKey( ).getKeyName( ), strCorrectValue, strAttrOldValue, author,
+                    dbAttribute.getCertificate( ), bCreate );
+            IdentityStoreNotifyListenerService.instance( ).notifyListenersAttributeChange( change );
+        }
+        else
+            if ( attributeCertifPrev != null )
+            {
+                dbAttribute.setCertificate( attributeCertifPrev );
+                dbAttribute.setIdCertificate( attributeCertifPrev.getId( ) );
+            }
+
+        dbAttribute.setStatus( attrStatus );
+        identity.getAttributes( ).put( requestAttribute.getAttributeKey( ).getKeyName( ), dbAttribute );
+
+        return attrStatus;
+    }
+
+    /**
+     * build Attribute status according to certificate in db and request
+     * 
+     * @param certificateDB
+     *            The certificate from database, may be null
+     * @param certificateRequest
+     *            The certificate generated by certifier, may be null
+     * @return AttributStatusDto with statusCode according to certificates
+     */
+    private static AttributeStatusDto buildAttributeStatus( AttributeCertificate certificateDB, AttributeCertificate certificateRequest )
+    {
+        AttributeStatusDto attrStatus = new AttributeStatusDto( );
+        attrStatus.setStatusCode( AttributeStatusDto.OK_CODE );
+
+        // DB not certified but request certified
+        if ( certificateDB == null && certificateRequest != null )
+        {
+            attrStatus.setNewCertifier( certificateRequest.getCertifierCode( ) );
+            attrStatus.setNewCertificateExpirationDate( certificateRequest.getExpirationDate( ) );
+        }
+        // DB certified and new certificate is null or lower
+        else
+            if ( certificateRequest == null || certificateRequest.getCertificateLevel( ) < certificateDB.getCertificateLevel( ) )
+            {
+                attrStatus.setStatusCode( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE );
+            }
+            // both certified and new certificate is at least same level
+            else
+            {
+            	// better certifier in request
+                if ( certificateRequest.getCertificateLevel( ) > certificateDB.getCertificateLevel( )
+                		// same level certifier but request has no limit certifier
+                        || certificateRequest.getExpirationDate( ) == null
+                  		// same level certifier but request finish later
+                        || ( certificateDB.getExpirationDate( ) != null && certificateRequest.getExpirationDate( ).after( certificateDB.getExpirationDate( ) ) ) )
                 {
-                    attribute.setIdCertificate( 0 );
-                    AttributeCertificateHome.remove( attributeCertifPrev.getId( ) );
+                    attrStatus.setNewCertifier( certificateRequest.getCertifierCode( ) );
+                    attrStatus.setNewCertificateExpirationDate( certificateRequest.getExpirationDate( ) );
+                }
+                else
+                {
+                    // already certified with a certificate finish later
+                    attrStatus.setStatusCode( AttributeStatusDto.INFO_LONGER_CERTIFIER_CODE );
                 }
             }
 
-            attribute.setValue( strCorrectValue );
-
-            if ( attributeKey.getKeyType( ) == KeyType.FILE )
-            {
-                handleFile( attribute, file );
-            }
-
-            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, strKey, strCorrectValue, strAttrOldValue, author,
-                    certificate, bCreate );
-
-            if ( bCreate )
-            {
-                IdentityAttributeHome.create( attribute );
-            }
-            else
-            {
-                IdentityAttributeHome.update( attribute );
-            }
-
-            IdentityStoreNotifyListenerService.notifyListenersAttributeChange( change );
-        }
-
-        identity.getAttributes( ).put( attributeKey.getKeyName( ), attribute );
+        return attrStatus;
     }
 
     /**
