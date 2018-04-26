@@ -101,6 +101,7 @@ public final class DtoConverter
                 attrDto.setValue( attribute.getValue( ) );
                 attrDto.setType( attributeKey.getKeyType( ).getCode( ) );
                 attrDto.setLastUpdateApplicationCode( attribute.getLastUpdateApplicationCode( ) );
+                attrDto.setLastUpdateDate( attribute.getLastUpdateDate( ) );
                 attrDto.setStatus( attribute.getStatus( ) );
 
                 for ( AttributeRight attRight : lstRights )
