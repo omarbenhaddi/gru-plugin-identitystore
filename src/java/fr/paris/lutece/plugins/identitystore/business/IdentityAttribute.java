@@ -190,11 +190,11 @@ public class IdentityAttribute implements Serializable
      */
     public Timestamp getLastUpdateDate( )
     {
-    	if( _dateLastUpdate!= null )
-    	{
-    		return (Timestamp) _dateLastUpdate.clone( );
-    	}
-    	return null;
+        if ( _dateLastUpdate != null )
+        {
+            return (Timestamp) _dateLastUpdate.clone( );
+        }
+        return null;
     }
 
     /**
@@ -203,14 +203,14 @@ public class IdentityAttribute implements Serializable
      */
     public void setLastUpdateDate( Timestamp dateLastUpdate )
     {
-    	if( dateLastUpdate!= null )
-    	{
-    		_dateLastUpdate = (Timestamp) dateLastUpdate.clone( );
-    	}
-    	else
-    	{
-    		_dateLastUpdate = null;
-    	}
+        if ( dateLastUpdate != null )
+        {
+            _dateLastUpdate = (Timestamp) dateLastUpdate.clone( );
+        }
+        else
+        {
+            _dateLastUpdate = null;
+        }
     }
 
     /**

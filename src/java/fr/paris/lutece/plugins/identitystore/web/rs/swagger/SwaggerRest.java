@@ -75,8 +75,10 @@ public class SwaggerRest
      * @param strVersion
      *            the version
      * @return the swagger.json
-     * @throws MalformedURLException exception
-     * @throws IOException exception
+     * @throws MalformedURLException
+     *             exception
+     * @throws IOException
+     *             exception
      */
     @GET
     @Path( Constants.SWAGGER_PATH )
@@ -115,7 +117,8 @@ public class SwaggerRest
     /**
      * Get the swagger.json file path
      * 
-     * @param strVersion the version
+     * @param strVersion
+     *            the version
      * @return path to JSON
      */
     private String getJsonFilePath( String strVersion )
@@ -132,7 +135,8 @@ public class SwaggerRest
      * @param strVersion
      *            the version
      * @return map of base informations
-     * @throws MalformedURLException exception
+     * @throws MalformedURLException
+     *             exception
      */
     private Map<String, String> getBaseInfos( String strBaseUrl, String strVersion ) throws MalformedURLException
     {

@@ -83,11 +83,11 @@ public class AttributeCertificate implements Serializable
      */
     public Timestamp getCertificateDate( )
     {
-    	if( _dateCertificateDate!= null )
-    	{
-    		return (Timestamp) _dateCertificateDate.clone( );
-    	}
-    	return null;
+        if ( _dateCertificateDate != null )
+        {
+            return (Timestamp) _dateCertificateDate.clone( );
+        }
+        return null;
     }
 
     /**
@@ -98,14 +98,14 @@ public class AttributeCertificate implements Serializable
      */
     public void setCertificateDate( Timestamp dateCertificateDate )
     {
-    	if( dateCertificateDate!= null )
-    	{
-    		_dateCertificateDate = (Timestamp) dateCertificateDate.clone( );
-    	}
-    	else
-    	{
-    		_dateCertificateDate = null;
-    	}
+        if ( dateCertificateDate != null )
+        {
+            _dateCertificateDate = (Timestamp) dateCertificateDate.clone( );
+        }
+        else
+        {
+            _dateCertificateDate = null;
+        }
     }
 
     /**
@@ -136,11 +136,11 @@ public class AttributeCertificate implements Serializable
      */
     public Timestamp getExpirationDate( )
     {
-    	if( _dateExpirationDate!= null )
-    	{
-    		return (Timestamp) _dateExpirationDate.clone( );
-    	}
-    	return null;
+        if ( _dateExpirationDate != null )
+        {
+            return (Timestamp) _dateExpirationDate.clone( );
+        }
+        return null;
     }
 
     /**
@@ -151,14 +151,14 @@ public class AttributeCertificate implements Serializable
      */
     public void setExpirationDate( Timestamp dateExpirationDate )
     {
-    	if( dateExpirationDate!= null )
-    	{
-    		_dateExpirationDate = (Timestamp) dateExpirationDate.clone( );
-    	}
-    	else
-    	{
-    		_dateExpirationDate = null;
-    	}
+        if ( dateExpirationDate != null )
+        {
+            _dateExpirationDate = (Timestamp) dateExpirationDate.clone( );
+        }
+        else
+        {
+            _dateExpirationDate = null;
+        }
     }
 
     /**

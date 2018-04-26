@@ -61,11 +61,11 @@ public class AttributeChange
      */
     public Timestamp getDateChange( )
     {
-    	if( _dateChange!= null )
-    	{
-    		return (Timestamp) _dateChange.clone( );
-    	}
-    	return null;
+        if ( _dateChange != null )
+        {
+            return (Timestamp) _dateChange.clone( );
+        }
+        return null;
     }
 
     /**
@@ -76,14 +76,14 @@ public class AttributeChange
      */
     public void setDateChange( Timestamp dateChange )
     {
-    	if( dateChange!= null )
-    	{
-    		_dateChange = (Timestamp) dateChange.clone( );
-    	}
-    	else
-    	{
-    		_dateChange = null;
-    	}
+        if ( dateChange != null )
+        {
+            _dateChange = (Timestamp) dateChange.clone( );
+        }
+        else
+        {
+            _dateChange = null;
+        }
     }
 
     /**

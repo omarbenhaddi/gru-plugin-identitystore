@@ -475,12 +475,12 @@ public final class IdentityStoreService
             {
                 file = mapAttachedFiles.get( attributeDto.getValue( ) );
             }
-            
+
             IdentityAttribute newAttribute = new IdentityAttribute( );
             newAttribute.setAttributeKey( attributeKey );
             newAttribute.setValue( attributeDto.getValue( ) );
             newAttribute.setCertificate( null );
-            
+
             AttributeStatusDto attrStatus = setAttribute( identity, newAttribute, file, author, strClientAppCode, true );
             sb.append( attributeDto.getKey( ) + "[" + attrStatus.getStatusCode( ) + "], " );
         }
@@ -532,7 +532,7 @@ public final class IdentityStoreService
                 AppLogService
                         .debug( "Unable to retrieve certificate for attribute [" + attributeDto.getKey( ) + "] of identity [" + identity.getId( ) + "]", e );
             }
-            
+
             IdentityAttribute updateAttribute = new IdentityAttribute( );
             updateAttribute.setAttributeKey( attributeKey );
             updateAttribute.setValue( attributeDto.getValue( ) );
@@ -644,21 +644,22 @@ public final class IdentityStoreService
      *            true if application can delete a non certified attribute
      * @return AttributStatusDto with statusCode according to the resulted operation
      */
-    private static AttributeStatusDto setAttribute( Identity identity, IdentityAttribute requestAttribute, File file, ChangeAuthor author, String strClientAppCode, boolean bAppCanDelete )
+    private static AttributeStatusDto setAttribute( Identity identity, IdentityAttribute requestAttribute, File file, ChangeAuthor author,
+            String strClientAppCode, boolean bAppCanDelete )
     {
         String strCorrectValue = ( requestAttribute.getValue( ) == null ) ? StringUtils.EMPTY : requestAttribute.getValue( );
 
         boolean bCreate = false;
-        boolean bValueUnchanged = false; 
+        boolean bValueUnchanged = false;
 
         IdentityAttribute dbAttribute = IdentityAttributeHome.findByPrimaryKey( identity.getId( ), requestAttribute.getAttributeKey( ).getId( ) );
         String strAttrOldValue = StringUtils.EMPTY;
 
         if ( dbAttribute == null )
         {
-        	dbAttribute = new IdentityAttribute( );
-        	dbAttribute.setAttributeKey( requestAttribute.getAttributeKey( ) );
-        	dbAttribute.setIdIdentity( identity.getId( ) );
+            dbAttribute = new IdentityAttribute( );
+            dbAttribute.setAttributeKey( requestAttribute.getAttributeKey( ) );
+            dbAttribute.setIdIdentity( identity.getId( ) );
             bCreate = true;
         }
         else
@@ -667,7 +668,8 @@ public final class IdentityStoreService
 
             if ( strCorrectValue.equals( strAttrOldValue ) && ( requestAttribute.getAttributeKey( ).getKeyType( ) != KeyType.FILE ) )
             {
-                AppLogService.debug( "no change on attribute key=" + requestAttribute.getAttributeKey( ).getKeyName( ) + " value=" + strCorrectValue + " for Id=" + identity.getId( ) );
+                AppLogService.debug( "no change on attribute key=" + requestAttribute.getAttributeKey( ).getKeyName( ) + " value=" + strCorrectValue
+                        + " for Id=" + identity.getId( ) );
                 bValueUnchanged = true;
             }
         }
@@ -729,8 +731,8 @@ public final class IdentityStoreService
                 handleFile( dbAttribute, file );
             }
 
-            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, requestAttribute.getAttributeKey( ).getKeyName( ), strCorrectValue, strAttrOldValue, author,
-                    dbAttribute.getCertificate( ), bCreate );
+            AttributeChange change = IdentityStoreNotifyListenerService.buildAttributeChange( identity, requestAttribute.getAttributeKey( ).getKeyName( ),
+                    strCorrectValue, strAttrOldValue, author, dbAttribute.getCertificate( ), bCreate );
             IdentityStoreNotifyListenerService.instance( ).notifyListenersAttributeChange( change );
         }
         else
@@ -775,11 +777,11 @@ public final class IdentityStoreService
             // both certified and new certificate is at least same level
             else
             {
-            	// better certifier in request
+                // better certifier in request
                 if ( certificateRequest.getCertificateLevel( ) > certificateDB.getCertificateLevel( )
-                		// same level certifier but request has no limit certifier
+                // same level certifier but request has no limit certifier
                         || certificateRequest.getExpirationDate( ) == null
-                  		// same level certifier but request finish later
+                        // same level certifier but request finish later
                         || ( certificateDB.getExpirationDate( ) != null && certificateRequest.getExpirationDate( ).after( certificateDB.getExpirationDate( ) ) ) )
                 {
                     attrStatus.setNewCertifier( certificateRequest.getCertifierCode( ) );

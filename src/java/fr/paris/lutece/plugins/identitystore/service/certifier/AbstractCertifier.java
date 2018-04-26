@@ -58,7 +58,8 @@ public abstract class AbstractCertifier
     /**
      * constructor with code for registration
      * 
-     * @param strCode the code
+     * @param strCode
+     *            the code
      */
     public AbstractCertifier( String strCode )
     {

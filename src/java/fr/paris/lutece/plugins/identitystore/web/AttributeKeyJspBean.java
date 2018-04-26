@@ -283,8 +283,10 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     /**
      * fill model for richText
      * 
-     * @param request the request
-     * @param model the model
+     * @param request
+     *            the request
+     * @param model
+     *            the model
      */
     private static void storeRichText( HttpServletRequest request, Map<String, Object> model )
     {
