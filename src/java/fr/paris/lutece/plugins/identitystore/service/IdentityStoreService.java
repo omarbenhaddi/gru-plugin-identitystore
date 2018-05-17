@@ -119,7 +119,6 @@ public final class IdentityStoreService
     private static final String BEAN_APPLICATION_CODE_DELETE_AUTHORIZED_LIST = "identitystore.application.code.delete.authorized.list";
 
     // Other constants
-    private static final String ERROR_NO_IDENTITY_PROVIDED = "Neither the guid, nor the cid, nor the identity attributes are provided !!!";
     private static final String ERROR_DELETE_UNAUTHORIZED = "Provided application code is not authorized to delete an identity";
     private static List<String> _listDeleteAuthorizedApplicationCodes;
 
@@ -394,10 +393,6 @@ public final class IdentityStoreService
             updateAttributes( identity, identityDtoDecrypted, authorDto, mapAttachedFiles, clientApplication.getCode( ),
                     clientApplication.getIsAuthorizedDeleteValue( ) );
         }
-        else
-        {
-            throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
-        }
 
         // listener
         IdentityChange identityChange = new IdentityChange( );
@@ -438,10 +433,6 @@ public final class IdentityStoreService
             IdentityRequestValidator.instance( ).checkAttributes( identityDto, authorDto.getApplicationCode( ), mapAttachedFiles );
 
             createAttributes( identity, identityDto, authorDto, mapAttachedFiles, strClientAppCode );
-        }
-        else
-        {
-            throw new IdentityStoreException( ERROR_NO_IDENTITY_PROVIDED );
         }
 
         return identity;
