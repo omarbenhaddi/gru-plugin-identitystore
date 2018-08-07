@@ -34,19 +34,16 @@
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
-import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
-import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.AppRightDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.ApplicationRightsDto;
 import fr.paris.lutece.test.LuteceTestCase;
 
 /**
  *
  * @author levy
  */
-public class IdentityStoreServiceTest extends LuteceTestCase
+public class IdentityStoreServiceApplicationRightsTest extends LuteceTestCase
 {
-    private final String TEST_KOID = "KO_ID";
-
     /**
      * {@inheritDoc}
      */
@@ -58,29 +55,32 @@ public class IdentityStoreServiceTest extends LuteceTestCase
         IdentityStoreTestContext.initContext( );
     }
 
-    public void testGetAttribute( )
+    public void testGetApplicationRights( )
     {
-        IdentityAttribute attributeDB = IdentityStoreService.getAttribute( IdentityStoreTestContext.SAMPLE_CONNECTIONID, IdentityStoreTestContext.ATTRKEY_1,
-                IdentityStoreTestContext.SAMPLE_APPCODE );
-        assertNotNull( attributeDB );
-        assertEquals( IdentityStoreTestContext.ATTRVAL_1, attributeDB.getValue( ) );
-        attributeDB = IdentityStoreService.getAttribute( IdentityStoreTestContext.SAMPLE_CONNECTIONID, TEST_KOID, IdentityStoreTestContext.SAMPLE_APPCODE );
-        assertNull( attributeDB );
+        ApplicationRightsDto apprights = IdentityStoreService.getApplicationRights( IdentityStoreTestContext.SAMPLE_APPCODE );
+        assertEquals( IdentityStoreTestContext.SAMPLE_APPCODE, apprights.getApplicationCode( ) );
+        assertEquals( IdentityStoreTestContext.SAMPLE_NB_ATTR, apprights.getAppRights( ).size( ) ); // cf init_db_identitystore_sample.sql
+        for ( AppRightDto appright : apprights.getAppRights( ) )
+        {
+            int nSizeCertifier = 0;
+            if ( IdentityStoreTestContext.ATTRKEY_1.equals( appright.getAttributeKey( ) ) )
+            {
+                nSizeCertifier = 4;
+            }
+            if ( IdentityStoreTestContext.ATTRKEY_3.equals( appright.getAttributeKey( ) ) )
+            {
+                nSizeCertifier = 3;
+            }
+            assertEquals( appright.getAttributeKey( ) + " READABLE", true, appright.isReadable( ) );
+            assertEquals( appright.getAttributeKey( ) + " WRITABLE", true, appright.isWritable( ) );
+            if ( nSizeCertifier == 0 )
+            {
+                assertTrue( appright.getCertifiers( ) == null || appright.getCertifiers( ).size( ) == 0 );
+            }
+            else
+            {
+                assertEquals( appright.getAttributeKey( ) + " CERTIFIER", nSizeCertifier, appright.getCertifiers( ).size( ) );
+            }
+        }
     }
-
-    public void testBuildIdentityChange( )
-    {
-        // getIdentityChangeForCreation
-        // TEST_CONNECTIONID1 has already been tested to give null identity in previous lines
-        IdentityChangeDto identityChangeDto = IdentityStoreService.buildIdentityChange( IdentityStoreTestContext.SAMPLE_APPCODE );
-        assertNotNull( identityChangeDto );
-        assertNotNull( identityChangeDto.getIdentity( ) );
-        assertNotNull( identityChangeDto.getAuthor( ) );
-        assertNull( identityChangeDto.getIdentity( ).getConnectionId( ) );
-        assertNull( identityChangeDto.getIdentity( ).getCustomerId( ) );
-        assertEquals( IdentityStoreTestContext.SAMPLE_APPCODE, identityChangeDto.getAuthor( ).getApplicationCode( ) );
-        assertEquals( AuthorType.TYPE_APPLICATION.getTypeValue( ), identityChangeDto.getAuthor( ).getType( ) );
-    }
-
-    // removeIdentity untestable due to empty identitystore.application.code.delete.authorized.list
 }

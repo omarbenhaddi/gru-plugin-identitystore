@@ -38,7 +38,6 @@ import fr.paris.lutece.test.LuteceTestCase;
 
 public class IdentityAttributeBusinessTest extends LuteceTestCase
 {
-    private final static int IDIDENTITY1 = 101;
     private final static int IDATTRIBUTE1 = 1; // gender
     private final static String ATTRIBUTEVALUE1 = "AttributeValue1";
     private final static String ATTRIBUTEVALUE2 = "AttributeValue2";
@@ -47,11 +46,13 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
 
     public void testBusiness( )
     {
+        Identity identityReference = createIdentityInDatabase( );
+
         // Initialize an object
         AttributeKey attributeKey = new AttributeKey( );
         attributeKey.setId( IDATTRIBUTE1 );
         IdentityAttribute identityAttribute = new IdentityAttribute( );
-        identityAttribute.setIdIdentity( IDIDENTITY1 );
+        identityAttribute.setIdIdentity( identityReference.getId( ) );
         identityAttribute.setAttributeKey( attributeKey );
         identityAttribute.setValue( ATTRIBUTEVALUE1 );
         identityAttribute.setIdCertificate( IDCERTIFICATION1 );
@@ -81,5 +82,13 @@ public class IdentityAttributeBusinessTest extends LuteceTestCase
         IdentityAttributeHome.remove( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );
         identityAttributeStored = IdentityAttributeHome.findByPrimaryKey( identityAttribute.getIdIdentity( ), identityAttribute.getAttributeKey( ).getId( ) );
         assertNull( identityAttributeStored );
+    }
+
+    private Identity createIdentityInDatabase( )
+    {
+        Identity identity = MockIdentity.create( );
+        identity = IdentityHome.create( identity );
+
+        return identity;
     }
 }

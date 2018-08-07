@@ -42,7 +42,6 @@ import fr.paris.lutece.test.LuteceTestCase;
 
 public class AttributeCertificateBusinessTest extends LuteceTestCase
 {
-
     /**
      * {@inheritDoc}
      */

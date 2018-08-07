@@ -59,7 +59,7 @@ public class CertifierRegistryTest extends LuteceTestCase
     public void testBusiness( ) throws CertifierNotFoundException
     {
         // after initContext, there is 2 certifier with different conf
-        assertEquals( IdentityStoreTestContext.CERTIFIERS_NB, CertifierRegistry.instance( ).getCertifiersList( ).size( ) );
+        assertEquals( IdentityStoreTestContext.getNbCertifiers( ), CertifierRegistry.instance( ).getCertifiersList( ).size( ) );
 
         // control certifier 1
         AbstractCertifier certifier1 = CertifierRegistry.instance( ).getCertifier( IdentityStoreTestContext.CERTIFIER1_CODE );
