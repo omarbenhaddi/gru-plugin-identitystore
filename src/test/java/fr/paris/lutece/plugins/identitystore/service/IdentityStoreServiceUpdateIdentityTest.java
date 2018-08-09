@@ -37,17 +37,14 @@ import java.util.HashMap;
 
 import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
+import static fr.paris.lutece.plugins.identitystore.business.AttributeCertificateUtil.createAttributeCertificateInDatabase;
+import static fr.paris.lutece.plugins.identitystore.business.AttributeCertificateUtil.createExpiredAttributeCertificateInDatabase;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
-import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.business.MockAttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.MockIdentity;
-import fr.paris.lutece.plugins.identitystore.business.MockIdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
+import static fr.paris.lutece.plugins.identitystore.business.IdentityAttributeUtil.createIdentityAttributeInDatabase;
+import static fr.paris.lutece.plugins.identitystore.business.IdentityUtil.createIdentityInDatabase;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.CertificateDto;
@@ -55,6 +52,7 @@ import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.MockAttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.MockCertificateDto;
+import static fr.paris.lutece.plugins.identitystore.web.rs.dto.MockIdentityChangeDto.createIdentityChangeDtoFor;
 import fr.paris.lutece.plugins.identitystore.web.rs.dto.MockIdentityDto;
 import fr.paris.lutece.test.LuteceTestCase;
 
@@ -514,6 +512,338 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
         assertNotNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
     }
 
+    public void testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndSameValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER4_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndSameValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER2_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndSameValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndNewValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER4_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndNewValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        attr1.setValue( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndNewValue_newValue" );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER2_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndNewValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndSameValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER2_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndSameValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER4_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndSameValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndNewValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER2_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithHigherLevelCertificateAndNewValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        attr1.setValue( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndNewValue_newValue" );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER4_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndNewValue_newValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInRequestAndNewValue_newValue",
+                attr1StatusAfter.getNewValue( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndSameValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER4_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndSameValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER5_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndSameValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndNewValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER4_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndNewValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        attr1.setValue( IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndNewValue_newValue" );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER5_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndNewValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndSameValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createExpiredAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER1_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndSameValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        MockAttributeDto.create( identityDto, identityAttribute1 );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndSameValue",
+                attr1After.getValue( ) );
+        assertNull( attr1After.getCertificate( ) );
+        assertFalse( attr1After.isCertified( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.INFO_NO_CHANGE_REQUEST_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndNewValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createExpiredAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER1_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndNewValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        attr1.setValue( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndNewValue_newValue" );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndNewValue_newValue",
+                attr1After.getValue( ) );
+        assertNull( attr1After.getCertificate( ) );
+        assertFalse( attr1After.isCertified( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndNoCertificateInInputAndNewValue_newValue",
+                attr1StatusAfter.getNewValue( ) );
+        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndSameValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createExpiredAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER2_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndSameValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER1_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndSameValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndSameValue",
+                attr1StatusAfter.getNewValue( ) );
+        assertNull( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
+        assertNotNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
+    public void testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndNewValue( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createExpiredAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER2_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        IdentityAttribute identityAttribute1 = createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndNewValue", attributeCertificate );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        AttributeDto attr1 = MockAttributeDto.create( identityDto, identityAttribute1 );
+        attr1.setValue( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndNewValue_newValue" );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        CertificateDto certificateDto = MockCertificateDto.create( IdentityStoreTestContext.CERTIFIER1_CODE );
+        attr1.setCertificate( certificateDto );
+
+        IdentityDto identityAfterDto = IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+
+        assertNotNull( identityAfterDto );
+        assertNotNull( identityAfterDto.getAttributes( ) );
+        assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
+        AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1After );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndNewValue_newValue",
+                attr1After.getValue( ) );
+        assertNotNull( attr1After.getCertificate( ) );
+        assertTrue( attr1After.isCertified( ) );
+        AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
+        assertNotNull( attr1StatusAfter );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndNewValue_newValue",
+                attr1StatusAfter.getNewValue( ) );
+        assertNull( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
+        assertNotNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
+    }
+
     public void testUpdateIdentityWithNoCertificateInDatabaseNorInInputAndSameValue( )
     {
         Identity identityReference = createIdentityInDatabase( );
@@ -644,54 +974,5 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
     private AttributeKey findAttributeKey( String strAttributeKeyName )
     {
         return AttributeKeyHome.findByKey( strAttributeKeyName );
-    }
-
-    private Identity createIdentityInDatabase( )
-    {
-        Identity identity = MockIdentity.create( );
-        identity = IdentityHome.create( identity );
-
-        return identity;
-    }
-
-    private IdentityAttribute createIdentityAttributeInDatabase( Identity identity, AttributeKey attributeKey, String strValue )
-    {
-        IdentityAttribute identityAttribute = MockIdentityAttribute.create( identity, attributeKey );
-        identityAttribute.setValue( strValue );
-        identityAttribute = IdentityAttributeHome.create( identityAttribute );
-
-        identity.getAttributes( ).put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
-
-        return identityAttribute;
-    }
-
-    private AttributeCertificate createAttributeCertificateInDatabase( String strCertifierCode )
-    {
-        AbstractCertifier certifier = IdentityStoreTestContext.getCertifier( strCertifierCode );
-        AttributeCertificate attributeCertificate = MockAttributeCertificate.create( certifier );
-        AttributeCertificateHome.create( attributeCertificate );
-
-        return attributeCertificate;
-    }
-
-    private IdentityAttribute createIdentityAttributeInDatabase( Identity identity, AttributeKey attributeKey, String strValue,
-            AttributeCertificate attributeCertificate )
-    {
-        IdentityAttribute identityAttribute = MockIdentityAttribute.create( identity, attributeKey );
-        identityAttribute.setValue( strValue );
-        identityAttribute.setIdCertificate( attributeCertificate.getId( ) );
-        identityAttribute = IdentityAttributeHome.create( identityAttribute );
-
-        identity.getAttributes( ).put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
-
-        return identityAttribute;
-    }
-
-    private IdentityChangeDto createIdentityChangeDtoFor( IdentityDto identityDto )
-    {
-        IdentityChangeDto identityChangeDto = IdentityStoreService.buildIdentityChange( IdentityStoreTestContext.SAMPLE_APPCODE );
-        identityChangeDto.setIdentity( identityDto );
-
-        return identityChangeDto;
     }
 }

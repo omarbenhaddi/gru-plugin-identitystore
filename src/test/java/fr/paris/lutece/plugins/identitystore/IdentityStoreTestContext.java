@@ -69,7 +69,10 @@ public class IdentityStoreTestContext
     public final static int CERTIFIER3_EXPIRATIONDELAY = 13;
     public final static String CERTIFIER4_CODE = "certifiercode4";
     public final static String CERTIFIER4_NAME = CERTIFIER3_CODE + "_name";
-    public final static int CERTIFIER4_LEVEL = 4;
+    public final static int CERTIFIER4_LEVEL = 20;
+    public final static String CERTIFIER5_CODE = "certifiercode5";
+    public final static String CERTIFIER5_NAME = CERTIFIER3_CODE + "_name";
+    public final static int CERTIFIER5_LEVEL = 20;
 
     public final static String SAMPLE_CONNECTIONID = "azerty";
     public final static String SAMPLE_CUSTOMERID = "3F2504E0-4F89-11D3-9A0C-0305E82C3301";
@@ -138,10 +141,19 @@ public class IdentityStoreTestContext
                 ATTRKEY_1, ATTRKEY_2, ATTRKEY_3
         } ) );
 
+        AbstractCertifier certif5 = new SimpleCertifier( CERTIFIER5_CODE );
+        certif5.setCertificateLevel( CERTIFIER5_LEVEL );
+        certif5.setExpirationDelay( AbstractCertifier.NO_CERTIFICATE_EXPIRATION_DELAY );
+        certif5.setName( CERTIFIER5_NAME );
+        certif5.setCertifiableAttributesList( Arrays.asList( new String [ ] {
+                ATTRKEY_1, ATTRKEY_2, ATTRKEY_3
+        } ) );
+
         _mapCertifiers.put( CERTIFIER1_CODE, certif1 );
         _mapCertifiers.put( CERTIFIER2_CODE, certif2 );
         _mapCertifiers.put( CERTIFIER3_CODE, certif3 );
         _mapCertifiers.put( CERTIFIER4_CODE, certif4 );
+        _mapCertifiers.put( CERTIFIER5_CODE, certif5 );
     }
 
     private static void updateRightsFor( ClientApplication clientApp )

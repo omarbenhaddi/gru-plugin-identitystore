@@ -65,11 +65,11 @@ public class IdentityStoreServiceApplicationRightsTest extends LuteceTestCase
             int nSizeCertifier = 0;
             if ( IdentityStoreTestContext.ATTRKEY_1.equals( appright.getAttributeKey( ) ) )
             {
-                nSizeCertifier = 4;
+                nSizeCertifier = 5;
             }
             if ( IdentityStoreTestContext.ATTRKEY_3.equals( appright.getAttributeKey( ) ) )
             {
-                nSizeCertifier = 3;
+                nSizeCertifier = 4;
             }
             assertEquals( appright.getAttributeKey( ) + " READABLE", true, appright.isReadable( ) );
             assertEquals( appright.getAttributeKey( ) + " WRITABLE", true, appright.isWritable( ) );

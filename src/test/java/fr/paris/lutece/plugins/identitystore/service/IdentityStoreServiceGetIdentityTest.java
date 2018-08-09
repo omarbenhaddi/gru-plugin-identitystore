@@ -34,14 +34,16 @@
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
+import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
+import static fr.paris.lutece.plugins.identitystore.business.AttributeCertificateUtil.createExpiredAttributeCertificateInDatabase;
+import static fr.paris.lutece.plugins.identitystore.business.AttributeCertificateUtil.createAttributeCertificateInDatabase;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
-import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.business.MockIdentity;
-import fr.paris.lutece.plugins.identitystore.business.MockIdentityAttribute;
+import static fr.paris.lutece.plugins.identitystore.business.IdentityAttributeUtil.createIdentityAttributeInDatabase;
+import static fr.paris.lutece.plugins.identitystore.business.IdentityUtil.createIdentityInDatabase;
+
 import fr.paris.lutece.test.LuteceTestCase;
 
 /**
@@ -84,24 +86,6 @@ public class IdentityStoreServiceGetIdentityTest extends LuteceTestCase
         return AttributeKeyHome.findByKey( strAttributeKeyName );
     }
 
-    private Identity createIdentityInDatabase( )
-    {
-        Identity identity = MockIdentity.create( );
-        identity = IdentityHome.create( identity );
-
-        return identity;
-    }
-
-    private IdentityAttribute createIdentityAttributeInDatabase( Identity identity, AttributeKey attributeKey )
-    {
-        IdentityAttribute identityAttribute = MockIdentityAttribute.create( identity, attributeKey );
-        identityAttribute = IdentityAttributeHome.create( identityAttribute );
-
-        identity.getAttributes( ).put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
-
-        return identityAttribute;
-    }
-
     public void testGetIdentityByConnectionIdWithUnknownConnectionId( )
     {
         Identity identityDB = IdentityStoreService.getIdentityByConnectionId( TEST_CONNECTIONID1, IdentityStoreTestContext.SAMPLE_APPCODE );
@@ -112,11 +96,101 @@ public class IdentityStoreServiceGetIdentityTest extends LuteceTestCase
     {
         Identity identityDB = IdentityStoreService
                 .getIdentityByCustomerId( IdentityStoreTestContext.SAMPLE_CUSTOMERID, IdentityStoreTestContext.SAMPLE_APPCODE );
+
         assertNotNull( identityDB );
         assertEquals( IdentityStoreTestContext.SAMPLE_CONNECTIONID, identityDB.getConnectionId( ) );
         assertEquals( IdentityStoreTestContext.SAMPLE_NB_ATTR, identityDB.getAttributes( ).size( ) );
+
         identityDB = IdentityStoreService.getIdentityByCustomerId( TEST_KOID, IdentityStoreTestContext.SAMPLE_APPCODE );
+
         assertNull( identityDB );
+    }
+
+    public void testGetIdentityByCustomerIdWithNoCertificateAttribut( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testGetIdentityByCustomerIdWithNoCertificateAttribut" );
+
+        Identity identity = IdentityStoreService.getIdentityByCustomerId( identityReference.getCustomerId( ), IdentityStoreTestContext.SAMPLE_APPCODE );
+
+        assertNotNull( identity );
+        assertNotNull( identity.getAttributes( ) );
+        assertEquals( 1, identity.getAttributes( ).size( ) );
+        IdentityAttribute attr1 = identity.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1 );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testGetIdentityByCustomerIdWithNoCertificateAttribut", attr1.getValue( ) );
+        AttributeCertificate attr1Certificate = attr1.getCertificate( );
+        assertNull( attr1Certificate );
+    }
+
+    public void testGetIdentityByCustomerIdWithCertificateAttributWithLimitedExpirationDate( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER1_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testGetIdentityByCustomerIdWithCertificateAttributWithLimitedExpirationDate", attributeCertificate );
+
+        Identity identity = IdentityStoreService.getIdentityByCustomerId( identityReference.getCustomerId( ), IdentityStoreTestContext.SAMPLE_APPCODE );
+
+        assertNotNull( identity );
+        assertNotNull( identity.getAttributes( ) );
+        assertEquals( 1, identity.getAttributes( ).size( ) );
+        IdentityAttribute attr1 = identity.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1 );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testGetIdentityByCustomerIdWithCertificateAttributWithLimitedExpirationDate", attr1.getValue( ) );
+        AttributeCertificate attr1Certificate = attr1.getCertificate( );
+        assertNotNull( attr1Certificate );
+        assertNotNull( attr1Certificate.getCertifierCode( ) );
+        assertNotNull( attr1Certificate.getCertifierName( ) );
+        assertTrue( attr1Certificate.getCertificateLevel( ) > 0 );
+        assertNotNull( attr1Certificate.getExpirationDate( ) );
+    }
+
+    public void testGetIdentityByCustomerIdWithCertificateAttributWithUnlimitedExpirationDate( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER4_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testGetIdentityByCustomerIdWithCertificateAttributWithUnlimitedExpirationDate", attributeCertificate );
+
+        Identity identity = IdentityStoreService.getIdentityByCustomerId( identityReference.getCustomerId( ), IdentityStoreTestContext.SAMPLE_APPCODE );
+
+        assertNotNull( identity );
+        assertNotNull( identity.getAttributes( ) );
+        assertEquals( 1, identity.getAttributes( ).size( ) );
+        IdentityAttribute attr1 = identity.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1 );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testGetIdentityByCustomerIdWithCertificateAttributWithUnlimitedExpirationDate", attr1.getValue( ) );
+        AttributeCertificate attr1Certificate = attr1.getCertificate( );
+        assertNotNull( attr1Certificate );
+        assertNotNull( attr1Certificate.getCertifierCode( ) );
+        assertNotNull( attr1Certificate.getCertifierName( ) );
+        assertTrue( attr1Certificate.getCertificateLevel( ) > 0 );
+        assertNull( attr1Certificate.getExpirationDate( ) );
+    }
+
+    public void testGetIdentityByCustomerIdWithExpiredCertificateAttribut( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        AttributeCertificate attributeCertificate = createExpiredAttributeCertificateInDatabase( IdentityStoreTestContext.CERTIFIER1_CODE );
+        AttributeKey attributeKey1 = findAttributeKey( IdentityStoreTestContext.ATTRKEY_1 );
+        createIdentityAttributeInDatabase( identityReference, attributeKey1, IdentityStoreTestContext.ATTRKEY_1
+                + "testGetIdentityByCustomerIdWithExpiredCertificateAttribut", attributeCertificate );
+
+        Identity identity = IdentityStoreService.getIdentityByCustomerId( identityReference.getCustomerId( ), IdentityStoreTestContext.SAMPLE_APPCODE );
+
+        assertNotNull( identity );
+        assertNotNull( identity.getAttributes( ) );
+        assertEquals( 1, identity.getAttributes( ).size( ) );
+        IdentityAttribute attr1 = identity.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
+        assertNotNull( attr1 );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testGetIdentityByCustomerIdWithExpiredCertificateAttribut", attr1.getValue( ) );
+        AttributeCertificate attr1Certificate = attr1.getCertificate( );
+        assertNull( attr1Certificate );
     }
 
     // getOrCreateIdentity untestable due to lack of attributes in MockIdentityInfoExternalProvider
