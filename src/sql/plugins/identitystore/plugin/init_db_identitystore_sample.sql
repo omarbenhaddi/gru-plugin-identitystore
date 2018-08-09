@@ -1,4 +1,4 @@
-DELETE FROM identitystore_attribute_certifier;
+DELETE FROM identitystore_attribute_certificate;
 DELETE FROM identitystore_identity_attribute;
 DELETE FROM identitystore_attribute_right;
 DELETE FROM identitystore_client_application;

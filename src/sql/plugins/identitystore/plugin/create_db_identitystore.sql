@@ -8,7 +8,6 @@ DROP TABLE IF EXISTS identitystore_client_application;
 DROP TABLE IF EXISTS identitystore_client_application_certifiers;
 DROP TABLE IF EXISTS identitystore_identity_attribute;
 DROP TABLE IF EXISTS identitystore_attribute_certificate;
-DROP TABLE IF EXISTS identitystore_attribute_certifier;
 DROP TABLE IF EXISTS identitystore_attribute;
 DROP TABLE IF EXISTS identitystore_identity;
 --
