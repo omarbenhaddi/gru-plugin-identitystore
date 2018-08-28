@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.web.rs.swagger;
 
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.util.AppPathService;
+import fr.paris.lutece.util.http.SecurityUtil;
 import fr.paris.lutece.util.json.ErrorJsonResponse;
 import fr.paris.lutece.util.json.JsonUtil;
 
@@ -84,6 +85,13 @@ public class SwaggerRest
     public Response getSwagger( @Context HttpServletRequest request, @PathParam( Constants.VERSION ) String strVersion ) throws MalformedURLException,
             IOException
     {
+        if ( SecurityUtil.containsPathManipulationChars( request, strVersion ) )
+        {
+            _logger.error( Constants.ERROR_INVALID_VERSION );
+            return Response.status( Response.Status.FORBIDDEN )
+                .entity( JsonUtil.buildJsonResponse( new ErrorJsonResponse( Response.Status.FORBIDDEN.name( ), Constants.ERROR_INVALID_VERSION ) ) ).build( );
+        }
+
         File fileJson = new File( getJsonFilePath( strVersion ) );
         if ( fileJson.exists( ) )
         {
