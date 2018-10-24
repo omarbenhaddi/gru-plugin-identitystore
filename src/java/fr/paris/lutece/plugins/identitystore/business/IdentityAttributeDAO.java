@@ -42,6 +42,7 @@ import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -255,6 +256,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             if ( attribute.getCertificate( ) != null )
             {
                 attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
+
+                if ( isCertificateExpired( attribute ) )
+                {
+                    attribute.setCertificate( null );
+                }
             }
             if ( attribute.getFile( ) != null )
             {
@@ -323,6 +329,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             if ( attribute.getCertificate( ) != null )
             {
                 attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
+
+                if ( isCertificateExpired( attribute ) )
+                {
+                    attribute.setCertificate( null );
+                }
             }
             if ( attribute.getFile( ) != null )
             {
@@ -331,6 +342,17 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         }
 
         return attributesMap;
+    }
+
+    /**
+     * Return true if the attribute certificate is expired or false if not
+     * 
+     * @param attribute
+     * @return true if the identity attribute is not null and expired
+     */
+    private boolean isCertificateExpired( IdentityAttribute attribute )
+    {
+        return attribute.getCertificate( ).getExpirationDate( ) != null && attribute.getCertificate( ).getExpirationDate( ).before( new Date( ) );
     }
 
     /**
@@ -388,6 +410,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             if ( nCertificateId > 0 )
             {
                 attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( nCertificateId ) );
+                if ( isCertificateExpired( attribute ) )
+                {
+                    attribute.setCertificate( null );
+                }
             }
             if ( nIdFile > 0 )
             {

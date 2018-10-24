@@ -40,6 +40,7 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -122,7 +123,36 @@ public final class IdentityAttributeHome
      */
     public static IdentityAttribute findByPrimaryKey( int nIdentityId, int nAttributeId )
     {
-        return _dao.load( nIdentityId, nAttributeId, _plugin );
+        IdentityAttribute identityAttribute = _dao.load( nIdentityId, nAttributeId, _plugin );
+        AttributeCertificate attributeCertif = null;
+        if ( identityAttribute != null )
+        {
+            if ( identityAttribute.getIdCertificate( ) != 0 )
+            {
+                attributeCertif = AttributeCertificateHome.findByPrimaryKey( identityAttribute.getIdCertificate( ) );
+                if ( attributeCertif != null )
+                {
+                    attributeCertif = setCerificateToNullIfExpired( attributeCertif );
+                }
+            }
+            identityAttribute.setCertificate( attributeCertif );
+        }
+        return identityAttribute;
+    }
+
+    /**
+     * Set the certificate to null if it's expired
+     * 
+     * @param attributeCertifPrev
+     * @return null if certificate is expired else return attributeCertifPrev
+     */
+    private static AttributeCertificate setCerificateToNullIfExpired( AttributeCertificate attributeCertifPrev )
+    {
+        if ( attributeCertifPrev.getExpirationDate( ) != null && attributeCertifPrev.getExpirationDate( ).before( new Date( ) ) )
+        {
+            attributeCertifPrev = null;
+        }
+        return attributeCertifPrev;
     }
 
     /**

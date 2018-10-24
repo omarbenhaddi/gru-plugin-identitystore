@@ -671,12 +671,12 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
                 attr1After.getValue( ) );
         assertNotNull( attr1After.getCertificate( ) );
         assertTrue( attr1After.isCertified( ) );
-        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER5_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
         AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
         assertNotNull( attr1StatusAfter );
-        assertEquals( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
         assertNull( attr1StatusAfter.getNewValue( ) );
-        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertNotNull( attr1StatusAfter.getNewCertifier( ) );
         assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
     }
 
@@ -702,16 +702,17 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
         assertEquals( 1, identityAfterDto.getAttributes( ).size( ) );
         AttributeDto attr1After = identityAfterDto.getAttributes( ).get( IdentityStoreTestContext.ATTRKEY_1 );
         assertNotNull( attr1After );
-        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndNewValue",
-                attr1After.getValue( ) );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndNewValue_newValue", attr1After.getValue( ) );
         assertNotNull( attr1After.getCertificate( ) );
         assertTrue( attr1After.isCertified( ) );
-        assertEquals( IdentityStoreTestContext.CERTIFIER4_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER5_CODE, attr1After.getCertificate( ).getCertifierCode( ) );
         AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
         assertNotNull( attr1StatusAfter );
-        assertEquals( AttributeStatusDto.INFO_VALUE_CERTIFIED_CODE, attr1StatusAfter.getStatusCode( ) );
-        assertNull( attr1StatusAfter.getNewValue( ) );
-        assertNull( attr1StatusAfter.getNewCertifier( ) );
+        assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
+        assertEquals( IdentityStoreTestContext.ATTRKEY_1
+                + "testUpdateIdentityWithSameLevelCertificateAndNoExpirationDateInDatabaseAndInRequestAndNewValue_newValue", attr1StatusAfter.getNewValue( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER5_CODE, attr1StatusAfter.getNewCertifier( ) );
         assertNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
     }
 
@@ -804,9 +805,8 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
         AttributeStatusDto attr1StatusAfter = attr1After.getStatus( );
         assertNotNull( attr1StatusAfter );
         assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
-        assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndSameValue",
-                attr1StatusAfter.getNewValue( ) );
-        assertNull( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
+        assertNull( attr1StatusAfter.getNewValue( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
         assertNotNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
     }
 
@@ -840,7 +840,7 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
         assertEquals( AttributeStatusDto.OK_CODE, attr1StatusAfter.getStatusCode( ) );
         assertEquals( IdentityStoreTestContext.ATTRKEY_1 + "testUpdateIdentityWithExpiredCertificateInDatabaseAndCertificateInInputAndNewValue_newValue",
                 attr1StatusAfter.getNewValue( ) );
-        assertNull( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
+        assertEquals( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
         assertNotNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
     }
 
