@@ -32,7 +32,7 @@
     <bean id="identitystore.application.code.delete.authorized.list" class="java.util.ArrayList">
         <constructor-arg>
             <list>
-                <value></value>
+                <value>MyApplication</value>
             </list>
         </constructor-arg>
     </bean>

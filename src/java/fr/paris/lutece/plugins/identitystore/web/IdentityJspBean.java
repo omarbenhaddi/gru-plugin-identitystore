@@ -396,7 +396,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         }
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
         Identity identity = IdentityHome.findByPrimaryKey( nId );
-        IdentityHome.remove( nId );
+        IdentityHome.hardRemove( nId );
         addInfo( INFO_IDENTITY_REMOVED, getLocale( ) );
 
         // notify listeners

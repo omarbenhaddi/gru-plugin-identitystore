@@ -32,8 +32,8 @@ INSERT INTO identitystore_attribute (id_attribute, key_name, name, description, 
         (34, 'fc_birthplace' , '(FC) Lieu de naissance' , 'Format Pivot FranceConnect - Code INSEE du lieu de naissance (ou une chaîne vide si la personne est née à l\'étranger)', 0 ),
         (35, 'fc_birthcountry' , '(FC) Pays de naissance' , 'Format Pivot FranceConnect - Code INSEE du pays de naissance' , 0 );
 
-INSERT INTO identitystore_identity (id_identity, connection_id, customer_id ) VALUES
-	(1, 'azerty', '3F2504E0-4F89-11D3-9A0C-0305E82C3301' );
+INSERT INTO identitystore_identity (id_identity, connection_id, customer_id, is_deleted, date_delete  ) VALUES
+	(1, 'azerty', '3F2504E0-4F89-11D3-9A0C-0305E82C3301', 0, now( ) );
 
 INSERT INTO identitystore_identity_attribute(id_identity,id_attribute,attribute_value,id_certification) VALUES
 (1, 1, 'M', 0),

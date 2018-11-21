@@ -41,8 +41,17 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
+import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityDeletedException;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.rs.dto.MockIdentityDto;
+
 import static fr.paris.lutece.plugins.identitystore.business.IdentityAttributeUtil.createIdentityAttributeInDatabase;
 import static fr.paris.lutece.plugins.identitystore.business.IdentityUtil.createIdentityInDatabase;
+import static fr.paris.lutece.plugins.identitystore.web.rs.dto.MockIdentityChangeDto.createIdentityChangeDtoFor;
+
+import java.util.HashMap;
 
 import fr.paris.lutece.test.LuteceTestCase;
 
@@ -192,6 +201,24 @@ public class IdentityStoreServiceGetIdentityTest extends LuteceTestCase
         AttributeCertificate attr1Certificate = attr1.getCertificate( );
         assertNull( attr1Certificate );
     }
+    
+    public void testGetIdentityDeleted( ) 
+    {
+   	 	Identity identityReference = createIdentityInDatabase( );
+   	 	IdentityHome.softRemove(identityReference.getId());
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        
+       try
+       {
+       	IdentityStoreService.getOrCreateIdentity(identityChangeDto, new HashMap<>( ) );
+            fail( "Expected an IdentityDeletedException to be thrown" );
+       }
+       catch( IdentityDeletedException e )
+       {
+    	// Correct behavior
+       }
+  }
 
     // getOrCreateIdentity untestable due to lack of attributes in MockIdentityInfoExternalProvider
 }
