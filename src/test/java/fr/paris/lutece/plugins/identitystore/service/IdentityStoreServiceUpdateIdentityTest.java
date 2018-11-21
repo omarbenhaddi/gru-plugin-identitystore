@@ -972,43 +972,45 @@ public class IdentityStoreServiceUpdateIdentityTest extends LuteceTestCase
         assertEquals( IdentityStoreTestContext.CERTIFIER1_CODE, attr1StatusAfter.getNewCertifier( ) );
         assertNotNull( attr1StatusAfter.getNewCertificateExpirationDate( ) );
     }
-    
-    public void testUpdateIdentityDeletedWithConnectedId( ) {
-    	
-    	 Identity identityReference = createIdentityInDatabase( );
-    	 IdentityHome.softRemove(identityReference.getId( ) );
-         IdentityDto identityDto = MockIdentityDto.create( identityReference );
-         IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
-        try
-        {
-        	IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
-            fail( "Expected an IdentityNotFoundException to be thrown" );
-        }
-       catch( IdentityNotFoundException e )
-        {
-    	// Correct behavior
-        }
-   }
-    
-    public void testUpdateIdentityDeletedByCustomerId( ) 
+
+    public void testUpdateIdentityDeletedWithConnectedId( )
     {
-   	 	Identity identityReference = createIdentityInDatabase( );
-   	 	IdentityHome.softRemove(identityReference.getId( ) );
+
+        Identity identityReference = createIdentityInDatabase( );
+        IdentityHome.softRemove( identityReference.getId( ) );
         IdentityDto identityDto = MockIdentityDto.create( identityReference );
         IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
-        identityChangeDto.getIdentity().setConnectionId(null);
-     
-       try
-       {
-       	   IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
-           fail( "Expected an IdentityDeletedException to be thrown" );
-       }
-     catch( IdentityDeletedException e )
-       {
-    	// Correct behavior
-       }
-    
+        try
+        {
+            IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+            fail( "Expected an IdentityNotFoundException to be thrown" );
+        }
+        catch( IdentityNotFoundException e )
+        {
+            // Correct behavior
+        }
     }
+
+    public void testUpdateIdentityDeletedByCustomerId( )
+    {
+        Identity identityReference = createIdentityInDatabase( );
+        IdentityHome.softRemove( identityReference.getId( ) );
+        IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
+        identityChangeDto.getIdentity( ).setConnectionId( null );
+
+        try
+        {
+            IdentityStoreService.updateIdentity( identityChangeDto, new HashMap<>( ) );
+            fail( "Expected an IdentityDeletedException to be thrown" );
+        }
+        catch( IdentityDeletedException e )
+        {
+            // Correct behavior
+        }
+
+    }
+
     // ###########################
     // ##### Utility methods #####
     // ###########################

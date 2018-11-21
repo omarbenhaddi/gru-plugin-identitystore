@@ -175,7 +175,7 @@ public class Identity implements Serializable
 
         return strFirstName;
     }
-    
+
     /**
      * 
      * @return the _bIsDeleted
@@ -193,6 +193,6 @@ public class Identity implements Serializable
      */
     public void setDeleted( boolean bIsDeleted )
     {
-    	_bIsDeleted = bIsDeleted;
+        _bIsDeleted = bIsDeleted;
     }
 }

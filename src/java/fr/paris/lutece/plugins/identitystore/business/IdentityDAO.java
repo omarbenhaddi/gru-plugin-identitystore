@@ -69,7 +69,7 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value LIKE ? )" + " OR a.customer_id LIKE ? OR a.connection_id LIKE ?";
     private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted FROM identitystore_identity a,  identitystore_identity_attribute b "
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
-    private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now(), connection_id = null WHERE id_identity = ?" ;
+    private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now(), connection_id = null WHERE id_identity = ?";
 
     /**
      * Generates a new primary key
@@ -168,16 +168,19 @@ public final class IdentityDAO implements IIdentityDAO
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }
+
     /**
      * {@inheritDoc }
      */
-	@Override
-	public void softDelete(int nKey, Plugin plugin) {
-		 DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SOFT_DELETE, plugin );
-	        daoUtil.setInt( 1, nKey );
-	        daoUtil.executeUpdate( );
-	        daoUtil.free( );
-	}
+    @Override
+    public void softDelete( int nKey, Plugin plugin )
+    {
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SOFT_DELETE, plugin );
+        daoUtil.setInt( 1, nKey );
+        daoUtil.executeUpdate( );
+        daoUtil.free( );
+    }
+
     /**
      * {@inheritDoc }
      */
@@ -334,7 +337,7 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setId( daoUtil.getInt( nIndex++ ) );
         identity.setConnectionId( daoUtil.getString( nIndex++ ) );
         identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-        identity.setDeleted(daoUtil.getBoolean( nIndex++ ) );
+        identity.setDeleted( daoUtil.getBoolean( nIndex++ ) );
         return identity;
     }
 
@@ -487,6 +490,5 @@ public final class IdentityDAO implements IIdentityDAO
 
         return listIdentities;
     }
-
 
 }

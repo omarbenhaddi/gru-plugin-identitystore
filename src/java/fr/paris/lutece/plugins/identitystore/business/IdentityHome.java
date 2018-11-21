@@ -98,11 +98,12 @@ public final class IdentityHome
 
         if ( nIdentityId >= 0 )
         {
-        	softRemove( nIdentityId );
+            softRemove( nIdentityId );
         }
 
         return nIdentityId;
     }
+
     /**
      * Remove the identity whose identifier is specified in parameter
      *
@@ -114,7 +115,7 @@ public final class IdentityHome
         IdentityAttributeHome.removeAllAttributes( nIdentityId );
         _dao.hardDelete( nIdentityId, _plugin );
     }
-    
+
     public static void softRemove( int nIdentityId )
     {
         IdentityAttributeHome.removeAllAttributes( nIdentityId );

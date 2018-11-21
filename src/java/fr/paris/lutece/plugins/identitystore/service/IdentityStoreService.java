@@ -161,14 +161,14 @@ public final class IdentityStoreService
             {
                 throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
             }
-            if( identity.isDeleted( ) ) 
+            if ( identity.isDeleted( ) )
             {
-            	String strMessage = "identity is already deleted";
+                String strMessage = "identity is already deleted";
                 StringBuilder stringBuilder = new StringBuilder( strMessage );
                 stringBuilder.append( " customer id = " ).append( strCustomerId );
                 AppLogService.error( stringBuilder.toString( ) );
-            	throw new IdentityDeletedException( strMessage );
-            }      
+                throw new IdentityDeletedException( strMessage );
+            }
         }
         else
         {
@@ -281,13 +281,13 @@ public final class IdentityStoreService
             AppLogService.error( sb.toString( ) );
             throw new IdentityNotFoundException( strMessage );
         }
-        if( identity.isDeleted( ) ) 
+        if ( identity.isDeleted( ) )
         {
-        	String strMessage = "identity is already deleted";
+            String strMessage = "identity is already deleted";
             StringBuilder stringBuilder = new StringBuilder( strMessage );
             stringBuilder.append( " customer id = " ).append( strCustomerId );
             AppLogService.error( stringBuilder.toString( ) );
-        	throw new IdentityDeletedException( strMessage );
+            throw new IdentityDeletedException( strMessage );
         }
 
         return identity;

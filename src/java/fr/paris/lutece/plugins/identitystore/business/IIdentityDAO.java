@@ -74,15 +74,17 @@ public interface IIdentityDAO
      *            the Plugin
      */
     void hardDelete( int nKey, Plugin plugin );
+
     /**
      * Modify the columuns is_deleted and date_delete and connection_id to null
+     * 
      * @param nKey
-     * 			 The id of the Identity to delete	
+     *            The id of the Identity to delete
      * @param plugin
-     * 			 the Plugin
+     *            the Plugin
      */
     void softDelete( int nKey, Plugin plugin );
-    
+
     // /////////////////////////////////////////////////////////////////////////
     // Finders
 
@@ -208,5 +210,5 @@ public interface IIdentityDAO
      * @return A list of Identity
      */
     List<Identity> selectAllByConnectionId( String strConnectionId, Plugin plugin );
-    
+
 }

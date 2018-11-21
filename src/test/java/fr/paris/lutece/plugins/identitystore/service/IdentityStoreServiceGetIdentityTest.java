@@ -201,24 +201,24 @@ public class IdentityStoreServiceGetIdentityTest extends LuteceTestCase
         AttributeCertificate attr1Certificate = attr1.getCertificate( );
         assertNull( attr1Certificate );
     }
-    
-    public void testGetIdentityDeleted( ) 
+
+    public void testGetIdentityDeleted( )
     {
-   	 	Identity identityReference = createIdentityInDatabase( );
-   	 	IdentityHome.softRemove(identityReference.getId());
+        Identity identityReference = createIdentityInDatabase( );
+        IdentityHome.softRemove( identityReference.getId( ) );
         IdentityDto identityDto = MockIdentityDto.create( identityReference );
         IdentityChangeDto identityChangeDto = createIdentityChangeDtoFor( identityDto );
-        
-       try
-       {
-       	IdentityStoreService.getOrCreateIdentity(identityChangeDto, new HashMap<>( ) );
+
+        try
+        {
+            IdentityStoreService.getOrCreateIdentity( identityChangeDto, new HashMap<>( ) );
             fail( "Expected an IdentityDeletedException to be thrown" );
-       }
-       catch( IdentityDeletedException e )
-       {
-    	// Correct behavior
-       }
-  }
+        }
+        catch( IdentityDeletedException e )
+        {
+            // Correct behavior
+        }
+    }
 
     // getOrCreateIdentity untestable due to lack of attributes in MockIdentityInfoExternalProvider
 }
