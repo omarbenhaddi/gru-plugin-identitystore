@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -229,7 +230,16 @@ public final class IdentityRequestValidator
 
         if ( identityDto.getAttributes( ) != null )
         {
-            List<AttributeRight> lstRights = ClientApplicationHome.selectApplicationRights( ClientApplicationHome.findByCode( strClientAppCode ) );
+            List<AttributeRight> listRights = null;
+            ClientApplication clientApp = ClientApplicationHome.findByCode( strClientAppCode );
+            if ( clientApp != null )
+            {
+                listRights = ClientApplicationHome.selectApplicationRights( clientApp );
+            }
+            else
+            {
+                throw new AppException( "The client application " + strClientAppCode + " is unknown " );
+            }
 
             // check that all file attribute type provided with filename in dto have
             // matching attachements
@@ -242,7 +252,7 @@ public final class IdentityRequestValidator
                     throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey( ) + " is provided but does not exist" );
                 }
 
-                for ( AttributeRight attRight : lstRights )
+                for ( AttributeRight attRight : listRights )
                 {
                     if ( attRight.getAttributeKey( ).getId( ) == attributeKey.getId( ) )
                     {
