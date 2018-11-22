@@ -40,6 +40,9 @@ import fr.paris.lutece.portal.service.util.AppLogService;
  */
 public class CertifierNotFoundException extends Exception
 {
+
+    private static final long serialVersionUID = 8097351693477188939L;
+
     /**
      * Constructor
      * 

@@ -61,7 +61,7 @@ public final class IdentityStoreNotifyListenerService
     private static IdentityStoreNotifyListenerService _singleton;
 
     // List
-    private List<AttributeChangeListener> _attributeChangelistListeners;
+    private static List<AttributeChangeListener> _attributeChangelistListeners;
     private List<IdentityChangeListener> _identityChangeListListeners;
 
     /**
