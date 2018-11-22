@@ -5,7 +5,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" >
 
     <bean id="identitystore.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.web.rs.IdentityStoreRestService" />
-    <bean id="identitystore.swaggerRest"  class="fr.paris.lutece.plugins.identitystore.web.rs.swagger.SwaggerRest" />
+    <bean id="identitystore.v1.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v1.web.rs.IdentityStoreRestService" />
+    <bean id="identitystore.v2.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityStoreRestService" />
+    <bean id="identitystore.swaggerRest"  class="fr.paris.lutece.plugins.identitystore.v2.web.rs.swagger.SwaggerRest" />
 
     <bean id="identitystore.identityDAO" class="fr.paris.lutece.plugins.identitystore.business.IdentityDAO" />  
     <bean id="identitystore.attributeKeyDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeKeyDAO" />  
@@ -13,8 +15,8 @@
     <bean id="identitystore.attributeCertificateDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeCertificateDAO" />  
     <bean id="identitystore.attributeRightDAO" class="fr.paris.lutece.plugins.identitystore.business.AttributeRightDAO" />  
     <bean id="identitystore.clientApplicationDAO" class="fr.paris.lutece.plugins.identitystore.business.ClientApplicationDAO" />
-    <bean id="identitystore.listener.logging" class="fr.paris.lutece.plugins.identitystore.service.listeners.LoggingListener" /> 
-    <bean id="identitystore.listener.databaseLogging" class="fr.paris.lutece.plugins.identitystore.service.listeners.DatabaseLoggingListener" />
+    <bean id="identitystore.listener.logging" class="fr.paris.lutece.plugins.identitystore.v2.servicelisteners.LoggingListener" /> 
+    <bean id="identitystore.listener.databaseLogging" class="fr.paris.lutece.plugins.identitystore.v2.servicelisteners.DatabaseLoggingListener" />
     <bean id="identitystore.attributes.changelisteners.list" class="java.util.ArrayList">
         <constructor-arg>
             <list>
@@ -32,7 +34,8 @@
     <bean id="identitystore.application.code.delete.authorized.list" class="java.util.ArrayList">
         <constructor-arg>
             <list>
-                <value></value>
+                <value>MyDashboard</value>
+                <value>MyApplication</value>
             </list>
         </constructor-arg>
     </bean>

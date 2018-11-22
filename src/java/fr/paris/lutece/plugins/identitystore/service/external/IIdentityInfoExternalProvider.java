@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.external;
 
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 
 /**
  * This interface permits to retrieve identity information from external source

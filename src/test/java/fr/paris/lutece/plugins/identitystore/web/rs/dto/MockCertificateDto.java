@@ -33,11 +33,21 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
+
 public class MockCertificateDto
 {
     public static CertificateDto create( String strCertifierCode )
     {
         CertificateDto certificateDto = new CertificateDto( );
+        certificateDto.setCertifierCode( strCertifierCode );
+
+        return certificateDto;
+    }
+
+    public static fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.CertificateDto createCertificateDtoV1( String strCertifierCode )
+    {
+        fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.CertificateDto certificateDto = new fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.CertificateDto( );
         certificateDto.setCertifierCode( strCertifierCode );
 
         return certificateDto;

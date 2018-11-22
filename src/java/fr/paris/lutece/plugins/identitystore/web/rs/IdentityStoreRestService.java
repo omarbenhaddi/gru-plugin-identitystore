@@ -33,12 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.web.rs;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -49,41 +44,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
-import net.sf.json.util.JSONUtils;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.core.header.ContentDisposition;
-import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
-import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
-import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreAppRightsRequest;
-import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreCreateRequest;
-import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreDeleteRequest;
-import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreGetRequest;
-import fr.paris.lutece.plugins.identitystore.web.request.IdentityStoreUpdateRequest;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityChangeDto;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.ResponseDto;
-import fr.paris.lutece.plugins.identitystore.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import fr.paris.lutece.portal.business.file.File;
-import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
-import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
-import fr.paris.lutece.portal.service.util.AppException;
-import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 /**
  * REST service for channel resource
@@ -92,10 +60,13 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 @Path( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.IDENTITY_PATH )
 public final class IdentityStoreRestService
 {
-    private static final String ERROR_NO_IDENTITY_FOUND = "No identity found";
-    private static final String ERROR_NO_IDENTITY_TO_UPDATE = "no identity to update";
-    private static final String ERROR_DURING_TREATMENT = "An error occured during the treatment.";
-    private ObjectMapper _objectMapper;
+    private static final String SLASH = "/";
+    private final ObjectMapper _objectMapper;
+    private final String _version;
+    @Inject
+    private fr.paris.lutece.plugins.identitystore.v1.web.rs.IdentityStoreRestService _identityStoreRestServiceV1;
+    @Inject
+    private fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityStoreRestService _identityStoreRestServiceV2;
 
     /**
      * private constructor
@@ -106,6 +77,8 @@ public final class IdentityStoreRestService
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
         _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
         _objectMapper.enable( DeserializationFeature.UNWRAP_ROOT_VALUE );
+        _objectMapper.enable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        _version = SLASH + AppPropertiesService.getProperty( Constants.PROPERTY_APPLICATION_VERSION );
     }
 
     /**
@@ -128,21 +101,17 @@ public final class IdentityStoreRestService
             @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
-        String strClientAppCode = strHeaderClientAppCode;
-        if ( StringUtils.isEmpty( strClientAppCode ) )
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            strClientAppCode = strQueryClientAppCode;
-        }
-        try
-        {
-            IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strConnectionId, strCustomerId, strClientAppCode, _objectMapper );
+            return _identityStoreRestServiceV1.getIdentity( strConnectionId, strCustomerId, strHeaderClientAppCode, strQueryClientAppCode );
 
-            return Response.ok( identityStoreRequest.doRequest( ) ).build( );
         }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        else
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.getIdentity( strConnectionId, strCustomerId, strHeaderClientAppCode, strQueryClientAppCode );
+            }
+        return Response.noContent( ).build( );
     }
 
     /**
@@ -157,18 +126,38 @@ public final class IdentityStoreRestService
     @Consumes( MediaType.MULTIPART_FORM_DATA )
     public Response updateIdentity( FormDataMultiPart formParams )
     {
-        try
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
-            Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
-            IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( identityChangeDto, mapAttachedFiles, _objectMapper );
+            return _identityStoreRestServiceV1.updateIdentity( formParams );
+        }
+        else
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.updateIdentity( formParams );
+            }
+        return Response.noContent( ).build( );
+    }
 
-            return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
-        }
-        catch( Exception exception )
+    /**
+     * certify identity attributes
+     * 
+     * @param formParams
+     * @return 200 ok : 204 no content
+     */
+    @POST
+    @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
+    public Response certifyIdentityAttributes( FormDataMultiPart formParams )
+    {
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            return getErrorResponse( exception );
+            return _identityStoreRestServiceV1.certifyIdentityAttributes( formParams );
         }
+        else
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.updateIdentity( formParams );
+            }
+        return Response.noContent( ).build( );
     }
 
     /**
@@ -190,18 +179,16 @@ public final class IdentityStoreRestService
     @Consumes( MediaType.MULTIPART_FORM_DATA )
     public Response createIdentity( FormDataMultiPart formParams )
     {
-        try
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
-            Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
-            IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeDto, mapAttachedFiles, _objectMapper );
-
-            return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
+            return _identityStoreRestServiceV1.createIdentity( formParams );
         }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        else
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.createIdentity( formParams );
+            }
+        return Response.noContent( ).build( );
     }
 
     /**
@@ -210,9 +197,9 @@ public final class IdentityStoreRestService
      * @param strConnectionId
      *            the connection ID
      * @param strHeaderClientAppCode
-     *            the client code from header
+     *            the client code
      * @param strQueryClientAppCode
-     *            the client code from query
+     *            the client code in query
      * @return a OK message if the deletion has been performed, a KO message otherwise
      */
     @DELETE
@@ -220,20 +207,16 @@ public final class IdentityStoreRestService
     public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
             @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
-        String strClientAppCode = strHeaderClientAppCode;
-        if ( StringUtils.isEmpty( strClientAppCode ) )
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            strClientAppCode = strQueryClientAppCode;
+            return _identityStoreRestServiceV1.deleteIdentity( strConnectionId, strHeaderClientAppCode, strQueryClientAppCode );
         }
-        try
-        {
-            IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strConnectionId, strClientAppCode );
-            return buildResponse( identityStoreRequest.doRequest( ), Status.OK );
-        }
-        catch( Exception e )
-        {
-            return getErrorResponse( e );
-        }
+        else
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.deleteIdentity( strConnectionId, strHeaderClientAppCode, strQueryClientAppCode );
+            }
+        return Response.noContent( ).build( );
     }
 
     /**
@@ -242,9 +225,9 @@ public final class IdentityStoreRestService
      * @param strConnectionId
      *            connectionId (must not be empty)
      * @param strHeaderClientAppCode
-     *            the client code from header
+     *            client application code (must not be empty)
      * @param strQueryClientAppCode
-     *            the client code from query
+     *            client application code in query
      * @param strAttributeKey
      *            attribute key containing file (must not be empty)
      * @return http 200 Response containing requested file, http 400 otherwise
@@ -255,28 +238,16 @@ public final class IdentityStoreRestService
             @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode,
             @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey )
     {
-        String strClientAppCode = strHeaderClientAppCode;
-        if ( StringUtils.isEmpty( strClientAppCode ) )
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            strClientAppCode = strQueryClientAppCode;
+            return _identityStoreRestServiceV1.downloadFileAttribute( strConnectionId, strHeaderClientAppCode, strQueryClientAppCode, strAttributeKey );
         }
-        File file = null;
-
-        try
-        {
-            IdentityRequestValidator.instance( ).checkDownloadFileAttributeParams( strConnectionId, strClientAppCode, strAttributeKey );
-            file = getFileAttribute( strConnectionId, strClientAppCode, strAttributeKey );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
-
-        ResponseBuilder response = Response.ok( (Object) PhysicalFileHome.findByPrimaryKey( file.getPhysicalFile( ).getIdPhysicalFile( ) ).getValue( ) );
-        response.header( "Content-Disposition", "attachment; filename=" + file.getTitle( ) );
-        response.header( "Content-Type", file.getMimeType( ) );
-
-        return response.build( );
+        else
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.downloadFileAttribute( strConnectionId, strHeaderClientAppCode, strQueryClientAppCode, strAttributeKey );
+            }
+        return Response.noContent( ).build( );
     }
 
     /**
@@ -291,197 +262,15 @@ public final class IdentityStoreRestService
     @Produces( MediaType.APPLICATION_JSON )
     public Response getApplicationRights( @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientAppCode )
     {
-        try
+        if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            IdentityStoreAppRightsRequest identityStoreAppRightsRequest = new IdentityStoreAppRightsRequest( strClientAppCode, _objectMapper );
-
-            return Response.ok( identityStoreAppRightsRequest.doRequest( ) ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
-    }
-
-    /**
-     * Fetches the object {@link IdentityChangeDto} from multi-part data
-     *
-     * @param formParams
-     *            the mutli-part data
-     * @return the IdentityChangeDto
-     * @throws IOException
-     *             if an error occurs during the treatment
-     */
-    private IdentityChangeDto fetchIdentityChange( FormDataMultiPart formParams ) throws IOException
-    {
-        IdentityChangeDto identityChangeDto = null;
-        String strBody = StringUtils.EMPTY;
-
-        for ( BodyPart part : formParams.getBodyParts( ) )
-        {
-            InputStream inputStream = part.getEntityAs( InputStream.class );
-            ContentDisposition contentDispo = part.getContentDisposition( );
-
-            if ( StringUtils.isBlank( contentDispo.getFileName( ) ) && part.getMediaType( ).isCompatible( MediaType.TEXT_PLAIN_TYPE )
-                    && Constants.PARAM_IDENTITY_CHANGE.equals( contentDispo.getParameters( ).get( Constants.PARAMETER_NAME ) ) )
-            {
-                // content-body of request
-                strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
-
-                if ( JSONUtils.mayBeJSON( strBody ) )
-                {
-                    identityChangeDto = getIdentityChangeFromJson( strBody );
-                }
-                else
-                {
-                    throw new AppException( "Error parsing json request " + strBody );
-                }
-            }
-        }
-
-        return identityChangeDto;
-    }
-
-    /**
-     * Fetches the attached files from the specified multi-part data
-     *
-     * @param formParams
-     *            the multi-part data
-     * @return the attached files
-     * @throws IOException
-     *             if an error occurs during the treatment
-     */
-    private Map<String, File> fetchAttachedFiles( FormDataMultiPart formParams ) throws IOException
-    {
-        Map<String, File> mapAttachedFiles = new HashMap<String, File>( );
-
-        for ( BodyPart part : formParams.getBodyParts( ) )
-        {
-            InputStream inputStream = part.getEntityAs( InputStream.class );
-            ContentDisposition contentDispo = part.getContentDisposition( );
-
-            if ( StringUtils.isNotBlank( contentDispo.getFileName( ) ) )
-            {
-                // attachment file
-                PhysicalFile physicalFile = new PhysicalFile( );
-                physicalFile.setValue( IOUtils.toByteArray( inputStream ) );
-
-                File file = new File( );
-                file.setPhysicalFile( physicalFile );
-                file.setMimeType( part.getMediaType( ).getType( ) + "/" + part.getMediaType( ).getSubtype( ) );
-                file.setSize( physicalFile.getValue( ).length );
-                file.setTitle( contentDispo.getFileName( ) );
-                mapAttachedFiles.put( contentDispo.getFileName( ), file );
-            }
-        }
-
-        return mapAttachedFiles;
-    }
-
-    /**
-     * build error response from exception
-     *
-     * @param exception
-     *            the exception
-     * @return ResponseDto from exception
-     */
-    private Response getErrorResponse( Exception exception )
-    {
-        // For security purpose, send a generic message
-        String strMessage = null;
-        Status status = null;
-
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + exception, exception );
-
-        if ( exception instanceof IdentityNotFoundException )
-        {
-            strMessage = ERROR_NO_IDENTITY_FOUND;
-            status = Status.NOT_FOUND;
+            return Response.noContent( ).build( );
         }
         else
-        {
-            strMessage = ERROR_DURING_TREATMENT;
-            status = Status.BAD_REQUEST;
-        }
-
-        return buildResponse( strMessage, status );
+            if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
+            {
+                return _identityStoreRestServiceV2.getApplicationRights( strClientAppCode );
+            }
+        return Response.noContent( ).build( );
     }
-
-    /**
-     * Builds a {@code Response} object from the specified message and status
-     * 
-     * @param strMessage
-     *            the message
-     * @param status
-     *            the status
-     * @return the {@code Response} object
-     */
-    private Response buildResponse( String strMessage, Status status )
-    {
-        try
-        {
-            ResponseDto response = new ResponseDto( );
-            response.setStatus( status.toString( ) );
-            response.setMessage( strMessage );
-
-            return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( _objectMapper.writeValueAsString( response ) ).build( );
-        }
-        catch( JsonProcessingException jpe )
-        {
-            return Response.status( status ).type( MediaType.TEXT_PLAIN ).entity( strMessage ).build( );
-        }
-    }
-
-    /**
-     * @param strConnectionId
-     *            connectionId (must not be empty)
-     * @param strClientCode
-     *            client application code (must not be empty)
-     * @param strAttributeKey
-     *            attribute key containing file (must not be empty)
-     * @return File matching connectionId/attribute key if readable for client application code
-     * @throws AppException
-     *             thrown if input parameters are invalid or no file is found
-     */
-    private File getFileAttribute( String strConnectionId, String strClientCode, String strAttributeKey ) throws AppException
-    {
-        IdentityAttribute attribute = IdentityStoreService.getAttribute( strConnectionId, strAttributeKey, strClientCode );
-
-        if ( ( attribute == null ) || ( attribute.getFile( ) == null ) )
-        {
-            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + strAttributeKey + " attribute not found for " + Constants.PARAM_ID_CONNECTION + "="
-                    + strConnectionId + "  " + Constants.PARAM_CLIENT_CODE + "=" + strClientCode );
-        }
-
-        return attribute.getFile( );
-    }
-
-    /**
-     * returns IdentityChangeDto from jsonContent
-     *
-     * @param strJsonContent
-     *            json content of request
-     * @return IdentityChangeDto parsed identityDto
-     * @throws AppException
-     *             if request is not correct
-     * @throws IOException
-     *             if error occurs while parsing json
-     * @throws JsonMappingException
-     *             if error occurs while parsing json
-     * @throws JsonParseException
-     *             if error occurs while parsing json
-     *
-     */
-    private IdentityChangeDto getIdentityChangeFromJson( String strJsonContent ) throws AppException, JsonParseException, JsonMappingException, IOException
-    {
-        IdentityChangeDto identityChangeDto = _objectMapper.readValue( strJsonContent, IdentityChangeDto.class );
-
-        if ( ( identityChangeDto == null ) || ( identityChangeDto.getIdentity( ) == null ) )
-        {
-            throw new AppException( ERROR_NO_IDENTITY_TO_UPDATE );
-        }
-
-        return identityChangeDto;
-    }
-
 }

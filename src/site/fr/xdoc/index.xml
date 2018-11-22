@@ -22,6 +22,21 @@
                     Les applications clientes sont aussi dénommées <b>Fournisseurs de Service (FS)</b>.
                 </p>
             </subsection>
+            <subsection name="Particularitées du à la migration">
+                <p>
+                   Le plugin peut-être appelé de différentes façon, en fonction du numéro de version qui est passer dans l'url.
+                   Les fournisseurs appelant sans numéro de version dans une url du type :
+                   <code>/identity/rest/identitystore/identity</code>. C'est la configuration de la version dans le fichier de propriété qui va définir de quel type l'objet sera retourné ( version 1 ou 2 ).
+                </p>
+                <p>
+                   Appel d'un fournisseur vers la version 1 du plugin : 
+                   <code>/identity/rest/identitystore/v1/identity</code>
+                </p>
+                <p>
+                   Appel d'un fournisseur vers la version 2 du plugin : 
+                   <code>/identity/rest/identitystore/v2/identity</code>
+                </p>
+            </subsection>
             <subsection name="Diversification des identifiants">
                 <p>
                     Le plugin peut utiliser des identités ayant des identifiants cryptés de . 

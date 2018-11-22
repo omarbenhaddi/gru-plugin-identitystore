@@ -34,6 +34,8 @@
 package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 
 public class MockAttributeDto
 {

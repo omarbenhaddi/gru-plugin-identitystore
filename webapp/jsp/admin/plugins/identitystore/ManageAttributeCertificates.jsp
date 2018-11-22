@@ -1,4 +1,4 @@
-<jsp:useBean id="adminidentitiesAttributeCertificate" scope="session" class="fr.paris.lutece.plugins.identitystore.web.AttributeCertificateJspBean" />
+<jsp:useBean id="adminidentitiesAttributeCertificate" scope="session" class="fr.paris.lutece.plugins.identitystore.v2.web.AttributeCertificateJspBean" />
 <% String strContent = adminidentitiesAttributeCertificate.processController ( request , response ); %>
 
 <%@ page errorPage="../../ErrorPage.jsp" %>

@@ -35,8 +35,9 @@ package fr.paris.lutece.plugins.identitystore.service.encryption;
 
 import java.util.List;
 
-import fr.paris.lutece.plugins.identitystore.business.IClientApplication;
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v2.business.IClientApplication;
+import fr.paris.lutece.plugins.identitystore.v2.service.encryption.IIdentityEncryptionService;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 /**

@@ -35,6 +35,8 @@ package fr.paris.lutece.plugins.identitystore.business;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import fr.paris.lutece.plugins.identitystore.v2.business.IClientApplication;
+
 import java.io.Serializable;
 
 import javax.validation.constraints.Size;

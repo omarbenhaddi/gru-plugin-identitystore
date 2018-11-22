@@ -47,7 +47,7 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
-import fr.paris.lutece.plugins.identitystore.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v2.web.service.AuthorType;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -77,6 +77,10 @@ import javax.servlet.http.HttpServletRequest;
 @Controller( controllerJsp = "ManageIdentities.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class IdentityJspBean extends ManageIdentitiesJspBean
 {
+    /**
+	 * 
+	 */
+    private static final long serialVersionUID = 6053504380426222888L;
     // Templates
     private static final String TEMPLATE_MANAGE_IDENTITIES = "/admin/plugins/identitystore/manage_identities.html";
     private static final String TEMPLATE_CREATE_IDENTITY = "/admin/plugins/identitystore/create_identity.html";

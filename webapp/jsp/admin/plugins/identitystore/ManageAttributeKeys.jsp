@@ -1,4 +1,4 @@
-<jsp:useBean id="adminidentitiesAttributeKey" scope="session" class="fr.paris.lutece.plugins.identitystore.web.AttributeKeyJspBean" />
+<jsp:useBean id="adminidentitiesAttributeKey" scope="session" class="fr.paris.lutece.plugins.identitystore.v2.web.AttributeKeyJspBean" />
 <% String strContent = adminidentitiesAttributeKey.processController ( request , response ); %>
 
 <%@ page errorPage="../../ErrorPage.jsp" %>

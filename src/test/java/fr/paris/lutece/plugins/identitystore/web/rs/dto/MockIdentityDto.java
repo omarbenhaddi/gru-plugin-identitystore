@@ -36,8 +36,10 @@ package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.util.IdGenerator;
+import fr.paris.lutece.plugins.identitystore.business.Identity;
 
 public class MockIdentityDto
 {
@@ -57,6 +59,30 @@ public class MockIdentityDto
     {
         IdentityDto identityDto = new IdentityDto( );
         Map<String, AttributeDto> mapAttributes = new HashMap<>( );
+
+        identityDto.setCustomerId( identity.getCustomerId( ) );
+        identityDto.setConnectionId( identity.getConnectionId( ) );
+        identityDto.setAttributes( mapAttributes );
+
+        return identityDto;
+    }
+
+    public static fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto createV1( )
+    {
+        fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto identityDto = new fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto( );
+        Map<String, fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto> mapAttributes = new HashMap<>( );
+
+        identityDto.setCustomerId( Integer.toString( IdGenerator.generateId( ) ) );
+        identityDto.setConnectionId( Integer.toString( IdGenerator.generateId( ) ) );
+        identityDto.setAttributes( mapAttributes );
+
+        return identityDto;
+    }
+
+    public static fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto createIdentityV1( Identity identity )
+    {
+        fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto identityDto = new fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto( );
+        Map<String, fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto> mapAttributes = new HashMap<>( );
 
         identityDto.setCustomerId( identity.getCustomerId( ) );
         identityDto.setConnectionId( identity.getConnectionId( ) );

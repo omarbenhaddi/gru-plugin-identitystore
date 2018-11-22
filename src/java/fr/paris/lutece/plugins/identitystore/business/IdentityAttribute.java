@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import fr.paris.lutece.plugins.identitystore.web.rs.dto.AttributeStatusDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.portal.business.file.File;
 
 import org.hibernate.validator.constraints.NotEmpty;
