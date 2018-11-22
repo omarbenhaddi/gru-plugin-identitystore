@@ -94,7 +94,7 @@ public class IdentityBusinessTest extends LuteceTestCase
         IdentityHome.getCustomerIdsList( );
 
         // Delete test
-        IdentityHome.remove( identity.getId( ) );
+        IdentityHome.softRemove( identity.getId( ) );
         identityStored = IdentityHome.findByPrimaryKey( identity.getId( ) );
         assertNull( identityStored );
     }

@@ -57,6 +57,13 @@
                     Le plugin expose des méthodes web pour gérer les identités. Consulter la page <em>/jsp/site/Portal.jsp?page=swaggerui</em> pour plus d'informations à propos de ces méthodes.
                 </p>
             </subsection>
+            <subsection name="deletion of the identity">
+                <p>
+                    La suppression d'une identité à partir du web services ne le supprime pas vraiment mais le taggue comme supprimé.
+                    Le mise à jour ou la récupération d'une identité supprimée à partir du web services renvoit dans les logs une exception pour vous informer que l'identité est dejà suprrimé.
+                    La suppression d'une identité depuis l'IHM supprime complètement l'identité en BDD. 
+                </p>
+            </subsection>
         </section>
     </body>
 </document>

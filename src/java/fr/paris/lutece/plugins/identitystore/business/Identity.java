@@ -58,6 +58,7 @@ public class Identity implements Serializable
     @Size( max = 50, message = "#i18n{identitystore.validation.identity.CustomerId.size}" )
     private String _strCustomerId;
     private Map<String, IdentityAttribute> _mapAttributes = new HashMap<String, IdentityAttribute>( );
+    private boolean _bIsDeleted;
 
     /**
      * Returns the Id
@@ -173,5 +174,25 @@ public class Identity implements Serializable
         }
 
         return strFirstName;
+    }
+
+    /**
+     * 
+     * @return the _bIsDeleted
+     */
+    public boolean isDeleted( )
+    {
+        return _bIsDeleted;
+    }
+
+    /**
+     * set true if all the attibutes of identity are deleted
+     * 
+     * @param bIsDeleted
+     *            if identity removed (softDelete)
+     */
+    public void setDeleted( boolean bIsDeleted )
+    {
+        _bIsDeleted = bIsDeleted;
     }
 }

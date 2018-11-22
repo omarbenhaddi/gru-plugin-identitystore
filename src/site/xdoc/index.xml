@@ -45,6 +45,13 @@
                     The plugins exposes web methods to manage identities. Check <em>/jsp/site/Portal.jsp?page=swaggerui</em> page for more details about these methods.
                 </p>
             </subsection>
+             <subsection name="Deletion of the identity">
+                <p>
+                The deletion of an identity from the web service does not really delete it but tag it like deleted.
+                Updating or retrieving a deleted identity from the web service will return an exception to the logs to inform you that the identity is already removed.
+                Deleting an identity from the GUI completely deletes the identity in BDD.
+                </p>
+            </subsection>
         </section>
     </body>
 </document>

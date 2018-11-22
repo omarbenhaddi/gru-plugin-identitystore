@@ -19,6 +19,8 @@ id_identity int(11) NOT NULL,
 connection_id varchar(100) NULL UNIQUE,
 customer_id varchar (50) NULL UNIQUE,
 date_create timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+is_deleted SMALLINT default 0,
+date_delete timestamp NULL ,
 PRIMARY KEY (id_identity),
 INDEX (connection_id),
 INDEX (customer_id)

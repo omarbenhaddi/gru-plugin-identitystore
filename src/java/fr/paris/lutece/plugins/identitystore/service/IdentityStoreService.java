@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityDeletedException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.DtoConverter;
@@ -160,6 +161,14 @@ public final class IdentityStoreService
             {
                 throw new IdentityNotFoundException( "No identity found for " + Constants.PARAM_ID_CUSTOMER + "(" + strCustomerId + ")" );
             }
+            if ( identity.isDeleted( ) )
+            {
+                String strMessage = "identity is already deleted";
+                StringBuilder stringBuilder = new StringBuilder( strMessage );
+                stringBuilder.append( " customer id = " ).append( strCustomerId );
+                AppLogService.error( stringBuilder.toString( ) );
+                throw new IdentityDeletedException( strMessage );
+            }
         }
         else
         {
@@ -174,6 +183,7 @@ public final class IdentityStoreService
                     identity = completeIdentity( identity, identityChangeDto, mapAttachedFiles, clientApplication.getCode( ),
                             clientApplication.getIsAuthorizedDeleteValue( ) );
                 }
+
             }
             else
             {
@@ -268,9 +278,16 @@ public final class IdentityStoreService
             String strMessage = "No identity found for the provided connection id and customer id";
             StringBuilder sb = new StringBuilder( strMessage );
             sb.append( " : connection id = " ).append( strConnectionId ).append( " AND customer id = " ).append( strCustomerId ).append( ")" );
-
             AppLogService.error( sb.toString( ) );
             throw new IdentityNotFoundException( strMessage );
+        }
+        if ( identity.isDeleted( ) )
+        {
+            String strMessage = "identity is already deleted";
+            StringBuilder stringBuilder = new StringBuilder( strMessage );
+            stringBuilder.append( " customer id = " ).append( strCustomerId );
+            AppLogService.error( stringBuilder.toString( ) );
+            throw new IdentityDeletedException( strMessage );
         }
 
         return identity;
@@ -573,7 +590,6 @@ public final class IdentityStoreService
         else
         {
             IdentityHome.removeByConnectionId( strConnectionIdDecrypted );
-
             IdentityChange identityChange = new IdentityChange( );
             identityChange.setIdentity( identity );
             identityChange.setChangeType( IdentityChangeType.valueOf( IdentityChangeType.DELETE.getValue( ) ) );

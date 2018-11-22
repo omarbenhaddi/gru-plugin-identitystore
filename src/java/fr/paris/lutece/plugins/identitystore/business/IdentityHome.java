@@ -98,7 +98,7 @@ public final class IdentityHome
 
         if ( nIdentityId >= 0 )
         {
-            remove( nIdentityId );
+            softRemove( nIdentityId );
         }
 
         return nIdentityId;
@@ -110,10 +110,16 @@ public final class IdentityHome
      * @param nIdentityId
      *            The identity Id
      */
-    public static void remove( int nIdentityId )
+    public static void hardRemove( int nIdentityId )
     {
         IdentityAttributeHome.removeAllAttributes( nIdentityId );
-        _dao.delete( nIdentityId, _plugin );
+        _dao.hardDelete( nIdentityId, _plugin );
+    }
+
+    public static void softRemove( int nIdentityId )
+    {
+        IdentityAttributeHome.removeAllAttributes( nIdentityId );
+        _dao.softDelete( nIdentityId, _plugin );
     }
 
     /**
