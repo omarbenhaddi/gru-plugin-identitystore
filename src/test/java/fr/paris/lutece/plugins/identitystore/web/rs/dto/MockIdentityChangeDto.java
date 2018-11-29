@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.web.rs.dto;
 
 import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.v1.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 
@@ -47,16 +46,5 @@ public class MockIdentityChangeDto
         identityChangeDto.setIdentity( identityDto );
 
         return identityChangeDto;
-    }
-
-    public static fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityChangeDto createIdentityChangeDtoV1For(
-            fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto identityDto )
-    {
-        IdentityChangeDto identityChangeDto = IdentityStoreService.buildIdentityChange( IdentityStoreTestContext.SAMPLE_APPCODE );
-        fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityChangeDto identityChangeDtoOldVersion = DtoConverter
-                .convertToIdentityChangeDtoOldVersion( identityChangeDto );
-        identityChangeDtoOldVersion.setIdentity( identityDto );
-
-        return identityChangeDtoOldVersion;
     }
 }

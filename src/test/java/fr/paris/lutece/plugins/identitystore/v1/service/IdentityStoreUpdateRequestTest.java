@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.v1.web.request.IdentityStoreUpdateRequest;
+import fr.paris.lutece.plugins.identitystore.v1.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityChangeDto;
@@ -25,7 +25,7 @@ import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.test.LuteceTestCase;
 
-public class IdentityStoreUpdateRequestTestV1 extends LuteceTestCase
+public class IdentityStoreUpdateRequestTest extends LuteceTestCase
 {
     private static final String APPLICATION_CODE = "MyApplication";
     private ObjectMapper _objectMapper;
@@ -47,8 +47,6 @@ public class IdentityStoreUpdateRequestTestV1 extends LuteceTestCase
     {
         super.setUp( );
 
-        IdentityStoreTestContext.initContext( );
-
         _objectMapper = new ObjectMapper( );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
         _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
@@ -59,12 +57,14 @@ public class IdentityStoreUpdateRequestTestV1 extends LuteceTestCase
     public void testUpdateIdentity( ) throws JsonParseException, JsonMappingException, AppException, IOException
     {
         Identity identityReference = createIdentityInDatabase( );
-        IdentityDto identityDto = MockIdentityDto.createIdentityV1( identityReference );
-        IdentityChangeDto identityChangeDto = MockIdentityChangeDto.createIdentityChangeDtoV1For( identityDto );
+        fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto identityDto = MockIdentityDto.create( identityReference );
+        fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto identityChangeDto = MockIdentityChangeDto
+                .createIdentityChangeDtoFor( identityDto );
+        IdentityChangeDto identityChangeDtoOldVersion = DtoConverter.convertToIdentityChangeDtoOldVersion( identityChangeDto );
         AuthorDto authorDto = new AuthorDto( );
         authorDto.setApplicationCode( APPLICATION_CODE );
         authorDto.setType( 2 );
-        identityChangeDto.setAuthor( authorDto );
+        identityChangeDtoOldVersion.setAuthor( authorDto );
         Map<String, AttributeDto> mapAttributes = new HashMap<String, AttributeDto>( );
         AttributeDto attribute1 = new AttributeDto( );
         attribute1.setKey( PARAMETER_FAMILY_NAME );
@@ -80,12 +80,11 @@ public class IdentityStoreUpdateRequestTestV1 extends LuteceTestCase
         attribute2.setCertificate( null );
         attribute2.setCertified( false );
         mapAttributes.put( PARAMETER_FIRST_NAME, attribute2 );
-        identityChangeDto.getIdentity( ).setAttributes( mapAttributes );
+        identityChangeDtoOldVersion.getIdentity( ).setAttributes( mapAttributes );
 
-        IdentityStoreUpdateRequest identityUpdate = new IdentityStoreUpdateRequest( identityChangeDto, new HashMap<String, File>( ), _objectMapper );
+        IdentityStoreUpdateRequest identityUpdate = new IdentityStoreUpdateRequest( identityChangeDtoOldVersion, new HashMap<String, File>( ), _objectMapper );
 
-        IdentityDto identityDtoUpdated;
-        identityDtoUpdated = _objectMapper.readValue( identityUpdate.doRequest( ), IdentityDto.class );
+        IdentityDto identityDtoUpdated = _objectMapper.readValue( identityUpdate.doRequest( ), IdentityDto.class );
         assertNotNull( identityDtoUpdated );
         // check if parameters are updated
         Map<String, AttributeDto> mapAttributesUpdated = identityDtoUpdated.getAttributes( );

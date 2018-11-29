@@ -71,7 +71,7 @@ public final class IdentityStoreRestService
     /**
      * private constructor
      */
-    private IdentityStoreRestService( )
+    public IdentityStoreRestService( )
     {
         _objectMapper = new ObjectMapper( );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );

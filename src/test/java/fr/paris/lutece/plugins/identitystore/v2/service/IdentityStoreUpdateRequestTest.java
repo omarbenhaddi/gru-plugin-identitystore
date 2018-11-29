@@ -45,8 +45,6 @@ public class IdentityStoreUpdateRequestTest extends LuteceTestCase
     {
         super.setUp( );
 
-        // IdentityStoreTestContext.initContext( );
-
         _objectMapper = new ObjectMapper( );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
         _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );

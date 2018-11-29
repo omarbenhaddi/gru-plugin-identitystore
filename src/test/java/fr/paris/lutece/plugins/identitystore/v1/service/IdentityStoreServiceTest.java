@@ -33,20 +33,19 @@
  */
 package fr.paris.lutece.plugins.identitystore.v1.service;
 
-import fr.paris.lutece.plugins.identitystore.IdentityStoreTestContext;
-import fr.paris.lutece.test.LuteceTestCase;
-
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import fr.paris.lutece.test.LuteceTestCase;
+
 /**
  *
  * @author levy
  */
-public class IdentityStoreServiceTestV1 extends LuteceTestCase
+public class IdentityStoreServiceTest extends LuteceTestCase
 {
     private ObjectMapper _objectMapper;
 
@@ -54,8 +53,6 @@ public class IdentityStoreServiceTestV1 extends LuteceTestCase
     protected void setUp( ) throws Exception
     {
         super.setUp( );
-
-        IdentityStoreTestContext.initContext( );
 
         _objectMapper = new ObjectMapper( );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );

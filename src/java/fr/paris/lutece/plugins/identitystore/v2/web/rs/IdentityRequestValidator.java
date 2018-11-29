@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.v2.web.rs;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
