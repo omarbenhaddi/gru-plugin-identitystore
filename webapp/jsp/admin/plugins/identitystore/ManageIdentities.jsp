@@ -1,4 +1,4 @@
-<jsp:useBean id="manageidentitiesIdentity" scope="session" class="fr.paris.lutece.plugins.identitystore.v2.web.IdentityJspBean" />
+<jsp:useBean id="manageidentitiesIdentity" scope="session" class="fr.paris.lutece.plugins.identitystore.web.IdentityJspBean" />
 <% String strContent = manageidentitiesIdentity.processController ( request , response ); %>
 
 <%@ page errorPage="../../ErrorPage.jsp" %>
