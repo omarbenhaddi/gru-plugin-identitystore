@@ -44,6 +44,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -60,6 +63,8 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 @Path( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.IDENTITY_PATH )
 public final class IdentityStoreRestService
 {
+    private static Logger _logger = Logger.getLogger( IdentityStoreRestService.class );
+
     private static final String SLASH = "/";
     private final ObjectMapper _objectMapper;
     private final String _version;
@@ -111,6 +116,8 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.getIdentity( strConnectionId, strCustomerId, strHeaderClientAppCode, strQueryClientAppCode );
             }
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.getIdentity : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 
@@ -135,6 +142,9 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.updateIdentity( formParams );
             }
+
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.updateIdentity : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 
@@ -157,6 +167,8 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.updateIdentity( formParams );
             }
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.certifyIdentityAttributes : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 
@@ -188,6 +200,8 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.createIdentity( formParams );
             }
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.createIdentity : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 
@@ -216,6 +230,8 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.deleteIdentity( strConnectionId, strHeaderClientAppCode, strQueryClientAppCode );
             }
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.deleteIdentity : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 
@@ -247,6 +263,8 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.downloadFileAttribute( strConnectionId, strHeaderClientAppCode, strQueryClientAppCode, strAttributeKey );
             }
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.downloadFileAttribute : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 
@@ -271,6 +289,8 @@ public final class IdentityStoreRestService
             {
                 return _identityStoreRestServiceV2.getApplicationRights( strClientAppCode );
             }
+        String strError = "IdentityStoreRestService - Error IdentityStoreRestService.getApplicationRights : No default version found, please check configuration ";
+        _logger.error( strError );
         return Response.noContent( ).build( );
     }
 }
