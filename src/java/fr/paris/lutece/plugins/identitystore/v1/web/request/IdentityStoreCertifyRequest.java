@@ -41,7 +41,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
@@ -66,7 +65,7 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
      * @param objectMapper
      *            for json transformation
      */
-    public IdentityStoreCertifyRequest( IdentityChangeDto identityChangeDto, AbstractCertifier certifier, ObjectMapper objectMapper )
+    public IdentityStoreCertifyRequest( IdentityChangeDto identityChangeDto, ObjectMapper objectMapper )
     {
         super( );
         this._identityChangeDto = identityChangeDto;

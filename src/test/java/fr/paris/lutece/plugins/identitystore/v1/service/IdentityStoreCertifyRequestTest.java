@@ -48,7 +48,7 @@ public class IdentityStoreCertifyRequestTest extends LuteceTestCase
     protected void setUp( ) throws Exception
     {
         super.setUp( );
-
+        IdentityStoreTestContext.initContext( );
         _objectMapper = new ObjectMapper( );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
         _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
@@ -82,7 +82,7 @@ public class IdentityStoreCertifyRequestTest extends LuteceTestCase
         attribute1.setKey( IdentityStoreTestContext.ATTRKEY_3 );
         attribute1.setType( STRING );
         attribute1.setValue( VALUE_PREFERED_NAME_CERITIFIED );
-        attribute1.setCertificate( certificateDtoOldVersion );
+        attribute1.setCertificate( null );
         attribute1.setCertified( true );
         mapAttributes.put( IdentityStoreTestContext.ATTRKEY_3, attribute1 );
         AttributeDto attribute2 = new AttributeDto( );
@@ -94,8 +94,8 @@ public class IdentityStoreCertifyRequestTest extends LuteceTestCase
         mapAttributes.put( PARAMETER_FIRST_NAME, attribute2 );
         identityChangeDtoOldVersion.getIdentity( ).setAttributes( mapAttributes );
 
-        IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest(
-                DtoConverter.convertToIdentityChangeDtoNewVersion( identityChangeDtoOldVersion ), certif1, _objectMapper );
+        IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest( DtoConverter.convertToIdentityChangeDtoNewVersionWithCertificate(
+                identityChangeDtoOldVersion, certif1 ), _objectMapper );
 
         IdentityDto identityDtoCertified = _objectMapper.readValue( identityStoreRequest.doRequest( ), IdentityDto.class );
         assertNotNull( identityDtoCertified );

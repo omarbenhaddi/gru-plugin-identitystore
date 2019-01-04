@@ -55,6 +55,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -493,6 +494,40 @@ public final class DtoConverter
         {
             return null;
         }
+    }
+
+    /**
+     * Convert an IdentityChangeDto from V1 version to V2 version
+     * 
+     * @param identityChangeDtoOldVersion
+     * @param certifier
+     *            the certifier
+     * @return identityChangeDto from package v2
+     */
+    public static IdentityChangeDto convertToIdentityChangeDtoNewVersionWithCertificate(
+            fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityChangeDto identityChangeDtoOldVersion, AbstractCertifier certifier )
+    {
+        IdentityChangeDto identityChangeDto = convertToIdentityChangeDtoNewVersion( identityChangeDtoOldVersion );
+
+        CertificateDto certificateDto = new CertificateDto( );
+
+        if ( certifier.getExpirationDelay( ) != AbstractCertifier.NO_CERTIFICATE_EXPIRATION_DELAY )
+        {
+            Calendar calendar = Calendar.getInstance( );
+            calendar.setTime( new Date( ) );
+            calendar.add( Calendar.DATE, certifier.getExpirationDelay( ) );
+            certificateDto.setCertificateExpirationDate( new Timestamp( calendar.getTime( ).getTime( ) ) );
+        }
+
+        certificateDto.setCertifierCode( certifier.getCode( ) );
+        certificateDto.setCertifierLevel( certifier.getCertificateLevel( ) );
+        certificateDto.setCertifierName( certifier.getName( ) );
+
+        if ( identityChangeDto != null )
+        {
+            identityChangeDto.getIdentity( ).getAttributes( ).entrySet( ).forEach( attribute -> attribute.getValue( ).setCertificate( certificateDto ) );
+        }
+        return identityChangeDto;
     }
 
     /**

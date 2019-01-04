@@ -174,6 +174,12 @@ public final class IdentityStoreRestService
         }
     }
 
+    /**
+     * Certify identity attributes with formParams
+     * 
+     * @param formParams
+     * @return response
+     */
     @POST
     @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
     public Response certifyIdentityAttributes( FormDataMultiPart formParams )
@@ -185,7 +191,7 @@ public final class IdentityStoreRestService
             AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
 
             IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest(
-                    DtoConverter.convertToIdentityChangeDtoNewVersion( identityChangeDto ), certifier, _objectMapper );
+                    DtoConverter.convertToIdentityChangeDtoNewVersionWithCertificate( identityChangeDto, certifier ), _objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
         }
