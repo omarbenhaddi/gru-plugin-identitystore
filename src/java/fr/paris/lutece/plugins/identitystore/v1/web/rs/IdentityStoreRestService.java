@@ -108,7 +108,7 @@ public final class IdentityStoreRestService
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
         _objectMapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
         _objectMapper.enable( DeserializationFeature.UNWRAP_ROOT_VALUE );
-        _objectMapper.enable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+        _objectMapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
     }
 
     /**
