@@ -62,6 +62,8 @@ public class IdentityStoreUpdateRequest extends IdentityStoreRequest
      * 
      * @param identityChangeDto
      *            the dto of identity's change
+     * @param mapAttachedFiles
+     *            the map of attached files
      * @param objectMapper
      *            for json transformation
      */

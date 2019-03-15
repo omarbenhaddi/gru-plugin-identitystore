@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.business.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.business.IdentityConstants;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
@@ -69,6 +70,9 @@ import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.util.jwt.service.JWTUtil;
+import fr.paris.lutece.plugins.identitystore.business.security.SecureMode;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -633,6 +637,77 @@ public final class IdentityStoreService
             }
         }
         return appRightsDto;
+    }
+
+    /**
+     * Get the application code to use
+     * 
+     * @param strHeaderClientAppCode
+     *            The application code in HTTP request header
+     * @param strParamAppCode
+     *            The application code provided by the client
+     * @return The application code to use
+     */
+    public static String getTrustedApplicationCode( String strHeaderClientAppCode, String strParamAppCode )
+    {
+        // Secure mode
+        switch( getSecureMode( ) )
+        {
+            case JWT:
+            {
+                if ( !StringUtils.isEmpty( strHeaderClientAppCode ) )
+                {
+                    String strJwtClaimAppCode = AppPropertiesService.getProperty( IdentityConstants.PROPERTY_JWT_CLAIM_APP_CODE );
+                    return JWTUtil.getPayloadValue( strHeaderClientAppCode, strJwtClaimAppCode );
+                }
+                break;
+            }
+            case NONE:
+            {
+                if ( !StringUtils.isEmpty( strHeaderClientAppCode ) )
+                {
+                    return strHeaderClientAppCode;
+                }
+                else
+                {
+                    if ( !StringUtils.isEmpty( strParamAppCode ) )
+                    {
+                        return strParamAppCode;
+                    }
+                }
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    /**
+     * Get the application code to use
+     * 
+     * @param strHeaderClientAppCode
+     *            The application code in HTTP request header
+     * @param identityChange
+     *            The identity change
+     * @return The application code to use
+     */
+    public static String getTrustedApplicationCode( String strHeaderClientAppCode, IdentityChangeDto identityChange )
+    {
+        return getTrustedApplicationCode( strHeaderClientAppCode, identityChange.getAuthor( ).getApplicationCode( ) );
+    }
+
+    /**
+     * Get the secure Mode of the identitystore
+     * 
+     * @return the secure mode
+     */
+    public static SecureMode getSecureMode( )
+    {
+        switch( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_SECURE_MODE, StringUtils.EMPTY ) )
+        {
+            case "jwt":
+                return SecureMode.JWT;
+        }
+        return SecureMode.NONE;
+
     }
 
     /**

@@ -131,11 +131,7 @@ public final class IdentityStoreRestService
             @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
-        String strClientAppCode = strHeaderClientAppCode;
-        if ( StringUtils.isEmpty( strClientAppCode ) )
-        {
-            strClientAppCode = strQueryClientAppCode;
-        }
+        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
         try
         {
             IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strConnectionId, strCustomerId, strClientAppCode, _objectMapper );
@@ -153,17 +149,25 @@ public final class IdentityStoreRestService
      *
      * @param formParams
      *            form params, bodypars used for files upload
+     * @param strHeaderApplicationCode
+     *            The application code in HttpHeader
      * @return http 200 if update is ok with ResponseDto
      */
     @POST
     @Path( Constants.UPDATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response updateIdentity( FormDataMultiPart formParams )
+    public Response updateIdentity( FormDataMultiPart formParams, String strHeaderApplicationCode )
     {
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
             Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
+
+            // Use the trusted application code for identitystore update request processing
+            String strApplicationCode = IdentityStoreService.getTrustedApplicationCode( strHeaderApplicationCode, identityChangeDto.getAuthor( )
+                    .getApplicationCode( ) );
+            identityChangeDto.getAuthor( ).setApplicationCode( strApplicationCode );
+
             IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( identityChangeDto, mapAttachedFiles, _objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
@@ -178,17 +182,24 @@ public final class IdentityStoreRestService
      * Certify identity attributes with formParams
      * 
      * @param formParams
+     * @param strHeaderApplicationCode
+     *            The application code in HttpHeader
      * @return response
      */
     @POST
     @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
-    public Response certifyIdentityAttributes( FormDataMultiPart formParams )
+    public Response certifyIdentityAttributes( FormDataMultiPart formParams, String strHeaderApplicationCode )
     {
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
             String strCertifierCode = fetchCertifierCode( formParams );
             AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
+
+            // Use the trusted application code for identitystore update request processing
+            String strApplicationCode = IdentityStoreService.getTrustedApplicationCode( strHeaderApplicationCode, identityChangeDto.getAuthor( )
+                    .getApplicationCode( ) );
+            identityChangeDto.getAuthor( ).setApplicationCode( strApplicationCode );
 
             IdentityStoreCertifyRequest identityStoreRequest = new IdentityStoreCertifyRequest(
                     DtoConverter.convertToIdentityChangeDtoNewVersionWithCertificate( identityChangeDto, certifier ), _objectMapper );
@@ -203,7 +214,7 @@ public final class IdentityStoreRestService
 
     /**
      * Creates an identity <b>only if the identity does not already exist</b>.<br/>
-     * The identity is created from the provided attributes. <br/>
+     * The identity is created from the provided attributes.<br/>
      * <br/>
      * The order to test if the identity exists:
      * <ul>
@@ -213,17 +224,25 @@ public final class IdentityStoreRestService
      *
      * @param formParams
      *            form params, bodypars used for files upload
+     * @param strHeaderApplicationCode
+     *            The application code in HttpHeader
      * @return http 200 if update is ok with ResponseDto
      */
     @POST
     @Path( Constants.CREATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response createIdentity( FormDataMultiPart formParams )
+    public Response createIdentity( FormDataMultiPart formParams, String strHeaderApplicationCode )
     {
         try
         {
             IdentityChangeDto identityChangeDto = fetchIdentityChange( formParams );
             Map<String, File> mapAttachedFiles = fetchAttachedFiles( formParams );
+
+            // Use the trusted application code for identitystore update request processing
+            String strApplicationCode = IdentityStoreService.getTrustedApplicationCode( strHeaderApplicationCode, identityChangeDto.getAuthor( )
+                    .getApplicationCode( ) );
+            identityChangeDto.getAuthor( ).setApplicationCode( strApplicationCode );
+
             IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeDto, mapAttachedFiles, _objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ), MediaType.APPLICATION_JSON ).build( );
@@ -248,11 +267,7 @@ public final class IdentityStoreRestService
     public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
             @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
-        String strClientAppCode = strHeaderClientAppCode;
-        if ( StringUtils.isEmpty( strClientAppCode ) )
-        {
-            strClientAppCode = strQueryClientAppCode;
-        }
+        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
         try
         {
             IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strConnectionId, strClientAppCode );
@@ -281,11 +296,7 @@ public final class IdentityStoreRestService
             @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode,
             @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) String strAttributeKey )
     {
-        String strClientAppCode = strHeaderClientAppCode;
-        if ( StringUtils.isEmpty( strClientAppCode ) )
-        {
-            strClientAppCode = strQueryClientAppCode;
-        }
+        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
         File file = null;
 
         try

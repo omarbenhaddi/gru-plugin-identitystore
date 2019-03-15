@@ -55,6 +55,8 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 
 /**
  * REST service for channel resource
@@ -106,6 +108,7 @@ public final class IdentityStoreRestService
             @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
+
         if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
             return _identityStoreRestServiceV1.getIdentity( strConnectionId, strCustomerId, strHeaderClientAppCode, strQueryClientAppCode );
@@ -124,6 +127,8 @@ public final class IdentityStoreRestService
     /**
      * update identity method
      *
+     * @param strHeaderApplicationCode
+     *            The client app code in header
      * @param formParams
      *            form params, bodypars used for files upload
      * @return http 200 if update is ok with ResponseDto
@@ -131,16 +136,16 @@ public final class IdentityStoreRestService
     @POST
     @Path( Constants.UPDATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response updateIdentity( FormDataMultiPart formParams )
+    public Response updateIdentity( @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderApplicationCode, FormDataMultiPart formParams )
     {
         if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            return _identityStoreRestServiceV1.updateIdentity( formParams );
+            return _identityStoreRestServiceV1.updateIdentity( formParams, strHeaderApplicationCode );
         }
         else
             if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
             {
-                return _identityStoreRestServiceV2.updateIdentity( formParams );
+                return _identityStoreRestServiceV2.updateIdentity( formParams, strHeaderApplicationCode );
             }
 
         String strError = "IdentityStoreRestService - Error IdentityStoreRestService.updateIdentity : No default version found, please check configuration ";
@@ -151,21 +156,22 @@ public final class IdentityStoreRestService
     /**
      * certify identity attributes
      * 
+     * @param strHeaderApplicationCode
      * @param formParams
      * @return 200 ok : 204 no content
      */
     @POST
     @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
-    public Response certifyIdentityAttributes( FormDataMultiPart formParams )
+    public Response certifyIdentityAttributes( @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderApplicationCode, FormDataMultiPart formParams )
     {
         if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            return _identityStoreRestServiceV1.certifyIdentityAttributes( formParams );
+            return _identityStoreRestServiceV1.certifyIdentityAttributes( formParams, strHeaderApplicationCode );
         }
         else
             if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
             {
-                return _identityStoreRestServiceV2.updateIdentity( formParams );
+                return _identityStoreRestServiceV2.updateIdentity( formParams, strHeaderApplicationCode );
             }
         String strError = "IdentityStoreRestService - Error IdentityStoreRestService.certifyIdentityAttributes : No default version found, please check configuration ";
         _logger.error( strError );
@@ -174,7 +180,7 @@ public final class IdentityStoreRestService
 
     /**
      * Creates an identity <b>only if the identity does not already exist</b>.<br/>
-     * The identity is created from the provided attributes. <br/>
+     * The identity is created from the provided attributes.<br/>
      * <br/>
      * The order to test if the identity exists:
      * <ul>
@@ -182,6 +188,7 @@ public final class IdentityStoreRestService
      * <li>by using the provided connection id if present</li>
      * </ul>
      *
+     * @param strHeaderApplicationCode
      * @param formParams
      *            form params, bodypars used for files upload
      * @return http 200 if update is ok with ResponseDto
@@ -189,16 +196,16 @@ public final class IdentityStoreRestService
     @POST
     @Path( Constants.CREATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response createIdentity( FormDataMultiPart formParams )
+    public Response createIdentity( @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderApplicationCode, FormDataMultiPart formParams )
     {
         if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V1 ) )
         {
-            return _identityStoreRestServiceV1.createIdentity( formParams );
+            return _identityStoreRestServiceV1.createIdentity( formParams, strHeaderApplicationCode );
         }
         else
             if ( _version.equalsIgnoreCase( Constants.VERSION_PATH_V2 ) )
             {
-                return _identityStoreRestServiceV2.createIdentity( formParams );
+                return _identityStoreRestServiceV2.createIdentity( formParams, strHeaderApplicationCode );
             }
         String strError = "IdentityStoreRestService - Error IdentityStoreRestService.createIdentity : No default version found, please check configuration ";
         _logger.error( strError );
