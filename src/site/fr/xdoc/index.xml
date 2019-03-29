@@ -22,19 +22,16 @@
                     Les applications clientes sont aussi dénommées <b>Fournisseurs de Service (FS)</b>.
                 </p>
             </subsection>
-            <subsection name="Particularitées du à la migration">
+            <subsection name="API REST">
                 <p>
-                   Le plugin peut-être appelé de différentes façon, en fonction du numéro de version qui est passer dans l'url.
-                   Les fournisseurs appelant sans numéro de version dans une url du type :
-                   <code>/identity/rest/identitystore/identity</code>. C'est la configuration de la version dans le fichier de propriété qui va définir de quel type l'objet sera retourné ( version 1 ou 2 ).
+                   Le plugin fournit une API REST permettant de gérer les identités. Plusieurs versions de l'API peuvent être appelées :
+                   <ul>
+                        <li>Version 1 : l'URL à utiliser est <code>/identity/rest/identitystore/v1/identity</code>. Cette version utilise les objets des packages <code>fr.paris.lutece.plugins.identitystore.v1.*</code> de la <code>library-identitystore</code>.</li>
+                        <li>Version 2 : l'URL à utiliser est <code>/identity/rest/identitystore/v2/identity</code>. Cette version utilise les objets des packages <code>fr.paris.lutece.plugins.identitystore.v2.*</code> de la <code>library-identitystore</code>.</li>
+                   </ul>
                 </p>
                 <p>
-                   Appel d'un fournisseur vers la version 1 du plugin : 
-                   <code>/identity/rest/identitystore/v1/identity</code>
-                </p>
-                <p>
-                   Appel d'un fournisseur vers la version 2 du plugin : 
-                   <code>/identity/rest/identitystore/v2/identity</code>
+                    L'API peut être appelée sans version dans l'URL : <code>/identity/rest/identitystore/identity</code>. La version utilisée est alors celle configurée avec la clé <code>identitystore.version</code> du fichier de configuration <code>identitystore.properties</code>. <strong>Atention: </strong>Comme les differentes versions de l'API n'utilisent pas les mêmes objets, vérifier que la version configurée est la bonne.
                 </p>
             </subsection>
             <subsection name="Diversification des identifiants">
@@ -59,8 +56,10 @@
             </subsection>
             <subsection name="deletion of the identity">
                 <p>
-                    La suppression d'une identité à partir du web services ne le supprime pas vraiment mais le taggue comme supprimé.
-                    Le mise à jour ou la récupération d'une identité supprimée à partir du web services renvoit dans les logs une exception pour vous informer que l'identité est dejà suprrimé.
+                    La suppression d'une identité à partir du web service ne supprime pas l'identity mais la taggue comme 'supprimée'. Les attributs, eux, sont supprimés.
+                    La mise à jour ou la récupération d'une identité tagguée 'supprimée' à partir du web service renvoie une exception. 
+                </p>
+                <p>
                     La suppression d'une identité depuis l'IHM supprime complètement l'identité en BDD. 
                 </p>
             </subsection>
