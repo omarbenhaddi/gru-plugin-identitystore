@@ -102,7 +102,7 @@ public final class IdentityStoreRestService
     /**
      * private constructor
      */
-    private IdentityStoreRestService( )
+    public IdentityStoreRestService( )
     {
         _objectMapper = new ObjectMapper( );
         _objectMapper.enable( SerializationFeature.INDENT_OUTPUT );
@@ -156,7 +156,7 @@ public final class IdentityStoreRestService
     @POST
     @Path( Constants.UPDATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response updateIdentity( FormDataMultiPart formParams, String strHeaderApplicationCode )
+    public Response updateIdentity( FormDataMultiPart formParams, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderApplicationCode )
     {
         try
         {
@@ -188,7 +188,7 @@ public final class IdentityStoreRestService
      */
     @POST
     @Path( Constants.CERTIFY_ATTRIBUTES_PATH )
-    public Response certifyIdentityAttributes( FormDataMultiPart formParams, String strHeaderApplicationCode )
+    public Response certifyIdentityAttributes( FormDataMultiPart formParams, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderApplicationCode )
     {
         try
         {
@@ -231,7 +231,7 @@ public final class IdentityStoreRestService
     @POST
     @Path( Constants.CREATE_IDENTITY_PATH )
     @Consumes( MediaType.MULTIPART_FORM_DATA )
-    public Response createIdentity( FormDataMultiPart formParams, String strHeaderApplicationCode )
+    public Response createIdentity( FormDataMultiPart formParams, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderApplicationCode )
     {
         try
         {
