@@ -48,10 +48,10 @@ public final class AttributeRightDAO implements IAttributeRightDAO
 {
     // Constants
     private static final String SQL_QUERY_DELETE_ALL_BY_CLIENT = "DELETE FROM identitystore_attribute_right WHERE id_client_app = ? ";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_right ( id_attribute, id_client_app, readable, writable, certifiable ) VALUES ( ?, ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_right SET readable = ?, writable = ?, certifiable = ? WHERE id_attribute = ? AND id_client_app = ?";
-    private static final String SQL_QUERY_SELECT_ALL_BY_CLIENT = "SELECT a.id_attribute, a.name, a.key_name, a.description, a.key_type,  b.readable, b.writable, b.certifiable FROM (identitystore_attribute a) LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_client_app = ? ";
-    private static final String SQL_QUERY_SELECT_ALL_RIGHTS = "SELECT a.key_name, c.name, b.readable, b.writable, b.certifiable FROM identitystore_attribute a JOIN identitystore_attribute_right b ON a.id_attribute = b.id_attribute JOIN identitystore_client_application c ON b.id_client_app = c.id_client_app ORDER BY a.key_name, c.name";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_right ( id_attribute, id_client_app, readable, writable, certifiable, searchable ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_right SET readable = ?, writable = ?, certifiable = ?, searchable = ? WHERE id_attribute = ? AND id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CLIENT = "SELECT a.id_attribute, a.name, a.key_name, a.description, a.key_type,  b.readable, b.writable, b.certifiable, b.searchable FROM (identitystore_attribute a) LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_client_app = ? ";
+    private static final String SQL_QUERY_SELECT_ALL_RIGHTS = "SELECT a.key_name, c.name, b.readable, b.writable, b.certifiable, b.searchable FROM identitystore_attribute a JOIN identitystore_attribute_right b ON a.id_attribute = b.id_attribute JOIN identitystore_client_application c ON b.id_client_app = c.id_client_app ORDER BY a.key_name, c.name";
     private static final int CONST_INT_TRUE = 1;
     private static final int CONST_INT_FALSE = 0;
 
@@ -69,6 +69,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
         daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.setInt( nIndex++, attributeRight.isCertifiable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.executeUpdate( );
         daoUtil.free( );
     }
@@ -85,6 +86,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
         daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.setInt( nIndex++, attributeRight.isCertifiable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+        daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
         daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
         daoUtil.setInt( nIndex++, attributeRight.getClientApplication( ).getId( ) );
 
@@ -122,6 +124,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             attributeRight.setReadable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
             attributeRight.setWritable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
             attributeRight.setCertifiable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+            attributeRight.setSearchable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
 
             lstAttributeRights.add( attributeRight );
         }
@@ -163,6 +166,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             boolean bHasRead = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
             boolean bHasWrite = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
             boolean bHasCertif = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
+            boolean bHasSearch = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
 
             AttributeApplicationsRight attributeApplicationsRight;
             if ( mapApplicationsRight.containsKey( strAttributKey ) )
@@ -186,6 +190,10 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             if ( bHasCertif )
             {
                 attributeApplicationsRight.addCertifApplication( strApplicationCode );
+            }
+            if ( bHasSearch )
+            {
+                attributeApplicationsRight.addSearchApplication( strApplicationCode );
             }
 
             mapApplicationsRight.put( strAttributKey, attributeApplicationsRight );

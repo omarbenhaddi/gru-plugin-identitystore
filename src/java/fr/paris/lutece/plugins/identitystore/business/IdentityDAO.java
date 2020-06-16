@@ -33,12 +33,16 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import com.sun.jmx.remote.internal.ArrayQueue;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
+import java.util.ArrayDeque;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +67,11 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted "
             + " FROM identitystore_identity a,  identitystore_identity_attribute b " + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE = " AND b.id_attribute = ? ";
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted"
+            + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_attribute c"
+            + " WHERE a.id_identity = b.id_identity AND b.id_attribute = c.id_attribute AND (${filter})"
+            + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT 100";
+    private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND b.attribute_value IN (${list}))";
     private static final String SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted FROM identitystore_identity WHERE connection_id ";
     private static final String SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id, is_deleted  FROM identitystore_identity WHERE customer_id ";
     private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted FROM identitystore_identity a,  identitystore_identity_attribute b "
@@ -372,6 +381,65 @@ public final class IdentityDAO implements IIdentityDAO
         {
             daoUtil.setString( 2, strAttributeId );
         }
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            Identity identity = getIdentityFromQuery( daoUtil );
+            listIdentities.add( identity );
+        }
+
+        daoUtil.free( );
+
+        return listIdentities;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Identity> selectByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes, Plugin plugin )
+    {
+        List<Identity> listIdentities = new ArrayList<Identity>( );
+
+        Queue<String> queueAttributeId = new ArrayDeque<>();
+        List<String> listAttributeFilter = new ArrayList<>( );
+
+        for (Map.Entry<String, List<String>> entryAttribute : mapAttributes.entrySet( ) )
+        {
+            String strAttributeId = entryAttribute.getKey();
+            queueAttributeId.add( strAttributeId );
+            List<String> listAttributeValues = entryAttribute.getValue();
+
+            List<String> listIn = new ArrayList<>( );
+
+            for (int i = 0; i < listAttributeValues.size( ); i++)
+            {
+                listIn.add("?");
+            }
+
+            listAttributeFilter.add( SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH.replace( "${list}", String.join( ", ", listIn ) ) );
+        }
+
+        String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH.replace( "${filter}", String.join( " OR ", listAttributeFilter ) );
+
+
+        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
+        int nIndex = 1;
+
+        for ( String strAttributeId : queueAttributeId )
+        {
+            daoUtil.setString( nIndex++, strAttributeId );
+
+            for ( String strAttributeValue : mapAttributes.get( strAttributeId ) )
+            {
+                daoUtil.setString( nIndex++, strAttributeValue );
+            }
+        }
+
+        daoUtil.setInt( nIndex++, mapAttributes.size( ) );
+
+
         daoUtil.executeQuery( );
 
         while ( daoUtil.next( ) )

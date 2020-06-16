@@ -48,6 +48,7 @@ public class AttributeRight implements Serializable
     private boolean _bReadable;
     private boolean _bWritable;
     private boolean _bCertifiable;
+    private boolean _bSearchable;
 
     /**
      * @return the _clientApplication
@@ -115,6 +116,23 @@ public class AttributeRight implements Serializable
     public void setCertifiable( boolean bCertifiable )
     {
         this._bCertifiable = bCertifiable;
+    }
+
+    /**
+     * @return the _bSearchable
+     */
+    public boolean isSearchable( )
+    {
+        return _bSearchable;
+    }
+
+    /**
+     * @param bSearchable
+     *            the bSearchable to set
+     */
+    public void setSearchable( boolean bSearchable )
+    {
+        this._bSearchable = bSearchable;
     }
 
     /**

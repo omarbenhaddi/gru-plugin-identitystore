@@ -281,6 +281,39 @@ public final class IdentityRequestValidator
     }
 
     /**
+     * check attached files are present in identity Dto and that attributes to update exist and are writable (or not writable AND unchanged)
+     *
+     * @param mapAttributeValues
+     *            map of attached files
+     * @param strClientAppCode
+     *            application code to check right
+     * @throws AppException
+     *             thrown if provided attributes are not valid
+     */
+    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, String strClientAppCode ) throws AppException
+    {
+        ClientApplication clientApp = IdentityStoreService.fetchClientApplication( strClientAppCode );
+        List<AttributeRight> listAttributeRight = ClientApplicationHome.selectApplicationRights( clientApp );
+
+        if ( ( mapAttributeValues != null ) && !mapAttributeValues.isEmpty( ) )
+        {
+            for ( String strAttributeKeyName : mapAttributeValues.keySet( ) )
+            {
+                for ( AttributeRight attributeRight : listAttributeRight )
+                {
+                    if ( attributeRight.getAttributeKey( ).getKeyName( ).equals( strAttributeKeyName ) )
+                    {
+                        if ( !attributeRight.isSearchable( ) )
+                        {
+                            throw new AppException( "The attribute " + strAttributeKeyName + " is provided but not searchable for " + strClientAppCode );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Check certification authorization, in this order - clientApplication has to got the certifier - certifier and clientApplication must have certification
      * right on all attributs of the identitychange given
      * 

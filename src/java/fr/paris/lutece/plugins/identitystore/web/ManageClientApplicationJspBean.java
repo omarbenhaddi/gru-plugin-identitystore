@@ -74,6 +74,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_RIGHT_WRITABLE = "writable";
     private static final String PARAMETER_RIGHT_READABLE = "readable";
     private static final String PARAMETER_RIGHT_CERTIFIABLE = "certifiable";
+    private static final String PARAMETER_RIGHT_SEARCHABLE = "searchable";
     private static final String PARAMETER_CERTIFIERS_AUTH = "certif_auth";
     private static final String PARAMETER_CERTIFIER_CODE = "certif_code";
 
@@ -391,6 +392,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         String [ ] tabIdReadbles = request.getParameterValues( PARAMETER_RIGHT_READABLE );
         String [ ] tabIdWritables = request.getParameterValues( PARAMETER_RIGHT_WRITABLE );
         String [ ] tabIdCertifiables = request.getParameterValues( PARAMETER_RIGHT_CERTIFIABLE );
+        String [ ] tabIdSearchables = request.getParameterValues( PARAMETER_RIGHT_SEARCHABLE );
 
         for ( int nCpt = 0; ( tabIdReadbles != null ) && ( nCpt < tabIdReadbles.length ); nCpt++ )
         {
@@ -433,6 +435,24 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
                 AttributeRight attributeRight = new AttributeRight( );
                 attributeRight.setClientApplication( _clientApplication );
                 attributeRight.setCertifiable( true );
+                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
+                mapAttributesRights.put( strIdAttribute, attributeRight );
+            }
+        }
+
+        for ( int nCpt = 0; ( tabIdSearchables != null ) && ( nCpt < tabIdSearchables.length ); nCpt++ )
+        {
+            String strIdAttribute = tabIdSearchables [nCpt];
+
+            if ( mapAttributesRights.get( strIdAttribute ) != null )
+            {
+                mapAttributesRights.get( strIdAttribute ).setSearchable( true );
+            }
+            else
+            {
+                AttributeRight attributeRight = new AttributeRight( );
+                attributeRight.setClientApplication( _clientApplication );
+                attributeRight.setSearchable( true );
                 attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
                 mapAttributesRights.put( strIdAttribute, attributeRight );
             }

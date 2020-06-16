@@ -66,6 +66,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
+import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
@@ -74,6 +75,7 @@ import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreAppRigh
 import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreCreateRequest;
 import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreDeleteRequest;
 import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreGetRequest;
+import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreSearchRequest;
 import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.ResponseDto;
@@ -84,6 +86,7 @@ import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import java.util.List;
 
 /**
  * REST service for channel resource
@@ -133,6 +136,42 @@ public final class IdentityStoreRestService
         try
         {
             IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strConnectionId, strCustomerId, strClientAppCode, _objectMapper );
+
+            return Response.ok( identityStoreRequest.doRequest( ) ).build( );
+        }
+        catch( Exception exception )
+        {
+            return getErrorResponse( exception );
+        }
+    }
+
+    /**
+     * Searches Identities from a list of values for a series of attributes
+     *
+     * @param strHeaderClientAppCode
+     *            client code
+     * @param strQueryClientAppCode
+     *            client code, will be removed, use Header parameter instead
+     * @return the identities
+     */
+    /*@POST
+    @Path( Constants.SEARCH_IDENTITIES_PATH )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response searchIdentities( String strJsonAttributeValues, 
+            @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) List<String> listAttributeKeyNames, 
+            @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
+            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )*/
+    public Response searchIdentities( String strJsonAttributeValues, List<String> listAttributeKeyNames, String strHeaderClientAppCode, 
+            String strQueryClientAppCode )
+    {
+        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
+        try
+        {
+            ObjectMapper objectMapper = new ObjectMapper( );
+            Map<String, List<String>> mapAttributeValues = objectMapper.readValue( strJsonAttributeValues, Map.class );
+
+            IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( mapAttributeValues, listAttributeKeyNames, strClientAppCode, objectMapper );
 
             return Response.ok( identityStoreRequest.doRequest( ) ).build( );
         }

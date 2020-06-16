@@ -67,7 +67,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_application "
             + " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d "
             + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
-
+    private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY_AND_LIST_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.id_identity, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_application"
+            + " FROM identitystore_identity_attribute a, identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d"
+            + " WHERE a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND c.id_client_app = d.id_client_app AND a.id_identity IN (${list_identity}) AND d.code = ? AND c.readable = 1 ${filter_attribute_key_names}";
+    private static final String SQL_FILTER_ATTRIBUTE_KEY_NAMES = "AND b.key_name IN (${list_attribute_key_names})";
     // Historical
     private static final String SQL_QUERY_NEW_HISTORY_PK = "SELECT max( id_history ) FROM identitystore_history_identity_attribute";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute "
@@ -342,6 +345,117 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         }
 
         return attributesMap;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<IdentityAttribute> selectAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strApplicationCode, Plugin plugin )
+    {
+        List<IdentityAttribute> listIdentityAttributes = new ArrayList<>( );
+
+        List<String> listIn = new ArrayList<>( );
+
+        for (int i = 0; i < listIdentity.size( ); i++)
+        {
+            listIn.add("?");
+        }
+
+        String strSQL = SQL_QUERY_SELECT_BY_LIST_IDENTITY_AND_LIST_KEY_AND_CLIENT_APP_CODE.replace( "${list_identity}", String.join( ", ", listIn ) );
+
+        String strFilterAttributeKeyNames = "";
+        if ( listAttributeKeyNames != null && !listAttributeKeyNames.isEmpty( ) )
+        {
+            listIn = new ArrayList<>( );
+
+            for (int i = 0; i < listAttributeKeyNames.size( ); i++)
+            {
+                listIn.add("?");
+            }
+
+            strFilterAttributeKeyNames = SQL_FILTER_ATTRIBUTE_KEY_NAMES.replace( "${list_attribute_key_names}", String.join( ", ", listIn ) );
+        }
+
+        strSQL = strSQL.replace( "${filter_attribute_key_names}", strFilterAttributeKeyNames );
+
+
+        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
+        int nIndex = 1;
+
+        for ( Identity identity : listIdentity )
+        {
+            daoUtil.setInt( nIndex++, identity.getId( ) );
+        }
+
+        daoUtil.setString( nIndex++, strApplicationCode );
+
+        for ( String strAttributeKeyName : listAttributeKeyNames )
+        {
+            daoUtil.setString( nIndex++, strAttributeKeyName );
+        }
+
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            IdentityAttribute attribute = new IdentityAttribute( );
+            AttributeKey attributeKey = new AttributeKey( );
+
+            nIndex = 1;
+
+            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+            attributeKey.setName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+
+            attribute.setAttributeKey( attributeKey );
+            attribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
+            attribute.setValue( daoUtil.getString( nIndex++ ) );
+
+            int nCertificateId = daoUtil.getInt( nIndex++ );
+            AttributeCertificate certificate = null;
+            if ( nCertificateId != 0 )
+            {
+                certificate = new AttributeCertificate( );
+                certificate.setId( nCertificateId );
+            }
+            attribute.setCertificate( certificate );
+
+            int nIdFile = daoUtil.getInt( nIndex++ );
+            File attrFile = null;
+            if ( nIdFile > 0 )
+            {
+                attrFile = new File( );
+                attrFile.setIdFile( nIdFile );
+            }
+            attribute.setFile( attrFile );
+
+            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+            attribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
+            listIdentityAttributes.add( attribute );
+        }
+        daoUtil.free( );
+
+        for ( IdentityAttribute attribute : listIdentityAttributes )
+        {
+            if ( attribute.getCertificate( ) != null )
+            {
+                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
+
+                if ( isCertificateExpired( attribute ) )
+                {
+                    attribute.setCertificate( null );
+                }
+            }
+            if ( attribute.getFile( ) != null )
+            {
+                attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
+            }
+        }
+
+        return listIdentityAttributes;
     }
 
     /**

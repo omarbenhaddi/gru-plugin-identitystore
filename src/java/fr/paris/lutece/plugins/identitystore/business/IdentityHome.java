@@ -40,6 +40,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides instances management methods (create, find, ...) for Identity objects
@@ -253,6 +254,19 @@ public final class IdentityHome
     public static List<Identity> findByAllAttributesValue( String strAttributeValue )
     {
         return _dao.selectByAllAttributesValue( strAttributeValue, _plugin );
+    }
+
+    /**
+     * Find all identities matching one of the values defined on each of the selected Attributes. One value must be found for all selected attributes. Always 
+     * performs an exact search.
+     * 
+     * @param mapAttributes
+     *            A map that associates the id of each attributes selected with the list of values
+     * @return list of Identity
+     */
+    public static List<Identity> findByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes )
+    {
+        return _dao.selectByAttributesValueForApiSearch( mapAttributes, _plugin );
     }
 
     /**

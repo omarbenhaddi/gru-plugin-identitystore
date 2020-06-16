@@ -47,6 +47,7 @@
 				<th>#i18n{identitystore.modify_clientapplication.labelReadable}</th>
 				<th>#i18n{identitystore.modify_clientapplication.labelWritable}</th>
 				<th>#i18n{identitystore.modify_clientapplication.labelCertificable}</th>
+				<th>#i18n{identitystore.modify_clientapplication.labelSearchable}</th>
 			</tr>
 	
 			<#if clientapplication_rights_list?? && clientapplication_rights_list?has_content>
@@ -63,6 +64,9 @@
 						</td>
 						<td>
 							<input type="checkbox" name="certifiable" value="${right.attributeKey.id}" <#if right.certifiable> checked</#if> />
+						</td>
+						<td>
+							<input type="checkbox" name="searchable" value="${right.attributeKey.id}" <#if right.searchable> checked</#if> />
 						</td>
 				</#list>
 			</#if>

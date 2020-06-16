@@ -73,6 +73,9 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.jwt.service.JWTUtil;
 import fr.paris.lutece.plugins.identitystore.business.security.SecureMode;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
+import java.util.ArrayList;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -346,6 +349,53 @@ public final class IdentityStoreService
     public static Identity getIdentityByCustomerId( String strCustomerId, String strClientApplicationCode )
     {
         return IdentityHome.findByCustomerId( strCustomerId, strClientApplicationCode );
+    }
+
+    /**
+     * returns a list of identity from combination of attributes
+     *
+     * @param mapAttributeValues
+     *            a map that associates list of values for come attributes
+     * @param listAttributeKeyNames
+     *            a list of attributes to retrieve in identities
+     * @param strClientApplicationCode
+     *            application code who requested identities
+     * @return identity filled according to application rights for user identified by connection id
+     */
+    public static List<IdentityDto> getIdentities( Map<String, List<String>> mapAttributeValues, List<String> listAttributeKeyNames, String strClientApplicationCode )
+    {
+        List<IdentityDto> listIdentityDto = new ArrayList<>( );
+
+        List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues );
+        if ( listIdentity == null || listIdentity.isEmpty( ) )
+        {
+            return listIdentityDto;
+        }
+
+        List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityList(listIdentity, listAttributeKeyNames, strClientApplicationCode );
+
+        for ( Identity identity : listIdentity )
+        {
+            for ( IdentityAttribute identityAttribute : listIdentityAttribute )
+            {
+                if ( identity.getId( ) == identityAttribute.getIdIdentity( ) )
+                {
+                    Map<String,IdentityAttribute> mapIdentityAttributes = identity.getAttributes( );
+
+                    if ( mapIdentityAttributes == null)
+                    {
+                        mapIdentityAttributes = new HashMap<>( );
+                    }
+
+                    mapIdentityAttributes.put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
+                    identity.setAttributes( mapIdentityAttributes );
+                }
+            }
+
+            listIdentityDto.add( DtoConverter.convertToDto( identity, strClientApplicationCode ) );
+        }
+
+        return listIdentityDto;
     }
 
     /**
@@ -1064,7 +1114,7 @@ public final class IdentityStoreService
      * @throws AppException
      *             if the client application cannot be found
      */
-    private static ClientApplication fetchClientApplication( String strClientApplicationCode ) throws AppException
+    public static ClientApplication fetchClientApplication( String strClientApplicationCode ) throws AppException
     {
         ClientApplication clientApplication = ClientApplicationHome.findByCode( strClientApplicationCode );
 

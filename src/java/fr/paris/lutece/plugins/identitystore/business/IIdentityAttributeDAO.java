@@ -120,6 +120,21 @@ public interface IIdentityAttributeDAO
     Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin );
 
     /**
+     * Load the data of a selection of attributes that are allowed for the client application provided for a list of identity
+     *
+     * @param listIdentity
+     *            The list of identity
+     * @param listAttributeKeyNames
+     *            The list of attributes to load
+     * @param strApplicationCode
+     *            code of client application
+     * @param plugin
+     *            the Plugin
+     * @return the list which contains the data of the identityAttribute objects
+     */
+    List<IdentityAttribute> selectAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strApplicationCode, Plugin plugin );
+
+    /**
      * Load the data of all the identityAttribute objects and returns them as a referenceList
      *
      * @param plugin

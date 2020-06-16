@@ -37,6 +37,7 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * IIdentityDAO Interface
@@ -176,6 +177,19 @@ public interface IIdentityDAO
      * @return The identity
      */
     List<Identity> selectByAttributeValue( String strAttributeId, String strAttributeValue, Plugin plugin );
+
+    /**
+     * Find by a combination of Attribute values.
+     * Search for identities that match the conditions defined for each of the selected attributes, that is on each of these attributes the exact value is in a 
+     * list of expected values (no wildcards).
+     * 
+     * @param mapAttributes
+     *            A map that associates the id of each attributes selected with the list of values
+     * @param plugin
+     *            The plugin
+     * @return The identity
+     */
+    List<Identity> selectByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes, Plugin plugin );
 
     /**
      * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE

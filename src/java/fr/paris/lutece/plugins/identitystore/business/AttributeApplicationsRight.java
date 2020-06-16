@@ -45,6 +45,7 @@ public class AttributeApplicationsRight
     private final List<String> _listReadApplications = new ArrayList<String>( );
     private final List<String> _listWriteApplications = new ArrayList<String>( );
     private final List<String> _listCertifApplications = new ArrayList<String>( );
+    private final List<String> _listSearchApplications = new ArrayList<String>( );
 
     /**
      * @return the strAttributeKey
@@ -112,5 +113,22 @@ public class AttributeApplicationsRight
     public void addCertifApplication( String strApplicationCode )
     {
         this._listCertifApplications.add( strApplicationCode );
+    }
+
+    /**
+     * @return the listSearchApplications
+     */
+    public List<String> getSearchApplications( )
+    {
+        return _listSearchApplications;
+    }
+
+    /**
+     * @param strApplicationCode
+     *            an application code with certification right
+     */
+    public void addSearchApplication( String strApplicationCode )
+    {
+        this._listSearchApplications.add( strApplicationCode );
     }
 }

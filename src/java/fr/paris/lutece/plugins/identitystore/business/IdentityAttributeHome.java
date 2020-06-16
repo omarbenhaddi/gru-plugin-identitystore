@@ -199,6 +199,22 @@ public final class IdentityAttributeHome
     }
 
     /**
+     * Load the data of a selection of attributes that are allowed for the client application provided for a list of identity
+     *
+     * @param listIdentity
+     *            The list of identity
+     * @param listAttributeKeyNames
+     *            The list of attributes to load
+     * @param strApplicationCode
+     *            code of client application
+     * @return the list which contains the data of the identityAttribute objects
+     */
+    public static List<IdentityAttribute> getAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strApplicationCode )
+    {
+        return _dao.selectAttributesByIdentityList(listIdentity, listAttributeKeyNames, strApplicationCode, _plugin );
+    }
+
+    /**
      * Load the data of all the identityAttribute objects and returns them as a referenceList
      *
      * @return the referenceList which contains the data of all the identityAttribute objects
