@@ -185,11 +185,13 @@ public interface IIdentityDAO
      * 
      * @param mapAttributes
      *            A map that associates the id of each attributes selected with the list of values
+     * @param maxNbIdentityReturned
+     *            The maximum number of Identity returned in the list
      * @param plugin
      *            The plugin
      * @return The identity
      */
-    List<Identity> selectByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes, Plugin plugin );
+    List<Identity> selectByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes, int maxNbIdentityReturned, Plugin plugin );
 
     /**
      * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE

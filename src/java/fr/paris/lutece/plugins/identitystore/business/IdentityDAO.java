@@ -70,7 +70,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted"
             + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_attribute c"
             + " WHERE a.id_identity = b.id_identity AND b.id_attribute = c.id_attribute AND (${filter})"
-            + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT 100";
+            + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT ${limit}";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND b.attribute_value IN (${list}))";
     private static final String SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted FROM identitystore_identity WHERE connection_id ";
     private static final String SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id, is_deleted  FROM identitystore_identity WHERE customer_id ";
@@ -398,7 +398,7 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<Identity> selectByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes, Plugin plugin )
+    public List<Identity> selectByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes, int nMaxNbIdentityReturned, Plugin plugin )
     {
         List<Identity> listIdentities = new ArrayList<Identity>( );
 
@@ -422,6 +422,7 @@ public final class IdentityDAO implements IIdentityDAO
         }
 
         String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH.replace( "${filter}", String.join( " OR ", listAttributeFilter ) );
+        strSQL = strSQL.replace( "${limit}", String.valueOf( nMaxNbIdentityReturned ) );
 
 
         DAOUtil daoUtil = new DAOUtil( strSQL, plugin );

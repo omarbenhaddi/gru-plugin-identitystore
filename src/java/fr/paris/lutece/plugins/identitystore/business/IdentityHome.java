@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
@@ -47,6 +48,8 @@ import java.util.Map;
  */
 public final class IdentityHome
 {
+    private static final String PROPERTY_MAX_NB_IDENTITY_RETURNED = "identitystore.search.maxNbIdentityReturned";
+
     // Static variable pointed at the DAO instance
     private static IIdentityDAO _dao = SpringContextService.getBean( IIdentityDAO.BEAN_NAME );
     private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
@@ -266,7 +269,8 @@ public final class IdentityHome
      */
     public static List<Identity> findByAttributesValueForApiSearch( Map<String,List<String>> mapAttributes )
     {
-        return _dao.selectByAttributesValueForApiSearch( mapAttributes, _plugin );
+        int nMaxNbIdentityReturned = AppPropertiesService.getPropertyInt( PROPERTY_MAX_NB_IDENTITY_RETURNED, 100);
+        return _dao.selectByAttributesValueForApiSearch( mapAttributes, nMaxNbIdentityReturned, _plugin );
     }
 
     /**
