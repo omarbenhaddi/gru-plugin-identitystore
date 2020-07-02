@@ -41,10 +41,12 @@ import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.Identity;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.portal.business.file.File;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,7 @@ import java.util.Map;
  */
 public class IdentityStoreSearchRequest extends IdentityStoreRequest
 {
+    private ISearchIdentityService _searchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService" );
     private final Map<String, List<String>> _mapAttributeValues;
     private final List<String> _listAttributeKeyNames;
     private final String _strClientAppCode;
@@ -90,7 +93,7 @@ public class IdentityStoreSearchRequest extends IdentityStoreRequest
     @Override
     protected void validRequest( ) throws AppException
     {
-        IdentityRequestValidator.instance( ).checkSearchAttributes( _mapAttributeValues, _strClientAppCode);
+        _searchIdentityService.checkSearchAttributes( _mapAttributeValues, _strClientAppCode );
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
     }
 
@@ -103,7 +106,7 @@ public class IdentityStoreSearchRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws AppException
     {
-        List<IdentityDto> listIdentityDto = IdentityStoreService.getIdentities(_mapAttributeValues, _listAttributeKeyNames, _strClientAppCode );
+        List<IdentityDto> listIdentityDto = _searchIdentityService.getIdentities(_mapAttributeValues, _listAttributeKeyNames, _strClientAppCode );
 
         try
         {

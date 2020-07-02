@@ -154,16 +154,14 @@ public final class IdentityStoreRestService
      *            client code, will be removed, use Header parameter instead
      * @return the identities
      */
-    /*@POST
+    @POST
     @Path( Constants.SEARCH_IDENTITIES_PATH )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.APPLICATION_JSON )
     public Response searchIdentities( String strJsonAttributeValues, 
             @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) List<String> listAttributeKeyNames, 
             @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
-            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )*/
-    public Response searchIdentities( String strJsonAttributeValues, List<String> listAttributeKeyNames, String strHeaderClientAppCode, 
-            String strQueryClientAppCode )
+            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
         String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
         try

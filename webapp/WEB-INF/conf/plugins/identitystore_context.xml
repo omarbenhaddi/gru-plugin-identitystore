@@ -41,4 +41,6 @@
     
     <bean id="identitystore.identityInfoExternalProvider" class="fr.paris.lutece.plugins.identitystore.service.external.MockIdentityInfoExternalProvider" />
     
+    <bean id="identitystore.searchIdentityService" class="fr.paris.lutece.plugins.identitystore.service.search.DefaultSearchIdentityService" />
+
 </beans>
