@@ -355,6 +355,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     {
         List<IdentityAttribute> listIdentityAttributes = new ArrayList<>( );
 
+        if ( listIdentity == null || listIdentity.isEmpty( ) )
+        {
+            return listIdentityAttributes;
+        }
+
         List<String> listIn = new ArrayList<>( );
 
         for (int i = 0; i < listIdentity.size( ); i++)
@@ -390,9 +395,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         daoUtil.setString( nIndex++, strApplicationCode );
 
-        for ( String strAttributeKeyName : listAttributeKeyNames )
+        if ( listAttributeKeyNames != null && !listAttributeKeyNames.isEmpty( ) )
         {
-            daoUtil.setString( nIndex++, strAttributeKeyName );
+            for ( String strAttributeKeyName : listAttributeKeyNames )
+            {
+                daoUtil.setString( nIndex++, strAttributeKeyName );
+            }
         }
 
         daoUtil.executeQuery( );

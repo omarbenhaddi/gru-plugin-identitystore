@@ -355,7 +355,7 @@ public final class IdentityStoreService
      * returns a list of identity from combination of attributes
      *
      * @param mapAttributeValues
-     *            a map that associates list of values for come attributes
+     *            a map that associates list of values to search for some attributes
      * @param listAttributeKeyNames
      *            a list of attributes to retrieve in identities
      * @param strClientApplicationCode

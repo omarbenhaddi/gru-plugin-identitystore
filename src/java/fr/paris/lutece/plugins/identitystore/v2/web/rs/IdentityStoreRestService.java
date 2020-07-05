@@ -79,13 +79,18 @@ import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreSearchR
 import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.ResponseDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.SearchDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.IdentityTransportApiManagerRest;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.IdentityTransportRest;
+import fr.paris.lutece.plugins.identitystore.v2.web.service.IdentityService;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -159,7 +164,6 @@ public final class IdentityStoreRestService
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.APPLICATION_JSON )
     public Response searchIdentities( String strJsonAttributeValues, 
-            @QueryParam( Constants.PARAM_ATTRIBUTE_KEY ) List<String> listAttributeKeyNames, 
             @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
@@ -167,7 +171,9 @@ public final class IdentityStoreRestService
         try
         {
             ObjectMapper objectMapper = new ObjectMapper( );
-            Map<String, List<String>> mapAttributeValues = objectMapper.readValue( strJsonAttributeValues, Map.class );
+            SearchDto searchDto = objectMapper.readValue( strJsonAttributeValues, SearchDto.class );
+            Map<String, List<String>> mapAttributeValues = searchDto.getMapAttributeValues( );
+            List<String> listAttributeKeyNames = searchDto.getListAttributeKeyNames( );
 
             IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( mapAttributeValues, listAttributeKeyNames, strClientAppCode, objectMapper );
 

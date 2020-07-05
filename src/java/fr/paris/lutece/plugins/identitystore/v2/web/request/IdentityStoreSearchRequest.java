@@ -67,7 +67,7 @@ public class IdentityStoreSearchRequest extends IdentityStoreRequest
      * Constructor of IdentityStoreSearchRequest
      * 
      * @param mapAttributeValues
-     *            the map that associates list of values for come attributes
+     *            the map that associates list of values to search for some attributes
      * @param listAttributeKey
      *            the list of attributes to retrieve in identities
      * @param strClientAppCode

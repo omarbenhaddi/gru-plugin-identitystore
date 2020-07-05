@@ -405,11 +405,21 @@ public final class IdentityDAO implements IIdentityDAO
         Queue<String> queueAttributeId = new ArrayDeque<>();
         List<String> listAttributeFilter = new ArrayList<>( );
 
+        if ( mapAttributes == null || mapAttributes.isEmpty( ) )
+        {
+            return listIdentities;
+        }
+
         for (Map.Entry<String, List<String>> entryAttribute : mapAttributes.entrySet( ) )
         {
             String strAttributeId = entryAttribute.getKey();
-            queueAttributeId.add( strAttributeId );
             List<String> listAttributeValues = entryAttribute.getValue();
+            if ( listAttributeValues == null || listAttributeValues.isEmpty( ) )
+            {
+                continue;
+            }
+
+            queueAttributeId.add( strAttributeId );
 
             List<String> listIn = new ArrayList<>( );
 
@@ -419,6 +429,11 @@ public final class IdentityDAO implements IIdentityDAO
             }
 
             listAttributeFilter.add( SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH.replace( "${list}", String.join( ", ", listIn ) ) );
+        }
+
+        if ( listAttributeFilter.isEmpty( ) )
+        {
+            return listIdentities;
         }
 
         String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH.replace( "${filter}", String.join( " OR ", listAttributeFilter ) );
@@ -438,7 +453,7 @@ public final class IdentityDAO implements IIdentityDAO
             }
         }
 
-        daoUtil.setInt( nIndex++, mapAttributes.size( ) );
+        daoUtil.setInt( nIndex++, queueAttributeId.size( ) );
 
 
         daoUtil.executeQuery( );
