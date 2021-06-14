@@ -33,6 +33,16 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
@@ -46,25 +56,29 @@ import fr.paris.lutece.plugins.identitystore.business.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.IdentityConstants;
 import fr.paris.lutece.plugins.identitystore.business.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.KeyType;
-import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
+import fr.paris.lutece.plugins.identitystore.business.security.SecureMode;
 import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
+import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
+import fr.paris.lutece.plugins.identitystore.service.certifier.IGenerateAutomaticCertifierAttribute;
+import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityDeletedException;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AppRightDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.ApplicationRightsDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AuthorDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
 import fr.paris.lutece.plugins.identitystore.v2.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityDeletedException;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -72,18 +86,6 @@ import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.jwt.service.JWTUtil;
-import fr.paris.lutece.plugins.identitystore.business.security.SecureMode;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
-import java.util.ArrayList;
-
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /*
  * Copyright (c) 2002-2016, Mairie de Paris
@@ -461,7 +463,9 @@ public final class IdentityStoreService
             IdentityRequestValidator.instance( ).checkIdentityChange( identityChangeDto );
             IdentityRequestValidator.instance( ).checkAttributes( identityDtoDecrypted, strClientAppCode, mapAttachedFiles );
             IdentityRequestValidator.instance( ).checkCertification( identityDtoDecrypted, strClientAppCode );
-
+            //add automatically certification attribute 
+            addAutomaticalyCertificationAttributes(identityDtoDecrypted);
+            
             updateAttributes( identity, identityDtoDecrypted, authorDto, mapAttachedFiles, clientApplication.getCode( ),
                     clientApplication.getIsAuthorizedDeleteValue( ) );
         }
@@ -1125,4 +1129,71 @@ public final class IdentityStoreService
 
         return clientApplication;
     }
+    
+	/**
+	 * Method call for adding automatically attributes associated to the certifier
+	 * used
+	 * 
+	 * @param identityDto the identity dto informations
+	 */
+	private static void addAutomaticalyCertificationAttributes(IdentityDto identityDto) {
+
+		if (identityDto.getAttributes() != null) {
+			Optional<AttributeDto> attributeDTO = identityDto.getAttributes().entrySet().stream()
+					.filter(x -> x.getValue().getCertificate() != null
+							&& x.getValue().getCertificate().getCertifierCode() != null)
+					.map(Map.Entry::getValue).findFirst();
+			//find the first attribute which contains a certifier
+			if (attributeDTO.isPresent()) {
+				try {
+
+					AbstractCertifier certifier = CertifierRegistry.instance()
+							.getCertifier(attributeDTO.get().getCertificate().getCertifierCode());
+					//Test if the certifier contains attributes who must be generated automatically
+					if (certifier.getGenerateAutomaticCertifierAttribute() != null
+							&& certifier.getGenerateAutomaticCertifierAttribute().size() > 0) {
+
+						certifier.getGenerateAutomaticCertifierAttribute().forEach((k, v) -> {
+							//test if the identity DTO contains all informations necessary for adding  attribute
+							if (v.mustBeGenerated(identityDto, certifier.getCode())) {
+								identityDto.getAttributes().put(k,
+										getAutomaticCertificateAttribute(identityDto, certifier.getCode(), k, v));
+							}
+						});
+
+					}
+
+				} catch (CertifierNotFoundException ex) {
+					AppLogService.error("Error getting  certifier"
+							+ attributeDTO.get().getCertificate().getCertifierCode() + ex.getMessage(), ex);
+				}
+
+			}
+		}
+
+	}
+    
+	/**
+	 * return the attribute who must be add automatically to the identity DTO informations 
+	 * @param identityDO the identity dto informations
+	 * @param certifierCode the certifier code 
+	 * @param strAttributeKey the attribute code of the generated attribute
+	 * @param generateAutomaticCertifierAttribute implementation of IGenerateAutomaticCertifierAttribute for getting the attribute value
+	 * @return the attribute who must be add automatically to the identity DTO informations 
+	 */
+    private static AttributeDto getAutomaticCertificateAttribute(IdentityDto identityDto,String certifierCode,String strAttributeKey,IGenerateAutomaticCertifierAttribute generateAutomaticCertifierAttribute)
+    {
+    	
+    	AttributeDto automaticAttribute = new AttributeDto();
+    	automaticAttribute.setKey(strAttributeKey);
+    	automaticAttribute.setValue(generateAutomaticCertifierAttribute.getValue(identityDto));
+    	automaticAttribute.setCertified(true);
+		CertificateDto certificateDto = new CertificateDto();
+	    certificateDto.setCertifierCode(certifierCode);
+	    automaticAttribute.setCertificate(certificateDto);
+		
+		return automaticAttribute;
+    	
+    }
+    
 }

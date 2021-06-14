@@ -33,12 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
-import com.sun.jmx.remote.internal.ArrayQueue;
-import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
-import fr.paris.lutece.util.sql.DAOUtil;
 import java.util.ArrayDeque;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +41,10 @@ import java.util.Queue;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+
+import fr.paris.lutece.portal.service.plugin.Plugin;
+import fr.paris.lutece.util.ReferenceList;
+import fr.paris.lutece.util.sql.DAOUtil;
 
 /**
  * This class provides Data Access methods for Identity objects

@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.service.certifier;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
@@ -54,6 +55,8 @@ public abstract class AbstractCertifier
     private String _strIconUrl;
     private int _nExpirationDelay;
     private List<String> _listCertifiableAttributes;
+    private HashMap<String,IGenerateAutomaticCertifierAttribute>  _mapGenerateAutomaticCertifierAttribute;
+    
 
     /**
      * constructor with code for registration
@@ -227,4 +230,22 @@ public abstract class AbstractCertifier
         }
         return certificate;
     }
+
+	/**
+	 * Gets the generate automatic certifier attribute.
+	 *
+	 * @return the generate automatic certifier attribute
+	 */
+	public HashMap<String,IGenerateAutomaticCertifierAttribute> getGenerateAutomaticCertifierAttribute() {
+		return _mapGenerateAutomaticCertifierAttribute;
+	}
+
+	/**
+	 * Sets the generate automatic certifier attribute.
+	 *
+	 * @param _mapGenerateAutomaticCertifierAttribute the map generate automatic certifier attribute
+	 */
+	public void setGenerateAutomaticCertifierAttribute(HashMap<String,IGenerateAutomaticCertifierAttribute> _mapGenerateAutomaticCertifierAttribute) {
+		this._mapGenerateAutomaticCertifierAttribute = _mapGenerateAutomaticCertifierAttribute;
+	}
 }
