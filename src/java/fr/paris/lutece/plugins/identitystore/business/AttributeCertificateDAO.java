@@ -37,6 +37,7 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,57 +47,37 @@ import java.util.List;
 public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 {
     // Constants
-    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute_certificate ) FROM identitystore_attribute_certificate";
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certificate, certifier_code, certificate_date, certificate_level, expiration_date "
+       private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certificate, certifier_code, certificate_date, certificate_level, expiration_date "
             + " FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certificate ( id_attribute_certificate, certifier_code, certificate_date, certificate_level, expiration_date ) VALUES ( ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certificate (  certifier_code, certificate_date, certificate_level, expiration_date ) VALUES ( ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certificate SET id_attribute_certificate = ?, certifier_code = ?, certificate_date = ?, certificate_level = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, certifier_code, certificate_date, certificate_level, expiration_date FROM identitystore_attribute_certificate";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certificate FROM identitystore_attribute_certificate";
 
-    /**
-     * Generates a new primary key
-     *
-     * @param plugin
-     *            The Plugin
-     * @return The new primary key
-     */
-    private synchronized int newPrimaryKey( Plugin plugin )
-    {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery( );
-
-        int nKey = 1;
-
-        if ( daoUtil.next( ) )
-        {
-            nKey = daoUtil.getInt( 1 ) + 1;
-        }
-
-        daoUtil.free( );
-
-        return nKey;
-    }
-
+   
     /**
      * {@inheritDoc }
      */
     @Override
     public void insert( AttributeCertificate attributeCertificate, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        attributeCertificate.setId( newPrimaryKey( plugin ) );
+    	DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin );
 
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeCertificate.getId( ) );
         daoUtil.setString( nIndex++, attributeCertificate.getCertifierCode( ) );
         daoUtil.setTimestamp( nIndex++, attributeCertificate.getCertificateDate( ) );
         daoUtil.setInt( nIndex++, attributeCertificate.getCertificateLevel( ) );
         daoUtil.setTimestamp( nIndex++, attributeCertificate.getExpirationDate( ) );
 
         daoUtil.executeUpdate( );
+        
+        
+        if ( daoUtil.nextGeneratedKey( ) ) 
+        {
+        	attributeCertificate.setId( daoUtil.getGeneratedKeyInt( 1 ) );
+        }
         daoUtil.free( );
     }
 

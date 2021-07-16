@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS identitystore_identity;
 --
 
 CREATE TABLE identitystore_identity (
-id_identity int(11) NOT NULL,
+id_identity  int AUTO_INCREMENT,
 connection_id varchar(100) NULL UNIQUE,
 customer_id varchar (50) NULL UNIQUE,
 date_create timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -59,7 +59,7 @@ PRIMARY KEY ( id_identity , id_attribute )
 --
 
 CREATE TABLE identitystore_attribute_certificate (
-id_attribute_certificate int(6) NOT NULL,
+id_attribute_certificate int AUTO_INCREMENT,
 certifier_code varchar(255) NOT NULL default '',
 certificate_date timestamp NOT NULL,
 certificate_level int(11) NOT NULL default '0',
@@ -109,7 +109,7 @@ PRIMARY KEY (id_client_app, id_attribute)
 --
 
 CREATE TABLE identitystore_history_identity_attribute (
-id_history int(11) NOT NULL,
+id_history int AUTO_INCREMENT,
 change_type int(3) NOT NULL,
 id_identity int(11) NOT NULL,
 identity_connection_id varchar(100),

@@ -41,6 +41,7 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -72,10 +73,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             + " WHERE a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND c.id_client_app = d.id_client_app AND a.id_identity IN (${list_identity}) AND d.code = ? AND c.readable = 1 ${filter_attribute_key_names}";
     private static final String SQL_FILTER_ATTRIBUTE_KEY_NAMES = "AND b.key_name IN (${list_attribute_key_names})";
     // Historical
-    private static final String SQL_QUERY_NEW_HISTORY_PK = "SELECT max( id_history ) FROM identitystore_history_identity_attribute";
-    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute "
-            + "( id_history, id_identity, change_type, identity_connection_id, attribute_key, attribute_new_value, attribute_old_value, author_id, author_type, author_application, certifier_name) "
-            + "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute "
+            + "( id_identity, change_type, identity_connection_id, attribute_key, attribute_new_value, attribute_old_value, author_id, author_type, author_application, certifier_name) "
+            + "VALUES (  ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_SELECT_HISTORY = "SELECT modification_date, change_type, identity_connection_id, attribute_key, attribute_new_value, attribute_old_value, "
             + "author_id, author_type, author_application, certifier_name "
             + "FROM identitystore_history_identity_attribute "
@@ -83,29 +83,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_history_identity_attribute WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_history_identity_attribute WHERE id_identity = ?";
 
-    /**
-     * Generates a new primary key for identitystore_history_identity_attribute table
-     *
-     * @param plugin
-     *            The Plugin
-     * @return The new primary key
-     */
-    private synchronized int newHistoricPrimaryKey( Plugin plugin )
-    {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_HISTORY_PK, plugin );
-        daoUtil.executeQuery( );
-
-        int nKey = 1;
-
-        if ( daoUtil.next( ) )
-        {
-            nKey = daoUtil.getInt( 1 ) + 1;
-        }
-
-        daoUtil.free( );
-
-        return nKey;
-    }
+    
 
     /**
      * {@inheritDoc }
@@ -563,10 +541,9 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public synchronized void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, plugin );
+    	DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin );
         int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, newHistoricPrimaryKey( plugin ) );
         daoUtil.setInt( nIndex++, attributeChange.getIdentityId( ) );
         daoUtil.setInt( nIndex++, attributeChange.getChangeType( ).getValue( ) );
         daoUtil.setString( nIndex++, attributeChange.getIdentityConnectionId( ) );

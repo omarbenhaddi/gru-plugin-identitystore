@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business;
 
+import java.sql.Statement;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public final class IdentityDAO implements IIdentityDAO
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_identity ) FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT = "SELECT id_identity, connection_id, customer_id FROM identitystore_identity WHERE id_identity = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity ( id_identity, connection_id, customer_id ) VALUES ( ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity (  connection_id, customer_id ) VALUES ( ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity WHERE id_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity SET id_identity = ?, connection_id = ?, customer_id = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id, is_deleted FROM identitystore_identity";
@@ -79,29 +80,7 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now(), connection_id = null WHERE id_identity = ?";
 
-    /**
-     * Generates a new primary key
-     *
-     * @param plugin
-     *            The Plugin
-     * @return The new primary key
-     */
-    private synchronized int newPrimaryKey( Plugin plugin )
-    {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery( );
-
-        int nKey = 1;
-
-        if ( daoUtil.next( ) )
-        {
-            nKey = daoUtil.getInt( 1 ) + 1;
-        }
-
-        daoUtil.free( );
-
-        return nKey;
-    }
+   
 
     /**
      * Generates a new customerId key using Java UUID
@@ -119,15 +98,21 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public void insert( Identity identity, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        identity.setId( newPrimaryKey( plugin ) );
-
+    	DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin );
+     
         int nIndex = 1;
         identity.setCustomerId( newCustomerIdKey( ) );
-        daoUtil.setInt( nIndex++, identity.getId( ) );
         daoUtil.setString( nIndex++, identity.getConnectionId( ) );
         daoUtil.setString( nIndex++, identity.getCustomerId( ) );
+       
         daoUtil.executeUpdate( );
+        
+        
+        if ( daoUtil.nextGeneratedKey( ) ) 
+        {
+        	identity.setId( daoUtil.getGeneratedKeyInt( 1 ) );
+        }
+        
         daoUtil.free( );
     }
 
