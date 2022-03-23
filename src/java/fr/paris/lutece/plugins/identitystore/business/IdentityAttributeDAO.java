@@ -129,7 +129,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             nAttributeKey = daoUtil.getInt( nIndex++ );
             identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
             identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
-            identityAttribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
+          
 
             int nIdFile = daoUtil.getInt( nIndex++ );
 
@@ -137,6 +137,10 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             {
                 identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
             }
+            
+            identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+            identityAttribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
+            
         }
         daoUtil.free( );
 
