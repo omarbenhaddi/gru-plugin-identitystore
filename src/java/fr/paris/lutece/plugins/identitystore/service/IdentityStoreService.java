@@ -467,7 +467,7 @@ public final class IdentityStoreService
             addAutomaticalyCertificationAttributes(identityDtoDecrypted);
             
             updateAttributes( identity, identityDtoDecrypted, authorDto, mapAttachedFiles, clientApplication.getCode( ),
-                    clientApplication.getIsAuthorizedDeleteValue( ) );
+                    clientApplication.getIsAuthorizedDeleteValue( ),clientApplication.getIsAuthorizedDeleteCertificate( ) );
         }
 
         // listener
@@ -548,7 +548,7 @@ public final class IdentityStoreService
             newAttribute.setValue( attributeDto.getValue( ) );
             newAttribute.setCertificate( null );
 
-            AttributeStatusDto attrStatus = setAttribute( identity, newAttribute, file, author, strClientAppCode, true );
+            AttributeStatusDto attrStatus = setAttribute( identity, newAttribute, file, author, strClientAppCode, true , false);
             sb.append( attributeDto.getKey( ) + "[" + attrStatus.getStatusCode( ) + "], " );
         }
 
@@ -572,7 +572,7 @@ public final class IdentityStoreService
      *            true if application can delete a non certified attribute
      */
     private static void updateAttributes( Identity identity, IdentityDto identityDto, AuthorDto authorDto, Map<String, File> mapAttachedFiles,
-            String strClientAppCode, boolean bAppCanDelete )
+            String strClientAppCode, boolean bAppCanDelete,boolean bAppCanDeleteCertificate )
     {
         StringBuilder sb = new StringBuilder( "Fields update result : " );
         ChangeAuthor author = DtoConverter.getAuthor( authorDto );
@@ -605,7 +605,7 @@ public final class IdentityStoreService
             updateAttribute.setValue( attributeDto.getValue( ) );
             updateAttribute.setCertificate( certificate );
 
-            AttributeStatusDto attrStatus = setAttribute( identity, updateAttribute, file, author, strClientAppCode, bAppCanDelete );
+            AttributeStatusDto attrStatus = setAttribute( identity, updateAttribute, file, author, strClientAppCode, bAppCanDelete, bAppCanDeleteCertificate );
             sb.append( attributeDto.getKey( ) + "[" + attrStatus.getStatusCode( ) + "], " );
         }
 
@@ -782,7 +782,7 @@ public final class IdentityStoreService
      * @return AttributStatusDto with statusCode according to the resulted operation
      */
     private static AttributeStatusDto setAttribute( Identity identity, IdentityAttribute requestAttribute, File file, ChangeAuthor author,
-            String strClientAppCode, boolean bAppCanDelete )
+            String strClientAppCode, boolean bAppCanDelete, boolean bAppCanDeleteCertificate )
     {
         String strCorrectValue = ( requestAttribute.getValue( ) == null ) ? StringUtils.EMPTY : requestAttribute.getValue( );
 
@@ -828,6 +828,20 @@ public final class IdentityStoreService
                     attrStatus.setStatusCode( AttributeStatusDto.INFO_DELETE_NOT_ALLOW_CODE );
                 }
         }
+        else if( attributeCertifPrev != null && requestAttribute.getCertificate( ) == null )
+        {
+        	attrStatus = new AttributeStatusDto( );
+        	if(bAppCanDeleteCertificate)
+        	{
+        		attrStatus.setStatusCode( AttributeStatusDto.OK_CODE);
+        	    attrStatus.setDeleteCertifier(attributeCertifPrev.getCertifierCode());
+        		
+        	}
+        	else
+        	{
+        		attrStatus.setStatusCode( AttributeStatusDto.INFO_DELETE_NOT_ALLOW_CODE);
+        	}
+        }
         else
         {
             attrStatus = buildAttributeStatus( attributeCertifPrev, requestAttribute.getCertificate( ), bValueUnchanged );
@@ -843,7 +857,13 @@ public final class IdentityStoreService
                 dbAttribute.setIdCertificate( requestAttribute.getCertificate( ).getId( ) );
                 dbAttribute.setCertificate( requestAttribute.getCertificate( ) );
             }
-
+            //delete certificate
+            if (attrStatus.getDeleteCertifier() != null )
+            {
+            	 AttributeCertificateHome.remove(dbAttribute.getIdCertificate());
+            	 dbAttribute.setIdCertificate(0);
+            	 dbAttribute.setCertificate(null);
+            }
             // update or create attribute
             if ( !bValueUnchanged )
             {

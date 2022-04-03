@@ -59,6 +59,8 @@ public class ClientApplication implements IClientApplication, Serializable
     @Size( max = 100, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
     private String _strCode;
     private boolean _bIsAuthorizedDeleteValue;
+    private boolean _bIsAuthorizedDeleteCertificate;
+    
 
     /**
      * Returns the Id
@@ -139,5 +141,22 @@ public class ClientApplication implements IClientApplication, Serializable
     {
         this._bIsAuthorizedDeleteValue = bIsAuthorizedDeleteValue;
     }
+    /**
+     * @return the isAuthorizedDeleteCertificate
+     */
+    public boolean getIsAuthorizedDeleteCertificate( )
+    {
+        return _bIsAuthorizedDeleteCertificate;
+    }
+
+    /**
+     * @param bIsAuthorizedDeleteCertificate
+     *            the isAuthorizedDeleteCertificate to set
+     */
+    public void setIsAuthorizedDeleteCertificate( boolean bIsAuthorizedDeleteCertificate )
+    {
+        this._bIsAuthorizedDeleteCertificate = bIsAuthorizedDeleteCertificate;
+    }
+    
 
 }
