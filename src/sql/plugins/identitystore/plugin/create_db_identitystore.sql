@@ -88,6 +88,8 @@ id_client_app int(6) NOT NULL,
 name varchar(100) NOT NULL UNIQUE,
 code varchar(100) NOT NULL UNIQUE,
 is_application_authorized_to_delete_value INT(1) NOT NULL DEFAULT 0,
+is_application_authorized_to_delete_certificate INT(1) NOT NULL DEFAULT 0,
+
 PRIMARY KEY (id_client_app)
 );
 --

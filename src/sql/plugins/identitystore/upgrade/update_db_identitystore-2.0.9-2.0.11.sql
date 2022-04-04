@@ -1,0 +1,1 @@
+ALTER TABLE identitystore_client_application ADD COLUMN is_application_authorized_to_delete_certificate INT(1) NOT NULL DEFAULT 0;
