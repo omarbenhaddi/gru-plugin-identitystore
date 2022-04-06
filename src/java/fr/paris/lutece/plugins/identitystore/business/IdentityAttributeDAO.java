@@ -456,7 +456,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
      */
     private boolean isCertificateExpired( IdentityAttribute attribute )
     {
-        return attribute.getCertificate( ).getExpirationDate( ) != null && attribute.getCertificate( ).getExpirationDate( ).before( new Date( ) );
+        return attribute.getCertificate( )!=null &&  attribute.getCertificate( ).getExpirationDate( ) != null && attribute.getCertificate( ).getExpirationDate( ).before( new Date( ) );
     }
 
     /**
