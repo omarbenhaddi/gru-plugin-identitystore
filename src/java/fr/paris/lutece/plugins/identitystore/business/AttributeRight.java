@@ -49,6 +49,7 @@ public class AttributeRight implements Serializable
     private boolean _bWritable;
     private boolean _bCertifiable;
     private boolean _bSearchable;
+    private boolean _bMandatory;
 
     /**
      * @return the _clientApplication
@@ -151,4 +152,20 @@ public class AttributeRight implements Serializable
     {
         this._attributeKey = attributeKey;
     }
+
+    /**
+     * 
+     * @return _bMandatory true if the attribute is mandatory
+     */
+	public boolean isMandatory() {
+		return _bMandatory;
+	}
+	
+	/**
+	 * 
+	 * @param bMandatory true if the attribute is mandatory
+	 */
+	public void setMandatory(boolean bMandatory) {
+		this._bMandatory = bMandatory;
+	}
 }

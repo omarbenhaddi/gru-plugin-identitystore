@@ -103,6 +103,8 @@ readable int(1) NOT NULL  default '0',
 writable int(1) NOT NULL  default '0',
 certifiable int(1) NOT NULL default '0',
 searchable int(1) NOT NULL default '0',
+mandatory  int(1) NOT NULL default '0',
+
 PRIMARY KEY (id_client_app, id_attribute)
 );
 
