@@ -677,6 +677,7 @@ public final class IdentityStoreService
                 appRightDto.setAttributeKey( attrRight.getAttributeKey( ).getKeyName( ) );
                 appRightDto.setReadable( attrRight.isReadable( ) );
                 appRightDto.setWritable( attrRight.isWritable( ) );
+                appRightDto.setMandatory(attrRight.isMandatory());
                 if ( attrRight.isCertifiable( ) )
                 {
                     for ( AbstractCertifier certifier : listCertifier )
