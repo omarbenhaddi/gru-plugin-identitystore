@@ -38,7 +38,7 @@ import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.AuthorType;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import java.util.HashMap;

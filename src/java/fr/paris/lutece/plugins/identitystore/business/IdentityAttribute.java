@@ -36,12 +36,11 @@ package fr.paris.lutece.plugins.identitystore.business;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.portal.business.file.File;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 import java.io.Serializable;
 
 import java.sql.Timestamp;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 /**
@@ -52,7 +51,7 @@ public class IdentityAttribute implements Serializable
     private static final long serialVersionUID = 1L;
     private int _nIdIdentity;
     private AttributeKey _attributeKey;
-    @NotEmpty( message = "#i18n{identitystore.validation.identityattribute.AttributeValue.notEmpty}" )
+    @NotBlank( message = "#i18n{identitystore.validation.identityattribute.AttributeValue.notEmpty}" )
     @Size( max = 255, message = "#i18n{identitystore.validation.identityattribute.AttributeValue.size}" )
     private String _strValue;
     private int _nIdCertificate;

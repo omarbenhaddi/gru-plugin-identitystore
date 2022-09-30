@@ -48,10 +48,10 @@ import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.AuthorType;
 import fr.paris.lutece.portal.service.util.AppException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

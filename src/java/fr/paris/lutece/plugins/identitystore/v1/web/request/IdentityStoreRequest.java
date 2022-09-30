@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.v1.web.request;
 
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 
 /**
@@ -48,7 +49,7 @@ public abstract class IdentityStoreRequest
      * @throws AppException
      *             if request not valid
      */
-    protected abstract void validRequest( ) throws AppException;
+    protected abstract void validRequest( ) throws IdentityStoreException;
 
     /**
      * Specific action for the request
@@ -56,8 +57,9 @@ public abstract class IdentityStoreRequest
      * @return html/json string response
      * @throws AppException
      *             in case of request fail
+     * @throws IdentityStoreException 
      */
-    protected abstract String doSpecificRequest( ) throws AppException;
+    protected abstract String doSpecificRequest( ) throws IdentityStoreException;
 
     /**
      * Do the request, call the inner validRequest and doSpecificRequest
@@ -66,7 +68,7 @@ public abstract class IdentityStoreRequest
      * @throws AppException
      *             in case of failure
      */
-    public String doRequest( ) throws AppException
+    public String doRequest( ) throws IdentityStoreException
     {
         validRequest( );
 

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
@@ -53,7 +53,8 @@ import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -108,11 +109,11 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             if the parameters are not valid
      */
-    public void checkClientApplication( String strClientCode ) throws AppException
+    public void checkClientApplication( String strClientCode ) throws IdentityStoreException
     {
         if ( StringUtils.isBlank( strClientCode ) )
         {
-            throw new AppException( Constants.PARAM_CLIENT_CODE + " is missing" );
+            throw new IdentityStoreException( Constants.PARAM_CLIENT_CODE + " is missing" );
         }
     }
 
@@ -126,11 +127,11 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             if the parameters are not valid
      */
-    public void checkIdentity( String strConnectionId, String strCustomerId ) throws AppException
+    public void checkIdentity( String strConnectionId, String strCustomerId ) throws IdentityStoreException
     {
         if ( StringUtils.isBlank( strConnectionId ) && ( StringUtils.isBlank( strCustomerId ) ) )
         {
-            throw new AppException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER + " are missing, at least one must be provided" );
+            throw new IdentityStoreException( Constants.PARAM_ID_CONNECTION + " AND " + Constants.PARAM_ID_CUSTOMER + " are missing, at least one must be provided" );
         }
     }
 
@@ -142,16 +143,16 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             if the parameters are not valid
      */
-    public void checkIdentityChange( IdentityChangeDto identityChange ) throws AppException
+    public void checkIdentityChange( IdentityChangeDto identityChange ) throws IdentityStoreException
     {
         if ( ( identityChange == null ) || ( identityChange.getIdentity( ) == null ) )
         {
-            throw new AppException( "Provided IdentityChange / Identity is null" );
+            throw new IdentityStoreException( "Provided IdentityChange / Identity is null" );
         }
 
         if ( identityChange.getAuthor( ) == null )
         {
-            throw new AppException( "Provided Author is null" );
+            throw new IdentityStoreException( "Provided Author is null" );
         }
     }
 
@@ -165,16 +166,16 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             thrown if input parameters are not valid or no file is found
      */
-    public void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey ) throws AppException
+    public void checkDownloadFileAttributeParams( String strConnectionId, String strClientCode, String strAttributeKey ) throws IdentityStoreException
     {
         if ( StringUtils.isBlank( strConnectionId ) )
         {
-            throw new AppException( Constants.PARAM_ID_CONNECTION + " is null or empty" );
+            throw new IdentityStoreException( Constants.PARAM_ID_CONNECTION + " is null or empty" );
         }
 
         if ( StringUtils.isBlank( strAttributeKey ) )
         {
-            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " is null or empty" );
+            throw new IdentityStoreException( Constants.PARAM_ATTRIBUTE_KEY + " is null or empty" );
         }
 
         checkClientApplication( strClientCode );
@@ -192,7 +193,7 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             thrown if provided attributes are not valid
      */
-    public void checkAttributes( IdentityDto identityDto, String strClientAppCode, Map<String, File> mapAttachedFiles ) throws AppException
+    public void checkAttributes( IdentityDto identityDto, String strClientAppCode, Map<String, File> mapAttachedFiles ) throws IdentityStoreException
     {
         if ( ( mapAttachedFiles != null ) && !mapAttachedFiles.isEmpty( ) )
         {
@@ -207,7 +208,7 @@ public final class IdentityRequestValidator
 
                     if ( attributeKey == null )
                     {
-                        throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey( ) + " is provided but does not exist" );
+                        throw new IdentityStoreException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey( ) + " is provided but does not exist" );
                     }
 
                     // check that attribute is file type and that its name is matching
@@ -222,7 +223,7 @@ public final class IdentityRequestValidator
 
                 if ( !bFound )
                 {
-                    throw new AppException( Constants.PARAM_FILE + " " + entry.getKey( ) + " is provided but its attribute is missing" );
+                    throw new IdentityStoreException( Constants.PARAM_FILE + " " + entry.getKey( ) + " is provided but its attribute is missing" );
                 }
             }
         }
@@ -237,7 +238,7 @@ public final class IdentityRequestValidator
             }
             else
             {
-                throw new AppException( "The client application " + strClientAppCode + " is unknown " );
+                throw new IdentityStoreException( "The client application " + strClientAppCode + " is unknown " );
             }
 
             // check that all file attribute type provided with filename in dto have
@@ -248,7 +249,7 @@ public final class IdentityRequestValidator
 
                 if ( attributeKey == null )
                 {
-                    throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey( ) + " is provided but does not exist" );
+                    throw new IdentityStoreException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeDto.getKey( ) + " is provided but does not exist" );
                 }
 
                 for ( AttributeRight attRight : listRights )
@@ -265,7 +266,7 @@ public final class IdentityRequestValidator
                         }
                         else
                         {
-                            throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName( ) + " is provided but is not writable" );
+                            throw new IdentityStoreException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName( ) + " is provided but is not writable" );
                         }
                     }
                 }
@@ -273,7 +274,7 @@ public final class IdentityRequestValidator
                 if ( attributeKey.getKeyType( ).equals( KeyType.FILE ) && StringUtils.isNotBlank( attributeDto.getValue( ) )
                         && ( ( mapAttachedFiles == null ) || ( mapAttachedFiles.get( attributeDto.getValue( ) ) == null ) ) )
                 {
-                    throw new AppException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName( ) + " is provided with filename="
+                    throw new IdentityStoreException( Constants.PARAM_ATTRIBUTE_KEY + " " + attributeKey.getKeyName( ) + " is provided with filename="
                             + attributeDto.getValue( ) + " but no file is attached" );
                 }
             }
@@ -290,7 +291,7 @@ public final class IdentityRequestValidator
      * @throws AppException
      *             thrown if provided attributes are not valid
      */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, String strClientAppCode ) throws AppException
+    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, String strClientAppCode ) throws IdentityStoreException
     {
         ClientApplication clientApp = IdentityStoreService.fetchClientApplication( strClientAppCode );
         List<AttributeRight> listAttributeRight = ClientApplicationHome.selectApplicationRights( clientApp );
@@ -305,7 +306,7 @@ public final class IdentityRequestValidator
                     {
                         if ( !attributeRight.isSearchable( ) )
                         {
-                            throw new AppException( "The attribute " + strAttributeKeyName + " is provided but not searchable for " + strClientAppCode );
+                            throw new IdentityStoreException( "The attribute " + strAttributeKeyName + " is provided but not searchable for " + strClientAppCode );
                         }
                     }
                 }

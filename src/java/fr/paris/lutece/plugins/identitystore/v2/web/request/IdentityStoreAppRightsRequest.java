@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 
 /**
@@ -66,7 +67,7 @@ public class IdentityStoreAppRightsRequest extends IdentityStoreRequest
      * {@inheritDoc}
      */
     @Override
-    protected void validRequest( ) throws AppException
+    protected void validRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
     }

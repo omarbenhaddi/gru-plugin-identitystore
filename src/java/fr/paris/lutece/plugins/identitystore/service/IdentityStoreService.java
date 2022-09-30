@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.AttributeCertificateHome;
@@ -64,6 +64,7 @@ import fr.paris.lutece.plugins.identitystore.service.certifier.IGenerateAutomati
 import fr.paris.lutece.plugins.identitystore.service.encryption.IdentityEncryptionService;
 import fr.paris.lutece.plugins.identitystore.service.external.IdentityInfoExternalService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AppRightDto;
@@ -74,8 +75,7 @@ import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
-import fr.paris.lutece.plugins.identitystore.v2.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityDeletedException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -150,8 +150,9 @@ public final class IdentityStoreService
      * @param mapAttachedFiles
      *            the files to create
      * @return the created identity
+     * @throws IdentityStoreException 
      */
-    public static IdentityDto getOrCreateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    public static IdentityDto getOrCreateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles ) throws IdentityStoreException
     {
         String strClientAppCode = identityChangeDto.getAuthor( ).getApplicationCode( );
         ClientApplication clientApplication = fetchClientApplication( strClientAppCode );
@@ -257,7 +258,7 @@ public final class IdentityStoreService
      * @throws IdentityNotFoundException
      *             if the identity cannot be found
      */
-    private static Identity getExistingIdentity( IdentityDto identityDto, String strClientAppCode )
+    private static Identity getExistingIdentity( IdentityDto identityDto, String strClientAppCode ) throws IdentityStoreException
     {
         String strConnectionId = identityDto.getConnectionId( );
         String strCustomerId = identityDto.getCustomerId( );
@@ -408,10 +409,9 @@ public final class IdentityStoreService
      * @param strClientAppCode
      *            , the application code chich requires creation
      * @return the initialized identity
-     * @throws IdentityNotFoundException
-     *             if no identity can be retrieve from external source
+     * @throws IdentityStoreException 
      */
-    private static Identity createIdentity( String strConnectionId, String strClientAppCode ) throws IdentityNotFoundException
+    private static Identity createIdentity( String strConnectionId, String strClientAppCode ) throws IdentityStoreException
     {
         IdentityChangeDto identityChangeDtoInitialized = IdentityInfoExternalService.instance( ).getIdentityInfo( strConnectionId );
 
@@ -444,8 +444,9 @@ public final class IdentityStoreService
      * @param mapAttachedFiles
      *            the files to create
      * @return the updated identity with status on attribute
+     * @throws IdentityStoreException 
      */
-    public static IdentityDto updateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles )
+    public static IdentityDto updateIdentity( IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles ) throws IdentityStoreException
     {
         // init dtos
         AuthorDto authorDto = identityChangeDto.getAuthor( );
@@ -495,9 +496,10 @@ public final class IdentityStoreService
      * @param strClientAppCode
      *            client application code
      * @return the updated identity
+     * @throws IdentityStoreException 
      */
     private static Identity completeIdentity( Identity identity, IdentityChangeDto identityChangeDto, Map<String, File> mapAttachedFiles,
-            String strClientAppCode, boolean bAppCanDelete )
+            String strClientAppCode, boolean bAppCanDelete ) throws IdentityStoreException
     {
         IdentityDto identityDto = identityChangeDto.getIdentity( );
         AuthorDto authorDto = identityChangeDto.getAuthor( );
@@ -619,8 +621,9 @@ public final class IdentityStoreService
      *            the connection id
      * @param strClientApplicationCode
      *            the application code
+     * @throws IdentityStoreException 
      */
-    public static void removeIdentity( String strConnectionId, String strClientApplicationCode )
+    public static void removeIdentity( String strConnectionId, String strClientApplicationCode ) throws IdentityStoreException
     {
 
         ClientApplication clientApplication = fetchClientApplication( strClientApplicationCode );

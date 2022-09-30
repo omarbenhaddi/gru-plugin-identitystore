@@ -43,8 +43,8 @@ import fr.paris.lutece.plugins.identitystore.v1.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
-import fr.paris.lutece.portal.service.util.AppException;
 
 /**
  * This class represents a get request for IdentityStoreRestServive
@@ -86,7 +86,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected void validRequest( ) throws AppException
+    protected void validRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkIdentity( _strConnectionId, _strCustomerId );
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
@@ -99,7 +99,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected String doSpecificRequest( ) throws AppException
+    protected String doSpecificRequest( ) throws IdentityStoreException
     {
         IdentityChangeDto identityChangeDto = IdentityStoreService.buildIdentityChange( _strClientAppCode );
         identityChangeDto.getIdentity( ).setConnectionId( _strConnectionId );
@@ -114,7 +114,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
         }
         catch( JsonProcessingException e )
         {
-            throw new AppException( ERROR_JSON_MAPPING, e );
+            throw new IdentityStoreException( ERROR_JSON_MAPPING, e );
         }
     }
 

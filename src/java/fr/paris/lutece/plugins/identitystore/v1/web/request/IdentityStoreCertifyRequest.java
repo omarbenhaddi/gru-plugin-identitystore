@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.identitystore.v1.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 
@@ -75,11 +76,11 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
     /**
      * Valid the update request
      * 
-     * @throws AppException
+     * @throws IdentityStoreException
      *             if there is an exception during the treatment
      */
     @Override
-    protected void validRequest( ) throws AppException
+    protected void validRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeDto );
         IdentityRequestValidator.instance( ).checkIdentity( _identityChangeDto.getIdentity( ).getConnectionId( ),
@@ -95,7 +96,7 @@ public class IdentityStoreCertifyRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected String doSpecificRequest( ) throws AppException
+    protected String doSpecificRequest( ) throws IdentityStoreException
     {
         Map<String, File> mapAttechedFiles = new HashMap<String, File>( );
         IdentityDto identityToUpdate = IdentityStoreService.updateIdentity( _identityChangeDto, mapAttechedFiles );

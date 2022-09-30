@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v1.web.request;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +45,8 @@ import fr.paris.lutece.plugins.identitystore.v1.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 
@@ -108,9 +109,10 @@ public class IdentityStoreCreateRequest extends IdentityStoreRequest
      * 
      * @throws AppException
      *             if there is an exception during the treatment
+     * @throws IdentityStoreException 
      */
     @Override
-    protected String doSpecificRequest( ) throws AppException
+    protected String doSpecificRequest( ) throws IdentityStoreException
     {
         fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto identityDto = IdentityStoreService.getOrCreateIdentity(
                 DtoConverter.convertToIdentityChangeDtoNewVersion( _identityChangeDto ), _mapAttachedFiles );
@@ -122,7 +124,7 @@ public class IdentityStoreCreateRequest extends IdentityStoreRequest
         }
         catch( JsonProcessingException e )
         {
-            throw new AppException( ERROR_JSON_MAPPING, e );
+            throw new IdentityStoreException( ERROR_JSON_MAPPING, e );
         }
     }
 

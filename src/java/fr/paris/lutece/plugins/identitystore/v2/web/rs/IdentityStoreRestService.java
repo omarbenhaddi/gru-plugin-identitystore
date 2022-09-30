@@ -51,10 +51,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import net.sf.json.util.JSONUtils;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.ContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,11 +63,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.core.header.ContentDisposition;
-import com.sun.jersey.multipart.BodyPart;
-import com.sun.jersey.multipart.FormDataMultiPart;
-import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 
 import fr.paris.lutece.plugins.identitystore.business.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
@@ -80,17 +76,13 @@ import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreUpdateR
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.SearchDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.IdentityTransportApiManagerRest;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.IdentityTransportRest;
-import fr.paris.lutece.plugins.identitystore.v2.web.service.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFile;
 import fr.paris.lutece.portal.business.physicalfile.PhysicalFileHome;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -278,7 +270,7 @@ public final class IdentityStoreRestService
         try
         {
             IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strConnectionId, strClientAppCode );
-            return buildResponse( identityStoreRequest.doRequest( ), Status.OK );
+            return buildResponse( identityStoreRequest.doRequest( ), Response.Status.OK );
         }
         catch( Exception e )
         {
@@ -374,11 +366,11 @@ public final class IdentityStoreRestService
                 // content-body of request
                 strBody = IOUtils.toString( inputStream, StandardCharsets.UTF_8.toString( ) );
 
-                if ( JSONUtils.mayBeJSON( strBody ) )
+                try
                 {
                     identityChangeDto = getIdentityChangeFromJson( strBody );
                 }
-                else
+                catch ( IOException e )
                 {
                     throw new AppException( "Error parsing json request " + strBody );
                 }
@@ -435,19 +427,19 @@ public final class IdentityStoreRestService
     {
         // For security purpose, send a generic message
         String strMessage = null;
-        Status status = null;
+        Response.StatusType status = null;
 
         AppLogService.error( "IdentityStoreRestService getErrorResponse : " + exception, exception );
 
         if ( exception instanceof IdentityNotFoundException )
         {
             strMessage = ERROR_NO_IDENTITY_FOUND;
-            status = Status.NOT_FOUND;
+            status = Response.Status.NOT_FOUND;
         }
         else
         {
             strMessage = ERROR_DURING_TREATMENT;
-            status = Status.BAD_REQUEST;
+            status = Response.Status.BAD_REQUEST;
         }
 
         return buildResponse( strMessage, status );
@@ -462,7 +454,7 @@ public final class IdentityStoreRestService
      *            the status
      * @return the {@code Response} object
      */
-    private Response buildResponse( String strMessage, Status status )
+    private Response buildResponse( String strMessage, Response.StatusType status )
     {
         try
         {

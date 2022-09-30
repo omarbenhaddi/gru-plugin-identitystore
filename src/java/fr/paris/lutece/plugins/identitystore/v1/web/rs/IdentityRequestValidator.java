@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.AttributeKeyHome;
@@ -51,7 +51,7 @@ import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v1.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.v1.web.rs.util.Constants;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;

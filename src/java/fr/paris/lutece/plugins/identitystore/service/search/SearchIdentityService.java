@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.service.search;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class SearchIdentityService implements ISearchIdentityService
     /**
      * {@inheritDoc }
      */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, String strClientAppCode ) throws AppException
+    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, String strClientAppCode ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkSearchAttributes( mapAttributeValues, strClientAppCode);
     }

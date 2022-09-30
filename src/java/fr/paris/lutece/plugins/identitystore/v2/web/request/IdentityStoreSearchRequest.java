@@ -33,23 +33,18 @@
  */
 package fr.paris.lutece.plugins.identitystore.v2.web.request;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.paris.lutece.plugins.identitystore.business.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.business.Identity;
 
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.portal.business.file.File;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class represents a get request for IdentityStoreRestServive
@@ -91,7 +86,7 @@ public class IdentityStoreSearchRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected void validRequest( ) throws AppException
+    protected void validRequest( ) throws IdentityStoreException
     {
         _searchIdentityService.checkSearchAttributes( _mapAttributeValues, _strClientAppCode );
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
@@ -104,7 +99,7 @@ public class IdentityStoreSearchRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected String doSpecificRequest( ) throws AppException
+    protected String doSpecificRequest( ) throws IdentityStoreException
     {
         List<IdentityDto> listIdentityDto = _searchIdentityService.getIdentities(_mapAttributeValues, _listAttributeKeyNames, _strClientAppCode );
 
@@ -114,7 +109,7 @@ public class IdentityStoreSearchRequest extends IdentityStoreRequest
         }
         catch( JsonProcessingException e )
         {
-            throw new AppException( ERROR_JSON_MAPPING, e );
+            throw new IdentityStoreException( ERROR_JSON_MAPPING, e );
         }
     }
 }

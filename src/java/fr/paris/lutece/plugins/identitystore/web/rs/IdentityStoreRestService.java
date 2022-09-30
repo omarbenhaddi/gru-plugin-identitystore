@@ -45,18 +45,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.jersey.multipart.FormDataMultiPart;
 
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.service.Constants;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 
 /**
  * REST service for channel resource

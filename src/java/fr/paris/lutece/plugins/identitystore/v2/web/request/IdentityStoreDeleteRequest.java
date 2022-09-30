@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v2.web.request;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
  * This class represents a delete request for IdentityStoreRestServive
@@ -70,7 +70,7 @@ public class IdentityStoreDeleteRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected void validRequest( ) throws AppException
+    protected void validRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkClientApplication( _strApplicationCode );
     }
@@ -82,7 +82,7 @@ public class IdentityStoreDeleteRequest extends IdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected String doSpecificRequest( ) throws AppException
+    protected String doSpecificRequest( ) throws IdentityStoreException
     {
         IdentityStoreService.removeIdentity( _strConnectionId, _strApplicationCode );
 

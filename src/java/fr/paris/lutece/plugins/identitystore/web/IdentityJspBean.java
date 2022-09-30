@@ -47,7 +47,7 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
 import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
-import fr.paris.lutece.plugins.identitystore.v2.web.service.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.AuthorType;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -60,7 +60,7 @@ import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.url.UrlItem;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
