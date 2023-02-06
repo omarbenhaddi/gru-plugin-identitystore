@@ -1,0 +1,11 @@
+<#macro tabs2 tab >
+        <@tabList>
+                <@tabLink active=( tab == "refattributecertificationprocessus" )
+                title="#i18n{identitystore.manage_refattributecertificationprocessuss.pageTitle}"
+                href="jsp/admin/plugins/identitystore/ManageRefAttributeCertificationProcessuss.jsp"  />
+
+                <@tabLink active=( tab == "refcertificationlevel" )
+                title="#i18n{identitystore.manage_refcertificationlevels.pageTitle}"
+                href="jsp/admin/plugins/identitystore/ManageRefCertificationLevels.jsp"  />
+        </@tabList>
+</#macro>

@@ -1,0 +1,36 @@
+{
+    "settings" : {
+        "analysis" : {
+            "analyzer" : {
+                "email_analyzer" : {
+                    "tokenizer" : "email_tokenizer"
+                }
+            },
+            "tokenizer" : {
+                "email_tokenizer" : {
+                    "type" : "uax_url_email"
+                }
+            }
+        }
+    },
+    "mappings" : {
+        "properties" : {
+            "attributes.email.value" : {
+                "type" : "text",
+                "analyzer" : "email_analyzer"
+            },
+            "attributes.login.value" : {
+                "type" : "text",
+                "analyzer" : "email_analyzer"
+            },
+            "attributes.birthdate.value" : {
+                "type" : "text",
+                "analyzer" : "keyword"
+            },
+            "attributes.first_name.value" : {
+                "type" : "text",
+                "analyzer" : "whitespace"
+            }
+        }
+    }
+}

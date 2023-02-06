@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2018, Mairie de Paris
+ * Copyright (c) 2002-2023, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
-import fr.paris.lutece.plugins.identitystore.business.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 
 /**
  * AttributeChange
@@ -43,6 +43,16 @@ public class IdentityChange
     // Variables declarations
     private Identity _identity;
     private IdentityChangeType _identityChangeType;
+
+    public IdentityChange( )
+    {
+    }
+
+    public IdentityChange( Identity _identity, IdentityChangeType _identityChangeType )
+    {
+        this._identity = _identity;
+        this._identityChangeType = _identityChangeType;
+    }
 
     /**
      * Returns the Identity
