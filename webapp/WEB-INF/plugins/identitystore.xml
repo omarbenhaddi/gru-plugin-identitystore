@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><plug-in>
     <name>identitystore</name>
     <class>fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin</class>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>3.0.0</version>
     <documentation/>
     <installation/>
     <changes/>
@@ -38,7 +38,7 @@
         </admin-feature>
         <admin-feature>
             <feature-id>IDENTITYSTORE_REF_MANAGEMENT</feature-id>
-            <feature-title></feature-title>
+            <feature-title/>
             <feature-description>identitystore.adminFeature.ManageProcessusRef.name</feature-description>
             <feature-level>0</feature-level>
             <feature-url>jsp/admin/plugins/identitystore/ManageProcessusRef.jsp</feature-url>
