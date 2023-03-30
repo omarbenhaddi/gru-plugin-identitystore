@@ -38,14 +38,16 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
+import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
+import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
+import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,8 +55,8 @@ import java.util.stream.Collectors;
 
 public class IdentityQualityService
 {
-    private static final Integer QUALITY_BASE = Integer.valueOf( AppPropertiesService.getProperty( "identitystore.identity.quality.base" ) );
     private static final IdentityAttributeCache _identityAttributeCache = SpringContextService.getBean( "identitystore.identityAttributeCache" );
+    private static final QualityBaseCache _qualityBaseCache = SpringContextService.getBean( "identitystore.qualityBaseCache" );
 
     private static IdentityQualityService _instance;
 
@@ -63,6 +65,7 @@ public class IdentityQualityService
         if ( _instance == null )
         {
             _instance = new IdentityQualityService( );
+            _instance._qualityBaseCache.refresh( );
         }
         return _instance;
     }
@@ -80,8 +83,9 @@ public class IdentityQualityService
     public void computeCoverage( final QualifiedIdentity qualifiedIdentity, final ServiceContract serviceContract )
     {
         // Check that all attributes required by the contract are present in the identity
-        final List<String> reqKeys = serviceContract.getAttributeRequirements( ).stream( ).map( AttributeRequirement::getAttributeKey )
-                .map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
+        final List<String> reqKeys = serviceContract.getAttributeRequirements( ).stream( )
+                .filter( req -> req.getRefCertificationLevel( ) != null && StringUtils.isNotEmpty( req.getRefCertificationLevel( ).getLevel( ) ) )
+                .map( AttributeRequirement::getAttributeKey ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
         final List<String> identityKeys = qualifiedIdentity.getAttributes( ).stream( ).map( CertifiedAttribute::getKey ).collect( Collectors.toList( ) );
         reqKeys.removeAll( identityKeys );
         if ( reqKeys.size( ) > 0 )
@@ -105,7 +109,8 @@ public class IdentityQualityService
         }
     }
 
-    public static void computeQuality( final QualifiedIdentity qualifiedIdentity ) throws IdentityAttributeNotFoundException
+    public static void computeQuality( final QualifiedIdentity qualifiedIdentity )
+            throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final AtomicInteger levels = new AtomicInteger( );
         for ( final CertifiedAttribute attribute : qualifiedIdentity.getAttributes( ) )
@@ -117,7 +122,7 @@ public class IdentityQualityService
                 levels.addAndGet( attributeKey.getKeyWeight( ) * certificateLevel );
             }
         }
-        qualifiedIdentity.setQuality( levels.doubleValue( ) / QUALITY_BASE );
+        qualifiedIdentity.setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
     }
 
     public static void computeMatchScore( final QualifiedIdentity qualifiedIdentity, final List<SearchAttributeDto> searchAttributes )

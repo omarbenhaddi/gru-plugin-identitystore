@@ -124,11 +124,10 @@ public class IdentitystoreTestUtils
         return identityAttribute;
     }
 
-    public static AttributeCertificate createAttributeCertificate( int _nCertificateLevel, String _strName, String _strCode, int _nExpirationDelay )
+    public static AttributeCertificate createAttributeCertificate( String _strName, String _strCode, int _nExpirationDelay )
     {
         final AttributeCertificate certificate = new AttributeCertificate( );
         certificate.setCertificateDate( new Timestamp( new Date( ).getTime( ) ) );
-        certificate.setCertificateLevel( _nCertificateLevel );
         certificate.setCertifierName( _strName );
         certificate.setCertifierCode( _strCode );
 
@@ -151,17 +150,17 @@ public class IdentitystoreTestUtils
         return attribute;
     }
 
-    public static AttributeCertificate createAttributeCertificateInDatabase( int _nCertificateLevel, String _strName, String _strCode, int _nExpirationDelay )
+    public static AttributeCertificate createAttributeCertificateInDatabase( String _strName, String _strCode, int _nExpirationDelay )
     {
-        AttributeCertificate attributeCertificate = createAttributeCertificate( _nCertificateLevel, _strName, _strCode, _nExpirationDelay );
+        AttributeCertificate attributeCertificate = createAttributeCertificate( _strName, _strCode, _nExpirationDelay );
         AttributeCertificateHome.create( attributeCertificate );
 
         return attributeCertificate;
     }
 
-    public static AttributeCertificate createExpiredAttributeCertificateInDatabase( int _nCertificateLevel, String _strName, String _strCode )
+    public static AttributeCertificate createExpiredAttributeCertificateInDatabase( String _strName, String _strCode )
     {
-        AttributeCertificate attributeCertificate = createAttributeCertificate( _nCertificateLevel, _strName, _strCode, -1 );
+        AttributeCertificate attributeCertificate = createAttributeCertificate( _strName, _strCode, -1 );
         attributeCertificate.setExpirationDate( createExpiredTimestamp( ) );
         AttributeCertificateHome.create( attributeCertificate );
 

@@ -47,12 +47,12 @@ import java.util.List;
 public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certificate, certifier_code, certificate_date, certificate_level, expiration_date "
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certificate, certifier_code, certificate_date, expiration_date "
             + " FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certificate (  certifier_code, certificate_date, certificate_level, expiration_date ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certificate (  certifier_code, certificate_date, expiration_date ) VALUES ( ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certificate SET id_attribute_certificate = ?, certifier_code = ?, certificate_date = ?, certificate_level = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, certifier_code, certificate_date, certificate_level, expiration_date FROM identitystore_attribute_certificate";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certificate SET id_attribute_certificate = ?, certifier_code = ?, certificate_date = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, certifier_code, certificate_date, expiration_date FROM identitystore_attribute_certificate";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certificate FROM identitystore_attribute_certificate";
 
     /**
@@ -67,7 +67,6 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 
         daoUtil.setString( nIndex++, attributeCertificate.getCertifierCode( ) );
         daoUtil.setTimestamp( nIndex++, attributeCertificate.getCertificateDate( ) );
-        daoUtil.setInt( nIndex++, attributeCertificate.getCertificateLevel( ) );
         daoUtil.setTimestamp( nIndex++, attributeCertificate.getExpirationDate( ) );
 
         daoUtil.executeUpdate( );
@@ -100,7 +99,6 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
             attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
             attributeCertificate.setCertifierCode( daoUtil.getString( nIndex++ ) );
             attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributeCertificate.setCertificateLevel( daoUtil.getInt( nIndex++ ) );
             attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
         }
 
@@ -133,7 +131,6 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
         daoUtil.setInt( nIndex++, attributeCertificate.getId( ) );
         daoUtil.setString( nIndex++, attributeCertificate.getCertifierCode( ) );
         daoUtil.setTimestamp( nIndex++, attributeCertificate.getCertificateDate( ) );
-        daoUtil.setInt( nIndex++, attributeCertificate.getCertificateLevel( ) );
         daoUtil.setTimestamp( nIndex++, attributeCertificate.getExpirationDate( ) );
         daoUtil.setInt( nIndex, attributeCertificate.getId( ) );
 
@@ -159,7 +156,6 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
             attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
             attributeCertificate.setCertifierCode( daoUtil.getString( nIndex++ ) );
             attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributeCertificate.setCertificateLevel( daoUtil.getInt( nIndex++ ) );
             attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
 
             attributeCertificateList.add( attributeCertificate );

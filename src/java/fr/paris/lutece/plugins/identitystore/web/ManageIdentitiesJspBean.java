@@ -39,6 +39,7 @@ import fr.paris.lutece.portal.web.util.LocalizedPaginator;
 import fr.paris.lutece.util.html.Paginator;
 import fr.paris.lutece.util.url.UrlItem;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,19 @@ public abstract class ManageIdentitiesJspBean extends MVCAdminJspBean
     // Markers
     private static final String MARK_PAGINATOR = "paginator";
     private static final String MARK_NB_ITEMS_PER_PAGE = "nb_items_per_page";
+
+    // Infos
+    public static final String QUERY_PARAM_CUID = "cuid";
+    public static final String QUERY_PARAM_GUID = "guid";
+    public static final String QUERY_PARAM_EMAIL = "email";
+    public static final String QUERY_PARAM_GENDER = "gender";
+    public static final String QUERY_PARAM_FAMILY_NAME = "family_name";
+    public static final String QUERY_PARAM_PREFERRED_USERNAME = "preferred_username";
+    public static final String QUERY_PARAM_FIRST_NAME = "first_name";
+    public static final String QUERY_PARAM_BIRTHDATE = "birthdate";
+    public static final String QUERY_PARAM_INSEE_BIRTHPLACE_LABEL = "insee_birthplace_label";
+    public static final String QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL = "insee_birthcountry_label";
+    public static final String QUERY_PARAM_PHONE = "phone";
 
     // Variables
     private int _nDefaultItemsPerPage;
@@ -86,18 +100,81 @@ public abstract class ManageIdentitiesJspBean extends MVCAdminJspBean
         _nDefaultItemsPerPage = AppPropertiesService.getPropertyInt( PROPERTY_DEFAULT_LIST_ITEM_PER_PAGE, 50 );
         _nItemsPerPage = Paginator.getItemsPerPage( request, Paginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage, _nDefaultItemsPerPage );
 
-        UrlItem url = new UrlItem( strManageJsp );
-        String strUrl = url.getUrl( );
+        final UrlItem url = new UrlItem( strManageJsp );
+        final Map<String, String> queryParameters = this.getQueryParameters( request );
+        queryParameters.forEach( ( key, value ) -> url.addParameter( key, value ) );
+        final String strUrl = url.getUrl( );
 
         // PAGINATOR
-        LocalizedPaginator paginator = new LocalizedPaginator( list, _nItemsPerPage, strUrl, PARAMETER_PAGE_INDEX, _strCurrentPageIndex, getLocale( ) );
+        final LocalizedPaginator paginator = new LocalizedPaginator( list, _nItemsPerPage, strUrl, PARAMETER_PAGE_INDEX, _strCurrentPageIndex, getLocale( ) );
 
-        Map<String, Object> model = getModel( );
+        final Map<String, Object> model = getModel( );
 
         model.put( MARK_NB_ITEMS_PER_PAGE, "" + _nItemsPerPage );
         model.put( MARK_PAGINATOR, paginator );
         model.put( strBookmark, paginator.getPageItems( ) );
 
         return model;
+    }
+
+    protected Map<String, String> getQueryParameters( final HttpServletRequest request )
+    {
+        final Map<String, String> parameters = new HashMap<>( );
+        final String cuid = request.getParameter( QUERY_PARAM_CUID );
+        if ( cuid != null )
+        {
+            parameters.put( QUERY_PARAM_CUID, cuid );
+        }
+        final String guid = request.getParameter( QUERY_PARAM_GUID );
+        if ( guid != null )
+        {
+            parameters.put( QUERY_PARAM_GUID, guid );
+        }
+        final String email = request.getParameter( QUERY_PARAM_EMAIL );
+        if ( email != null )
+        {
+            parameters.put( QUERY_PARAM_EMAIL, email );
+        }
+        final String gender = request.getParameter( QUERY_PARAM_GENDER );
+        if ( gender != null )
+        {
+            parameters.put( QUERY_PARAM_GENDER, gender );
+        }
+        final String family_name = request.getParameter( QUERY_PARAM_FAMILY_NAME );
+        if ( family_name != null )
+        {
+            parameters.put( QUERY_PARAM_FAMILY_NAME, family_name );
+        }
+        final String preferred_username = request.getParameter( QUERY_PARAM_PREFERRED_USERNAME );
+        if ( preferred_username != null )
+        {
+            parameters.put( QUERY_PARAM_PREFERRED_USERNAME, preferred_username );
+        }
+        final String first_name = request.getParameter( QUERY_PARAM_FIRST_NAME );
+        if ( first_name != null )
+        {
+            parameters.put( QUERY_PARAM_FIRST_NAME, first_name );
+        }
+        final String birthdate = request.getParameter( QUERY_PARAM_BIRTHDATE );
+        if ( birthdate != null )
+        {
+            parameters.put( QUERY_PARAM_BIRTHDATE, birthdate );
+        }
+        final String insee_birthplace_label = request.getParameter( QUERY_PARAM_INSEE_BIRTHPLACE_LABEL );
+        if ( insee_birthplace_label != null )
+        {
+            parameters.put( QUERY_PARAM_INSEE_BIRTHPLACE_LABEL, insee_birthplace_label );
+        }
+        final String insee_birthcountry_label = request.getParameter( QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL );
+        if ( insee_birthcountry_label != null )
+        {
+            parameters.put( QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL, insee_birthcountry_label );
+        }
+        final String phone = request.getParameter( QUERY_PARAM_PHONE );
+        if ( phone != null )
+        {
+            parameters.put( QUERY_PARAM_PHONE, phone );
+        }
+        return parameters;
     }
 }

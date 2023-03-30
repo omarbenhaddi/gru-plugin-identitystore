@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.business.attribute;
 
 import java.util.List;
+import java.util.Map;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -128,4 +129,13 @@ public interface IAttributeKeyDAO
      * @return true if id is used in other tables
      */
     boolean checkAttributeId( int nAttributeId, Plugin plugin );
+
+    /**
+     * Find the quality base factor which is computed following the rule: attributes => SUM(attribute.weight * attribute.maxCertifLevel)
+     * 
+     * @param plugin
+     *            plugin
+     * @return the base
+     */
+    Integer selectQualityBaseFactor( Plugin plugin );
 }

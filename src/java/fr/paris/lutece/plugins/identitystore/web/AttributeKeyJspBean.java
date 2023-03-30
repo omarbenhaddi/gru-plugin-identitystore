@@ -46,6 +46,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,7 +123,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     {
         _attributekey = null;
 
-        List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( );
+        final List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( );
+        listAttributeKeys.sort( Comparator.comparing( AttributeKey::getId ) );
         Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys, JSP_MANAGE_ATTRIBUTEKEYS );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTEKEYS, TEMPLATE_MANAGE_ATTRIBUTEKEYS, model );

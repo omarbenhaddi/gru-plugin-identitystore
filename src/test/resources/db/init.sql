@@ -1015,7 +1015,6 @@ CREATE TABLE public.identitystore_attribute_certificate (
     id_attribute_certificate integer NOT NULL,
     certifier_code character varying(255) DEFAULT ''::character varying NOT NULL,
     certificate_date timestamp without time zone NOT NULL,
-    certificate_level integer DEFAULT 0 NOT NULL,
     expiration_date timestamp without time zone
 );
 
@@ -1825,6 +1824,7 @@ INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.daemo
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.daemon.indexDaemon.interval', '86400');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.plugins.status.swaggerui.pool', 'portal');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.activeServiceContractCache.enabled', '0');
+INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.qualityBaseCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.identityAttributeCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.refAttributeCertificationDefinitionCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.ActiveServiceContractCache.enabled', '0');

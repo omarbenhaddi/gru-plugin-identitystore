@@ -38,7 +38,9 @@ import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides Data Access methods for AttributeKey objects
@@ -54,6 +56,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute";
     private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute WHERE key_name = ?";
     private static final String SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED = "SELECT count(*) FROM identitystore_attribute WHERE id_attribute = ? AND ( EXISTS( SELECT id_attribute FROM identitystore_attribute_right WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_identity_attribute WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_history_identity_attribute WHERE attribute_key IN  ( SELECT key_name FROM identitystore_attribute WHERE id_attribute = ? ) ) )";
+    private static final String SQL_QUERY_SELECT_LEVEL_MAX = "WITH attributes AS ( SELECT ia.key_name, ia.key_weight, max(cast(ircl.level AS NUMERIC)) as max_level FROM identitystore_attribute ia JOIN identitystore_ref_attribute_certification_level iracl ON ia.id_attribute = iracl.id_attribute JOIN identitystore_ref_certification_level ircl ON iracl.id_ref_certification_level = ircl.id_ref_certification_level WHERE ia.key_weight != 0 GROUP BY ia.key_name, ia.key_weight ) SELECT SUM(attributes.max_level * attributes.key_weight) FROM attributes";
 
     /**
      * Generates a new primary key
@@ -279,6 +282,23 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         daoUtil.free( );
 
         return !( nCount == 0 );
+    }
+
+    @Override
+    public Integer selectQualityBaseFactor( Plugin plugin )
+    {
+        Integer base = 0;
+        final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_LEVEL_MAX, plugin );
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            base = daoUtil.getInt( 1 );
+        }
+
+        daoUtil.free( );
+
+        return base;
     }
 
 }

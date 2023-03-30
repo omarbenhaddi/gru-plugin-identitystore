@@ -33,16 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.attribute;
 
-import java.util.List;
-
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class provides instances management methods (create, find, ...) for AttributeCertificate objects
@@ -112,17 +110,7 @@ public final class AttributeCertificateHome
 
         if ( certificate != null )
         {
-            // try
-            // {
-            // TODO voir ce qu'on fait avec ce registry certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode(
-            // ) ).getName( ) );
             certificate.setCertifierName( certificate.getCertifierCode( ) );
-            // }
-            // catch( CertifierNotFoundException e )
-            // {
-            // // Certifier not found, maybe deleted
-            // return certificate;
-            // }
         }
 
         return certificate;
@@ -140,16 +128,8 @@ public final class AttributeCertificateHome
 
         for ( AttributeCertificate certificate : listAttributeCertificate )
         {
-            try
-            {
-                certificate.setCertifierName( CertifierRegistry.instance( ).getCertifier( certificate.getCertifierCode( ) ).getName( ) );
-                returnListAttributeCertificate.add( certificate );
-            }
-            catch( CertifierNotFoundException e )
-            {
-                // No certifier found for this certificate
-            }
-
+            certificate.setCertifierName( certificate.getCertifierCode( ) );
+            returnListAttributeCertificate.add( certificate );
         }
         return returnListAttributeCertificate;
     }

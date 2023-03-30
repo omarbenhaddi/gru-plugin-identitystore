@@ -1,4 +1,8 @@
 ![](https://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=gru-plugin-identitystore-deploy)
+[![Alerte](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-identitystore&metric=alert_status)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-identitystore)
+[![Line of code](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-identitystore&metric=ncloc)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-identitystore)
+[![Coverage](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece.plugins%3Aplugin-identitystore&metric=coverage)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece.plugins%3Aplugin-identitystore)
+
 # Plugin Identity Store
 
 ![](https://dev.lutece.paris.fr/plugins/plugin-identitystore/images/identitystore.png)

@@ -43,11 +43,11 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
+import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.IDuplicateService;
@@ -159,14 +159,6 @@ public class IdentityService
                 certificate.setCertificateDate( new Timestamp( certifiedAttribute.getCertificationDate( ).getTime( ) ) );
                 certificate.setCertifierCode( certifiedAttribute.getCertificationProcess( ) );
                 certificate.setCertifierName( certifiedAttribute.getCertificationProcess( ) );
-                final RefAttributeCertificationLevel refAttributeCertificationLevel = _attributeCertificationDefinitionService
-                        .get( certifiedAttribute.getCertificationProcess( ), certifiedAttribute.getKey( ) );
-                if ( refAttributeCertificationLevel == null )
-                {
-                    throw new IdentityStoreException( "Aucun level n'est défini pour le processus " + certifiedAttribute.getCertificationProcess( ) );
-                }
-                final String level = refAttributeCertificationLevel.getRefCertificationLevel( ).getLevel( );
-                certificate.setCertificateLevel( Integer.parseInt( level ) );
                 attribute.setCertificate( AttributeCertificateHome.create( certificate ) );
                 attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
             }
@@ -308,15 +300,6 @@ public class IdentityService
                                 certificate.setCertificateDate( new Timestamp( attributeToWrite.getCertificationDate( ).getTime( ) ) );
                                 certificate.setCertifierCode( attributeToWrite.getCertificationProcess( ) );
                                 certificate.setCertifierName( attributeToWrite.getCertificationProcess( ) );
-                                final RefAttributeCertificationLevel refAttributeCertificationLevel = _attributeCertificationDefinitionService
-                                        .get( attributeToWrite.getCertificationProcess( ), attributeToWrite.getKey( ) );
-                                if ( refAttributeCertificationLevel == null )
-                                {
-                                    throw new IdentityStoreException(
-                                            "No Level defined for processus with code " + attributeToWrite.getCertificationProcess( ) );
-                                }
-                                final String level = refAttributeCertificationLevel.getRefCertificationLevel( ).getLevel( );
-                                certificate.setCertificateLevel( Integer.parseInt( level ) );
                                 attribute.setCertificate( AttributeCertificateHome.create( certificate ) );
                                 attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
                             }
@@ -334,24 +317,11 @@ public class IdentityService
                         for ( final CertifiedAttribute attributeToUpdate : existingWritableAttributes )
                         {
                             final IdentityAttribute existingAttribute = identity.getAttributes( ).get( attributeToUpdate.getKey( ) );
-                            RefAttributeCertificationLevel refAttributeCertificationLevel = null;
-                            if ( StringUtils.isNotEmpty( attributeToUpdate.getCertificationProcess( ) ) )
-                            {
-                                refAttributeCertificationLevel = _attributeCertificationDefinitionService.get( attributeToUpdate.getCertificationProcess( ),
-                                        attributeToUpdate.getKey( ) );
-                                if ( refAttributeCertificationLevel == null )
-                                {
-                                    throw new IdentityStoreException(
-                                            "No Level defined for processus with code " + attributeToUpdate.getCertificationProcess( ) );
-                                }
-                            }
-                            final String attributeToUpdateLevel = refAttributeCertificationLevel != null
-                                    ? refAttributeCertificationLevel.getRefCertificationLevel( ).getLevel( )
-                                    : "0";
-                            int attributeToUpdateLevelInt = Integer.parseInt( attributeToUpdateLevel );
-                            int existingAttributeLevelInt = existingAttribute.getCertificate( ) != null
-                                    ? existingAttribute.getCertificate( ).getCertificateLevel( )
-                                    : 0;
+
+                            int attributeToUpdateLevelInt = _attributeCertificationDefinitionService
+                                    .getLevelAsInteger( attributeToUpdate.getCertificationProcess( ), attributeToUpdate.getKey( ) );
+                            int existingAttributeLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger(
+                                    existingAttribute.getCertificate( ).getCertifierCode( ), existingAttribute.getAttributeKey( ).getKeyName( ) );
                             if ( attributeToUpdateLevelInt == existingAttributeLevelInt
                                     && StringUtils.equals( attributeToUpdate.getValue( ), existingAttribute.getValue( ) ) )
                             {
@@ -373,7 +343,6 @@ public class IdentityService
                                         certificate.setCertifierCode( attributeToUpdate.getCertificationProcess( ) );
                                         certificate.setCertifierName( attributeToUpdate.getCertificationProcess( ) );
 
-                                        certificate.setCertificateLevel( attributeToUpdateLevelInt );
                                         existingAttribute.setCertificate( AttributeCertificateHome.create( certificate ) ); // TODO supprime-t-on l'ancien
                                                                                                                             // certificat ?
                                         existingAttribute.setIdCertificate( existingAttribute.getCertificate( ).getId( ) );
@@ -498,7 +467,10 @@ public class IdentityService
             return null;
         }
 
-        secondaryIdentity.getAttributes( ).forEach( ( key, secondaryAttribute ) -> {
+        for ( final Map.Entry<String, IdentityAttribute> entry : secondaryIdentity.getAttributes( ).entrySet( ) )
+        {
+            String key = entry.getKey( );
+            IdentityAttribute secondaryAttribute = entry.getValue( );
             IdentityAttribute primaryAttribute = primaryIdentity.getAttributes( ).get( key );
             if ( primaryAttribute == null )
             { // l'attribut n'existe pas, on le crée
@@ -514,7 +486,6 @@ public class IdentityService
                     certificate.setCertificateDate( new Timestamp( secondaryAttribute.getCertificate( ).getCertificateDate( ).getTime( ) ) );
                     certificate.setCertifierCode( secondaryAttribute.getCertificate( ).getCertifierCode( ) );
                     certificate.setCertifierName( secondaryAttribute.getCertificate( ).getCertifierName( ) );
-                    certificate.setCertificateLevel( secondaryAttribute.getCertificate( ).getCertificateLevel( ) );
                     primaryAttribute.setCertificate( AttributeCertificateHome.create( certificate ) );
                     primaryAttribute.setIdCertificate( primaryAttribute.getCertificate( ).getId( ) );
                 }
@@ -528,8 +499,11 @@ public class IdentityService
             }
             else
             { // l'attribut existe, on le met à jour si le niveau de certification est plus élevé
-                final int primaryLevel = primaryAttribute.getCertificate( ) != null ? primaryAttribute.getCertificate( ).getCertificateLevel( ) : 0;
-                final int secondaryLevel = secondaryAttribute.getCertificate( ) != null ? secondaryAttribute.getCertificate( ).getCertificateLevel( ) : 0;
+                final int primaryLevel = _attributeCertificationDefinitionService.getLevelAsInteger( primaryAttribute.getCertificate( ).getCertifierCode( ),
+                        primaryAttribute.getAttributeKey( ).getKeyName( ) );
+                final int secondaryLevel = _attributeCertificationDefinitionService.getLevelAsInteger( secondaryAttribute.getCertificate( ).getCertifierCode( ),
+                        secondaryAttribute.getAttributeKey( ).getKeyName( ) );
+
                 if ( secondaryLevel > primaryLevel )
                 {
                     primaryAttribute.setValue( secondaryAttribute.getValue( ) );
@@ -540,7 +514,6 @@ public class IdentityService
                         certificate.setCertificateDate( new Timestamp( secondaryAttribute.getCertificate( ).getCertificateDate( ).getTime( ) ) );
                         certificate.setCertifierCode( secondaryAttribute.getCertificate( ).getCertifierCode( ) );
                         certificate.setCertifierName( secondaryAttribute.getCertificate( ).getCertifierName( ) );
-                        certificate.setCertificateLevel( secondaryAttribute.getCertificate( ).getCertificateLevel( ) );
                         primaryAttribute.setCertificate( AttributeCertificateHome.create( certificate ) );
                         primaryAttribute.setIdCertificate( primaryAttribute.getCertificate( ).getId( ) );
                     }
@@ -553,7 +526,7 @@ public class IdentityService
                     response.getAttributeStatuses( ).add( attributeStatus );
                 }
             }
-        } );
+        }
 
         /* Tag de l'identité secondaire */
         secondaryIdentity.setMerged( true );
@@ -663,7 +636,7 @@ public class IdentityService
      *             in case of {@link AttributeKey} management error
      */
     public void search( final IdentitySearchRequest identitySearchRequest, final IdentitySearchResponse response, final String applicationCode )
-            throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
+            throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService
                 .getQualifiedIdentities( identitySearchRequest.getSearch( ).getAttributes( ) );
@@ -698,7 +671,7 @@ public class IdentityService
      * @throws ServiceContractNotFoundException
      */
     public void search( final String customerId, final String connectionId, final IdentitySearchResponse response, final String applicationCode )
-            throws IdentityAttributeNotFoundException, ServiceContractNotFoundException
+            throws IdentityAttributeNotFoundException, ServiceContractNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final Identity identity = StringUtils.isNotEmpty( customerId ) ? IdentityHome.findMasterIdentityByCustomerId( customerId )
                 : StringUtils.isNotEmpty( connectionId ) ? IdentityHome.findMasterIdentityByConnectionId( connectionId ) : null;
@@ -722,8 +695,53 @@ public class IdentityService
         }
     }
 
+    /**
+     * Search identities in database from a list of attributes key and value
+     * 
+     * @param mapAttributeValues
+     *            a map of {@link String} keys and {@link String} values
+     * @return a list of {@link QualifiedIdentity}
+     */
+    public static List<QualifiedIdentity> search( final Map<String, List<String>> mapAttributeValues )
+            throws RefAttributeCertificationDefinitionNotFoundException
+    {
+        final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( );
+
+        final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues );
+        if ( listIdentity == null || listIdentity.isEmpty( ) )
+        {
+            return qualifiedIdentities;
+        }
+
+        final List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityListFullAttributes( listIdentity );
+
+        for ( final Identity identity : listIdentity )
+        {
+            for ( final IdentityAttribute identityAttribute : listIdentityAttribute )
+            {
+                if ( identity.getId( ) == identityAttribute.getIdIdentity( ) )
+                {
+                    Map<String, IdentityAttribute> mapIdentityAttributes = identity.getAttributes( );
+
+                    if ( mapIdentityAttributes == null )
+                    {
+                        mapIdentityAttributes = new HashMap<>( );
+                    }
+
+                    mapIdentityAttributes.put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
+                    identity.setAttributes( mapIdentityAttributes );
+                }
+            }
+
+            qualifiedIdentities.add( DtoConverter.convertIdentityToDto( identity ) );
+        }
+
+        return qualifiedIdentities;
+    }
+
     private List<QualifiedIdentity> getFilteredQualifiedIdentities( IdentitySearchRequest identitySearchRequest, String applicationCode,
-            List<QualifiedIdentity> qualifiedIdentities ) throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
+            List<QualifiedIdentity> qualifiedIdentities )
+            throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( applicationCode );
         final Comparator<QualifiedIdentity> comparator = Comparator.comparingDouble( QualifiedIdentity::getScoring )

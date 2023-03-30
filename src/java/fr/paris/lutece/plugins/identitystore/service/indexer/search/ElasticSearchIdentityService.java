@@ -33,19 +33,19 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.search;
 
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
+import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IIdentitySearcher;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,15 +68,6 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
      * {@inheritDoc }
      */
     @Override
-    public List<IdentityDto> getIdentities( Map<String, List<String>> mapAttributeValues, List<String> listAttributeKeyNames, String strClientApplicationCode )
-    {
-        return IdentityStoreService.getIdentities( mapAttributeValues, listAttributeKeyNames, strClientApplicationCode );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
     public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes )
     {
         final List<SearchAttribute> searchAttributes = attributes.stream( ).map( dto -> new SearchAttribute( dto.getKey( ), dto.getValue( ), dto.isStrict( ) ) )
@@ -90,42 +81,36 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
                 {
                     identities.add( this.toQualifiedIdentity( hit.getSource( ), attributes ) );
                 }
-                catch( IdentityAttributeNotFoundException e )
+                catch( IdentityAttributeNotFoundException | RefAttributeCertificationDefinitionNotFoundException e )
                 {
-                    throw new RuntimeException( e );
+                    AppLogService.error( "An error occurred during search: ", e );
                 }
             } );
         }
         return identities;
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws IdentityStoreException
-    {
-        IdentityRequestValidator.instance( ).checkSearchAttributes( mapAttributeValues, nServiceContractId );
-    }
-
     private QualifiedIdentity toQualifiedIdentity( final IdentityObject identityObject, final List<SearchAttributeDto> attributes )
-            throws IdentityAttributeNotFoundException
+            throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final QualifiedIdentity identity = new QualifiedIdentity( );
         identity.setConnectionId( identityObject.getConnectionId( ) );
         identity.setCustomerId( identityObject.getCustomerId( ) );
         identity.setCreationDate( identityObject.getCreationDate( ) );
         identity.setLastUpdateDate( identityObject.getLastUpdateDate( ) );
-        identityObject.getAttributes( ).forEach( ( s, attributeObject ) -> {
+        for ( final Map.Entry<String, AttributeObject> entry : identityObject.getAttributes( ).entrySet( ) )
+        {
+            final String s = entry.getKey( );
+            AttributeObject attributeObject = entry.getValue( );
             final CertifiedAttribute attribute = new CertifiedAttribute( );
             attribute.setKey( s );
             attribute.setValue( attributeObject.getValue( ) );
             attribute.setType( attributeObject.getType( ) );
             attribute.setCertifier( attributeObject.getCertifierCode( ) );
             attribute.setCertificationDate( attributeObject.getCertificateDate( ) );
-            attribute.setCertificationLevel( attributeObject.getCertificateLevel( ) );
+            attribute.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( attribute.getCertifier( ), s ) );
             identity.getAttributes( ).add( attribute );
-        } );
+        }
         return identity;
     }
 }

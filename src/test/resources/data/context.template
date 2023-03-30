@@ -22,6 +22,7 @@
 
     <!-- Cache -->
     <bean id="identitystore.activeServiceContractCache"  class="fr.paris.lutece.plugins.identitystore.cache.ActiveServiceContractCache"/>
+    <bean id="identitystore.qualityBaseCache"  class="fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache"/>
     <bean id="identitystore.identityAttributeCache"  class="fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache"/>
     <bean id="identitystore.refAttributeCertificationDefinitionCache"  class="fr.paris.lutece.plugins.identitystore.cache.RefAttributeCertificationDefinitionCache"/>
 
@@ -90,7 +91,6 @@
 
     <!-- REST -->
     <bean id="identitystore.customObjectMapper"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.CustomMapper" />
-    <bean id="identitystore.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.web.rs.IdentityStoreRestService" />
     <bean id="identitystore.v1.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v1.web.rs.IdentityStoreRestService" />
     <bean id="identitystore.v2.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityStoreRestService" />
     <bean id="identitystore.v3.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityStoreRestService" />

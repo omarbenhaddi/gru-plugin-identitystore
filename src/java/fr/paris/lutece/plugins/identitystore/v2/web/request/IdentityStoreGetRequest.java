@@ -33,18 +33,17 @@
  */
 package fr.paris.lutece.plugins.identitystore.v2.web.request;
 
-import java.util.HashMap;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityChangeDto;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.service.util.AppException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class represents a get request for IdentityStoreRestServive
@@ -101,10 +100,11 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityChangeDto identityChangeDto = IdentityStoreService.buildIdentityChange( _strClientAppCode );
-        identityChangeDto.getIdentity( ).setConnectionId( _strConnectionId );
-        identityChangeDto.getIdentity( ).setCustomerId( _strCustomerId );
-        IdentityDto identityDto = IdentityStoreService.getOrCreateIdentity( identityChangeDto, new HashMap<String, File>( ) );
+        final IdentitySearchResponse response = new IdentitySearchResponse( );
+
+        IdentityService.instance( ).search( _strCustomerId, StringUtils.EMPTY, response, _strClientAppCode );
+        final QualifiedIdentity qualifiedIdentity = response.getIdentities( ).get( 0 );
+        final IdentityDto identityDto = DtoConverter.convert( qualifiedIdentity );
 
         try
         {

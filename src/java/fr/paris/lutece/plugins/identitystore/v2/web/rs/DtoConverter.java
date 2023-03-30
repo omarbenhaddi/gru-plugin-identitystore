@@ -33,25 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.v2.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
-import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AuthorDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,70 +58,43 @@ public final class DtoConverter
     }
 
     /**
-     * returns a identityDto initialized from provided identity
+     * returns a identityDto initialized from provided qualifiedIdentity
      *
-     * @param identity
-     *            business identity to convert
-     * @param serviceContract
-     *            service contract
-     * @return identityDto initialized from provided identity
+     * @param qualifiedIdentity
+     *            business qualifiedIdentity to convert
+     * @return identityDto initialized from provided qualifiedIdentity
      */
-    public static IdentityDto convertToDto( Identity identity, ServiceContract serviceContract )
+    public static IdentityDto convert( final QualifiedIdentity qualifiedIdentity )
     {
         IdentityDto identityDto = new IdentityDto( );
-        identityDto.setConnectionId( identity.getConnectionId( ) );
-        identityDto.setCustomerId( identity.getCustomerId( ) );
+        identityDto.setConnectionId( qualifiedIdentity.getConnectionId( ) );
+        identityDto.setCustomerId( qualifiedIdentity.getCustomerId( ) );
 
-        if ( identity.getAttributes( ) != null )
+        if ( qualifiedIdentity.getAttributes( ) != null )
         {
             Map<String, AttributeDto> mapAttributeDto = new HashMap<String, AttributeDto>( );
 
-            for ( IdentityAttribute attribute : identity.getAttributes( ).values( ) )
+            for ( final CertifiedAttribute certifiedAttribute : qualifiedIdentity.getAttributes( ) )
             {
-                AttributeKey attributeKey = attribute.getAttributeKey( );
 
                 AttributeDto attrDto = new AttributeDto( );
-                attrDto.setKey( attributeKey.getKeyName( ) );
-                attrDto.setValue( attribute.getValue( ) );
-                attrDto.setType( attributeKey.getKeyType( ).getCode( ) );
-                attrDto.setLastUpdateApplicationCode( attribute.getLastUpdateApplicationCode( ) );
-                attrDto.setLastUpdateDate( attribute.getLastUpdateDate( ) );
-                attrDto.setStatus( attribute.getStatus( ) );
+                attrDto.setKey( certifiedAttribute.getKey( ) );
+                attrDto.setValue( certifiedAttribute.getValue( ) );
+                attrDto.setType( certifiedAttribute.getType( ) );
+                attrDto.setLastUpdateApplicationCode( certifiedAttribute.getLastUpdateApplicationCode( ) );
+                attrDto.setLastUpdateDate( certifiedAttribute.getLastUpdateDate( ) );
+                attrDto.setStatus( null ); // TODO n'existe pas en V3
 
-                for ( AttributeRight attRight : serviceContract.getAttributeRights( ) )
+                if ( StringUtils.isNotEmpty( certifiedAttribute.getCertifier( ) ) )
                 {
-                    if ( attRight.getAttributeKey( ).getKeyName( ).equals( attributeKey.getKeyName( ) ) )
-                    {
-                        attrDto.setCertified( attribute.getCertificate( ) != null );
-
-                        break;
-                    }
+                    final CertificateDto certifDto = new CertificateDto( );
+                    certifDto.setCertificateExpirationDate( null ); // TODO n'existe pas en V3
+                    certifDto.setCertifierCode( certifiedAttribute.getCertifier( ) );
+                    certifDto.setCertifierName( certifiedAttribute.getCertifier( ) );
+                    certifDto.setCertifierLevel( certifiedAttribute.getCertificationLevel( ) );
+                    attrDto.setCertificate( certifDto );
                 }
-
-                // TODO gérer la suppression des certifiers ?
-                if ( attribute.getCertificate( ) != null )
-                {
-                    CertificateDto certifDto = new CertificateDto( );
-                    try
-                    {
-                        AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( attribute.getCertificate( ).getCertifierCode( ) );
-
-                        certifDto.setCertificateExpirationDate( attribute.getCertificate( ).getExpirationDate( ) );
-                        certifDto.setCertifierCode( attribute.getCertificate( ).getCertifierCode( ) );
-                        certifDto.setCertifierName( certifier.getName( ) );
-                        certifDto.setCertifierLevel( attribute.getCertificate( ).getCertificateLevel( ) );
-                    }
-                    catch( CertifierNotFoundException e )
-                    {
-                        // Identity contains attribute certified with a certifier not found;
-                        // We dont populate the attrDto with an empty certificate
-                    }
-                    finally
-                    {
-                        attrDto.setCertificate( certifDto );
-                    }
-
-                }
+                attrDto.setCertified( attrDto.getCertificate( ) != null );
 
                 mapAttributeDto.put( attrDto.getKey( ), attrDto );
             }
@@ -142,87 +103,5 @@ public final class DtoConverter
         }
 
         return identityDto;
-    }
-
-    /**
-     * returns ChangeAuthor read from authorDto
-     *
-     * @param authorDto
-     *            authorDto (mandatory)
-     * @return changeAuthor initialized from Dto datas
-     * @throws AppException
-     *             if provided dto is null
-     */
-    public static ChangeAuthor getAuthor( AuthorDto authorDto )
-    {
-        ChangeAuthor author = null;
-
-        if ( authorDto != null )
-        {
-            author = new ChangeAuthor( );
-            author.setApplicationCode( authorDto.getApplicationCode( ) );
-
-            if ( ( authorDto.getType( ) != AuthorType.TYPE_APPLICATION.getTypeValue( ) )
-                    && ( authorDto.getType( ) != AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) )
-                    && ( authorDto.getType( ) != AuthorType.TYPE_USER_OWNER.getTypeValue( ) ) )
-            {
-                throw new AppException( "type provided is unknown type=" + authorDto.getType( ) );
-            }
-
-            if ( ( authorDto.getType( ) == AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) ) && StringUtils.isEmpty( authorDto.getId( ) ) )
-            {
-                throw new AppException( "id field is missing" );
-            }
-
-            author.setAuthorId( authorDto.getId( ) );
-            author.setType( authorDto.getType( ) );
-        }
-        else
-        {
-            throw new AppException( "no author provided" );
-        }
-
-        return author;
-    }
-
-    /**
-     * returns certificate from Dto
-     *
-     * @param certificateDto
-     *            certificate dto (can be null)
-     * @return certificate initialized from Dto datas, null if provided dto is null
-     * @throws AppException
-     *             if expiration date is already expired
-     * @throws CertifierNotFoundException
-     *             if certifier not found for given code
-     *
-     */
-    public static AttributeCertificate getCertificate( CertificateDto certificateDto ) throws AppException, CertifierNotFoundException
-    {
-        AttributeCertificate attributeCertificate = null;
-
-        if ( certificateDto != null )
-        {
-            attributeCertificate = new AttributeCertificate( );
-            attributeCertificate.setCertificateLevel( certificateDto.getCertifierLevel( ) );
-            attributeCertificate.setCertifierCode( certificateDto.getCertifierCode( ) );
-            attributeCertificate.setCertifierName( certificateDto.getCertifierName( ) );
-
-            // check existence of certifier, with given certifier code; throws CertifierNotFoundException
-            CertifierRegistry.instance( ).getCertifier( attributeCertificate.getCertifierCode( ) );
-
-            attributeCertificate.setCertificateDate( new Timestamp( ( new Date( ) ).getTime( ) ) );
-            if ( ( certificateDto.getCertificateExpirationDate( ) != null ) && certificateDto.getCertificateExpirationDate( ).before( new Date( ) ) )
-            {
-                throw new AppException( "Certificate expiration date is expired =" + certificateDto.getCertificateExpirationDate( ) );
-            }
-
-            if ( certificateDto.getCertificateExpirationDate( ) != null )
-            {
-                attributeCertificate.setExpirationDate( new Timestamp( ( certificateDto.getCertificateExpirationDate( ) ).getTime( ) ) );
-            }
-        }
-
-        return attributeCertificate;
     }
 }

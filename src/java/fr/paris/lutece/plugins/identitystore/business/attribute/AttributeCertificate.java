@@ -33,10 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.attribute;
 
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -52,7 +48,6 @@ public class AttributeCertificate implements Serializable
     private String _strCertifierCode;
     private String _strCertifierName;
     private Timestamp _dateCertificateDate;
-    private int _nCertificateLevel;
     private Timestamp _dateExpirationDate;
 
     /**
@@ -106,27 +101,6 @@ public class AttributeCertificate implements Serializable
         {
             _dateCertificateDate = null;
         }
-    }
-
-    /**
-     * Returns the CertificateLevel
-     *
-     * @return The CertificateLevel
-     */
-    public int getCertificateLevel( )
-    {
-        return _nCertificateLevel;
-    }
-
-    /**
-     * Sets the CertificateLevel
-     *
-     * @param nCertificateLevel
-     *            The CertificateLevel
-     */
-    public void setCertificateLevel( int nCertificateLevel )
-    {
-        _nCertificateLevel = nCertificateLevel;
     }
 
     /**

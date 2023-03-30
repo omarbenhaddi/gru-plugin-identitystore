@@ -105,12 +105,10 @@ public class IdentityIndexListener implements IdentityChangeListener
     {
         return identity.getAttributes( ).values( ).stream( )
                 .map( attribute -> new AttributeObject( attribute.getAttributeKey( ).getName( ), attribute.getAttributeKey( ).getKeyName( ),
-                        attribute.getAttributeKey( ).getKeyType( ).getCode( ), attribute.getAttributeKey( ).getKeyWeight( ), attribute.getValue( ),
-                        attribute.getAttributeKey( ).getDescription( ), attribute.getAttributeKey( ).getPivot( ),
-                        attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierCode( ) : null,
+                        attribute.getAttributeKey( ).getKeyType( ).getCode( ), attribute.getValue( ), attribute.getAttributeKey( ).getDescription( ),
+                        attribute.getAttributeKey( ).getPivot( ), attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierCode( ) : null,
                         attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierName( ) : null,
                         attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertificateDate( ) : null,
-                        attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertificateLevel( ) : null,
                         attribute.getCertificate( ) != null ? attribute.getCertificate( ).getExpirationDate( ) : null,
                         attribute.getLastUpdateApplicationCode( ) ) )
                 .collect( Collectors.toMap( AttributeObject::getKey, o -> o ) );

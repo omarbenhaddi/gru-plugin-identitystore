@@ -40,6 +40,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides instances management methods (create, find, ...) for AttributeKey objects
@@ -151,5 +152,15 @@ public final class AttributeKeyHome
     public static boolean checkAttributeId( int nKey )
     {
         return _dao.checkAttributeId( nKey, _plugin );
+    }
+
+    /**
+     * Find the quality base factor which is computed following the rule: attributes => SUM(attribute.weight * attribute.maxCertifLevel)
+     * 
+     * @return the base
+     */
+    public static Integer getQualityBase( )
+    {
+        return _dao.selectQualityBaseFactor( _plugin );
     }
 }

@@ -52,9 +52,9 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
             + "    where identity.id_identity = attribute.id_identity " + ")";
     private static final String SQL_QUERY_LOAD_IDENTITY = "SELECT "
             + "    identity.connection_id, identity.customer_id, identity.date_create, identity.last_update_date, "
-            + "    attributeKey.name, attributeKey.key_name, attributeKey.key_type, attributeKey.key_weight, attributeKey.description, attributeKey.pivot, "
+            + "    attributeKey.name, attributeKey.key_name, attributeKey.key_type, attributeKey.description, attributeKey.pivot, "
             + "    attribute.attribute_value, attribute.lastupdate_application, "
-            + "    certificate.certifier_code, certificate.certifier_code, certificate.certificate_date, certificate.certificate_level, certificate.expiration_date "
+            + "    certificate.certifier_code, certificate.certifier_code, certificate.certificate_date, certificate.expiration_date "
             + " FROM identitystore_identity identity"
             + "    LEFT JOIN identitystore_identity_attribute attribute ON identity.id_identity = attribute.id_identity "
             + "    LEFT JOIN identitystore_attribute attributeKey ON attribute.id_attribute = attributeKey.id_attribute "
@@ -106,7 +106,6 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
         attribute.setName( daoUtil.getString( nIndex++ ) );
         attribute.setKey( daoUtil.getString( nIndex++ ) );
         attribute.setType( daoUtil.getString( nIndex++ ) );
-        attribute.setWeight( daoUtil.getInt( nIndex++ ) );
         attribute.setDescription( daoUtil.getString( nIndex++ ) );
         attribute.setPivot( daoUtil.getBoolean( nIndex++ ) );
         attribute.setValue( daoUtil.getString( nIndex++ ) );
@@ -114,7 +113,6 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
         attribute.setCertifierCode( daoUtil.getString( nIndex++ ) );
         attribute.setCertifierName( daoUtil.getString( nIndex++ ) );
         attribute.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-        attribute.setCertificateLevel( daoUtil.getInt( nIndex++ ) );
         attribute.setCertificateExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
         return attribute;
     }

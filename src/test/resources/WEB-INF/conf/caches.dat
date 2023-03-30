@@ -21,5 +21,6 @@ LuteceUserCacheService.maxElementsInMemory=1000
 pathCacheService.enabled=1
 LinksIncludeCacheService.enabled=1
 identitystore.activeServiceContractCache.enabled=1
+identitystore.qualityBaseCache.enabled=1
 identitystore.identityAttributeCache.enabled=1
 identitystore.refAttributeCertificationDefinitionCache.enabled=1

@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.application;
 
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -130,20 +129,6 @@ public interface IClientApplicationDAO
      */
     ClientApplication selectByCode( String strCode, Plugin plugin );
 
-    /*
-     * methods for link certifier and ClientApplication
-     */
-    /**
-     * Retrieve certifiers allowed for a given ClientApplication
-     *
-     * @param nKey
-     *            The identifier of the ClientApplication
-     * @param plugin
-     *            The plugin
-     * @return list of allowed certifiers
-     */
-    List<AbstractCertifier> getCertifiers( int nKey, Plugin plugin );
-
     /**
      * Retrieve ClientApplication allowed for a given certifier
      *
@@ -155,37 +140,4 @@ public interface IClientApplicationDAO
      */
     List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin );
 
-    /**
-     * Add a certifier to a ClientApplication
-     *
-     * @param nKey
-     *            The identifier of the ClientApplication
-     * @param strCertifier
-     *            The certifier code
-     * @param plugin
-     *            The plugin
-     */
-    void addCertifier( int nKey, String strCertifier, Plugin plugin );
-
-    /**
-     * Delete a certifier to a ClientApplication
-     *
-     * @param nKey
-     *            The identifier of the ClientApplication
-     * @param strCertifier
-     *            The certifier code
-     * @param plugin
-     *            The plugin
-     */
-    void deleteCertifier( int nKey, String strCertifier, Plugin plugin );
-
-    /**
-     * Delete all certifiers to a ClientApplication
-     *
-     * @param nKey
-     *            The identifier of the ClientApplication
-     * @param plugin
-     *            The plugin
-     */
-    void cleanCertifiers( int nKey, Plugin plugin );
 }

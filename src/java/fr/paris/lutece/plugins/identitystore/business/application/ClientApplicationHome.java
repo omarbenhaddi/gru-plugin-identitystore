@@ -37,7 +37,6 @@ import fr.paris.lutece.plugins.identitystore.business.contract.IServiceContractD
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -167,69 +166,5 @@ public final class ClientApplicationHome
     public static ClientApplication getParentApplication( ServiceContract serviceContract )
     {
         return _daoClientApplication.selectByContractId( serviceContract.getId( ), _plugin );
-    }
-
-    /*
-     * methods for link certifier and ClientApplication
-     */
-    /**
-     * Retrieve certifiers allowed for a given ClientApplication
-     *
-     * @param clientApp
-     *            client application
-     * @return list of allowed certifiers
-     */
-    public static List<AbstractCertifier> getCertifiers( ClientApplication clientApp )
-    {
-        return _daoClientApplication.getCertifiers( clientApp.getId( ), _plugin );
-    }
-
-    /**
-     * Retrieve ClientApplications allowed for a given certifier
-     *
-     * @param certifier
-     *            The certifier
-     * @return list of allowed ClientApplications
-     */
-    public static List<ClientApplication> getClientApplications( AbstractCertifier certifier )
-    {
-        return _daoClientApplication.getClientApplications( certifier.getCode( ), _plugin );
-    }
-
-    /**
-     * Add a certifier to a ClientApplication
-     *
-     * @param clientApp
-     *            client application
-     * @param certifier
-     *            The certifier
-     */
-    public static void addCertifier( ClientApplication clientApp, AbstractCertifier certifier )
-    {
-        _daoClientApplication.addCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
-    }
-
-    /**
-     * Delete a certifier to a ClientApplication
-     *
-     * @param clientApp
-     *            client application
-     * @param certifier
-     *            The certifier
-     */
-    public static void deleteCertifier( ClientApplication clientApp, AbstractCertifier certifier )
-    {
-        _daoClientApplication.deleteCertifier( clientApp.getId( ), certifier.getCode( ), _plugin );
-    }
-
-    /**
-     * Delete all certifier to a ClientApplication
-     *
-     * @param clientApp
-     *            client application
-     */
-    public static void cleanCertifiers( ClientApplication clientApp )
-    {
-        _daoClientApplication.cleanCertifiers( clientApp.getId( ), _plugin );
     }
 }

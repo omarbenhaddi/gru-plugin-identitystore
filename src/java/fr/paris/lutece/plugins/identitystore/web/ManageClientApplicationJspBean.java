@@ -36,20 +36,15 @@ package fr.paris.lutece.plugins.identitystore.web;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +61,6 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     private static final String TEMPLATE_DISPLAY_CLIENTAPPLICATION = "/admin/plugins/identitystore/clientapplication/view_clientapplication.html";
     private static final String TEMPLATE_CREATE_CLIENTAPPLICATION = "/admin/plugins/identitystore/clientapplication/create_clientapplication.html";
     private static final String TEMPLATE_MODIFY_CLIENTAPPLICATION = "/admin/plugins/identitystore/clientapplication/modify_clientapplication.html";
-    private static final String TEMPLATE_MODIFY_CLIENTAPPLICATION_CERTIFICATOR = "/admin/plugins/identitystore/clientapplication/modify_clientapplication_certificator.html";
 
     // Parameters
     private static final String PARAMETER_ID_CLIENTAPPLICATION = "id";
@@ -264,9 +258,6 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 
         Map<String, Object> model = getModel( );
         model.put( MARK_CLIENTAPPLICATION, _clientApplication );
-        // TODO attribute rights view on service contract now
-        // model.put( MARK_CLIENTAPPLICATION_RIGHT_LIST, ClientApplicationHome.selectApplicationRights( _clientApplication ) );
-        model.put( MARK_CLIENTAPPLICATION_CERTIF_LIST, ClientApplicationHome.getCertifiers( _clientApplication ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_CLIENTAPPLICATION, TEMPLATE_MODIFY_CLIENTAPPLICATION, model );
     }
@@ -295,103 +286,4 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );
     }
 
-    /**
-     * manage ClientApplication certificates
-     *
-     * @param request
-     *            The Http request
-     * @return The HTML form to update info
-     */
-    @View( VIEW_MANAGE_CLIENTAPPLICATION_CERTIFICATOR )
-    public String getManageClientApplicationCertificators( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
-
-        if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
-        {
-            _clientApplication = ClientApplicationHome.findByPrimaryKey( nId );
-        }
-
-        Map<String, Object> model = getModel( );
-        model.put( MARK_CLIENTAPPLICATION, _clientApplication );
-        model.put( MARK_CERTIFIERS, CertifierRegistry.instance( ).getCertifiersList( ) );
-        // here we use a map as freemarker version doesn't support seq_contains
-        Map<String, Boolean> mapCertifierClientApp = new HashMap<String, Boolean>( );
-        for ( AbstractCertifier certifier : ClientApplicationHome.getCertifiers( _clientApplication ) )
-        {
-            mapCertifierClientApp.put( certifier.getCode( ), Boolean.TRUE );
-        }
-        model.put( MARK_CLIENTAPPLICATION_CERTIF_CODE_MAP, mapCertifierClientApp );
-
-        return getPage( PROPERTY_PAGE_TITLE_MODIFY_CLIENTAPPLICATION_CERTIFICATOR, TEMPLATE_MODIFY_CLIENTAPPLICATION_CERTIFICATOR, model );
-    }
-
-    /**
-     * change ClientApplication certificates
-     *
-     * @param request
-     *            The Http request
-     * @return the jsp URL to display the form to manage clientapplications
-     */
-    @Action( ACTION_MANAGE_CLIENTAPPLICATION_CERTIFICATOR )
-    public String doManageClientApplicationCertificators( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
-        // WARNING getParameterValues give null if nothing is selected
-        String [ ] tCertifiers = request.getParameterValues( PARAMETER_CERTIFIERS_AUTH );
-
-        if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
-        {
-            return redirect( request, VIEW_MANAGE_CLIENTAPPLICATION_CERTIFICATOR, PARAMETER_ID_CLIENTAPPLICATION, nId );
-        }
-        // we have to remove deselected certifier and add new selected certifier
-        ClientApplicationHome.cleanCertifiers( _clientApplication );
-        if ( tCertifiers != null )
-        {
-            for ( String strCertifierCode : tCertifiers )
-            {
-                try
-                {
-                    AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-                    ClientApplicationHome.addCertifier( _clientApplication, certifier );
-                }
-                catch( CertifierNotFoundException e )
-                {
-                    AppLogService.debug( e );
-                }
-            }
-        }
-
-        return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
-    }
-
-    /**
-     * Handles the removal of a clientapplication certificator
-     *
-     * @param request
-     *            The Http request
-     * @return the jsp URL to display the form to manage clientapplications
-     */
-    @Action( ACTION_REMOVE_CLIENTAPPLICATION_CERTIFICATOR )
-    public String doClientApplicationCertificator( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
-        if ( ( _clientApplication == null ) || ( _clientApplication.getId( ) != nId ) )
-        {
-            return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
-        }
-        String strCertifierCode = request.getParameter( PARAMETER_CERTIFIER_CODE );
-
-        try
-        {
-            AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-            ClientApplicationHome.deleteCertifier( _clientApplication, certifier );
-        }
-        catch( CertifierNotFoundException e )
-        {
-            AppLogService.debug( e );
-        }
-
-        return redirect( request, VIEW_MODIFY_CLIENTAPPLICATION, PARAMETER_ID_CLIENTAPPLICATION, nId );
-    }
 }

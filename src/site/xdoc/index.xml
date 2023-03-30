@@ -15,26 +15,17 @@
                 <p>
                    The plugin provides a REST API to manage identities. Several versions of the API can be called:
                    <ul>
-                        <li>Version 1 : the URL to use is <code>/identity/rest/identitystore/v1/identity</code>. This version uses the objects of the packages <code>fr.paris.lutece.plugins.identitystore.v1.*</code> of the <code>library-identitystore</code>.</li>
                         <li>Version 2 : the URL to use is <code>/identity/rest/identitystore/v2/identity</code>. This version uses the objects of the packages <code>fr.paris.lutece.plugins.identitystore.v2.*</code> of the <code>library-identitystore</code>.</li>
+                        <li>Version 3 : the URL to use is <code>/identity/rest/identitystore/v3/identity</code>. This version uses the objects of the packages <code>fr.paris.lutece.plugins.identitystore.v3.*</code> of the <code>library-identitystore</code>.</li>
                    </ul>
                 </p>
                 <p>
-                    The API can be called without version in the URL : <code>/identity/rest/identitystore/identity</code>. The used version is then the one configured with the key <code>identitystore.version</code> of the configuration file <code>identitystore.properties</code>. <strong>Warning: </strong>As the different versions of the API do not use the same objects, be sure the correct version is set in configuration.
-                </p>
-            </subsection>
-            <subsection name="Encryption of identities">
-                <p>
-                    The plugin can use identities with encrypted ids. This mechanism permits to have a specific id for each service provider. Thus, the id is not shared.
-                </p>
-                <p>
-                    To use encryption, the site has to contain a class implementing the interface <code>fr.paris.lutece.plugins.identitystore.service.encryption.IIdentityEncryptionService</code> from the library <code>gru-library-identitystore</code>.
-                    For example, add the plugin <code>gru-plugin-grukeydiversification</code> in the <code>pom.xml</code> of the site. The encryption is then enabled.
+                    Version 2 can be used only for getting an Identity by its CUID or GUID. Only version 3 offers full API usage (CRUD & research).
                 </p>
             </subsection>
             <subsection name="Configuration">
                 <p>
-                    The bean names <code>identitystore.identityInfoExternalProvider</code> must be defined using Spring configuration. The bean must implement the Java interface <code>fr.paris.lutece.plugins.identitystore.service.external.IIdentityInfoExternalProvider</code>. It is used to create an identity from an external source when a connection id is provided in the web method <em>create</em>.
+
                 </p>
             </subsection>
             <subsection name="Usage">

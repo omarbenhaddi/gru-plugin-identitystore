@@ -33,31 +33,15 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
-import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
-import fr.paris.lutece.plugins.identitystore.service.certifier.AbstractCertifier;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -208,121 +192,6 @@ public final class IdentityRequestValidator
                 || StringUtils.isEmpty( identityMergeRequest.getIdentities( ).getSecondaryCuid( ) ) )
         {
             throw new IdentityStoreException( "Provided Identity Merge request is null or empty" );
-        }
-    }
-
-    /**
-     * check attached files are present in identity Dto and that attributes to update exist and are writable (or not writable AND unchanged)
-     *
-     * @param mapAttributeValues
-     *            map of attached files
-     * @param nServiceContractId
-     *            service contract to check right
-     * @throws AppException
-     *             thrown if provided attributes are not valid
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws IdentityStoreException
-    {
-        ServiceContract serviceContract = ServiceContractHome.findByPrimaryKey( nServiceContractId )
-                .orElseThrow( ( ) -> new AppException( "Service Contract with the id " + nServiceContractId + " doesn't exist" ) );
-        String strClientAppCode = ""; // TODO serviceContract.getClientApplication().getCode();
-        List<AttributeRight> listAttributeRight = ServiceContractHome.selectApplicationRights( serviceContract );
-
-        if ( ( mapAttributeValues != null ) && !mapAttributeValues.isEmpty( ) )
-        {
-            for ( String strAttributeKeyName : mapAttributeValues.keySet( ) )
-            {
-                for ( AttributeRight attributeRight : listAttributeRight )
-                {
-                    if ( attributeRight.getAttributeKey( ).getKeyName( ).equals( strAttributeKeyName ) )
-                    {
-                        if ( !attributeRight.isSearchable( ) )
-                        {
-                            throw new IdentityStoreException(
-                                    "The attribute " + strAttributeKeyName + " is provided but not searchable for " + strClientAppCode );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Check certification authorization, in this order - clientApplication has to got the certifier - certifier and clientApplication must have certification
-     * right on all attributs of the identitychange given
-     * 
-     * @param identityDto
-     *            the identity to check
-     * @param nServiceContractId
-     *            service contract to check right
-     * @throws AppException
-     *             thrown if one of this rule is not ok
-     * @throws CertifierNotFoundException
-     */
-    public void checkCertification( IdentityDto identityDto, int nServiceContractId ) throws AppException
-    {
-        if ( MapUtils.isEmpty( identityDto.getAttributes( ) ) )
-        {
-            throw new AppException( "No attributes given for certification " );
-        }
-        ServiceContract serviceContract = ServiceContractHome.findByPrimaryKey( nServiceContractId )
-                .orElseThrow( ( ) -> new AppException( "Service Contract with the id " + nServiceContractId + " doesn't exist" ) );
-        String strClientAppCode = ""; // TODO serviceContract.getClientApplication().getCode();
-        List<AttributeRight> listRights = ServiceContractHome.selectApplicationRights( serviceContract );
-        // TODO search certifier on the service contract
-        List<AbstractCertifier> listCertifier = Collections.emptyList( );
-        // List<AbstractCertifier> listCertifier = ClientApplicationHome.getCertifiers( clientApp );
-
-        // for each attribute retrieve certifier to control rights
-        for ( String strAttributeKey : identityDto.getAttributes( ).keySet( ) )
-        {
-            if ( identityDto.getAttributes( ).get( strAttributeKey ).getCertificate( ) == null )
-            {
-                continue;
-            }
-            // rule 1, client application has the certifier and the certifier exists
-            String strCertifierCode = identityDto.getAttributes( ).get( strAttributeKey ).getCertificate( ).getCertifierCode( );
-            boolean bCertifierOk = false;
-            List<String> listAttributsCertifier;
-            try
-            {
-                AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( strCertifierCode );
-                listAttributsCertifier = certifier.getCertifiableAttributesList( );
-            }
-            catch( CertifierNotFoundException e )
-            {
-                throw new AppException( "Certifier [" + strCertifierCode + "] doesn't exists" );
-            }
-            for ( AbstractCertifier certifierApp : listCertifier )
-            {
-                if ( certifierApp.getCode( ).equals( strCertifierCode ) )
-                {
-                    bCertifierOk = true;
-                    break;
-                }
-            }
-            if ( !bCertifierOk )
-            {
-                throw new AppException( "ClientApplication [" + strClientAppCode + "] with the ServiceContract [" + nServiceContractId
-                        + "] has no right to use certifier [" + strCertifierCode + "]" );
-            }
-
-            // rule 2 application and certifier allow on attribute
-            if ( !listAttributsCertifier.contains( strAttributeKey ) )
-            {
-                throw new AppException( "Certifier [" + strCertifierCode + "] has no right to certify [" + strAttributeKey + "]" );
-            }
-            else
-            {
-                for ( AttributeRight attributeRight : listRights )
-                {
-                    // TODO change to find if certifiable on service contract
-                    /*
-                     * if ( attributeRight.getAttributeKey( ).getKeyName( ).equals( strAttributeKey ) && !attributeRight.isCertifiable( ) ) { throw new
-                     * AppException( "ClientApplication [" + strClientAppCode + "] has no right to certify [" + strAttributeKey + "]" ); }
-                     */
-                }
-            }
         }
     }
 }

@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
@@ -41,25 +40,17 @@ import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
-import fr.paris.lutece.plugins.identitystore.service.ChangeAuthor;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.certifier.CertifierRegistry;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.AuthorType;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AuthorDto;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
+import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
+import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeDefinitionDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.CertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,7 +75,7 @@ public final class DtoConverter
      *            business identity to convert
      * @return identityDto initialized from provided identity
      */
-    public static QualifiedIdentity convertIdentityToDto( final Identity identity )
+    public static QualifiedIdentity convertIdentityToDto( final Identity identity ) throws RefAttributeCertificationDefinitionNotFoundException
     {
         final QualifiedIdentity qualifiedIdentity = new QualifiedIdentity( );
         qualifiedIdentity.setConnectionId( identity.getConnectionId( ) );
@@ -103,11 +94,14 @@ public final class DtoConverter
                 certifiedAttribute.setKey( attributeKey.getKeyName( ) );
                 certifiedAttribute.setValue( attribute.getValue( ) );
                 certifiedAttribute.setType( attributeKey.getKeyType( ).getCode( ) );
+                certifiedAttribute.setLastUpdateApplicationCode( attribute.getLastUpdateApplicationCode( ) );
+                certifiedAttribute.setLastUpdateDate( attribute.getLastUpdateDate( ) );
 
                 if ( attribute.getCertificate( ) != null )
                 {
                     certifiedAttribute.setCertifier( attribute.getCertificate( ).getCertifierCode( ) );
-                    certifiedAttribute.setCertificationLevel( attribute.getCertificate( ).getCertificateLevel( ) );
+                    certifiedAttribute.setCertificationLevel( AttributeCertificationDefinitionService.instance( )
+                            .getLevelAsInteger( attribute.getCertificate( ).getCertifierCode( ), attributeKey.getKeyName( ) ) );
                     certifiedAttribute.setCertificationDate( attribute.getCertificate( ).getCertificateDate( ) );
 
                 }
@@ -221,87 +215,5 @@ public final class DtoConverter
         serviceContractDto.getAttributeDefinitions( ).addAll( attributeDefinitions );
 
         return serviceContractDto;
-    }
-
-    /**
-     * returns ChangeAuthor read from authorDto
-     *
-     * @param authorDto
-     *            authorDto (mandatory)
-     * @return changeAuthor initialized from Dto datas
-     * @throws AppException
-     *             if provided dto is null
-     */
-    public static ChangeAuthor getAuthor( AuthorDto authorDto )
-    {
-        ChangeAuthor author = null;
-
-        if ( authorDto != null )
-        {
-            author = new ChangeAuthor( );
-            author.setApplicationCode( authorDto.getApplicationCode( ) );
-
-            if ( ( authorDto.getType( ) != AuthorType.TYPE_APPLICATION.getTypeValue( ) )
-                    && ( authorDto.getType( ) != AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) )
-                    && ( authorDto.getType( ) != AuthorType.TYPE_USER_OWNER.getTypeValue( ) ) )
-            {
-                throw new AppException( "type provided is unknown type=" + authorDto.getType( ) );
-            }
-
-            if ( ( authorDto.getType( ) == AuthorType.TYPE_USER_ADMINISTRATOR.getTypeValue( ) ) && StringUtils.isEmpty( authorDto.getId( ) ) )
-            {
-                throw new AppException( "id field is missing" );
-            }
-
-            author.setAuthorId( authorDto.getId( ) );
-            author.setType( authorDto.getType( ) );
-        }
-        else
-        {
-            throw new AppException( "no author provided" );
-        }
-
-        return author;
-    }
-
-    /**
-     * returns certificate from Dto
-     *
-     * @param certificateDto
-     *            certificate dto (can be null)
-     * @return certificate initialized from Dto datas, null if provided dto is null
-     * @throws AppException
-     *             if expiration date is already expired
-     * @throws CertifierNotFoundException
-     *             if certifier not found for given code
-     *
-     */
-    public static AttributeCertificate getCertificate( CertificateDto certificateDto ) throws AppException, CertifierNotFoundException
-    {
-        AttributeCertificate attributeCertificate = null;
-
-        if ( certificateDto != null )
-        {
-            attributeCertificate = new AttributeCertificate( );
-            attributeCertificate.setCertificateLevel( certificateDto.getCertifierLevel( ) );
-            attributeCertificate.setCertifierCode( certificateDto.getCertifierCode( ) );
-            attributeCertificate.setCertifierName( certificateDto.getCertifierName( ) );
-
-            // check existence of certifier, with given certifier code; throws CertifierNotFoundException
-            CertifierRegistry.instance( ).getCertifier( attributeCertificate.getCertifierCode( ) );
-
-            attributeCertificate.setCertificateDate( new Timestamp( ( new Date( ) ).getTime( ) ) );
-            if ( ( certificateDto.getCertificateExpirationDate( ) != null ) && certificateDto.getCertificateExpirationDate( ).before( new Date( ) ) )
-            {
-                throw new AppException( "Certificate expiration date is expired =" + certificateDto.getCertificateExpirationDate( ) );
-            }
-
-            if ( certificateDto.getCertificateExpirationDate( ) != null )
-            {
-                attributeCertificate.setExpirationDate( new Timestamp( ( certificateDto.getCertificateExpirationDate( ) ).getTime( ) ) );
-            }
-        }
-
-        return attributeCertificate;
     }
 }

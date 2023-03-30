@@ -45,20 +45,6 @@ import java.util.Map;
 public interface ISearchIdentityService
 {
     /**
-     * returns a list of identity from combination of attributes
-     *
-     * @param mapAttributeValues
-     *            a map that associates list of values to search for some attributes
-     * @param listAttributeKeyNames
-     *            a list of attributes to retrieve in identities
-     * @param strClientApplicationCode
-     *            application code who requested identities
-     * @return identity filled according to application rights for user identified by connection id
-     */
-    List<IdentityDto> getIdentities( Map<String, List<String>> mapAttributeValues, List<String> listAttributeKeyNames, String strClientApplicationCode )
-            throws IdentityStoreException;
-
-    /**
      * returns a list of qualified identities from combination of attributes
      *
      * @param attributes
@@ -66,17 +52,4 @@ public interface ISearchIdentityService
      * @return identity filled according to application rights for user identified by connection id
      */
     List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes );
-
-    /**
-     * check attached files are present in identity Dto and that attributes to update exist and are writable (or not writable AND unchanged)
-     *
-     * @param mapAttributeValues
-     *            map of attached files
-     * @param nServiceContractId
-     *            service contract to check right
-     * @throws AppException
-     *             thrown if provided attributes are not valid
-     * @throws IdentityStoreException
-     */
-    void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws IdentityStoreException;
 }

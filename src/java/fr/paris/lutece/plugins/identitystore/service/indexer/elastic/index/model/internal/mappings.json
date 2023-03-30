@@ -3,7 +3,12 @@
         "analysis" : {
             "analyzer" : {
                 "email_analyzer" : {
-                    "tokenizer" : "email_tokenizer"
+                    "tokenizer" : "email_tokenizer",
+                    "filter": ["lowercase", "asciifolding"]
+                },
+                "first_name_analyzer" : {
+                    "tokenizer" : "whitespace",
+                    "filter" : ["lowercase", "asciifolding"]
                 }
             },
             "tokenizer" : {
@@ -29,7 +34,7 @@
             },
             "attributes.first_name.value" : {
                 "type" : "text",
-                "analyzer" : "whitespace"
+                "analyzer" : "first_name_analyzer"
             }
         }
     }

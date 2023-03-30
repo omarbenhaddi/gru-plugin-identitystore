@@ -1,22 +1,29 @@
 <@rowBox>
     <@boxHeader i18nTitleKey="identitystore.manage_identities.title">
         <#if createIdentityRole>
-    <@headerButtons>
+            <@headerButtons>
 
-        <form class="form-inline pull-right" method="post" name="manage_identities" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
-            <!-- Add pull-right to class1 -->
-            <@actionButtons button1Name="view_createIdentity" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_identities.buttonAdd" />
-        </form>
-        
-    </@headerButtons>
+                <form class="form-inline pull-right" method="post" name="manage_identities" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
+                    <!-- Add pull-right to class1 -->
+                    <@actionButtons button1Name="view_createIdentity" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_identities.buttonAdd" />
+                </form>
+
+            </@headerButtons>
         </#if>
     </@boxHeader>
     <@boxBody>    
     <@messages infos=infos />
+    <div style="padding: .5rem .5rem;">
+        <a class="btn btn-primary btn-sm btn-empty" title="#i18n{identitystore.manage_identities.emptyFields}">
+            <i class="fa fa-trash"></i>
+        </a>
+    </div>
     <form class="form-inline" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
         <div class="input-group">
             <@table>
             <tr>
+                <th>CUID</th>
+                <th>GUID</th>
                 <th>Email</th>
                 <th>Civilité</th>
                 <th>Nom de naissance</th>
@@ -31,31 +38,43 @@
             <@tableHeadBodySeparator />
             <tr>
                 <td>
-                    <input class="form-control" type="text" name="email" placeholder="Email ou email de login" value="${email!''}" />
+                    <input class="form-control search-field" type="text" name="cuid" placeholder="Customer ID" value="${cuid!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="gender" placeholder="0:Non défini /  1:Homme / 2:Femme" value="${gender!''}" />
+                    <input class="form-control search-field" type="text" name="guid" placeholder="Connection ID" value="${guid!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="family_name" placeholder="Nom de famille" value="${family_name!''}" />
+                    <input class="form-control search-field" type="text" name="email" placeholder="Email ou email de login" value="${email!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="preferred_username" placeholder="Nom d'usage" value="${preferred_username!''}" />
+                    <label for="gender" />
+                    <select class="search-field form-select select-gender" id="gender" name="gender" value="${gender!''}" >
+                        <option value="">Aucun</option>
+                        <option value="0" <#if gender! == "0"> selected="selected"</#if>>0:Non défini</option>
+                        <option value="1" <#if gender! == "1"> selected="selected"</#if>>1:Homme</option>
+                        <option value="2" <#if gender! == "2"> selected="selected"</#if>>2:Femme</option>
+                    </select>
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="first_name" placeholder="Prénoms usuels" value="${first_name!''}" />
+                    <input class="form-control search-field" type="text" name="family_name" placeholder="Nom de famille" value="${family_name!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="birthdate" placeholder="Au format DD/MM/YYYY" value="${birthdate!''}" />
+                    <input class="form-control search-field" type="text" name="preferred_username" placeholder="Nom d'usage" value="${preferred_username!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="insee_birthplace_label" placeholder="Ville de naissance" value="${insee_birthplace_label!''}" />
+                    <input class="form-control search-field" type="text" name="first_name" placeholder="Prénoms usuels" value="${first_name!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="insee_birthcountry_label" placeholder="Pays de naissance" value="${insee_birthcountry_label!''}" />
+                    <input class="form-control search-field" type="text" name="birthdate" placeholder="Au format DD/MM/YYYY" value="${birthdate!''}" />
                 </td>
                 <td>
-                    <input class="form-control" type="text" name="phone" placeholder="Téléphone fixe ou mobile" value="${phone!''}" />
+                    <input class="form-control search-field" type="text" name="insee_birthplace_label" placeholder="Ville de naissance" value="${insee_birthplace_label!''}" />
+                </td>
+                <td>
+                    <input class="form-control search-field" type="text" name="insee_birthcountry_label" placeholder="Pays de naissance" value="${insee_birthcountry_label!''}" />
+                </td>
+                <td>
+                    <input class="form-control search-field" type="text" name="phone" placeholder="Téléphone fixe ou mobile" value="${phone!''}" />
                 </td>
                 <td>
                     <span class="input-group-btn">
@@ -75,7 +94,8 @@
     <@table>
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>Customer ID</th>
+            <th>CUID</th>
+            <th>GUID</th>
             <th>Email</th>
             <th>Civilité</th>
             <th>Nom de naissance</th>
@@ -92,11 +112,16 @@
         <tr>
             <input type="hidden" id="id" name="id"/>
             <td>${identity.customerId!}</td>
+            <td>${identity.connectionId!}</td>
             <td>
                 <#list identity.attributes?filter(a -> a.key == "email_login") as attr>${attr.value} </#list>
             </td>
             <td>
-                <#list identity.attributes?filter(a -> a.key == "gender") as attr>${attr.value} </#list>
+                <#list identity.attributes?filter(a -> a.key == "gender") as attr>
+                    <#if attr.value == "0">Non défini</#if>
+                    <#if attr.value == "1">Homme</#if>
+                    <#if attr.value == "2">Femme</#if>
+                </#list>
             </td>
             <td>
                 <#list identity.attributes?filter(a -> a.key == "family_name") as attr>${attr.value} </#list>
@@ -135,3 +160,19 @@
   </@boxBody>
 </@rowBox>
 
+<script>
+    $('.btn-empty').click(function () {
+        $('.search-field').val('');
+    });
+</script>
+<style>
+    .select-gender {
+        -webkit-appearance: none !important;
+        background-image: none !important;
+        background-repeat: no-repeat !important;
+        background-position: unset !important;
+        background-size: unset !important;
+        padding: .4375rem .75rem !important;
+        width: 110px;
+    }
+</style>

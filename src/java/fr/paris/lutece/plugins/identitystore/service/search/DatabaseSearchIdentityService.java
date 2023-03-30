@@ -34,13 +34,13 @@
 package fr.paris.lutece.plugins.identitystore.service.search;
 
 import com.google.common.collect.Lists;
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,26 +57,18 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     /**
      * {@inheritDoc }
      */
-    public List<IdentityDto> getIdentities( Map<String, List<String>> mapAttributeValues, List<String> listAttributeKeyNames, String strClientApplicationCode )
-    {
-        return IdentityStoreService.getIdentities( mapAttributeValues, listAttributeKeyNames, strClientApplicationCode );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
     public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes )
     {
         final Map<String, List<String>> mapAttributeValues = attributes.stream( )
                 .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
-        return IdentityStoreService.getQualifiedIdentities( mapAttributeValues );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws IdentityStoreException
-    {
-        IdentityRequestValidator.instance( ).checkSearchAttributes( mapAttributeValues, nServiceContractId );
+        try
+        {
+            return IdentityService.search( mapAttributeValues );
+        }
+        catch( RefAttributeCertificationDefinitionNotFoundException e )
+        {
+            AppLogService.error( "An error occured during database search: ", e );
+        }
+        return new ArrayList<>( );
     }
 }

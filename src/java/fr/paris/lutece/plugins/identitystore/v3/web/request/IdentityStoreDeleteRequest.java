@@ -82,8 +82,6 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
     @Override
     protected String doSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityStoreService.removeIdentity( _strConnectionId, _strClientAppCode );
-
         return MESSAGE_DELETE_SUCCESSFUL;
     }
 }

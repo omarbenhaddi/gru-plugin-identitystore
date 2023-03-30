@@ -68,6 +68,21 @@ public class AttributeCertificationDefinitionService
         return _cache.get( processusCode, attributeKeyName );
     }
 
+    public Integer getLevelAsInteger( final String processusCode, final String attributeKeyName ) throws RefAttributeCertificationDefinitionNotFoundException
+    {
+        return Integer.valueOf( this.getLevelAsString( processusCode, attributeKeyName ) );
+    }
+
+    public String getLevelAsString( final String processusCode, final String attributeKeyName ) throws RefAttributeCertificationDefinitionNotFoundException
+    {
+        final RefAttributeCertificationLevel refAttributeCertificationLevel = this.get( processusCode, attributeKeyName );
+        if ( refAttributeCertificationLevel != null )
+        {
+            return refAttributeCertificationLevel.getRefCertificationLevel( ).getLevel( );
+        }
+        return "0";
+    }
+
     public void addRefAttributeCertificationLevels( final List<RefAttributeCertificationLevel> refAttributeCertificationLevelList )
     {
         refAttributeCertificationLevelList.forEach( level -> _cache.put( level ) );

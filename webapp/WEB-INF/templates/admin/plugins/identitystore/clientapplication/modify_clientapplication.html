@@ -8,40 +8,6 @@
         <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelName" inputName="name" mandatory=true value="${clientapplication.name}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelCode" inputName="code" mandatory=true value="${clientapplication.code}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelCode.help" />
 
-        
-<!--        <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manageClientApplicationCertificate&id=${clientapplication.id}"-->
-<!--           class="btn btn-primary pull-right" title="#i18n{identitystore.modify_clientapplication.buttonManageClientApplicationCertificate}" >-->
-<!--            <i class="fa fa-pencil"></i>-->
-<!--            <span>-->
-<!--            #i18n{identitystore.modify_clientapplication.buttonManageClientApplicationCertificate}-->
-<!--            </span>-->
-<!--        </a>-->
-<!--        <@table>-->
-<!--			<tr>-->
-<!--				<th>#i18n{identitystore.modify_clientapplication.labelCertificateur}</th>-->
-<!--				<th>#i18n{identitystore.modify_clientapplication.labelAction}</th>-->
-<!--			</tr>-->
-<!--			<#if clientapplication_certifs?? && clientapplication_certifs?has_content>-->
-<!--			<#list clientapplication_certifs as certif>-->
-<!--				<tr>-->
-<!--					<td>-->
-<!--						${certif.name}-->
-<!--						<#if certif.iconUrl!='' >-->
-<!--						<img src="${certif.iconUrl}" width="40" height="40" />-->
-<!--						</#if>-->
-<!--					</td>-->
-<!--					<td>-->
-<!--						<a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?action=removeClientApplicationCertificate&id=${clientapplication.id}&certif_code=${certif.code}"-->
-<!--						   class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >-->
-<!--							<i class="fa fa-trash"></i>-->
-<!--						</a>-->
-<!--					</td>-->
-<!--				</tr>-->
-<!--			</#list>-->
-<!--			</#if>-->
-<!--        </@table>-->
-
-
         <@actionButtons button1Name="action_modifyClientApplication" button2Name="view_manageClientApplications"/>
     </form>
 </@rowBoxHeader>

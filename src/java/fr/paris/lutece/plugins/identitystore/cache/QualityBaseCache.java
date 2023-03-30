@@ -31,34 +31,56 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.certifier;
+package fr.paris.lutece.plugins.identitystore.cache;
 
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
+import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import org.apache.log4j.Logger;
 
-/**
- * 
- * IGenerateAutomaticCertifierAttribute
- * 
- *
- */
-public interface IGenerateAutomaticCertifierAttribute
+public class QualityBaseCache extends AbstractCacheableService
 {
 
-    /**
-     * 
-     * @param identityDTO
-     *            the identity DTO Informations
-     * @return true if the identity DTO contains informations necessary for adding the automatic certifier Attribute
-     */
-    boolean mustBeGenerated( IdentityDto identityDTO, String strCertifierCode );
+    private static Logger _logger = Logger.getLogger( QualityBaseCache.class );
 
-    /**
-     * Return the value of the automatic certifier attribute
-     * 
-     * @param identityDTO
-     *            the idedentity DTO Informations
-     * @return the value of the automatic certifier attribute
-     */
-    String getValue( IdentityDto identityDTO );
+    public static final String SERVICE_NAME = "QualityBaseCache";
+    public static final String KEY = "QualityBase";
 
+    public QualityBaseCache( )
+    {
+        this.initCache( );
+    }
+
+    public void refresh( )
+    {
+        _logger.info( "Init service quality base cache" );
+        this.resetCache( );
+        this.put( KEY, AttributeKeyHome.getQualityBase( ) );
+    }
+
+    public void put( final String key, final Integer qualityBase )
+    {
+        if ( this.getKeys( ).contains( key ) )
+        {
+            this.removeKey( key );
+        }
+        this.putInCache( KEY, qualityBase );
+        _logger.info( "Quality base has been updated to : " + qualityBase );
+    }
+
+    public Integer get( )
+    {
+        Integer qualityBase = (Integer) this.getFromCache( KEY );
+        if ( qualityBase == null )
+        {
+            qualityBase = AttributeKeyHome.getQualityBase( );
+            this.put( KEY, qualityBase );
+        }
+        return qualityBase;
+    }
+
+    @Override
+    public String getName( )
+    {
+        return SERVICE_NAME;
+    }
 }

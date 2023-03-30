@@ -18,7 +18,6 @@
             <th>#i18n{identitystore.view_identity.label.key}</th>
             <th>#i18n{identitystore.view_identity.label.value}</th>
             <th>#i18n{identitystore.view_identity.label.date_lastupdate}</th>
-            <th>#i18n{identitystore.view_identity.label.certif_level}</th>
             <th>#i18n{identitystore.view_identity.label.certif_lastupdate}</th>
             <th>#i18n{identitystore.view_identity.label.certif}</th>
         </tr>  
@@ -32,7 +31,7 @@
             <td><strong> ${attribute.lastUpdateDate!} </strong></td>
             <td>
                 <#if attribute.certificate ??>
-                    <span class="badge bg-primary">${attribute.certificate.certificateLevel}</span>
+                    <span class="badge bg-primary">${attribute.certificate.certifierCode}</span>
                     <span class="badge bg-success"> <i class="fa fa-check"> </i> information certifi&eacute;e</span>
                 </#if>
             </td>
