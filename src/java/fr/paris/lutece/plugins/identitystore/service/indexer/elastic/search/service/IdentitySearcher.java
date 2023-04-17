@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -48,6 +49,7 @@ import java.util.List;
 public class IdentitySearcher implements IIdentitySearcher
 {
 
+    public static final String IDENTITYSTORE_SEARCH_OFFSET = "identitystore.search.offset";
     private static Logger logger = Logger.getLogger( IdentitySearcher.class );
     private static String INDEX = "identities-alias";
     private ElasticClient _elasticClient;
@@ -63,34 +65,41 @@ public class IdentitySearcher implements IIdentitySearcher
     }
 
     @Override
-    public Response search( final List<SearchAttribute> attributes )
+    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected )
     {
         try
         {
-            final BasicSearchRequest request = new BasicSearchRequest( attributes );
+            final BasicSearchRequest request = new BasicSearchRequest( attributes, connected );
             final InnerSearchRequest initialRequest = request.body( );
+            final int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );
+            final int size = ( max == 0 ) ? propertySize : ( max < propertySize ) ? max : propertySize;
+            initialRequest.setFrom( 0 );
+            initialRequest.setSize( size );
             final String response = this._elasticClient.search( INDEX, initialRequest );
             final Response innerResponse = new ObjectMapper( ).readValue( response, Response.class );
-            final int size = initialRequest.getSize( );
-            int offset = initialRequest.getFrom( );
             int total = innerResponse.getResult( ).getTotal( ).getValue( );
-            while ( offset < total )
+            int limit = ( max > total ) ? total : max;
+            if ( size < limit )
             {
-                offset += size;
-                initialRequest.setFrom( offset );
-                final String subResponse = this._elasticClient.search( INDEX, initialRequest );
-                final Response pagedResponse = new ObjectMapper( ).readValue( subResponse, Response.class );
-                innerResponse.getResult( ).getHits( ).addAll( pagedResponse.getResult( ).getHits( ) );
-                if ( pagedResponse.getResult( ).getMaxScore( ).compareTo( innerResponse.getResult( ).getMaxScore( ) ) > 0 )
+                int offset = initialRequest.getFrom( );
+                while ( offset < limit )
                 {
-                    innerResponse.getResult( ).setMaxScore( pagedResponse.getResult( ).getMaxScore( ) );
+                    offset += size;
+                    initialRequest.setFrom( offset );
+                    final String subResponse = this._elasticClient.search( INDEX, initialRequest );
+                    final Response pagedResponse = new ObjectMapper( ).readValue( subResponse, Response.class );
+                    innerResponse.getResult( ).getHits( ).addAll( pagedResponse.getResult( ).getHits( ) );
+                    if ( pagedResponse.getResult( ).getMaxScore( ).compareTo( innerResponse.getResult( ).getMaxScore( ) ) > 0 )
+                    {
+                        innerResponse.getResult( ).setMaxScore( pagedResponse.getResult( ).getMaxScore( ) );
+                    }
                 }
             }
             return innerResponse;
         }
         catch( ElasticClientException | JsonProcessingException e )
         {
-            logger.error( "Failed to index", e );
+            logger.error( "Failed to search", e );
         }
         return null;
     }

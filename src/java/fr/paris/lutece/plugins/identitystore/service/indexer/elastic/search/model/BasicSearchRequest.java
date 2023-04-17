@@ -34,257 +34,72 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.*;
-import org.apache.commons.collections4.CollectionUtils;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class BasicSearchRequest
+public class BasicSearchRequest extends ASearchRequest
 {
-    @SearchCriteria( keys = {
-            "email_login", "email"
-    } )
-    protected SearchAttribute _strEmail;
-    @SearchCriteria( keys = {
-            "gender"
-    } )
-    protected SearchAttribute _strGender;
-    @SearchCriteria( keys = {
-            "family_name"
-    } )
-    protected SearchAttribute _strFamilyName;
-    @SearchCriteria( keys = {
-            "first_name"
-    } )
-    protected SearchAttribute _strFirstName;
-    @SearchCriteria( keys = {
-            "preferred_username"
-    } )
-    protected SearchAttribute _strPreferredUserName;
-    @SearchCriteria( keys = {
-            "birthdate"
-    } )
-    protected SearchAttribute _dateBirthDate;
-    @SearchCriteria( keys = {
-            "insee_birthplace_label"
-    } )
-    protected SearchAttribute _strBirthPlace;
-    @SearchCriteria( keys = {
-            "insee_birthcountry_label"
-    } )
-    protected SearchAttribute _strBirthCountry;
-    @SearchCriteria( keys = {
-            "mobile_phone", "fixed_phone"
-    } )
-    protected SearchAttribute _strPhone;
+    private boolean connected = false;
 
-    protected List<SearchAttribute> _listExtraAttributeValues = new ArrayList<>( );
-
-    public BasicSearchRequest( final List<SearchAttribute> attributes )
+    public BasicSearchRequest( final List<SearchAttribute> attributes, final boolean connected )
     {
-        final List<String> annotatedKeys = new ArrayList<>( );
-        Arrays.stream( this.getClass( ).getDeclaredFields( ) ).forEach( field -> {
-            try
-            {
-                field.setAccessible( true );
-                final SearchCriteria annotation = field.getAnnotation( SearchCriteria.class );
-                if ( annotation != null )
-                {
-                    final List<String> fieldKeys = Arrays.asList( annotation.keys( ) );
-                    annotatedKeys.addAll( fieldKeys );
-                    final Optional<SearchAttribute> match = attributes.stream( ).filter( attribute -> fieldKeys.contains( attribute.getKey( ) ) ).findFirst( );
-                    if ( match.isPresent( ) )
-                    {
-                        field.set( this, match.get( ) );
-                    }
-                }
-            }
-            catch( IllegalAccessException e )
-            {
-                throw new RuntimeException( e );
-            }
-        } );
-        final List<SearchAttribute> extraAttributes = attributes.stream( ).filter( searchAttribute -> !annotatedKeys.contains( searchAttribute.getKey( ) ) )
-                .collect( Collectors.toList( ) );
-        this.getExtraAttributeValues( ).addAll( extraAttributes );
+        this.getSearchAttributes( ).addAll( attributes );
+        this.connected = connected;
     }
 
+    @Override
     public InnerSearchRequest body( )
     {
         final InnerSearchRequest body = new InnerSearchRequest( );
-        body.setFrom( 0 );
-        body.setSize( 10 ); // TODO improve by setting size by property
         final Query query = new Query( );
         final Bool bool = new Bool( );
         final ArrayList<AbstractContainer> must = new ArrayList<>( );
-        if ( _strEmail != null )
-        {
-            must.add( new MatchContainer( getMatch( _strEmail ) ) );
-        }
-        if ( _strGender != null )
-        {
-            must.add( new MatchContainer( getMatch( _strGender ) ) );
-        }
-        if ( _strFamilyName != null )
-        {
-            must.add( new MatchContainer( getMatch( _strFamilyName ) ) );
-        }
-        if ( _strFirstName != null )
-        {
-            if ( _strFirstName.isStrict( ) )
+        this.getSearchAttributes( ).forEach( searchAttribute -> {
+            switch( searchAttribute.getInputKey( ) )
             {
-                must.add( new MatchPhraseContainer( getMatchPhrase( _strFirstName ) ) );
+                case Constants.PARAM_FIRST_NAME:
+                    if ( searchAttribute.isStrict( ) )
+                    {
+                        must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                    }
+                    else
+                    {
+                        must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                    }
+
+                default:
+                    if ( searchAttribute.getOutputKeys( ).size( ) == 1 )
+                    {
+                        must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                    }
+                    else
+                    {
+                        must.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
+                    }
+                    break;
             }
-            else
-            {
-                must.add( new MatchContainer( getMatch( _strFirstName ) ) );
-            }
-        }
-        if ( _strPreferredUserName != null )
+        } );
+
+        if ( this.isConnected( ) )
         {
-            must.add( new MatchContainer( getMatch( _strPreferredUserName ) ) );
+            final Exists connectionId = new Exists( );
+            connectionId.setField( "connectionId" );
+            must.add( new ExistsContainer( connectionId ) );
+            final Exists login = new Exists( );
+            login.setField( "attributes.login.value" );
+            must.add( new ExistsContainer( login ) );
         }
-        if ( _dateBirthDate != null )
-        {
-            must.add( new MatchContainer( getMatch( _dateBirthDate ) ) );
-        }
-        if ( _strBirthPlace != null )
-        {
-            must.add( new MatchContainer( getMatch( _strBirthPlace ) ) );
-        }
-        if ( _strBirthCountry != null )
-        {
-            must.add( new MatchContainer( getMatch( _strBirthCountry ) ) );
-        }
-        if ( _strPhone != null )
-        {
-            must.add( new MatchContainer( getMatch( _strPhone ) ) );
-        }
-        if ( CollectionUtils.isNotEmpty( _listExtraAttributeValues ) )
-        {
-            _listExtraAttributeValues.forEach( searchAttribute -> must.add( new MatchContainer( getMatch( searchAttribute ) ) ) );
-        }
+
         bool.setMust( must );
         query.setBool( bool );
         body.setQuery( query );
         return body;
     }
 
-    private Match getMatch( final SearchAttribute attribute )
+    public boolean isConnected( )
     {
-        final Match match = new Match( );
-        match.setName( "attributes." + attribute.getKey( ) + ".value" );
-        match.setQuery( attribute.getValue( ) );
-        if ( !attribute.isStrict( ) )
-        {
-            match.setFuzziness( "1" );
-        }
-        return match;
-    }
-
-    private MatchPhrase getMatchPhrase( final SearchAttribute attribute )
-    {
-        final MatchPhrase match = new MatchPhrase( );
-        match.setName( "attributes." + attribute.getKey( ) + ".value" );
-        match.setQuery( attribute.getValue( ) );
-        return match;
-    }
-
-    public SearchAttribute getEmail( )
-    {
-        return _strEmail;
-    }
-
-    public void setEmail( SearchAttribute _strEmail )
-    {
-        this._strEmail = _strEmail;
-    }
-
-    public SearchAttribute getGender( )
-    {
-        return _strGender;
-    }
-
-    public void setGender( SearchAttribute _strGender )
-    {
-        this._strGender = _strGender;
-    }
-
-    public SearchAttribute getFamilyName( )
-    {
-        return _strFamilyName;
-    }
-
-    public void setFamilyName( SearchAttribute _strFamilyName )
-    {
-        this._strFamilyName = _strFamilyName;
-    }
-
-    public SearchAttribute getFirstName( )
-    {
-        return _strFirstName;
-    }
-
-    public void setFirstName( SearchAttribute _strFirstName )
-    {
-        this._strFirstName = _strFirstName;
-    }
-
-    public SearchAttribute getPreferredUserName( )
-    {
-        return _strPreferredUserName;
-    }
-
-    public void setPreferredUserName( SearchAttribute _strPreferredUserName )
-    {
-        this._strPreferredUserName = _strPreferredUserName;
-    }
-
-    public SearchAttribute getDateBirthDate( )
-    {
-        return _dateBirthDate;
-    }
-
-    public void setDateBirthDate( SearchAttribute _dateBirthDate )
-    {
-        this._dateBirthDate = _dateBirthDate;
-    }
-
-    public SearchAttribute getBirthPlace( )
-    {
-        return _strBirthPlace;
-    }
-
-    public void setBirthPlace( SearchAttribute _strBirthPlace )
-    {
-        this._strBirthPlace = _strBirthPlace;
-    }
-
-    public SearchAttribute getBirthCountry( )
-    {
-        return _strBirthCountry;
-    }
-
-    public void setBirthCountry( SearchAttribute _strBirthCountry )
-    {
-        this._strBirthCountry = _strBirthCountry;
-    }
-
-    public SearchAttribute getPhone( )
-    {
-        return _strPhone;
-    }
-
-    public void setPhone( SearchAttribute _strPhone )
-    {
-        this._strPhone = _strPhone;
-    }
-
-    public List<SearchAttribute> getExtraAttributeValues( )
-    {
-        return _listExtraAttributeValues;
+        return connected;
     }
 }

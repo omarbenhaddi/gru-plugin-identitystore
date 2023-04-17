@@ -33,27 +33,41 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
+import java.util.List;
+
 public class SearchAttribute
 {
-    protected String key;
+    protected String inputKey;
+    protected List<String> outputKeys;
     protected String value;
     protected boolean strict;
 
-    public SearchAttribute( String key, String value, boolean strict )
+    public SearchAttribute( String inputKey, List<String> outputKeys, String value, boolean strict )
     {
-        this.key = key;
+        this.inputKey = inputKey;
+        this.outputKeys = outputKeys;
         this.value = value;
         this.strict = strict;
     }
 
-    public String getKey( )
+    public String getInputKey( )
     {
-        return key;
+        return inputKey;
     }
 
-    public void setKey( String key )
+    public void setInputKey( String inputKey )
     {
-        this.key = key;
+        this.inputKey = inputKey;
+    }
+
+    public List<String> getOutputKeys( )
+    {
+        return outputKeys;
+    }
+
+    public void setOutputKeys( List<String> outputKeys )
+    {
+        this.outputKeys = outputKeys;
     }
 
     public String getValue( )

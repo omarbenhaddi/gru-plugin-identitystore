@@ -31,23 +31,27 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
-public interface ISearchIdentityService
+public class ExistsContainer extends AbstractContainer
 {
-    /**
-     * returns a list of qualified identities from combination of attributes
-     *
-     * @param max
-     *            the maximum number of results that must be returned, if set to 0 or null, must be ignored by implementation.
-     * @param attributes
-     *            list of values to search for some attributes with strict or fuzzy mode
-     * @return a list of identities satisfying the criteria of the {@link SearchAttributeDto} list
-     */
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected );
+    @JsonProperty( "exists" )
+    protected Exists exists;
+
+    public ExistsContainer( Exists exists )
+    {
+        this.exists = exists;
+    }
+
+    public Exists getExists( )
+    {
+        return exists;
+    }
+
+    public void setExists( Exists exists )
+    {
+        this.exists = exists;
+    }
 }

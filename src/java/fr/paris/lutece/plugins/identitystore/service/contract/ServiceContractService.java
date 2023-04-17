@@ -37,6 +37,7 @@ import com.google.common.util.concurrent.AtomicDouble;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.cache.ActiveServiceContractCache;
@@ -55,12 +56,10 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -242,17 +241,46 @@ public class ServiceContractService
             final ServiceContract serviceContract = this.getActiveServiceContract( applicationCode );
             for ( final SearchAttributeDto searchAttributeDto : identitySearchRequest.getSearch( ).getAttributes( ) )
             {
-                boolean canSearchAttribute = serviceContract.getAttributeRights( ).stream( )
-                        .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), searchAttributeDto.getKey( ) )
-                                && attributeRight.isSearchable( ) );
-
-                if ( !canSearchAttribute )
+                final Optional<AttributeRight> attributeRight = serviceContract.getAttributeRights( ).stream( )
+                        .filter( a -> StringUtils.equals( a.getAttributeKey( ).getKeyName( ), searchAttributeDto.getKey( ) ) ).findFirst( );
+                if ( attributeRight.isPresent( ) )
                 {
-                    final IdentitySearchMessage alert = new IdentitySearchMessage( );
-                    alert.setAttributeName( searchAttributeDto.getKey( ) );
-                    alert.setMessage( "This attribute is not searchable in service contract definition." );
-                    response.getAlerts( ).add( alert );
-                    response.setStatus( IdentitySearchStatusType.FAILURE );
+                    boolean canSearchAttribute = attributeRight.get( ).isSearchable( );
+
+                    if ( !canSearchAttribute )
+                    {
+                        final IdentitySearchMessage alert = new IdentitySearchMessage( );
+                        alert.setAttributeName( searchAttributeDto.getKey( ) );
+                        alert.setMessage( "This attribute is not searchable in service contract definition." );
+                        response.getAlerts( ).add( alert );
+                        response.setStatus( IdentitySearchStatusType.FAILURE );
+                    }
+                }
+                else
+                { // if key does not exist, it can be a common key for search
+                    final List<AttributeRight> commonAttributes = serviceContract.getAttributeRights( ).stream( )
+                            .filter( a -> StringUtils.equals( a.getAttributeKey( ).getCommonSearchKeyName( ), searchAttributeDto.getKey( ) ) )
+                            .collect( Collectors.toList( ) );
+                    if ( CollectionUtils.isNotEmpty( commonAttributes ) )
+                    {
+                        boolean canSearchAttribute = commonAttributes.stream( ).allMatch( a -> a.isSearchable( ) );
+                        if ( !canSearchAttribute )
+                        {
+                            final IdentitySearchMessage alert = new IdentitySearchMessage( );
+                            alert.setAttributeName( searchAttributeDto.getKey( ) );
+                            alert.setMessage( "This attribute group is not searchable in service contract definition." );
+                            response.getAlerts( ).add( alert );
+                            response.setStatus( IdentitySearchStatusType.FAILURE );
+                        }
+                    }
+                    else
+                    {
+                        final IdentitySearchMessage alert = new IdentitySearchMessage( );
+                        alert.setAttributeName( searchAttributeDto.getKey( ) );
+                        alert.setMessage( "This attribute does not exist in service contract definition." );
+                        response.getAlerts( ).add( alert );
+                        response.setStatus( IdentitySearchStatusType.FAILURE );
+                    }
                 }
             }
         }

@@ -153,14 +153,15 @@ public final class IdentityRequestValidator
             throw new IdentityStoreException( "Provided Identity Change request is null or empty" );
         }
 
-        if ( identityChange.getOrigin( ) == null )
+        if ( identityChange.getOrigin( ) == null || StringUtils.isEmpty( identityChange.getOrigin( ).getName( ) )
+                || identityChange.getOrigin( ).getType( ) == null )
         {
-            throw new IdentityStoreException( "Provided Author is null" );
+            throw new IdentityStoreException( "Provided Author is null or empty" );
         }
 
         if ( identityChange.getIdentity( ).getAttributes( ).stream( ).anyMatch( a -> !a.isCertified( ) ) )
         {
-            throw new IdentityStoreException( "Provided attributes shall be certified" );
+            throw new IdentityStoreException( "Provided attributes shall be fully certified (process + date)" );
         }
     }
 

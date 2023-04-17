@@ -31,19 +31,19 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-@Retention( RUNTIME )
-@Target( {
-        FIELD
-} )
-public @interface SearchCriteria
+public class Exists
 {
-    String [ ] keys( ) default "";
+    protected String field;
+
+    public String getField( )
+    {
+        return field;
+    }
+
+    public void setField( String field )
+    {
+        this.field = field;
+    }
 }

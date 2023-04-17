@@ -11,13 +11,8 @@
 		<@formGroup labelFor="key_name" labelKey="#i18n{identitystore.modify_attributekey.labelKeyName}" helpKey="#i18n{identitystore.modify_attributekey.labelKeyName.help}" mandatory=true>
 			<@input type="text" id="key_name" class="form-control" name="key_name" maxlength=100 mandatory=true value="${attributekey.keyName}" disabled=true />
 		</@formGroup>
-		<div class="row form-group">
-			<label class="col-xs-12 col-sm-12 col-md-3 col-lg-3 control-label" for="description">#i18n{identitystore.modify_attributekey.labelDescription} : </label>
-			<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-				<textarea name="description" id="description" rows="5">${attributekey.description!''}</textarea>
-				<p class="help-block">#i18n{identitystore.modify_attributekey.labelDescription.help}</p>
-			</div>
-		</div>
+		<@fieldInputText i18nLabelKey="identitystore.modify_attributekey.labelDescription" inputName="description" maxlength=255 mandatory=false value="${attributekey.description!''}" i18nHelpBlockKey="identitystore.modify_attributekey.labelDescription.help" />
+
 		<div class="row form-group">
 			<label class="col-xs-12 col-sm-3 col-md-3 col-lg-3 control-label" for="id_key_type">#i18n{identitystore.modify_attributekey.labelKeyType}&nbsp;*&nbsp;:</label>
 			<div class="col-xs-12 col-sm-9 col-md-6 col-lg-6">
@@ -36,6 +31,7 @@
 		<@formGroup labelFor='certifiable' labelKey='#i18n{identitystore.modify_attributekey.labelCertifiable}'>
 			<@checkBox id="certifiable" name="certifiable"  value="1" checked=attributekey.certifiable!'false' />
 		</@formGroup>
+		<@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelCommonSearchKey" inputName="common_search_key_name" maxlength=100 mandatory=true value="${attributekey.commonSearchKeyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelCommonSearchKey.help" />
         <@actionButtons button1Name="action_modifyAttributeKey" button2Name="view_manageAttributeKeys"/>
     </form>
 </@rowBoxHeader>

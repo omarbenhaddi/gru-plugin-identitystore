@@ -31,23 +31,29 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
 
-import java.util.List;
-
-public interface ISearchIdentityService
+public class MultiMatchContainer extends AbstractContainer
 {
-    /**
-     * returns a list of qualified identities from combination of attributes
-     *
-     * @param max
-     *            the maximum number of results that must be returned, if set to 0 or null, must be ignored by implementation.
-     * @param attributes
-     *            list of values to search for some attributes with strict or fuzzy mode
-     * @return a list of identities satisfying the criteria of the {@link SearchAttributeDto} list
-     */
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected );
+    @JsonProperty( "multi_match" )
+    protected MultiMatch multiMatch;
+
+    public MultiMatchContainer( MultiMatch multiMatch )
+    {
+        this.multiMatch = multiMatch;
+    }
+
+    public MultiMatch getMultiMatch( )
+    {
+        return multiMatch;
+    }
+
+    public void setMultiMatch( MultiMatch multiMatch )
+    {
+        this.multiMatch = multiMatch;
+    }
 }

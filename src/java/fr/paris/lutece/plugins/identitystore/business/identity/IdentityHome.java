@@ -392,9 +392,9 @@ public final class IdentityHome
      *            A map that associates the id of each attributes selected with the list of values
      * @return list of Identity
      */
-    public static List<Identity> findByAttributesValueForApiSearch( Map<String, List<String>> mapAttributes )
+    public static List<Identity> findByAttributesValueForApiSearch( Map<String, List<String>> mapAttributes, final int max )
     {
-        int nMaxNbIdentityReturned = AppPropertiesService.getPropertyInt( PROPERTY_MAX_NB_IDENTITY_RETURNED, 100 );
+        int nMaxNbIdentityReturned = ( max > 0 ) ? max : AppPropertiesService.getPropertyInt( PROPERTY_MAX_NB_IDENTITY_RETURNED, 100 );
         return _dao.selectByAttributesValueForApiSearch( mapAttributes, nMaxNbIdentityReturned, _plugin );
     }
 

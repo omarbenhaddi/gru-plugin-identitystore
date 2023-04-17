@@ -34,13 +34,18 @@
 package fr.paris.lutece.plugins.identitystore.service.search;
 
 import com.google.common.collect.Lists;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,15 +62,46 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     /**
      * {@inheritDoc }
      */
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
     {
         final Map<String, List<String>> mapAttributeValues = attributes.stream( )
                 .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
         try
         {
-            return IdentityService.search( mapAttributeValues );
+            final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( );
+
+            final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues, max );
+            if ( listIdentity == null || listIdentity.isEmpty( ) )
+            {
+                return qualifiedIdentities;
+            }
+
+            final List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityListFullAttributes( listIdentity );
+
+            for ( final Identity identity : listIdentity )
+            {
+                for ( final IdentityAttribute identityAttribute : listIdentityAttribute )
+                {
+                    if ( identity.getId( ) == identityAttribute.getIdIdentity( ) )
+                    {
+                        Map<String, IdentityAttribute> mapIdentityAttributes = identity.getAttributes( );
+
+                        if ( mapIdentityAttributes == null )
+                        {
+                            mapIdentityAttributes = new HashMap<>( );
+                        }
+
+                        mapIdentityAttributes.put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
+                        identity.setAttributes( mapIdentityAttributes );
+                    }
+                }
+
+                qualifiedIdentities.add( DtoConverter.convertIdentityToDto( identity ) );
+            }
+
+            return qualifiedIdentities;
         }
-        catch( RefAttributeCertificationDefinitionNotFoundException e )
+        catch( final RefAttributeCertificationDefinitionNotFoundException e )
         {
             AppLogService.error( "An error occured during database search: ", e );
         }

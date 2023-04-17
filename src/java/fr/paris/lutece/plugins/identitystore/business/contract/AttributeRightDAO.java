@@ -52,7 +52,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     private static final String SQL_QUERY_DELETE_ALL_BY_CLIENT = "DELETE FROM identitystore_attribute_right WHERE id_service_contract = ? ";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_right ( id_attribute, id_service_contract, searchable, readable, writable ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_right SET readable = ? , writable = ?, searchable = ? WHERE id_attribute = ? AND id_service_contract = ?";
-    private static final String SQL_QUERY_SELECT_ALL_BY_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.description, a.key_type, b.searchable, b.readable, b.writable FROM identitystore_attribute a LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_service_contract = ? ";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, b.searchable, b.readable, b.writable FROM identitystore_attribute a LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_service_contract = ? ";
     private static final String SQL_QUERY_SELECT_ALL_RIGHTS = "SELECT a.key_name, c.name, b.searchable, b.readable, b.writable FROM identitystore_attribute a JOIN identitystore_attribute_right b ON a.id_attribute = b.id_attribute JOIN identitystore_service_contract c ON b.id_service_contract = c.id_service_contact ORDER BY a.key_name, c.name";
     private static final int CONST_INT_TRUE = 1;
     private static final int CONST_INT_FALSE = 0;
@@ -117,6 +117,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             attributeKey.setId( daoUtil.getInt( nIndex++ ) );
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 

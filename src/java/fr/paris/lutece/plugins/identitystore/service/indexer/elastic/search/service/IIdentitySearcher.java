@@ -42,5 +42,5 @@ public interface IIdentitySearcher
 {
     String NAME = "identitystore.identitySearcher";
 
-    Response search( final List<SearchAttribute> attributes );
+    Response search( final List<SearchAttribute> attributes, final int max, final boolean connected );
 }

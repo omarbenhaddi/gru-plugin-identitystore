@@ -39,8 +39,6 @@ import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirem
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
-import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
-import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
@@ -48,8 +46,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -109,8 +106,7 @@ public class IdentityQualityService
         }
     }
 
-    public static void computeQuality( final QualifiedIdentity qualifiedIdentity )
-            throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
+    public void computeQuality( final QualifiedIdentity qualifiedIdentity ) throws IdentityAttributeNotFoundException
     {
         final AtomicInteger levels = new AtomicInteger( );
         for ( final CertifiedAttribute attribute : qualifiedIdentity.getAttributes( ) )
@@ -125,25 +121,49 @@ public class IdentityQualityService
         qualifiedIdentity.setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
     }
 
-    public static void computeMatchScore( final QualifiedIdentity qualifiedIdentity, final List<SearchAttributeDto> searchAttributes )
-            throws IdentityAttributeNotFoundException
+    public void computeMatchScore( final QualifiedIdentity qualifiedIdentity, final List<SearchAttributeDto> searchAttributes )
     {
         final AtomicDouble levels = new AtomicDouble( );
         final AtomicDouble base = new AtomicDouble( );
+        final Map<SearchAttributeDto, List<AttributeKey>> attributesToProcess = new HashMap<>( );
+        final List<AttributeKey> attributeKeys = IdentityService.instance( ).getAttributeKeys( );
+        final List<String> attributeKeyNames = attributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
         for ( final SearchAttributeDto searchAttribute : searchAttributes )
         {
-            final AttributeKey attributeKey = _identityAttributeCache.get( searchAttribute.getKey( ) );
-            final CertifiedAttribute certifiedAttribute = qualifiedIdentity.getAttributes( ).stream( )
-                    .filter( attribute -> Objects.equals( attribute.getKey( ), searchAttribute.getKey( ) ) ).findFirst( ).orElse( null );
-            base.addAndGet( attributeKey.getKeyWeight( ) );
-            if ( certifiedAttribute.getValue( ).equals( searchAttribute.getValue( ) ) )
+            if ( attributeKeyNames.contains( searchAttribute.getKey( ) ) )
             {
-                levels.addAndGet( attributeKey.getKeyWeight( ) );
+                final Optional<AttributeKey> optionalAttributeKey = attributeKeys.stream( ).filter( a -> a.getKeyName( ).equals( searchAttribute.getKey( ) ) )
+                        .findFirst( );
+                if ( optionalAttributeKey.isPresent( ) )
+                {
+                    attributesToProcess.put( searchAttribute, Arrays.asList( optionalAttributeKey.get( ) ) );
+                }
             }
             else
             {
-                final Double penalty = Double.valueOf( AppPropertiesService.getProperty( "identitystore.identity.scoring.penalty", "0.3" ) );
-                levels.addAndGet( attributeKey.getKeyWeight( ) - ( attributeKey.getKeyWeight( ) * penalty ) );
+                // In this case we have a common search key in the request, so retrieve the attribute
+                final List<AttributeKey> commonAttributes = attributeKeys.stream( )
+                        .filter( a -> Objects.equals( a.getCommonSearchKeyName( ), searchAttribute.getKey( ) ) ).collect( Collectors.toList( ) );
+                attributesToProcess.put( searchAttribute, commonAttributes );
+            }
+        }
+
+        for ( final Map.Entry<SearchAttributeDto, List<AttributeKey>> entry : attributesToProcess.entrySet( ) )
+        {
+            for ( final AttributeKey attributeKey : entry.getValue( ) )
+            {
+                final CertifiedAttribute certifiedAttribute = qualifiedIdentity.getAttributes( ).stream( )
+                        .filter( attribute -> Objects.equals( attribute.getKey( ), attributeKey.getKeyName( ) ) ).findFirst( ).orElse( null );
+                base.addAndGet( attributeKey.getKeyWeight( ) );
+                if ( certifiedAttribute.getValue( ).equals( entry.getKey( ).getValue( ) ) )
+                {
+                    levels.addAndGet( attributeKey.getKeyWeight( ) );
+                }
+                else
+                {
+                    final Double penalty = Double.valueOf( AppPropertiesService.getProperty( "identitystore.identity.scoring.penalty", "0.3" ) );
+                    levels.addAndGet( attributeKey.getKeyWeight( ) - ( attributeKey.getKeyWeight( ) * penalty ) );
+                }
             }
         }
 

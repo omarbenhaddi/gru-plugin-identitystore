@@ -63,7 +63,6 @@ public class AttributeCertificationDefinitionService
     }
 
     public RefAttributeCertificationLevel get( final String processusCode, final String attributeKeyName )
-            throws RefAttributeCertificationDefinitionNotFoundException
     {
         return _cache.get( processusCode, attributeKeyName );
     }

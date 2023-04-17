@@ -49,12 +49,12 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute ) FROM identitystore_attribute";
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, name, key_name, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute WHERE id_attribute = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute ( id_attribute, name, key_name, description, key_type, certifiable, pivot, key_weight ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute WHERE id_attribute = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute ( id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute WHERE id_attribute = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute SET id_attribute = ?, name = ?, key_name = ?, description = ?, key_type = ?, certifiable = ?, pivot = ?, key_weight = ? WHERE id_attribute = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute";
-    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute WHERE key_name = ?";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute SET id_attribute = ?, name = ?, key_name = ?, common_search_key = ?, description = ?, key_type = ?, certifiable = ?, pivot = ?, key_weight = ? WHERE id_attribute = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute";
+    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight FROM identitystore_attribute WHERE key_name = ?";
     private static final String SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED = "SELECT count(*) FROM identitystore_attribute WHERE id_attribute = ? AND ( EXISTS( SELECT id_attribute FROM identitystore_attribute_right WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_identity_attribute WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_history_identity_attribute WHERE attribute_key IN  ( SELECT key_name FROM identitystore_attribute WHERE id_attribute = ? ) ) )";
     private static final String SQL_QUERY_SELECT_LEVEL_MAX = "WITH attributes AS ( SELECT ia.key_name, ia.key_weight, max(cast(ircl.level AS NUMERIC)) as max_level FROM identitystore_attribute ia JOIN identitystore_ref_attribute_certification_level iracl ON ia.id_attribute = iracl.id_attribute JOIN identitystore_ref_certification_level ircl ON iracl.id_ref_certification_level = ircl.id_ref_certification_level WHERE ia.key_weight != 0 GROUP BY ia.key_name, ia.key_weight ) SELECT SUM(attributes.max_level * attributes.key_weight) FROM attributes";
 
@@ -96,6 +96,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         daoUtil.setInt( nIndex++, attributeKey.getId( ) );
         daoUtil.setString( nIndex++, attributeKey.getName( ) );
         daoUtil.setString( nIndex++, attributeKey.getKeyName( ) );
+        daoUtil.setString( nIndex++, attributeKey.getCommonSearchKeyName( ) );
         daoUtil.setString( nIndex++, attributeKey.getDescription( ) );
         daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
         daoUtil.setBoolean( nIndex++, attributeKey.getCertifiable( ) );
@@ -127,6 +128,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setId( daoUtil.getInt( nIndex++ ) );
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
             attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
@@ -163,6 +165,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
         daoUtil.setInt( nIndex++, attributeKey.getId( ) );
         daoUtil.setString( nIndex++, attributeKey.getName( ) );
         daoUtil.setString( nIndex++, attributeKey.getKeyName( ) );
+        daoUtil.setString( nIndex++, attributeKey.getCommonSearchKeyName( ) );
         daoUtil.setString( nIndex++, attributeKey.getDescription( ) );
         daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
         daoUtil.setBoolean( nIndex++, attributeKey.getCertifiable( ) );
@@ -192,6 +195,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setId( daoUtil.getInt( nIndex++ ) );
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
             attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
@@ -247,6 +251,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             attributeKey.setId( daoUtil.getInt( nIndex++ ) );
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
             attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );

@@ -33,9 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.search;
 
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
@@ -47,9 +49,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdent
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ElasticSearchIdentityService implements ISearchIdentityService
@@ -68,18 +68,34 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
      * {@inheritDoc }
      */
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
     {
-        final List<SearchAttribute> searchAttributes = attributes.stream( ).map( dto -> new SearchAttribute( dto.getKey( ), dto.getValue( ), dto.isStrict( ) ) )
-                .collect( Collectors.toList( ) );
-        final Response search = _identitySearcher.search( searchAttributes );
+        final List<AttributeKey> attributeKeys = IdentityService.instance( ).getAttributeKeys( );
+        final List<String> attributeKeyNames = attributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
+        final List<SearchAttribute> searchAttributes = new ArrayList<>( );
+        for ( final SearchAttributeDto dto : attributes )
+        {
+            if ( attributeKeyNames.contains( dto.getKey( ) ) )
+            {
+                searchAttributes.add( new SearchAttribute( dto.getKey( ), Arrays.asList( dto.getKey( ) ), dto.getValue( ), dto.isStrict( ) ) );
+            }
+            else
+            {
+                // In this case we have a common search key in the request, so map it
+                final List<AttributeKey> commonAttributes = attributeKeys.stream( )
+                        .filter( attributeKey -> Objects.equals( attributeKey.getCommonSearchKeyName( ), dto.getKey( ) ) ).collect( Collectors.toList( ) );
+                searchAttributes.add( new SearchAttribute( dto.getKey( ),
+                        commonAttributes.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) ), dto.getValue( ), dto.isStrict( ) ) );
+            }
+        }
+        final Response search = _identitySearcher.search( searchAttributes, max, connected );
         final List<QualifiedIdentity> identities = new ArrayList<>( );
         if ( search != null )
         {
             search.getResult( ).getHits( ).forEach( hit -> {
                 try
                 {
-                    identities.add( this.toQualifiedIdentity( hit.getSource( ), attributes ) );
+                    identities.add( this.toQualifiedIdentity( hit.getSource( ) ) );
                 }
                 catch( IdentityAttributeNotFoundException | RefAttributeCertificationDefinitionNotFoundException e )
                 {
@@ -90,7 +106,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         return identities;
     }
 
-    private QualifiedIdentity toQualifiedIdentity( final IdentityObject identityObject, final List<SearchAttributeDto> attributes )
+    private QualifiedIdentity toQualifiedIdentity( final IdentityObject identityObject )
             throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final QualifiedIdentity identity = new QualifiedIdentity( );

@@ -59,7 +59,7 @@ public final class AttributeRequirementDAO implements IAttributeRequirementDAO
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_requirement,  FROM identitystore_attribute_requirement";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_requirement FROM identitystore_attribute_requirement";
     private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute_requirement,  FROM identitystore_attribute_requirement WHERE id_attribute_requirement IN (  ";
-    private static final String SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.description, a.key_type, c.name, c.description, c.level, c.id_ref_certification_level"
+    private static final String SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, c.name, c.description, c.level, c.id_ref_certification_level"
             + " FROM identitystore_attribute a"
             + " LEFT JOIN  identitystore_attribute_requirement b ON  a.id_attribute = b.id_attribute AND id_service_contract = ?"
             + " LEFT JOIN  identitystore_ref_certification_level c ON  c.id_ref_certification_level = b.id_ref_certification_level";
@@ -280,6 +280,7 @@ public final class AttributeRequirementDAO implements IAttributeRequirementDAO
             attributeKey.setId( daoUtil.getInt( nIndex++ ) );
             attributeKey.setName( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
             attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
             attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 

@@ -54,6 +54,7 @@ public class AttributeKey implements Serializable
     @NotEmpty( message = "#i18n{identitystore.validation.attributekey.KeyName.notEmpty}" )
     @Size( max = 100, message = "#i18n{identitystore.validation.attributekey.KeyName.size}" )
     private String _strKeyName;
+    private String _strCommonSearchKeyName;
     private String _strDescription;
     private KeyType _keyType;
     private boolean _bCertifiable;
@@ -122,6 +123,16 @@ public class AttributeKey implements Serializable
     public void setKeyName( String strKeyName )
     {
         _strKeyName = strKeyName;
+    }
+
+    public String getCommonSearchKeyName( )
+    {
+        return _strCommonSearchKeyName;
+    }
+
+    public void setCommonSearchKeyName( String _strCommonSearchKeyName )
+    {
+        this._strCommonSearchKeyName = _strCommonSearchKeyName;
     }
 
     /**

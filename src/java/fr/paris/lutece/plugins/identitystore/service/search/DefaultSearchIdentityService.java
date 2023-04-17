@@ -51,16 +51,8 @@ public class DefaultSearchIdentityService implements ISearchIdentityService
     {
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    public List<IdentityDto> getIdentities( Map<String, List<String>> mapAttributeValues, List<String> listAttributeKeyNames, String strClientApplicationCode )
-    {
-        return new ArrayList<>( );
-    }
-
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
     {
         return new ArrayList<>( );
     }

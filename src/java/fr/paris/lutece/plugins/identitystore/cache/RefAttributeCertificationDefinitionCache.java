@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCe
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -95,27 +96,28 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
     }
 
     public RefAttributeCertificationLevel get( final String processusCode, final String attributeKeyName )
-            throws RefAttributeCertificationDefinitionNotFoundException
     {
         final String key = this.buildKey( processusCode, attributeKeyName );
         RefAttributeCertificationLevel certificationLevel = (RefAttributeCertificationLevel) this.getFromCache( key );
         if ( certificationLevel == null )
         {
             certificationLevel = this.getFromDatabase( processusCode, attributeKeyName );
-            this.put( certificationLevel );
+            if ( certificationLevel != null )
+            {
+                this.put( certificationLevel );
+            }
         }
         return certificationLevel;
     }
 
     public RefAttributeCertificationLevel getFromDatabase( final String processusCode, final String attributeKeyName )
-            throws RefAttributeCertificationDefinitionNotFoundException
     {
         final RefAttributeCertificationLevel certificationLevel = RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( processusCode,
                 attributeKeyName );
         if ( certificationLevel == null )
         {
-            throw new RefAttributeCertificationDefinitionNotFoundException( "No attribute certification level could be found for processus with code "
-                    + processusCode + " and attribute with code " + attributeKeyName );
+            AppLogService.error( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
+                    + attributeKeyName );
         }
         return certificationLevel;
     }

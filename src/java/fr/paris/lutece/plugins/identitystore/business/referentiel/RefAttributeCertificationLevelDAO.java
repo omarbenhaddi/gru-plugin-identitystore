@@ -356,7 +356,6 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
     @Override
     public RefAttributeCertificationLevel findByProcessusAndAttributeKeyName( String processusCode, String attributeKeyName, Plugin plugin )
     {
-        RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel( );
 
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_PROCESSUS_AND_KEY_NAME, plugin );
         daoUtil.setString( 1, processusCode );
@@ -365,6 +364,7 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
 
         if ( daoUtil.next( ) )
         {
+            final RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel( );
             final RefCertificationLevel refCertificationLevel = new RefCertificationLevel( );
             final AttributeKey attributeKey = new AttributeKey( );
             final RefAttributeCertificationProcessus refattributecertificationprocessus = new RefAttributeCertificationProcessus( );
@@ -389,11 +389,12 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
             refAttributeCertificationLevel.setRefAttributeCertificationProcessus( refattributecertificationprocessus );
             refAttributeCertificationLevel.setRefCertificationLevel( refCertificationLevel );
             refAttributeCertificationLevel.setAttributeKey( attributeKey );
+            return refAttributeCertificationLevel;
 
         }
 
         daoUtil.free( );
 
-        return refAttributeCertificationLevel;
+        return null;
     }
 }

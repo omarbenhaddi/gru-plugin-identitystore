@@ -4,16 +4,45 @@
             "analyzer" : {
                 "email_analyzer" : {
                     "tokenizer" : "email_tokenizer",
-                    "filter": ["lowercase", "asciifolding"]
+                    "filter" : [
+                        "lowercase",
+                        "asciifolding"
+                    ]
                 },
                 "first_name_analyzer" : {
                     "tokenizer" : "whitespace",
-                    "filter" : ["lowercase", "asciifolding"]
+                    "filter" : [
+                        "lowercase",
+                        "asciifolding"
+                    ]
+                },
+                "last_name_analyzer" : {
+                    "tokenizer" : "keyword",
+                    "filter" : [
+                        "lowercase",
+                        "asciifolding",
+                        "hyphen_to_whitespace",
+                        "whitespace_to_hyphen"
+                    ]
                 }
             },
             "tokenizer" : {
                 "email_tokenizer" : {
                     "type" : "uax_url_email"
+                }
+            },
+            "filter" : {
+                "hyphen_to_whitespace" : {
+                    "type" : "pattern_replace",
+                    "pattern" : "-",
+                    "replacement" : " ",
+                    "all" : true
+                },
+                "whitespace_to_hyphen" : {
+                    "type" : "pattern_replace",
+                    "pattern" : " ",
+                    "replacement" : "-",
+                    "all" : true
                 }
             }
         }
@@ -35,6 +64,14 @@
             "attributes.first_name.value" : {
                 "type" : "text",
                 "analyzer" : "first_name_analyzer"
+            },
+            "attributes.family_name.value" : {
+                "type" : "text",
+                "analyzer" : "last_name_analyzer"
+            },
+            "attributes.preferred_username.value" : {
+                "type" : "text",
+                "analyzer" : "last_name_analyzer"
             }
         }
     }
