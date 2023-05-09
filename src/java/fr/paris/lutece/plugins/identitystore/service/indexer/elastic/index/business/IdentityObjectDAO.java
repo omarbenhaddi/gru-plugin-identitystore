@@ -67,37 +67,34 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
     @Override
     public IdentityObject loadFull( String customerId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_LOAD_IDENTITY, plugin );
-        daoUtil.setString( 1, customerId );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_LOAD_IDENTITY, plugin )) {
+            daoUtil.setString(1, customerId);
+            daoUtil.executeQuery();
 
-        IdentityObject identity = null;
+            IdentityObject identity = null;
 
-        if ( daoUtil.next( ) )
-        {
-            identity = new IdentityObject( );
+            if (daoUtil.next()) {
+                identity = new IdentityObject();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            identity.setConnectionId( daoUtil.getString( nIndex++ ) );
-            identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-            identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
-            identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+                identity.setConnectionId(daoUtil.getString(nIndex++));
+                identity.setCustomerId(daoUtil.getString(nIndex++));
+                identity.setCreationDate(daoUtil.getTimestamp(nIndex++));
+                identity.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
 
-            final AttributeObject firstAttribute = getAttributeObject( daoUtil, 5 );
-            identity.getAttributes( ).put( firstAttribute.getKey( ), firstAttribute );
+                final AttributeObject firstAttribute = getAttributeObject(daoUtil, 5);
+                identity.getAttributes().put(firstAttribute.getKey(), firstAttribute);
 
-            while ( daoUtil.next( ) )
-            {
-                final AttributeObject attribute = getAttributeObject( daoUtil, 5 );
-                identity.getAttributes( ).put( attribute.getKey( ), attribute );
+                while (daoUtil.next()) {
+                    final AttributeObject attribute = getAttributeObject(daoUtil, 5);
+                    identity.getAttributes().put(attribute.getKey(), attribute);
+                }
+
             }
 
+            return identity;
         }
-
-        daoUtil.free( );
-
-        return identity;
     }
 
     private AttributeObject getAttributeObject( DAOUtil daoUtil, int nIndex )
@@ -124,17 +121,15 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
     public List<String> selectEligibleCustomerIdsListForIndex( Plugin plugin )
     {
         final List<String> listIds = new ArrayList<>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX, plugin );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX, plugin )) {
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            String identity = daoUtil.getString( 1 );
-            listIds.add( identity );
+            while (daoUtil.next()) {
+                String identity = daoUtil.getString(1);
+                listIds.add(identity);
+            }
+
+            return listIds;
         }
-
-        daoUtil.free( );
-
-        return listIds;
     }
 }

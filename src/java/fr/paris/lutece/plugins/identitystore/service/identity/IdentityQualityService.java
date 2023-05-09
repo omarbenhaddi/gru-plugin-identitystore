@@ -126,24 +126,22 @@ public class IdentityQualityService
         final AtomicDouble levels = new AtomicDouble( );
         final AtomicDouble base = new AtomicDouble( );
         final Map<SearchAttributeDto, List<AttributeKey>> attributesToProcess = new HashMap<>( );
-        final List<AttributeKey> attributeKeys = IdentityService.instance( ).getAttributeKeys( );
-        final List<String> attributeKeyNames = attributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
         for ( final SearchAttributeDto searchAttribute : searchAttributes )
         {
-            if ( attributeKeyNames.contains( searchAttribute.getKey( ) ) )
+            AttributeKey refKey = null;
+            try {
+                refKey = IdentityService.instance().getAttributeKey(searchAttribute.getKey());
+            } catch (IdentityAttributeNotFoundException e) {
+                //do nothing, we check if attribute exists
+            }
+            if ( refKey != null )
             {
-                final Optional<AttributeKey> optionalAttributeKey = attributeKeys.stream( ).filter( a -> a.getKeyName( ).equals( searchAttribute.getKey( ) ) )
-                        .findFirst( );
-                if ( optionalAttributeKey.isPresent( ) )
-                {
-                    attributesToProcess.put( searchAttribute, Arrays.asList( optionalAttributeKey.get( ) ) );
-                }
+                attributesToProcess.put( searchAttribute, Arrays.asList( refKey ) );
             }
             else
             {
                 // In this case we have a common search key in the request, so retrieve the attribute
-                final List<AttributeKey> commonAttributes = attributeKeys.stream( )
-                        .filter( a -> Objects.equals( a.getCommonSearchKeyName( ), searchAttribute.getKey( ) ) ).collect( Collectors.toList( ) );
+                final List<AttributeKey> commonAttributes = IdentityService.instance().getCommonAttributeKeys(searchAttribute.getKey());
                 attributesToProcess.put( searchAttribute, commonAttributes );
             }
         }

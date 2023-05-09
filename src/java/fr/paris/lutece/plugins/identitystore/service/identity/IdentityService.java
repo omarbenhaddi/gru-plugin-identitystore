@@ -618,18 +618,18 @@ public class IdentityService
         return _cache.get( keyName );
     }
 
-    public List<AttributeKey> getAttributeKeys( )
+    public List<AttributeKey> getCommonAttributeKeys( final String keyName )
     {
-        return _cache.getKeys( ).stream( ).map( key -> {
-            try
-            {
-                return _cache.get( key );
+        if(_cache.getKeys().isEmpty()) {
+            _cache.refresh();
+        }
+        return _cache.getKeys().stream().map(key -> {
+            try {
+                return _cache.get(key);
+            } catch (IdentityAttributeNotFoundException e) {
+                throw new RuntimeException(e);
             }
-            catch( IdentityAttributeNotFoundException e )
-            {
-                throw new RuntimeException( e );
-            }
-        } ).collect( Collectors.toList( ) );
+        }).filter(attributeKey -> attributeKey.getCommonSearchKeyName() != null && Objects.equals(attributeKey.getCommonSearchKeyName(), keyName)).collect(Collectors.toList());
     }
 
     public void createAttributeKey( final AttributeKey attributeKey )

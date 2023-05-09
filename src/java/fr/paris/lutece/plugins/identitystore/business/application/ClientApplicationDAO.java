@@ -71,19 +71,14 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
      */
     private synchronized int newPrimaryKey( Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery( );
-
-        int nKey = 1;
-
-        if ( daoUtil.next( ) )
-        {
-            nKey = daoUtil.getInt( 1 ) + 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin )) {
+            daoUtil.executeQuery();
+            int nKey = 1;
+            if (daoUtil.next()) {
+                nKey = daoUtil.getInt(1) + 1;
+            }
+            return nKey;
         }
-
-        daoUtil.free( );
-
-        return nKey;
     }
 
     /**
@@ -92,16 +87,16 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public void insert( ClientApplication clientApplication, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        clientApplication.setId( newPrimaryKey( plugin ) );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin )) {
+            clientApplication.setId(newPrimaryKey(plugin));
 
-        int nIndex = 1;
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, clientApplication.getId( ) );
-        daoUtil.setString( nIndex++, clientApplication.getName( ) );
-        daoUtil.setString( nIndex++, clientApplication.getCode( ) );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.setInt(nIndex++, clientApplication.getId());
+            daoUtil.setString(nIndex++, clientApplication.getName());
+            daoUtil.setString(nIndex++, clientApplication.getCode());
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -110,27 +105,25 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public ClientApplication load( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeQuery();
 
-        ClientApplication clientApplication = null;
+            ClientApplication clientApplication = null;
 
-        if ( daoUtil.next( ) )
-        {
-            clientApplication = new ClientApplication( );
+            if (daoUtil.next()) {
+                clientApplication = new ClientApplication();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            clientApplication.setId( daoUtil.getInt( nIndex++ ) );
-            clientApplication.setName( daoUtil.getString( nIndex++ ) );
-            clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setId(daoUtil.getInt(nIndex++));
+                clientApplication.setName(daoUtil.getString(nIndex++));
+                clientApplication.setCode(daoUtil.getString(nIndex++));
 
+            }
+
+            return clientApplication;
         }
-
-        daoUtil.free( );
-
-        return clientApplication;
     }
 
     /**
@@ -139,27 +132,25 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public ClientApplication selectByContractId( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CONTRACT_ID, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CONTRACT_ID, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeQuery();
 
-        ClientApplication clientApplication = null;
+            ClientApplication clientApplication = null;
 
-        if ( daoUtil.next( ) )
-        {
-            clientApplication = new ClientApplication( );
+            if (daoUtil.next()) {
+                clientApplication = new ClientApplication();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            clientApplication.setId( daoUtil.getInt( nIndex++ ) );
-            clientApplication.setName( daoUtil.getString( nIndex++ ) );
-            clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setId(daoUtil.getInt(nIndex++));
+                clientApplication.setName(daoUtil.getString(nIndex++));
+                clientApplication.setCode(daoUtil.getString(nIndex++));
 
+            }
+
+            return clientApplication;
         }
-
-        daoUtil.free( );
-
-        return clientApplication;
     }
 
     /**
@@ -168,10 +159,10 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -180,17 +171,17 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public void store( ClientApplication clientApplication, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, clientApplication.getId( ) );
-        daoUtil.setString( nIndex++, clientApplication.getName( ) );
-        daoUtil.setString( nIndex++, clientApplication.getCode( ) );
+            daoUtil.setInt(nIndex++, clientApplication.getId());
+            daoUtil.setString(nIndex++, clientApplication.getName());
+            daoUtil.setString(nIndex++, clientApplication.getCode());
 
-        daoUtil.setInt( nIndex, clientApplication.getId( ) );
+            daoUtil.setInt(nIndex, clientApplication.getId());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -199,25 +190,24 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public List<ClientApplication> selectClientApplicationList( Plugin plugin )
     {
-        final List<ClientApplication> clientApplicationList = new ArrayList<>( );
-        final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            final List<ClientApplication> clientApplicationList = new ArrayList<>( );
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            final ClientApplication clientApplication = new ClientApplication( );
-            int nIndex = 1;
+            while(daoUtil.next())
+            {
+                final ClientApplication clientApplication = new ClientApplication();
+                int nIndex = 1;
 
-            clientApplication.setId( daoUtil.getInt( nIndex++ ) );
-            clientApplication.setName( daoUtil.getString( nIndex++ ) );
-            clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setId(daoUtil.getInt(nIndex++));
+                clientApplication.setName(daoUtil.getString(nIndex++));
+                clientApplication.setCode(daoUtil.getString(nIndex++));
 
-            clientApplicationList.add( clientApplication );
+                clientApplicationList.add(clientApplication);
+            }
+
+            return clientApplicationList;
         }
-
-        daoUtil.free( );
-
-        return clientApplicationList;
     }
 
     /**
@@ -226,18 +216,17 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public List<Integer> selectIdClientApplicationList( Plugin plugin )
     {
-        List<Integer> clientApplicationList = new ArrayList<Integer>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            clientApplicationList.add( daoUtil.getInt( 1 ) );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin )) {
+            final List<Integer> clientApplicationList = new ArrayList<>( );
+            daoUtil.executeQuery();
+
+            while (daoUtil.next()) {
+                clientApplicationList.add(daoUtil.getInt(1));
+            }
+
+            return clientApplicationList;
         }
-
-        daoUtil.free( );
-
-        return clientApplicationList;
     }
 
     /**
@@ -246,18 +235,17 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public ReferenceList selectClientApplicationReferenceList( Plugin plugin )
     {
-        ReferenceList clientApplicationList = new ReferenceList( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            clientApplicationList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            final ReferenceList clientApplicationList = new ReferenceList( );
+            daoUtil.executeQuery();
+
+            while (daoUtil.next()) {
+                clientApplicationList.addItem(daoUtil.getInt(1), daoUtil.getString(2));
+            }
+
+            return clientApplicationList;
         }
-
-        daoUtil.free( );
-
-        return clientApplicationList;
     }
 
     /**
@@ -266,27 +254,25 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public ClientApplication selectByCode( String strCode, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CODE, plugin );
-        daoUtil.setString( 1, strCode );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CODE, plugin )) {
+            daoUtil.setString(1, strCode);
+            daoUtil.executeQuery();
 
-        ClientApplication clientApplication = null;
+            ClientApplication clientApplication = null;
 
-        if ( daoUtil.next( ) )
-        {
-            clientApplication = new ClientApplication( );
+            if (daoUtil.next()) {
+                clientApplication = new ClientApplication();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            clientApplication.setId( daoUtil.getInt( nIndex++ ) );
-            clientApplication.setName( daoUtil.getString( nIndex++ ) );
-            clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setId(daoUtil.getInt(nIndex++));
+                clientApplication.setName(daoUtil.getString(nIndex++));
+                clientApplication.setCode(daoUtil.getString(nIndex++));
 
+            }
+
+            return clientApplication;
         }
-
-        daoUtil.free( );
-
-        return clientApplication;
     }
 
     /**
@@ -295,29 +281,26 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
     @Override
     public List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin )
     {
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_APP_CERTIFIER, plugin )) {
+            daoUtil.setString(1, strCertifier);
+            daoUtil.executeQuery();
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_APP_CERTIFIER, plugin );
-        daoUtil.setString( 1, strCertifier );
-        daoUtil.executeQuery( );
+            List<ClientApplication> listClientApplications = new ArrayList<>();
+            ClientApplication clientApplication = null;
 
-        List<ClientApplication> listClientApplications = new ArrayList<ClientApplication>( );
-        ClientApplication clientApplication = null;
+            while (daoUtil.next()) {
+                clientApplication = new ClientApplication();
 
-        while ( daoUtil.next( ) )
-        {
-            clientApplication = new ClientApplication( );
+                int nIndex = 1;
 
-            int nIndex = 1;
+                clientApplication.setId(daoUtil.getInt(nIndex++));
+                clientApplication.setName(daoUtil.getString(nIndex++));
+                clientApplication.setCode(daoUtil.getString(nIndex++));
 
-            clientApplication.setId( daoUtil.getInt( nIndex++ ) );
-            clientApplication.setName( daoUtil.getString( nIndex++ ) );
-            clientApplication.setCode( daoUtil.getString( nIndex++ ) );
+                listClientApplications.add(clientApplication);
+            }
 
-            listClientApplications.add( clientApplication );
+            return listClientApplications;
         }
-
-        daoUtil.free( );
-
-        return listClientApplications;
     }
 }

@@ -75,7 +75,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     @Override
     public void insert( AttributeCertification attributeCertification, int serviceContractId, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
             for ( RefAttributeCertificationProcessus processus : attributeCertification.getRefAttributeCertificationProcessus( ) )
             {
@@ -95,7 +95,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     @Override
     public Optional<AttributeCertification> load( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeQuery( );
@@ -119,7 +119,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
@@ -132,7 +132,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     @Override
     public void deleteFromServiceContract( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_WITH_SERVICE_CONTRACT_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_WITH_SERVICE_CONTRACT_ID, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
@@ -145,7 +145,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     @Override
     public void store( AttributeCertification attributeCertification, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
         {
             int nIndex = 1;
 
@@ -163,7 +163,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     public List<AttributeCertification> selectAttributeCertificationsList( Plugin plugin )
     {
         List<AttributeCertification> attributeCertificationList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -188,7 +188,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     public List<Integer> selectIdAttributeCertificationsList( Plugin plugin )
     {
         List<Integer> attributeCertificationList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -208,7 +208,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     public ReferenceList selectAttributeCertificationsReferenceList( Plugin plugin )
     {
         ReferenceList attributeCertificationList = new ReferenceList( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -241,7 +241,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
             String placeHolders = builder.deleteCharAt( builder.length( ) - 1 ).toString( );
             String stmt = SQL_QUERY_SELECTALL_BY_IDS + placeHolders + ")";
 
-            try ( DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
+            try ( final DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
             {
                 int index = 1;
                 for ( Integer n : listIds )
@@ -259,9 +259,6 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
 
                     attributeCertificationList.add( attributeCertification );
                 }
-
-                daoUtil.free( );
-
             }
         }
         return attributeCertificationList;
@@ -273,53 +270,50 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     {
         List<AttributeCertification> attributeCertifications = new ArrayList<>( );
 
-        final DAOUtil attributesDaoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin );
-        attributesDaoUtil.setInt( 1, servicecontract.getId( ) );
-        attributesDaoUtil.executeQuery( );
+        try(final DAOUtil attributesDaoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin )) {
+            attributesDaoUtil.setInt(1, servicecontract.getId());
+            attributesDaoUtil.executeQuery();
 
-        while ( attributesDaoUtil.next( ) )
-        {
-            AttributeCertification attributeCertification = new AttributeCertification( );
-            AttributeKey attributeKey = new AttributeKey( );
-
-            int nIndex = 1;
-
-            attributeKey.setId( attributesDaoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( attributesDaoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( attributesDaoUtil.getString( nIndex++ ) );
-            attributeKey.setCommonSearchKeyName( attributesDaoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( attributesDaoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( attributesDaoUtil.getInt( nIndex++ ) ) );
-
-            attributeCertification.setAttributeKey( attributeKey );
-
-            attributeCertifications.add( attributeCertification );
-        }
-
-        attributesDaoUtil.free( );
-
-        for ( final AttributeCertification attributeCertification : attributeCertifications )
-        {
-
-            final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_ATTRIBUTE_CERTIF, plugin );
-            daoUtil.setInt( 1, servicecontract.getId( ) );
-            daoUtil.setInt( 2, attributeCertification.getAttributeKey( ).getId( ) );
-            daoUtil.executeQuery( );
-
-            while ( daoUtil.next( ) )
-            {
-                final RefAttributeCertificationProcessus refAttributeCertificationProcessus = new RefAttributeCertificationProcessus( );
+            while (attributesDaoUtil.next()) {
+                AttributeCertification attributeCertification = new AttributeCertification();
+                AttributeKey attributeKey = new AttributeKey();
 
                 int nIndex = 1;
 
-                refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
-                refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
-                refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex++ ) );
+                attributeKey.setId(attributesDaoUtil.getInt(nIndex++));
+                attributeKey.setName(attributesDaoUtil.getString(nIndex++));
+                attributeKey.setKeyName(attributesDaoUtil.getString(nIndex++));
+                attributeKey.setCommonSearchKeyName(attributesDaoUtil.getString(nIndex++));
+                attributeKey.setDescription(attributesDaoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(attributesDaoUtil.getInt(nIndex++)));
 
-                attributeCertification.getRefAttributeCertificationProcessus( ).add( refAttributeCertificationProcessus );
+                attributeCertification.setAttributeKey(attributeKey);
+
+                attributeCertifications.add(attributeCertification);
             }
 
-            daoUtil.free( );
+        }
+
+        for ( final AttributeCertification attributeCertification : attributeCertifications )
+        {
+            try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_ATTRIBUTE_CERTIF, plugin )) {
+                daoUtil.setInt(1, servicecontract.getId());
+                daoUtil.setInt(2, attributeCertification.getAttributeKey().getId());
+                daoUtil.executeQuery();
+
+                while (daoUtil.next()) {
+                    final RefAttributeCertificationProcessus refAttributeCertificationProcessus = new RefAttributeCertificationProcessus();
+
+                    int nIndex = 1;
+
+                    refAttributeCertificationProcessus.setId(daoUtil.getInt(nIndex++));
+                    refAttributeCertificationProcessus.setLabel(daoUtil.getString(nIndex++));
+                    refAttributeCertificationProcessus.setCode(daoUtil.getString(nIndex++));
+
+                    attributeCertification.getRefAttributeCertificationProcessus().add(refAttributeCertificationProcessus);
+                }
+
+            }
         }
 
         return attributeCertifications;

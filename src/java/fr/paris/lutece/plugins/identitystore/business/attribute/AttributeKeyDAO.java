@@ -67,19 +67,17 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
      */
     private synchronized int newPrimaryKey( Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin )) {
+            daoUtil.executeQuery();
 
-        int nKey = 1;
+            int nKey = 1;
 
-        if ( daoUtil.next( ) )
-        {
-            nKey = daoUtil.getInt( 1 ) + 1;
+            if (daoUtil.next()) {
+                nKey = daoUtil.getInt(1) + 1;
+            }
+
+            return nKey;
         }
-
-        daoUtil.free( );
-
-        return nKey;
     }
 
     /**
@@ -88,23 +86,23 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public void insert( AttributeKey attributeKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        attributeKey.setId( newPrimaryKey( plugin ) );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin )) {
+            attributeKey.setId(newPrimaryKey(plugin));
 
-        int nIndex = 1;
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeKey.getId( ) );
-        daoUtil.setString( nIndex++, attributeKey.getName( ) );
-        daoUtil.setString( nIndex++, attributeKey.getKeyName( ) );
-        daoUtil.setString( nIndex++, attributeKey.getCommonSearchKeyName( ) );
-        daoUtil.setString( nIndex++, attributeKey.getDescription( ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
-        daoUtil.setBoolean( nIndex++, attributeKey.getCertifiable( ) );
-        daoUtil.setBoolean( nIndex++, attributeKey.getPivot( ) );
-        daoUtil.setInt( nIndex, attributeKey.getKeyWeight( ) );
+            daoUtil.setInt(nIndex++, attributeKey.getId());
+            daoUtil.setString(nIndex++, attributeKey.getName());
+            daoUtil.setString(nIndex++, attributeKey.getKeyName());
+            daoUtil.setString(nIndex++, attributeKey.getCommonSearchKeyName());
+            daoUtil.setString(nIndex++, attributeKey.getDescription());
+            daoUtil.setInt(nIndex++, attributeKey.getKeyType().getId());
+            daoUtil.setBoolean(nIndex++, attributeKey.getCertifiable());
+            daoUtil.setBoolean(nIndex++, attributeKey.getPivot());
+            daoUtil.setInt(nIndex, attributeKey.getKeyWeight());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -113,32 +111,30 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public AttributeKey load( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeQuery();
 
-        AttributeKey attributeKey = null;
+            AttributeKey attributeKey = null;
 
-        if ( daoUtil.next( ) )
-        {
-            attributeKey = new AttributeKey( );
+            if (daoUtil.next()) {
+                attributeKey = new AttributeKey();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-            attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
-            attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
-            attributeKey.setKeyWeight( daoUtil.getInt( nIndex ) );
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setCommonSearchKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeKey.setCertifiable(daoUtil.getBoolean(nIndex++));
+                attributeKey.setPivot(daoUtil.getBoolean(nIndex++));
+                attributeKey.setKeyWeight(daoUtil.getInt(nIndex));
+            }
+
+            return attributeKey;
         }
-
-        daoUtil.free( );
-
-        return attributeKey;
     }
 
     /**
@@ -147,10 +143,10 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -159,22 +155,22 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public void store( AttributeKey attributeKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeKey.getId( ) );
-        daoUtil.setString( nIndex++, attributeKey.getName( ) );
-        daoUtil.setString( nIndex++, attributeKey.getKeyName( ) );
-        daoUtil.setString( nIndex++, attributeKey.getCommonSearchKeyName( ) );
-        daoUtil.setString( nIndex++, attributeKey.getDescription( ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
-        daoUtil.setBoolean( nIndex++, attributeKey.getCertifiable( ) );
-        daoUtil.setBoolean( nIndex++, attributeKey.getPivot( ) );
-        daoUtil.setInt( nIndex++, attributeKey.getKeyWeight( ) );
-        daoUtil.setInt( nIndex++, attributeKey.getId( ) );
+            daoUtil.setInt(nIndex++, attributeKey.getId());
+            daoUtil.setString(nIndex++, attributeKey.getName());
+            daoUtil.setString(nIndex++, attributeKey.getKeyName());
+            daoUtil.setString(nIndex++, attributeKey.getCommonSearchKeyName());
+            daoUtil.setString(nIndex++, attributeKey.getDescription());
+            daoUtil.setInt(nIndex++, attributeKey.getKeyType().getId());
+            daoUtil.setBoolean(nIndex++, attributeKey.getCertifiable());
+            daoUtil.setBoolean(nIndex++, attributeKey.getPivot());
+            daoUtil.setInt(nIndex++, attributeKey.getKeyWeight());
+            daoUtil.setInt(nIndex++, attributeKey.getId());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -183,31 +179,29 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public List<AttributeKey> selectAttributeKeysList( Plugin plugin )
     {
-        List<AttributeKey> attributeKeyList = new ArrayList<>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            AttributeKey attributeKey = new AttributeKey( );
-            int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            daoUtil.executeQuery();
+            final List<AttributeKey> attributeKeyList = new ArrayList<>();
+            while (daoUtil.next()) {
+                final AttributeKey attributeKey = new AttributeKey();
+                int nIndex = 1;
 
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-            attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
-            attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
-            attributeKey.setKeyWeight( daoUtil.getInt( nIndex ) );
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setCommonSearchKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeKey.setCertifiable(daoUtil.getBoolean(nIndex++));
+                attributeKey.setPivot(daoUtil.getBoolean(nIndex++));
+                attributeKey.setKeyWeight(daoUtil.getInt(nIndex));
 
-            attributeKeyList.add( attributeKey );
+                attributeKeyList.add(attributeKey);
+            }
+
+            return attributeKeyList;
         }
-
-        daoUtil.free( );
-
-        return attributeKeyList;
     }
 
     /**
@@ -216,18 +210,15 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public ReferenceList selectAttributeKeysReferenceList( Plugin plugin )
     {
-        ReferenceList attributeKeyList = new ReferenceList( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            daoUtil.executeQuery();
+            final ReferenceList attributeKeyList = new ReferenceList();
+            while (daoUtil.next()) {
+                attributeKeyList.addItem(daoUtil.getInt(1), daoUtil.getString(2));
+            }
 
-        while ( daoUtil.next( ) )
-        {
-            attributeKeyList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
+            return attributeKeyList;
         }
-
-        daoUtil.free( );
-
-        return attributeKeyList;
     }
 
     /**
@@ -236,32 +227,30 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public AttributeKey selectByKey( String strKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY, plugin );
-        daoUtil.setString( 1, strKey );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY, plugin )) {
+            daoUtil.setString(1, strKey);
+            daoUtil.executeQuery();
 
-        AttributeKey attributeKey = null;
+            AttributeKey attributeKey = null;
 
-        if ( daoUtil.next( ) )
-        {
-            attributeKey = new AttributeKey( );
+            if (daoUtil.next()) {
+                attributeKey = new AttributeKey();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-            attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
-            attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
-            attributeKey.setKeyWeight( daoUtil.getInt( nIndex ) );
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setCommonSearchKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeKey.setCertifiable(daoUtil.getBoolean(nIndex++));
+                attributeKey.setPivot(daoUtil.getBoolean(nIndex++));
+                attributeKey.setKeyWeight(daoUtil.getInt(nIndex));
+            }
+
+            return attributeKey;
         }
-
-        daoUtil.free( );
-
-        return attributeKey;
     }
 
     /**
@@ -270,40 +259,36 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     @Override
     public boolean checkAttributeId( int nAttributeId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED, plugin );
-        daoUtil.setInt( 1, nAttributeId );
-        daoUtil.setInt( 2, nAttributeId );
-        daoUtil.setInt( 3, nAttributeId );
-        daoUtil.setInt( 4, nAttributeId );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED, plugin )) {
+            daoUtil.setInt(1, nAttributeId);
+            daoUtil.setInt(2, nAttributeId);
+            daoUtil.setInt(3, nAttributeId);
+            daoUtil.setInt(4, nAttributeId);
+            daoUtil.executeQuery();
 
-        int nCount = 0;
+            int nCount = 0;
 
-        if ( daoUtil.next( ) )
-        {
-            nCount = daoUtil.getInt( 1 );
+            if (daoUtil.next()) {
+                nCount = daoUtil.getInt(1);
+            }
+
+            return !(nCount == 0);
         }
-
-        daoUtil.free( );
-
-        return !( nCount == 0 );
     }
 
     @Override
     public Integer selectQualityBaseFactor( Plugin plugin )
     {
-        Integer base = 0;
-        final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_LEVEL_MAX, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            base = daoUtil.getInt( 1 );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_LEVEL_MAX, plugin )) {
+            Integer base = 0;
+            daoUtil.executeQuery();
+
+            while (daoUtil.next()) {
+                base = daoUtil.getInt(1);
+            }
+
+            return base;
         }
-
-        daoUtil.free( );
-
-        return base;
     }
-
 }

@@ -96,18 +96,18 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public void insert( IdentityAttribute identityAttribute, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity( ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey( ).getId( ) );
-        daoUtil.setString( nIndex++, identityAttribute.getValue( ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate( ) );
-        daoUtil.setInt( nIndex++, ( identityAttribute.getFile( ) != null ) ? identityAttribute.getFile( ).getIdFile( ) : 0 );
-        daoUtil.setString( nIndex++, identityAttribute.getLastUpdateApplicationCode( ) );
+            daoUtil.setInt(nIndex++, identityAttribute.getIdIdentity());
+            daoUtil.setInt(nIndex++, identityAttribute.getAttributeKey().getId());
+            daoUtil.setString(nIndex++, identityAttribute.getValue());
+            daoUtil.setInt(nIndex++, identityAttribute.getIdCertificate());
+            daoUtil.setInt(nIndex++, (identityAttribute.getFile() != null) ? identityAttribute.getFile().getIdFile() : 0);
+            daoUtil.setString(nIndex++, identityAttribute.getLastUpdateApplicationCode());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -116,44 +116,41 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.setInt( 2, nAttributeId );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.setInt(2, nAttributeId);
+            daoUtil.executeQuery();
 
-        IdentityAttribute identityAttribute = null;
-        int nAttributeKey = -1;
+            IdentityAttribute identityAttribute = null;
+            int nAttributeKey = -1;
 
-        if ( daoUtil.next( ) )
-        {
-            identityAttribute = new IdentityAttribute( );
+            if (daoUtil.next()) {
+                identityAttribute = new IdentityAttribute();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            identityAttribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-            nAttributeKey = daoUtil.getInt( nIndex++ );
-            identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
-            identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
+                identityAttribute.setIdIdentity(daoUtil.getInt(nIndex++));
+                nAttributeKey = daoUtil.getInt(nIndex++);
+                identityAttribute.setValue(daoUtil.getString(nIndex++));
+                identityAttribute.setIdCertificate(daoUtil.getInt(nIndex++));
 
-            int nIdFile = daoUtil.getInt( nIndex++ );
+                int nIdFile = daoUtil.getInt(nIndex++);
 
-            if ( nIdFile > 0 )
-            {
-                identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
+                if (nIdFile > 0) {
+                    identityAttribute.setFile(FileHome.findByPrimaryKey(nIdFile));
+                }
+
+                identityAttribute.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                identityAttribute.setLastUpdateApplicationCode(daoUtil.getString(nIndex++));
+
             }
 
-            identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            identityAttribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
+            if (identityAttribute != null) {
+                identityAttribute.setAttributeKey(AttributeKeyHome.findByPrimaryKey(nAttributeKey));
+            }
 
+            return identityAttribute;
         }
-        daoUtil.free( );
-
-        if ( identityAttribute != null )
-        {
-            identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttributeKey ) );
-        }
-
-        return identityAttribute;
     }
 
     /**
@@ -164,11 +161,11 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     {
         // FIXME Delete also the attribute history
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.setInt( 2, nAttributeId );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.setInt(2, nAttributeId);
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -177,20 +174,20 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public void store( IdentityAttribute identityAttribute, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity( ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getAttributeKey( ).getId( ) );
-        daoUtil.setString( nIndex++, identityAttribute.getValue( ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate( ) );
-        daoUtil.setInt( nIndex++, ( identityAttribute.getFile( ) != null ) ? identityAttribute.getFile( ).getIdFile( ) : 0 );
-        daoUtil.setString( nIndex++, identityAttribute.getLastUpdateApplicationCode( ) );
-        daoUtil.setInt( nIndex++, identityAttribute.getIdIdentity( ) );
-        daoUtil.setInt( nIndex, identityAttribute.getAttributeKey( ).getId( ) );
+            daoUtil.setInt(nIndex++, identityAttribute.getIdIdentity());
+            daoUtil.setInt(nIndex++, identityAttribute.getAttributeKey().getId());
+            daoUtil.setString(nIndex++, identityAttribute.getValue());
+            daoUtil.setInt(nIndex++, identityAttribute.getIdCertificate());
+            daoUtil.setInt(nIndex++, (identityAttribute.getFile() != null) ? identityAttribute.getFile().getIdFile() : 0);
+            daoUtil.setString(nIndex++, identityAttribute.getLastUpdateApplicationCode());
+            daoUtil.setInt(nIndex++, identityAttribute.getIdIdentity());
+            daoUtil.setInt(nIndex, identityAttribute.getAttributeKey().getId());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -199,65 +196,58 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin )
     {
-        Map<String, IdentityAttribute> attributesMap = new LinkedHashMap<String, IdentityAttribute>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.executeQuery( );
+        final Map<String, IdentityAttribute> attributesMap = new LinkedHashMap<>();
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            IdentityAttribute identityAttribute = new IdentityAttribute( );
-            int nIndex = 1;
+            while (daoUtil.next()) {
+                IdentityAttribute identityAttribute = new IdentityAttribute();
+                int nIndex = 1;
 
-            AttributeKey attribute = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
+                AttributeKey attribute = AttributeKeyHome.findByPrimaryKey(daoUtil.getInt(nIndex++));
 
-            identityAttribute.setAttributeKey( attribute );
-            identityAttribute.setIdIdentity( nIdentityId );
-            identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
+                identityAttribute.setAttributeKey(attribute);
+                identityAttribute.setIdIdentity(nIdentityId);
+                identityAttribute.setValue(daoUtil.getString(nIndex++));
 
-            int nCertificateId = daoUtil.getInt( nIndex++ );
-            AttributeCertificate certificate = null;
-            if ( nCertificateId != 0 )
-            {
-                certificate = new AttributeCertificate( );
-                certificate.setId( nCertificateId );
+                int nCertificateId = daoUtil.getInt(nIndex++);
+                AttributeCertificate certificate = null;
+                if (nCertificateId != 0) {
+                    certificate = new AttributeCertificate();
+                    certificate.setId(nCertificateId);
+                }
+                identityAttribute.setCertificate(certificate);
+
+                int nIdFile = daoUtil.getInt(nIndex++);
+                File attrFile = null;
+                if (nIdFile > 0) {
+                    attrFile = new File();
+                    attrFile.setIdFile(nIdFile);
+                }
+                identityAttribute.setFile(attrFile);
+
+                identityAttribute.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                identityAttribute.setLastUpdateApplicationCode(daoUtil.getString(nIndex++));
+
+                attributesMap.put(attribute.getKeyName(), identityAttribute);
             }
-            identityAttribute.setCertificate( certificate );
 
-            int nIdFile = daoUtil.getInt( nIndex++ );
-            File attrFile = null;
-            if ( nIdFile > 0 )
-            {
-                attrFile = new File( );
-                attrFile.setIdFile( nIdFile );
-            }
-            identityAttribute.setFile( attrFile );
+            for (IdentityAttribute attribute : attributesMap.values()) {
+                if (attribute.getCertificate() != null) {
+                    attribute.setCertificate(AttributeCertificateHome.findByPrimaryKey(attribute.getCertificate().getId()));
 
-            identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            identityAttribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
-
-            attributesMap.put( attribute.getKeyName( ), identityAttribute );
-        }
-        daoUtil.free( );
-
-        for ( IdentityAttribute attribute : attributesMap.values( ) )
-        {
-            if ( attribute.getCertificate( ) != null )
-            {
-                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                if ( isCertificateExpired( attribute ) )
-                {
-                    attribute.setCertificate( null );
+                    if (isCertificateExpired(attribute)) {
+                        attribute.setCertificate(null);
+                    }
+                }
+                if (attribute.getFile() != null) {
+                    attribute.setFile(FileHome.findByPrimaryKey(attribute.getFile().getIdFile()));
                 }
             }
-            if ( attribute.getFile( ) != null )
-            {
-                attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-            }
-        }
 
-        return attributesMap;
+            return attributesMap;
+        }
     }
 
     /**
@@ -266,71 +256,64 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin )
     {
-        Map<String, IdentityAttribute> attributesMap = new HashMap<String, IdentityAttribute>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.setString( 2, strApplicationCode );
-        daoUtil.executeQuery( );
+        final Map<String, IdentityAttribute> attributesMap = new HashMap<>();
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.setString(2, strApplicationCode);
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            IdentityAttribute attribute = new IdentityAttribute( );
-            AttributeKey attributeKey = new AttributeKey( );
+            while (daoUtil.next()) {
+                IdentityAttribute attribute = new IdentityAttribute();
+                AttributeKey attributeKey = new AttributeKey();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
 
-            attribute.setAttributeKey( attributeKey );
-            attribute.setIdIdentity( nIdentityId );
-            attribute.setValue( daoUtil.getString( nIndex++ ) );
+                attribute.setAttributeKey(attributeKey);
+                attribute.setIdIdentity(nIdentityId);
+                attribute.setValue(daoUtil.getString(nIndex++));
 
-            int nCertificateId = daoUtil.getInt( nIndex++ );
-            AttributeCertificate certificate = null;
-            if ( nCertificateId != 0 )
-            {
-                certificate = new AttributeCertificate( );
-                certificate.setId( nCertificateId );
+                int nCertificateId = daoUtil.getInt(nIndex++);
+                AttributeCertificate certificate = null;
+                if (nCertificateId != 0) {
+                    certificate = new AttributeCertificate();
+                    certificate.setId(nCertificateId);
+                }
+                attribute.setCertificate(certificate);
+
+                int nIdFile = daoUtil.getInt(nIndex++);
+                File attrFile = null;
+                if (nIdFile > 0) {
+                    attrFile = new File();
+                    attrFile.setIdFile(nIdFile);
+                }
+                attribute.setFile(attrFile);
+
+                attribute.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                attribute.setLastUpdateApplicationCode(daoUtil.getString(nIndex++));
+                attributesMap.put(attributeKey.getKeyName(), attribute);
             }
-            attribute.setCertificate( certificate );
 
-            int nIdFile = daoUtil.getInt( nIndex++ );
-            File attrFile = null;
-            if ( nIdFile > 0 )
-            {
-                attrFile = new File( );
-                attrFile.setIdFile( nIdFile );
-            }
-            attribute.setFile( attrFile );
+            for (IdentityAttribute attribute : attributesMap.values()) {
+                if (attribute.getCertificate() != null) {
+                    attribute.setCertificate(AttributeCertificateHome.findByPrimaryKey(attribute.getCertificate().getId()));
 
-            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
-            attributesMap.put( attributeKey.getKeyName( ), attribute );
-        }
-        daoUtil.free( );
-
-        for ( IdentityAttribute attribute : attributesMap.values( ) )
-        {
-            if ( attribute.getCertificate( ) != null )
-            {
-                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                if ( isCertificateExpired( attribute ) )
-                {
-                    attribute.setCertificate( null );
+                    if (isCertificateExpired(attribute)) {
+                        attribute.setCertificate(null);
+                    }
+                }
+                if (attribute.getFile() != null) {
+                    attribute.setFile(FileHome.findByPrimaryKey(attribute.getFile().getIdFile()));
                 }
             }
-            if ( attribute.getFile( ) != null )
-            {
-                attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-            }
-        }
 
-        return attributesMap;
+            return attributesMap;
+        }
     }
 
     /**
@@ -371,83 +354,73 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         strSQL = strSQL.replace( "${filter_attribute_key_names}", strFilterAttributeKeyNames );
 
-        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
+            int nIndex = 1;
 
-        for ( Identity identity : listIdentity )
-        {
-            daoUtil.setInt( nIndex++, identity.getId( ) );
-        }
-
-        if ( listAttributeKeyNames != null && !listAttributeKeyNames.isEmpty( ) )
-        {
-            for ( String strAttributeKeyName : listAttributeKeyNames )
-            {
-                daoUtil.setString( nIndex++, strAttributeKeyName );
+            for (Identity identity : listIdentity) {
+                daoUtil.setInt(nIndex++, identity.getId());
             }
-        }
 
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
-        {
-            IdentityAttribute attribute = new IdentityAttribute( );
-            AttributeKey attributeKey = new AttributeKey( );
-
-            nIndex = 1;
-
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-
-            attribute.setAttributeKey( attributeKey );
-            attribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-            attribute.setValue( daoUtil.getString( nIndex++ ) );
-
-            int nCertificateId = daoUtil.getInt( nIndex++ );
-            AttributeCertificate certificate = null;
-            if ( nCertificateId != 0 )
-            {
-                certificate = new AttributeCertificate( );
-                certificate.setId( nCertificateId );
-            }
-            attribute.setCertificate( certificate );
-
-            int nIdFile = daoUtil.getInt( nIndex++ );
-            File attrFile = null;
-            if ( nIdFile > 0 )
-            {
-                attrFile = new File( );
-                attrFile.setIdFile( nIdFile );
-            }
-            attribute.setFile( attrFile );
-
-            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
-            listIdentityAttributes.add( attribute );
-        }
-        daoUtil.free( );
-
-        for ( IdentityAttribute attribute : listIdentityAttributes )
-        {
-            if ( attribute.getCertificate( ) != null )
-            {
-                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                if ( isCertificateExpired( attribute ) )
-                {
-                    attribute.setCertificate( null );
+            if (listAttributeKeyNames != null && !listAttributeKeyNames.isEmpty()) {
+                for (String strAttributeKeyName : listAttributeKeyNames) {
+                    daoUtil.setString(nIndex++, strAttributeKeyName);
                 }
             }
-            if ( attribute.getFile( ) != null )
-            {
-                attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-            }
-        }
 
-        return listIdentityAttributes;
+            daoUtil.executeQuery();
+
+            while (daoUtil.next()) {
+                IdentityAttribute attribute = new IdentityAttribute();
+                AttributeKey attributeKey = new AttributeKey();
+
+                nIndex = 1;
+
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+
+                attribute.setAttributeKey(attributeKey);
+                attribute.setIdIdentity(daoUtil.getInt(nIndex++));
+                attribute.setValue(daoUtil.getString(nIndex++));
+
+                int nCertificateId = daoUtil.getInt(nIndex++);
+                AttributeCertificate certificate = null;
+                if (nCertificateId != 0) {
+                    certificate = new AttributeCertificate();
+                    certificate.setId(nCertificateId);
+                }
+                attribute.setCertificate(certificate);
+
+                int nIdFile = daoUtil.getInt(nIndex++);
+                File attrFile = null;
+                if (nIdFile > 0) {
+                    attrFile = new File();
+                    attrFile.setIdFile(nIdFile);
+                }
+                attribute.setFile(attrFile);
+
+                attribute.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                attribute.setLastUpdateApplicationCode(daoUtil.getString(nIndex++));
+                listIdentityAttributes.add(attribute);
+            }
+
+            for (IdentityAttribute attribute : listIdentityAttributes) {
+                if (attribute.getCertificate() != null) {
+                    attribute.setCertificate(AttributeCertificateHome.findByPrimaryKey(attribute.getCertificate().getId()));
+
+                    if (isCertificateExpired(attribute)) {
+                        attribute.setCertificate(null);
+                    }
+                }
+                if (attribute.getFile() != null) {
+                    attribute.setFile(FileHome.findByPrimaryKey(attribute.getFile().getIdFile()));
+                }
+            }
+
+            return listIdentityAttributes;
+        }
     }
 
     /**
@@ -472,75 +445,67 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
         String strSQL = SQL_QUERY_SELECT_BY_LIST_IDENTITY.replace( "${list_identity}", String.join( ", ", listIn ) );
 
-        DAOUtil daoUtil = new DAOUtil( strSQL, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
+            int nIndex = 1;
 
-        for ( Identity identity : listIdentity )
-        {
-            daoUtil.setInt( nIndex++, identity.getId( ) );
-        }
-
-        daoUtil.executeQuery( );
-
-        while ( daoUtil.next( ) )
-        {
-            IdentityAttribute attribute = new IdentityAttribute( );
-            AttributeKey attributeKey = new AttributeKey( );
-
-            nIndex = 1;
-
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-
-            attribute.setAttributeKey( attributeKey );
-            attribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-            attribute.setValue( daoUtil.getString( nIndex++ ) );
-
-            int nCertificateId = daoUtil.getInt( nIndex++ );
-            AttributeCertificate certificate = null;
-            if ( nCertificateId != 0 )
-            {
-                certificate = new AttributeCertificate( );
-                certificate.setId( nCertificateId );
+            for (Identity identity : listIdentity) {
+                daoUtil.setInt(nIndex++, identity.getId());
             }
-            attribute.setCertificate( certificate );
 
-            int nIdFile = daoUtil.getInt( nIndex++ );
-            File attrFile = null;
-            if ( nIdFile > 0 )
-            {
-                attrFile = new File( );
-                attrFile.setIdFile( nIdFile );
+            daoUtil.executeQuery();
+
+            while (daoUtil.next()) {
+                IdentityAttribute attribute = new IdentityAttribute();
+                AttributeKey attributeKey = new AttributeKey();
+
+                nIndex = 1;
+
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+
+                attribute.setAttributeKey(attributeKey);
+                attribute.setIdIdentity(daoUtil.getInt(nIndex++));
+                attribute.setValue(daoUtil.getString(nIndex++));
+
+                int nCertificateId = daoUtil.getInt(nIndex++);
+                AttributeCertificate certificate = null;
+                if (nCertificateId != 0) {
+                    certificate = new AttributeCertificate();
+                    certificate.setId(nCertificateId);
+                }
+                attribute.setCertificate(certificate);
+
+                int nIdFile = daoUtil.getInt(nIndex++);
+                File attrFile = null;
+                if (nIdFile > 0) {
+                    attrFile = new File();
+                    attrFile.setIdFile(nIdFile);
+                }
+                attribute.setFile(attrFile);
+
+                attribute.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                attribute.setLastUpdateApplicationCode(daoUtil.getString(nIndex++));
+                listIdentityAttributes.add(attribute);
             }
-            attribute.setFile( attrFile );
 
-            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
-            listIdentityAttributes.add( attribute );
-        }
-        daoUtil.free( );
+            for (IdentityAttribute attribute : listIdentityAttributes) {
+                if (attribute.getCertificate() != null) {
+                    attribute.setCertificate(AttributeCertificateHome.findByPrimaryKey(attribute.getCertificate().getId()));
 
-        for ( IdentityAttribute attribute : listIdentityAttributes )
-        {
-            if ( attribute.getCertificate( ) != null )
-            {
-                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                if ( isCertificateExpired( attribute ) )
-                {
-                    attribute.setCertificate( null );
+                    if (isCertificateExpired(attribute)) {
+                        attribute.setCertificate(null);
+                    }
+                }
+                if (attribute.getFile() != null) {
+                    attribute.setFile(FileHome.findByPrimaryKey(attribute.getFile().getIdFile()));
                 }
             }
-            if ( attribute.getFile( ) != null )
-            {
-                attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-            }
-        }
 
-        return listIdentityAttributes;
+            return listIdentityAttributes;
+        }
     }
 
     /**
@@ -562,17 +527,15 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     public ReferenceList selectIdentityAttributesReferenceList( Plugin plugin )
     {
         ReferenceList identityAttributeList = new ReferenceList( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            identityAttributeList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
+            while (daoUtil.next()) {
+                identityAttributeList.addItem(daoUtil.getInt(1), daoUtil.getString(2));
+            }
+
+            return identityAttributeList;
         }
-
-        daoUtil.free( );
-
-        return identityAttributeList;
     }
 
     /**
@@ -583,116 +546,109 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     {
         IdentityAttribute attribute = null;
         int nAttrKey = -1, nCertificateId = -1, nIdFile = -1;
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.setString( 2, strApplicationCode );
-        daoUtil.setString( 3, strAttributeKey );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.setString(2, strApplicationCode);
+            daoUtil.setString(3, strAttributeKey);
+            daoUtil.executeQuery();
 
-        if ( daoUtil.next( ) )
-        {
-            attribute = new IdentityAttribute( );
+            if (daoUtil.next()) {
+                attribute = new IdentityAttribute();
 
-            int nIndex = 1;
-            nAttrKey = daoUtil.getInt( nIndex++ );
-            attribute.setValue( daoUtil.getString( nIndex++ ) );
-            nCertificateId = daoUtil.getInt( nIndex++ );
-            nIdFile = daoUtil.getInt( nIndex++ );
-            attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
-            attribute.setIdIdentity( nIdentityId );
-        }
-        daoUtil.free( );
+                int nIndex = 1;
+                nAttrKey = daoUtil.getInt(nIndex++);
+                attribute.setValue(daoUtil.getString(nIndex++));
+                nCertificateId = daoUtil.getInt(nIndex++);
+                nIdFile = daoUtil.getInt(nIndex++);
+                attribute.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                attribute.setLastUpdateApplicationCode(daoUtil.getString(nIndex++));
+                attribute.setIdIdentity(nIdentityId);
+            }
 
-        if ( attribute != null )
-        {
-            attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttrKey ) );
-            if ( nCertificateId > 0 )
-            {
-                attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( nCertificateId ) );
-                if ( isCertificateExpired( attribute ) )
-                {
-                    attribute.setCertificate( null );
+            if (attribute != null) {
+                attribute.setAttributeKey(AttributeKeyHome.findByPrimaryKey(nAttrKey));
+                if (nCertificateId > 0) {
+                    attribute.setCertificate(AttributeCertificateHome.findByPrimaryKey(nCertificateId));
+                    if (isCertificateExpired(attribute)) {
+                        attribute.setCertificate(null);
+                    }
+                }
+                if (nIdFile > 0) {
+                    attribute.setFile(FileHome.findByPrimaryKey(nIdFile));
                 }
             }
-            if ( nIdFile > 0 )
-            {
-                attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
-            }
-        }
 
-        return attribute;
+            return attribute;
+        }
     }
 
     @Override
     public void deleteAllAttributes( int nIdentityId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_HISTORY, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_HISTORY, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.executeUpdate();
+        }
 
-        daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin );
-        daoUtil.setInt( 1, nIdentityId );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTR, plugin )) {
+            daoUtil.setInt(1, nIdentityId);
+            daoUtil.executeUpdate();
+        }
     }
 
     @Override
     public synchronized void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeChange.getChangeType( ).getValue( ) );
-        daoUtil.setString( nIndex++, attributeChange.getChangeSatus( ) );
-        daoUtil.setString( nIndex++, attributeChange.getChangeMessage( ) );
-        daoUtil.setString( nIndex++, attributeChange.getAuthorType( ).name( ) );
-        daoUtil.setString( nIndex++, attributeChange.getAuthorName( ) );
-        daoUtil.setString( nIndex++, attributeChange.getClientCode( ) );
-        daoUtil.setInt( nIndex++, attributeChange.getIdIdentity( ) );
-        daoUtil.setString( nIndex++, attributeChange.getAttributeKey( ) );
-        daoUtil.setString( nIndex++, attributeChange.getAttributeValue( ) );
-        daoUtil.setString( nIndex++, attributeChange.getCertificationProcessus( ) );
-        daoUtil.setTimestamp( nIndex++, attributeChange.getCertificationDate( ) );
-        daoUtil.setTimestamp( nIndex++, attributeChange.getModificationDate( ) );
+            daoUtil.setInt(nIndex++, attributeChange.getChangeType().getValue());
+            daoUtil.setString(nIndex++, attributeChange.getChangeSatus());
+            daoUtil.setString(nIndex++, attributeChange.getChangeMessage());
+            daoUtil.setString(nIndex++, attributeChange.getAuthorType().name());
+            daoUtil.setString(nIndex++, attributeChange.getAuthorName());
+            daoUtil.setString(nIndex++, attributeChange.getClientCode());
+            daoUtil.setInt(nIndex++, attributeChange.getIdIdentity());
+            daoUtil.setString(nIndex++, attributeChange.getAttributeKey());
+            daoUtil.setString(nIndex++, attributeChange.getAttributeValue());
+            daoUtil.setString(nIndex++, attributeChange.getCertificationProcessus());
+            daoUtil.setTimestamp(nIndex++, attributeChange.getCertificationDate());
+            daoUtil.setTimestamp(nIndex++, attributeChange.getModificationDate());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     @Override
     public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey, Plugin plugin )
     {
         final List<AttributeChange> listAttributeChange = new ArrayList<>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ATTRIBUTE_HISTORY, plugin );
-        daoUtil.setString( 1, strAttributeKey );
-        daoUtil.setInt( 2, nIdentityId );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ATTRIBUTE_HISTORY, plugin )) {
+            daoUtil.setString(1, strAttributeKey);
+            daoUtil.setInt(2, nIdentityId);
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            AttributeChange attributeChange = new AttributeChange( );
-            int nIndex = 1;
-            attributeChange.setId( daoUtil.getInt( nIndex++ ) );
-            attributeChange.setChangeType( AttributeChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-            attributeChange.setChangeSatus( daoUtil.getString( nIndex++ ) );
-            attributeChange.setChangeMessage( daoUtil.getString( nIndex++ ) );
-            attributeChange.setAuthorType( AuthorType.valueOf( daoUtil.getString( nIndex++ ) ) );
-            attributeChange.setAuthorName( daoUtil.getString( nIndex++ ) );
-            attributeChange.setClientCode( daoUtil.getString( nIndex++ ) );
-            attributeChange.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-            attributeChange.setAttributeKey( daoUtil.getString( nIndex++ ) );
-            attributeChange.setAttributeValue( daoUtil.getString( nIndex++ ) );
-            attributeChange.setCertificationProcessus( daoUtil.getString( nIndex++ ) );
-            attributeChange.setCertificationDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributeChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ) );
-            listAttributeChange.add( attributeChange );
+            while (daoUtil.next()) {
+                AttributeChange attributeChange = new AttributeChange();
+                int nIndex = 1;
+                attributeChange.setId(daoUtil.getInt(nIndex++));
+                attributeChange.setChangeType(AttributeChangeType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeChange.setChangeSatus(daoUtil.getString(nIndex++));
+                attributeChange.setChangeMessage(daoUtil.getString(nIndex++));
+                attributeChange.setAuthorType(AuthorType.valueOf(daoUtil.getString(nIndex++)));
+                attributeChange.setAuthorName(daoUtil.getString(nIndex++));
+                attributeChange.setClientCode(daoUtil.getString(nIndex++));
+                attributeChange.setIdIdentity(daoUtil.getInt(nIndex++));
+                attributeChange.setAttributeKey(daoUtil.getString(nIndex++));
+                attributeChange.setAttributeValue(daoUtil.getString(nIndex++));
+                attributeChange.setCertificationProcessus(daoUtil.getString(nIndex++));
+                attributeChange.setCertificationDate(daoUtil.getTimestamp(nIndex++));
+                attributeChange.setModificationDate(daoUtil.getTimestamp(nIndex++));
+                listAttributeChange.add(attributeChange);
+            }
+
+            return listAttributeChange;
         }
-
-        daoUtil.free( );
-
-        return listAttributeChange;
     }
 
     /**
@@ -701,18 +657,17 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public int getLastIdHistory( String strConnectionId, String strCertifierCode, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GRU_CERTIFIER_ID, plugin );
-        daoUtil.setString( 1, strCertifierCode );
-        daoUtil.setString( 2, strConnectionId );
-        daoUtil.executeQuery( );
-        int nIdHistory = -1;
-        if ( daoUtil.next( ) )
-        {
-            nIdHistory = daoUtil.getInt( 1 );
-        }
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GRU_CERTIFIER_ID, plugin )) {
+            daoUtil.setString(1, strCertifierCode);
+            daoUtil.setString(2, strConnectionId);
+            daoUtil.executeQuery();
+            int nIdHistory = -1;
+            if (daoUtil.next()) {
+                nIdHistory = daoUtil.getInt(1);
+            }
 
-        return nIdHistory;
+            return nIdHistory;
+        }
     }
 
 }

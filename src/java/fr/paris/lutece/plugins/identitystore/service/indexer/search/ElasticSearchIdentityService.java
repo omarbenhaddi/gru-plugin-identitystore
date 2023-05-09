@@ -70,22 +70,25 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
     @Override
     public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
     {
-        final List<AttributeKey> attributeKeys = IdentityService.instance( ).getAttributeKeys( );
-        final List<String> attributeKeyNames = attributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
         final List<SearchAttribute> searchAttributes = new ArrayList<>( );
         for ( final SearchAttributeDto dto : attributes )
         {
-            if ( attributeKeyNames.contains( dto.getKey( ) ) )
+            AttributeKey refKey = null;
+            try {
+                refKey = IdentityService.instance().getAttributeKey(dto.getKey());
+            } catch (IdentityAttributeNotFoundException e) {
+                // do nothing, we want to identify if the key exists
+            }
+            if ( refKey != null )
             {
                 searchAttributes.add( new SearchAttribute( dto.getKey( ), Arrays.asList( dto.getKey( ) ), dto.getValue( ), dto.isStrict( ) ) );
             }
             else
             {
                 // In this case we have a common search key in the request, so map it
-                final List<AttributeKey> commonAttributes = attributeKeys.stream( )
-                        .filter( attributeKey -> Objects.equals( attributeKey.getCommonSearchKeyName( ), dto.getKey( ) ) ).collect( Collectors.toList( ) );
-                searchAttributes.add( new SearchAttribute( dto.getKey( ),
-                        commonAttributes.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) ), dto.getValue( ), dto.isStrict( ) ) );
+                final List<AttributeKey> commonAttributeKeys = IdentityService.instance().getCommonAttributeKeys(dto.getKey());
+                final List<String> commonAttributeKeyNames = commonAttributeKeys.stream().map(AttributeKey::getKeyName).collect(Collectors.toList());
+                searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.isStrict( ) ) );
             }
         }
         final Response search = _identitySearcher.search( searchAttributes, max, connected );

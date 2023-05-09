@@ -61,21 +61,20 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public void insert( AttributeCertificate attributeCertificate, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin )) {
 
-        int nIndex = 1;
+            int nIndex = 1;
 
-        daoUtil.setString( nIndex++, attributeCertificate.getCertifierCode( ) );
-        daoUtil.setTimestamp( nIndex++, attributeCertificate.getCertificateDate( ) );
-        daoUtil.setTimestamp( nIndex++, attributeCertificate.getExpirationDate( ) );
+            daoUtil.setString(nIndex++, attributeCertificate.getCertifierCode());
+            daoUtil.setTimestamp(nIndex++, attributeCertificate.getCertificateDate());
+            daoUtil.setTimestamp(nIndex++, attributeCertificate.getExpirationDate());
 
-        daoUtil.executeUpdate( );
+            daoUtil.executeUpdate();
 
-        if ( daoUtil.nextGeneratedKey( ) )
-        {
-            attributeCertificate.setId( daoUtil.getGeneratedKeyInt( 1 ) );
+            if (daoUtil.nextGeneratedKey()) {
+                attributeCertificate.setId(daoUtil.getGeneratedKeyInt(1));
+            }
         }
-        daoUtil.free( );
     }
 
     /**
@@ -84,27 +83,25 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public AttributeCertificate load( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeQuery();
 
-        AttributeCertificate attributeCertificate = null;
+            AttributeCertificate attributeCertificate = null;
 
-        if ( daoUtil.next( ) )
-        {
-            attributeCertificate = new AttributeCertificate( );
+            if (daoUtil.next()) {
+                attributeCertificate = new AttributeCertificate();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
-            attributeCertificate.setCertifierCode( daoUtil.getString( nIndex++ ) );
-            attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
+                attributeCertificate.setId(daoUtil.getInt(nIndex++));
+                attributeCertificate.setCertifierCode(daoUtil.getString(nIndex++));
+                attributeCertificate.setCertificateDate(daoUtil.getTimestamp(nIndex++));
+                attributeCertificate.setExpirationDate(daoUtil.getTimestamp(nIndex++));
+            }
+
+            return attributeCertificate;
         }
-
-        daoUtil.free( );
-
-        return attributeCertificate;
     }
 
     /**
@@ -113,10 +110,10 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin )) {
+            daoUtil.setInt(1, nKey);
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -125,17 +122,17 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public void store( AttributeCertificate attributeCertificate, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeCertificate.getId( ) );
-        daoUtil.setString( nIndex++, attributeCertificate.getCertifierCode( ) );
-        daoUtil.setTimestamp( nIndex++, attributeCertificate.getCertificateDate( ) );
-        daoUtil.setTimestamp( nIndex++, attributeCertificate.getExpirationDate( ) );
-        daoUtil.setInt( nIndex, attributeCertificate.getId( ) );
+            daoUtil.setInt(nIndex++, attributeCertificate.getId());
+            daoUtil.setString(nIndex++, attributeCertificate.getCertifierCode());
+            daoUtil.setTimestamp(nIndex++, attributeCertificate.getCertificateDate());
+            daoUtil.setTimestamp(nIndex++, attributeCertificate.getExpirationDate());
+            daoUtil.setInt(nIndex, attributeCertificate.getId());
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -144,26 +141,24 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public List<AttributeCertificate> selectAttributeCertificatesList( Plugin plugin )
     {
-        List<AttributeCertificate> attributeCertificateList = new ArrayList<AttributeCertificate>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            AttributeCertificate attributeCertificate = new AttributeCertificate( );
-            int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            daoUtil.executeQuery();
+            final List<AttributeCertificate> attributeCertificateList = new ArrayList<>();
+            while (daoUtil.next()) {
+                AttributeCertificate attributeCertificate = new AttributeCertificate();
+                int nIndex = 1;
 
-            attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
-            attributeCertificate.setCertifierCode( daoUtil.getString( nIndex++ ) );
-            attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-            attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
+                attributeCertificate.setId(daoUtil.getInt(nIndex++));
+                attributeCertificate.setCertifierCode(daoUtil.getString(nIndex++));
+                attributeCertificate.setCertificateDate(daoUtil.getTimestamp(nIndex++));
+                attributeCertificate.setExpirationDate(daoUtil.getTimestamp(nIndex++));
 
-            attributeCertificateList.add( attributeCertificate );
+                attributeCertificateList.add(attributeCertificate);
+            }
+
+            return attributeCertificateList;
         }
-
-        daoUtil.free( );
-
-        return attributeCertificateList;
     }
 
     /**
@@ -172,18 +167,16 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public List<Integer> selectIdAttributeCertificatesList( Plugin plugin )
     {
-        List<Integer> attributeCertificateList = new ArrayList<Integer>( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            attributeCertificateList.add( daoUtil.getInt( 1 ) );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin )) {
+            daoUtil.executeQuery();
+            final List<Integer> attributeCertificateList = new ArrayList<>();
+            while (daoUtil.next()) {
+                attributeCertificateList.add(daoUtil.getInt(1));
+            }
+
+            return attributeCertificateList;
         }
-
-        daoUtil.free( );
-
-        return attributeCertificateList;
     }
 
     /**
@@ -192,17 +185,15 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
     @Override
     public ReferenceList selectAttributeCertificatesReferenceList( Plugin plugin )
     {
-        ReferenceList attributeCertificateList = new ReferenceList( );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery( );
 
-        while ( daoUtil.next( ) )
-        {
-            attributeCertificateList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
+            daoUtil.executeQuery();
+            final ReferenceList attributeCertificateList = new ReferenceList();
+            while (daoUtil.next()) {
+                attributeCertificateList.addItem(daoUtil.getInt(1), daoUtil.getString(2));
+            }
+
+            return attributeCertificateList;
         }
-
-        daoUtil.free( );
-
-        return attributeCertificateList;
     }
 }

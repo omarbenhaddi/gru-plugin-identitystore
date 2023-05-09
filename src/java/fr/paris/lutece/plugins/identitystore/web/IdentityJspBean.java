@@ -33,9 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
-import fr.paris.lutece.plugins.identitystore.business.identity.*;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
@@ -45,7 +45,6 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdent
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.collections.CollectionUtils;

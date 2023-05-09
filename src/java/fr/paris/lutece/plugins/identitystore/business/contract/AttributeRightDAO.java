@@ -63,17 +63,17 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     @Override
     public void insert( AttributeRight attributeRight, int serviceContractId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin )) {
 
-        int nIndex = 1;
-        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
-        daoUtil.setInt( nIndex++, serviceContractId );
-        daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+            int nIndex = 1;
+            daoUtil.setInt(nIndex++, attributeRight.getAttributeKey().getId());
+            daoUtil.setInt(nIndex++, serviceContractId);
+            daoUtil.setInt(nIndex++, attributeRight.isSearchable() ? CONST_INT_TRUE : CONST_INT_FALSE);
+            daoUtil.setInt(nIndex++, attributeRight.isReadable() ? CONST_INT_TRUE : CONST_INT_FALSE);
+            daoUtil.setInt(nIndex++, attributeRight.isWritable() ? CONST_INT_TRUE : CONST_INT_FALSE);
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -82,17 +82,17 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     @Override
     public void store( AttributeRight attributeRight, int serviceContractId, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-        int nIndex = 1;
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin )) {
+            int nIndex = 1;
 
-        daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-        daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
-        daoUtil.setInt( nIndex++, serviceContractId );
+            daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+            daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+            daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+            daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
+            daoUtil.setInt( nIndex++, serviceContractId );
 
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -103,35 +103,33 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     {
         List<AttributeRight> lstAttributeRights = new ArrayList<AttributeRight>( );
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_CONTRACT, plugin );
-        daoUtil.setInt( 1, serviceContract.getId( ) );
-        daoUtil.executeQuery( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_CONTRACT, plugin )) {
+            daoUtil.setInt(1, serviceContract.getId());
+            daoUtil.executeQuery();
 
-        while ( daoUtil.next( ) )
-        {
-            AttributeRight attributeRight = new AttributeRight( );
-            AttributeKey attributeKey = new AttributeKey( );
+            while (daoUtil.next()) {
+                AttributeRight attributeRight = new AttributeRight();
+                AttributeKey attributeKey = new AttributeKey();
 
-            int nIndex = 1;
+                int nIndex = 1;
 
-            attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-            attributeKey.setName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
-            attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-            attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+                attributeKey.setId(daoUtil.getInt(nIndex++));
+                attributeKey.setName(daoUtil.getString(nIndex++));
+                attributeKey.setKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setCommonSearchKeyName(daoUtil.getString(nIndex++));
+                attributeKey.setDescription(daoUtil.getString(nIndex++));
+                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
 
-            attributeRight.setAttributeKey( attributeKey );
-            attributeRight.setSearchable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
-            attributeRight.setReadable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
-            attributeRight.setWritable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+                attributeRight.setAttributeKey(attributeKey);
+                attributeRight.setSearchable(daoUtil.getInt(nIndex++) == CONST_INT_TRUE);
+                attributeRight.setReadable(daoUtil.getInt(nIndex++) == CONST_INT_TRUE);
+                attributeRight.setWritable(daoUtil.getInt(nIndex++) == CONST_INT_TRUE);
 
-            lstAttributeRights.add( attributeRight );
+                lstAttributeRights.add(attributeRight);
+            }
+
+            return lstAttributeRights;
         }
-
-        daoUtil.free( );
-
-        return lstAttributeRights;
     }
 
     /**
@@ -140,10 +138,10 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     @Override
     public void removeAttributeRights( ServiceContract serviceContract, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_BY_CLIENT, plugin );
-        daoUtil.setInt( 1, serviceContract.getId( ) );
-        daoUtil.executeUpdate( );
-        daoUtil.free( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_BY_CLIENT, plugin )) {
+            daoUtil.setInt(1, serviceContract.getId());
+            daoUtil.executeUpdate();
+        }
     }
 
     /**
@@ -152,55 +150,45 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     @Override
     public Map<String, AttributeApplicationsRight> getAttributeApplicationsRight( Plugin plugin )
     {
-        Map<String, AttributeApplicationsRight> mapApplicationsRight = new HashMap<String, AttributeApplicationsRight>( );
+        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_RIGHTS, plugin )) {
+            daoUtil.executeQuery();
 
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_RIGHTS, plugin );
-        daoUtil.executeQuery( );
+            final Map<String, AttributeApplicationsRight> mapApplicationsRight = new HashMap<>();
+            while (daoUtil.next()) {
+                int nIndex = 1;
 
-        while ( daoUtil.next( ) )
-        {
-            int nIndex = 1;
+                String strAttributKey = daoUtil.getString(nIndex++);
+                String strApplicationCode = daoUtil.getString(nIndex++);
+                boolean bHasRead = daoUtil.getInt(nIndex++) == CONST_INT_TRUE;
+                boolean bHasWrite = daoUtil.getInt(nIndex++) == CONST_INT_TRUE;
+                boolean bHasCertif = daoUtil.getInt(nIndex++) == CONST_INT_TRUE;
+                boolean bHasSearch = daoUtil.getInt(nIndex++) == CONST_INT_TRUE;
 
-            String strAttributKey = daoUtil.getString( nIndex++ );
-            String strApplicationCode = daoUtil.getString( nIndex++ );
-            boolean bHasRead = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
-            boolean bHasWrite = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
-            boolean bHasCertif = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
-            boolean bHasSearch = daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE;
+                AttributeApplicationsRight attributeApplicationsRight;
+                if (mapApplicationsRight.containsKey(strAttributKey)) {
+                    attributeApplicationsRight = mapApplicationsRight.get(strAttributKey);
+                } else {
+                    attributeApplicationsRight = new AttributeApplicationsRight();
+                    attributeApplicationsRight.setAttributeKey(strAttributKey);
+                }
 
-            AttributeApplicationsRight attributeApplicationsRight;
-            if ( mapApplicationsRight.containsKey( strAttributKey ) )
-            {
-                attributeApplicationsRight = mapApplicationsRight.get( strAttributKey );
-            }
-            else
-            {
-                attributeApplicationsRight = new AttributeApplicationsRight( );
-                attributeApplicationsRight.setAttributeKey( strAttributKey );
-            }
+                if (bHasRead) {
+                    attributeApplicationsRight.addReadApplication(strApplicationCode);
+                }
+                if (bHasWrite) {
+                    attributeApplicationsRight.addWriteApplication(strApplicationCode);
+                }
+                if (bHasCertif) {
+                    attributeApplicationsRight.addCertifApplication(strApplicationCode);
+                }
+                if (bHasSearch) {
+                    attributeApplicationsRight.addSearchApplication(strApplicationCode);
+                }
 
-            if ( bHasRead )
-            {
-                attributeApplicationsRight.addReadApplication( strApplicationCode );
-            }
-            if ( bHasWrite )
-            {
-                attributeApplicationsRight.addWriteApplication( strApplicationCode );
-            }
-            if ( bHasCertif )
-            {
-                attributeApplicationsRight.addCertifApplication( strApplicationCode );
-            }
-            if ( bHasSearch )
-            {
-                attributeApplicationsRight.addSearchApplication( strApplicationCode );
+                mapApplicationsRight.put(strAttributKey, attributeApplicationsRight);
             }
 
-            mapApplicationsRight.put( strAttributKey, attributeApplicationsRight );
+            return mapApplicationsRight;
         }
-
-        daoUtil.free( );
-
-        return mapApplicationsRight;
     }
 }

@@ -61,7 +61,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     @Override
     public void insert( RefAttributeCertificationProcessus refAttributeCertificationProcessus, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
             int nIndex = 1;
             daoUtil.setString( nIndex++, refAttributeCertificationProcessus.getLabel( ) );
@@ -81,7 +81,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     @Override
     public RefAttributeCertificationProcessus load( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeQuery( );
@@ -107,7 +107,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
@@ -120,7 +120,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     @Override
     public void store( RefAttributeCertificationProcessus refAttributeCertificationProcessus, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
         {
             int nIndex = 1;
 
@@ -139,7 +139,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     public List<RefAttributeCertificationProcessus> selectRefAttributeCertificationProcessussList( Plugin plugin )
     {
         List<RefAttributeCertificationProcessus> refAttributeCertificationProcessusList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -166,7 +166,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     public List<Integer> selectIdRefAttributeCertificationProcessussList( Plugin plugin )
     {
         List<Integer> refAttributeCertificationProcessusList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -186,7 +186,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     public ReferenceList selectRefAttributeCertificationProcessussReferenceList( Plugin plugin )
     {
         ReferenceList refAttributeCertificationProcessusList = new ReferenceList( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -219,7 +219,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
             String placeHolders = builder.deleteCharAt( builder.length( ) - 1 ).toString( );
             String stmt = SQL_QUERY_SELECTALL_BY_IDS + placeHolders + ")";
 
-            try ( DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
+            try ( final DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
             {
                 int index = 1;
                 for ( Integer n : listIds )
@@ -240,7 +240,6 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
                     refAttributeCertificationProcessusList.add( refAttributeCertificationProcessus );
                 }
 
-                daoUtil.free( );
 
             }
         }

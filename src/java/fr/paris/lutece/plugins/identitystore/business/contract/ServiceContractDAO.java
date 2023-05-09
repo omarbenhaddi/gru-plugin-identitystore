@@ -75,7 +75,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     @Override
     public void insert( ServiceContract serviceContract, int clientApplicationId, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
             int nIndex = 1;
             daoUtil.setString( nIndex++, serviceContract.getName( ) );
@@ -107,7 +107,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     @Override
     public Optional<ServiceContract> load( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeQuery( );
@@ -144,7 +144,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     public List<ServiceContract> loadFromClientApplication( int nKey, Plugin plugin )
     {
         List<ServiceContract> serviceContractList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_WITH_CLIENT_APP_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_WITH_CLIENT_APP_ID, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeQuery( );
@@ -179,7 +179,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     public List<ServiceContract> selectActiveServiceContract( String clientApplicationCode, Plugin plugin )
     {
         List<ServiceContract> serviceContractList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ACTIVE_WITH_CLIENT_APP_CODE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ACTIVE_WITH_CLIENT_APP_CODE, plugin ) )
         {
             daoUtil.setString( 1, clientApplicationCode );
             daoUtil.executeQuery( );
@@ -216,7 +216,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
@@ -229,7 +229,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     @Override
     public void deleteFromClientApp( int nKey, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_WITH_CLIENT_APP_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_WITH_CLIENT_APP_ID, plugin ) )
         {
             daoUtil.setInt( 1, nKey );
             daoUtil.executeUpdate( );
@@ -242,7 +242,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     @Override
     public void store( ServiceContract serviceContract, int clientApplicationId, Plugin plugin )
     {
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
         {
             int nIndex = 1;
 
@@ -273,7 +273,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     public List<ServiceContract> selectServiceContractsList( Plugin plugin )
     {
         List<ServiceContract> serviceContractList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -310,7 +310,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     public List<Integer> selectIdServiceContractsList( Plugin plugin )
     {
         List<Integer> serviceContractList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -330,7 +330,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     public ReferenceList selectServiceContractsReferenceList( Plugin plugin )
     {
         ReferenceList serviceContractList = new ReferenceList( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
             daoUtil.executeQuery( );
 
@@ -363,7 +363,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
             String placeHolders = builder.deleteCharAt( builder.length( ) - 1 ).toString( );
             String stmt = SQL_QUERY_SELECTALL_BY_IDS + placeHolders + ")";
 
-            try ( DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
+            try ( final DAOUtil daoUtil = new DAOUtil( stmt, plugin ) )
             {
                 int index = 1;
                 for ( Integer n : listIds )
@@ -393,9 +393,6 @@ public final class ServiceContractDAO implements IServiceContractDAO
                     final String applicationCode = daoUtil.getString( nIndex );
                     serviceContractList.add( new ImmutablePair<>( serviceContract, applicationCode ) );
                 }
-
-                daoUtil.free( );
-
             }
         }
         return serviceContractList;
@@ -406,7 +403,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     public List<ServiceContract> selectServiceContractBetweenDate( Plugin plugin, Date startingDate, Date endingDate )
     {
         List<ServiceContract> serviceContractList = new ArrayList<>( );
-        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BETWEEN_ACTIVE_DATES, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BETWEEN_ACTIVE_DATES, plugin ) )
         {
             daoUtil.setDate( 1, startingDate );
             daoUtil.setDate( 2, endingDate );
