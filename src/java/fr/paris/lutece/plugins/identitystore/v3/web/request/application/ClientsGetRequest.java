@@ -31,67 +31,76 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.application;
 
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
+import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientSearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientSearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientsSearchResponse;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
 
 /**
  * This class represents a get request for IdentityStoreRestServive
  *
  */
-public class IdentityStoreSearchRequest extends AbstractIdentityStoreRequest
+public class ClientsGetRequest extends AbstractIdentityStoreRequest
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
-    private final IdentitySearchRequest _identitySearchRequest;
+
+    private String _strApplicationCode;
 
     /**
-     * Constructor of IdentityStoreSearchRequest
-     * 
-     * @param identitySearchRequest
+     * Constructor of IdentityStoreGetRequest
+     *
+     * @param strClientCode
+     *            the client application Code
      */
-    public IdentityStoreSearchRequest( IdentitySearchRequest identitySearchRequest, String strClientAppCode )
+    public ClientsGetRequest( String strClientCode, String strApplicationCode )
     {
-        super( strClientAppCode );
-        this._identitySearchRequest = identitySearchRequest;
+        super( strClientCode );
+        this._strApplicationCode = strApplicationCode;
     }
 
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        // Vérification de la consistence des paramètres
-        IdentityRequestValidator.instance( ).checkIdentitySearch( _identitySearchRequest );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+        IdentityRequestValidator.instance( ).checkClientApplicationCode( _strApplicationCode );
     }
 
     /**
-     * get the identities
+     * get the identity
      * 
      * @throws AppException
      *             if there is an exception during the treatment
      */
     @Override
-    public IdentitySearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public ClientsSearchResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final IdentitySearchResponse response = ServiceContractService.instance( ).validateIdentitySearch( _identitySearchRequest, _strClientAppCode );
+        final ClientsSearchResponse response = new ClientsSearchResponse( );
 
-        if ( !IdentitySearchStatusType.FAILURE.equals( response.getStatus( ) ) )
+        final List<ClientApplication> clientApplications = ClientApplicationHome.findByApplicationCode( _strApplicationCode );
+
+        if ( clientApplications == null || CollectionUtils.isEmpty( clientApplications ) )
         {
-            if ( StringUtils.isNotEmpty( _identitySearchRequest.getConnectionId( ) ) )
+            response.setStatus( ClientSearchStatusType.NOT_FOUND );
+        }
+        else
+        {
+            for ( final ClientApplication clientApplication : clientApplications )
             {
-                IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), response, _strClientAppCode );
+                response.getClientApplications( ).add( DtoConverter.convertClientToDto( clientApplication ) );
             }
-            else
-            {
-                IdentityService.instance( ).search( _identitySearchRequest, response, _strClientAppCode );
-            }
+            response.setStatus( ClientSearchStatusType.SUCCESS );
         }
 
         return response;
     }
+
 }

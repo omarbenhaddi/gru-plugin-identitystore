@@ -39,11 +39,11 @@ import fr.paris.lutece.portal.service.util.AppException;
 public abstract class AbstractIdentityStoreRequest
 {
 
-    protected final String _strClientAppCode;
+    protected final String _strClientCode;
 
-    protected AbstractIdentityStoreRequest( String strClientAppCode )
+    protected AbstractIdentityStoreRequest( String strClientCode )
     {
-        _strClientAppCode = strClientAppCode;
+        _strClientCode = strClientCode;
     }
 
     /**

@@ -31,53 +31,47 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.contract;
 
-import com.google.common.collect.Lists;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchStatusType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchStatusType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 
 /**
- * This class represents a get request for IdentityStoreRestServive
+ * This class represents a get request for ServiceContractRestService
  *
  */
-public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
+public class ActiveServiceContractGetRequest extends AbstractIdentityStoreRequest
 {
 
     /**
-     * Constructor of IdentityStoreGetRequest
+     * Constructor of ActiveServiceContractGetRequest
      *
-     * @param strClientAppCode
-     *            the applicationCode
+     * @param strClientCode
+     *            the client application Code
      */
-    public ServiceContractGetRequest( String strClientAppCode )
+    public ActiveServiceContractGetRequest( String strClientCode )
     {
-        super( strClientAppCode );
+        super( strClientCode );
     }
 
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     /**
-     * get the identity
+     * get the active service contract
      * 
      * @throws AppException
      *             if there is an exception during the treatment
@@ -87,7 +81,7 @@ public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
     {
         final ServiceContractSearchResponse response = new ServiceContractSearchResponse( );
 
-        final ServiceContract activeServiceContract = ServiceContractService.instance( ).getActiveServiceContract( _strClientAppCode );
+        final ServiceContract activeServiceContract = ServiceContractService.instance( ).getActiveServiceContract( _strClientCode );
         // TODO amélioration générale à mener sur ce point
         for ( final AttributeCertification certification : activeServiceContract.getAttributeCertifications( ) )
         {

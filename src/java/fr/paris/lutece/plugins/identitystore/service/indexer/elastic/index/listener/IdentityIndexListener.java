@@ -109,8 +109,7 @@ public class IdentityIndexListener implements IdentityChangeListener
                         attribute.getAttributeKey( ).getPivot( ), attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierCode( ) : null,
                         attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierName( ) : null,
                         attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertificateDate( ) : null,
-                        attribute.getCertificate( ) != null ? attribute.getCertificate( ).getExpirationDate( ) : null,
-                        attribute.getLastUpdateApplicationCode( ) ) )
+                        attribute.getCertificate( ) != null ? attribute.getCertificate( ).getExpirationDate( ) : null, attribute.getLastUpdateClientCode( ) ) )
                 .collect( Collectors.toMap( AttributeObject::getKey, o -> o ) );
     }
 }

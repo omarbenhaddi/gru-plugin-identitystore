@@ -277,33 +277,35 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
     {
         final List<RefAttributeCertificationLevel> refAttributeCertificationLevelList = new ArrayList<>( );
 
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_REF_PROCESSUS, plugin )) {
-            daoUtil.setInt(1, refattributecertificationprocessus.getId());
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_REF_PROCESSUS, plugin ) )
+        {
+            daoUtil.setInt( 1, refattributecertificationprocessus.getId( ) );
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel();
-                RefCertificationLevel refCertificationLevel = new RefCertificationLevel();
-                AttributeKey attributeKey = new AttributeKey();
+            while ( daoUtil.next( ) )
+            {
+                RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel( );
+                RefCertificationLevel refCertificationLevel = new RefCertificationLevel( );
+                AttributeKey attributeKey = new AttributeKey( );
 
                 int nIndex = 1;
 
-                attributeKey.setId(daoUtil.getInt(nIndex++));
-                attributeKey.setName(daoUtil.getString(nIndex++));
-                attributeKey.setKeyName(daoUtil.getString(nIndex++));
-                attributeKey.setDescription(daoUtil.getString(nIndex++));
-                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+                attributeKey.setName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
-                refCertificationLevel.setName(daoUtil.getString(nIndex++));
-                refCertificationLevel.setDescription(daoUtil.getString(nIndex++));
-                refCertificationLevel.setLevel(daoUtil.getString(nIndex++));
-                refCertificationLevel.setId(daoUtil.getInt(nIndex++));
+                refCertificationLevel.setName( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setDescription( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setLevel( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setId( daoUtil.getInt( nIndex++ ) );
 
-                refAttributeCertificationLevel.setRefAttributeCertificationProcessus(refattributecertificationprocessus);
-                refAttributeCertificationLevel.setRefCertificationLevel(refCertificationLevel);
-                refAttributeCertificationLevel.setAttributeKey(attributeKey);
+                refAttributeCertificationLevel.setRefAttributeCertificationProcessus( refattributecertificationprocessus );
+                refAttributeCertificationLevel.setRefCertificationLevel( refCertificationLevel );
+                refAttributeCertificationLevel.setAttributeKey( attributeKey );
 
-                refAttributeCertificationLevelList.add(refAttributeCertificationLevel);
+                refAttributeCertificationLevelList.add( refAttributeCertificationLevel );
             }
 
             return refAttributeCertificationLevelList;
@@ -315,31 +317,33 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
     {
         final List<RefAttributeCertificationLevel> refAttributeCertificationLevelList = new ArrayList<>( );
 
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_ATTRIBUTE, plugin )) {
-            daoUtil.setInt(1, attributeKey.getId());
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_ATTRIBUTE, plugin ) )
+        {
+            daoUtil.setInt( 1, attributeKey.getId( ) );
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel();
-                RefCertificationLevel refCertificationLevel = new RefCertificationLevel();
-                RefAttributeCertificationProcessus processus = new RefAttributeCertificationProcessus();
+            while ( daoUtil.next( ) )
+            {
+                RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel( );
+                RefCertificationLevel refCertificationLevel = new RefCertificationLevel( );
+                RefAttributeCertificationProcessus processus = new RefAttributeCertificationProcessus( );
 
                 int nIndex = 1;
 
-                processus.setId(daoUtil.getInt(nIndex++));
-                processus.setLabel(daoUtil.getString(nIndex++));
-                processus.setCode(daoUtil.getString(nIndex++));
+                processus.setId( daoUtil.getInt( nIndex++ ) );
+                processus.setLabel( daoUtil.getString( nIndex++ ) );
+                processus.setCode( daoUtil.getString( nIndex++ ) );
 
-                refCertificationLevel.setName(daoUtil.getString(nIndex++));
-                refCertificationLevel.setDescription(daoUtil.getString(nIndex++));
-                refCertificationLevel.setLevel(daoUtil.getString(nIndex++));
-                refCertificationLevel.setId(daoUtil.getInt(nIndex++));
+                refCertificationLevel.setName( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setDescription( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setLevel( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setId( daoUtil.getInt( nIndex++ ) );
 
-                refAttributeCertificationLevel.setAttributeKey(attributeKey);
-                refAttributeCertificationLevel.setRefCertificationLevel(refCertificationLevel);
-                refAttributeCertificationLevel.setRefAttributeCertificationProcessus(processus);
+                refAttributeCertificationLevel.setAttributeKey( attributeKey );
+                refAttributeCertificationLevel.setRefCertificationLevel( refCertificationLevel );
+                refAttributeCertificationLevel.setRefAttributeCertificationProcessus( processus );
 
-                refAttributeCertificationLevelList.add(refAttributeCertificationLevel);
+                refAttributeCertificationLevelList.add( refAttributeCertificationLevel );
             }
 
             return refAttributeCertificationLevelList;
@@ -350,37 +354,39 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
     public RefAttributeCertificationLevel findByProcessusAndAttributeKeyName( String processusCode, String attributeKeyName, Plugin plugin )
     {
 
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_PROCESSUS_AND_KEY_NAME, plugin )) {
-            daoUtil.setString(1, processusCode);
-            daoUtil.setString(2, attributeKeyName);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_PROCESSUS_AND_KEY_NAME, plugin ) )
+        {
+            daoUtil.setString( 1, processusCode );
+            daoUtil.setString( 2, attributeKeyName );
+            daoUtil.executeQuery( );
 
-            if (daoUtil.next()) {
-                final RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel();
-                final RefCertificationLevel refCertificationLevel = new RefCertificationLevel();
-                final AttributeKey attributeKey = new AttributeKey();
-                final RefAttributeCertificationProcessus refattributecertificationprocessus = new RefAttributeCertificationProcessus();
+            if ( daoUtil.next( ) )
+            {
+                final RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel( );
+                final RefCertificationLevel refCertificationLevel = new RefCertificationLevel( );
+                final AttributeKey attributeKey = new AttributeKey( );
+                final RefAttributeCertificationProcessus refattributecertificationprocessus = new RefAttributeCertificationProcessus( );
 
                 int nIndex = 1;
 
-                attributeKey.setId(daoUtil.getInt(nIndex++));
-                attributeKey.setName(daoUtil.getString(nIndex++));
-                attributeKey.setKeyName(daoUtil.getString(nIndex++));
-                attributeKey.setDescription(daoUtil.getString(nIndex++));
-                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+                attributeKey.setName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
-                refattributecertificationprocessus.setId(daoUtil.getInt(nIndex++));
-                refattributecertificationprocessus.setCode(daoUtil.getString(nIndex++));
-                refattributecertificationprocessus.setLabel(daoUtil.getString(nIndex++));
+                refattributecertificationprocessus.setId( daoUtil.getInt( nIndex++ ) );
+                refattributecertificationprocessus.setCode( daoUtil.getString( nIndex++ ) );
+                refattributecertificationprocessus.setLabel( daoUtil.getString( nIndex++ ) );
 
-                refCertificationLevel.setName(daoUtil.getString(nIndex++));
-                refCertificationLevel.setDescription(daoUtil.getString(nIndex++));
-                refCertificationLevel.setLevel(daoUtil.getString(nIndex++));
-                refCertificationLevel.setId(daoUtil.getInt(nIndex++));
+                refCertificationLevel.setName( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setDescription( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setLevel( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setId( daoUtil.getInt( nIndex++ ) );
 
-                refAttributeCertificationLevel.setRefAttributeCertificationProcessus(refattributecertificationprocessus);
-                refAttributeCertificationLevel.setRefCertificationLevel(refCertificationLevel);
-                refAttributeCertificationLevel.setAttributeKey(attributeKey);
+                refAttributeCertificationLevel.setRefAttributeCertificationProcessus( refattributecertificationprocessus );
+                refAttributeCertificationLevel.setRefCertificationLevel( refCertificationLevel );
+                refAttributeCertificationLevel.setAttributeKey( attributeKey );
                 return refAttributeCertificationLevel;
 
             }

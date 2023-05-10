@@ -38,10 +38,18 @@
         </admin-feature>
         <admin-feature>
             <feature-id>IDENTITYSTORE_REF_MANAGEMENT</feature-id>
-            <feature-title/>
-            <feature-description>identitystore.adminFeature.ManageProcessusRef.name</feature-description>
+            <feature-title>identitystore.adminFeature.ManageProcessusRef.name</feature-title>
+            <feature-description>identitystore.adminFeature.ManageProcessusRef.description</feature-description>
             <feature-level>0</feature-level>
             <feature-url>jsp/admin/plugins/identitystore/ManageProcessusRef.jsp</feature-url>
+            <feature-icon-url/>
+        </admin-feature>
+        <admin-feature>
+            <feature-id>IDENTITYSTORE_DUPLICATE_RULES_MANAGEMENT</feature-id>
+            <feature-title>identitystore.adminFeature.ManageDuplicateRules.name</feature-title>
+            <feature-description>identitystore.adminFeature.ManageDuplicateRules.description</feature-description>
+            <feature-level>0</feature-level>
+            <feature-url>jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp</feature-url>
             <feature-icon-url/>
         </admin-feature>
     </admin-features>

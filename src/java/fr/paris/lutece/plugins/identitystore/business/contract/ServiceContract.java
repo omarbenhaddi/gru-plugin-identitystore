@@ -58,15 +58,17 @@ public class ServiceContract implements Serializable
 
     @NotEmpty( message = "#i18n{contractservice.validation.servicecontract.OrganizationalEntity.notEmpty}" )
     @Size( max = 50, message = "#i18n{contractservice.validation.servicecontract.OrganizationalEntity.size}" )
-    private String _strOrganizationalEntity;
+    private String _strMoaEntityName;
+
+    private String _strMoeEntityName;
 
     @NotEmpty( message = "#i18n{contractservice.validation.servicecontract.ResponsibleName.notEmpty}" )
     @Size( max = 50, message = "#i18n{contractservice.validation.servicecontract.ResponsibleName.size}" )
-    private String _strResponsibleName;
+    private String _strMoeResponsibleName;
 
     @NotEmpty( message = "#i18n{contractservice.validation.servicecontract.ContactName.notEmpty}" )
     @Size( max = 50, message = "#i18n{contractservice.validation.servicecontract.ContactName.size}" )
-    private String _strContactName;
+    private String _strMoaContactName;
 
     @NotEmpty( message = "#i18n{contractservice.validation.servicecontract.ServiceType.notEmpty}" )
     @Size( max = 50, message = "#i18n{contractservice.validation.servicecontract.ServiceType.size}" )
@@ -74,6 +76,10 @@ public class ServiceContract implements Serializable
 
     private Date _dateStartingDate;
     private Date _dateEndingDate;
+
+    private boolean _bAuthorizedCreation;
+
+    private boolean _bAuthorizedUpdate;
 
     private boolean _bAuthorizedMerge;
 
@@ -85,9 +91,9 @@ public class ServiceContract implements Serializable
 
     private boolean _bAuthorizedExport;
 
-    private boolean _bIsAuthorizedDeleteValue;
+    private boolean _bAuthorizedSearch;
 
-    private boolean _bIsAuthorizedDeleteCertificate;
+    private int _nDataRetentionPeriodInMonths;
 
     private List<AttributeRight> _listAttributeRights = new ArrayList<>( );
 
@@ -144,66 +150,76 @@ public class ServiceContract implements Serializable
     }
 
     /**
-     * Returns the OrganizationalEntity
+     * Returns the name of the MOA entity
      * 
-     * @return The OrganizationalEntity
+     * @return The name of the MOA entity
      */
-    public String getOrganizationalEntity( )
+    public String getMoaEntityName( )
     {
-        return _strOrganizationalEntity;
+        return _strMoaEntityName;
     }
 
     /**
-     * Sets the OrganizationalEntity
+     * Sets the name of the MOA entity
      * 
-     * @param strOrganizationalEntity
-     *            The OrganizationalEntity
+     * @param strMoaEntityName
+     *            The name of the MOA entity
      */
-    public void setOrganizationalEntity( String strOrganizationalEntity )
+    public void setMoaEntityName( String strMoaEntityName )
     {
-        _strOrganizationalEntity = strOrganizationalEntity;
+        _strMoaEntityName = strMoaEntityName;
+    }
+
+    public String getMoeEntityName( )
+    {
+        return _strMoeEntityName;
+    }
+
+    public void setMoeEntityName( String _strMoeEntityName )
+    {
+        this._strMoeEntityName = _strMoeEntityName;
     }
 
     /**
-     * Returns the ResponsibleName
+     * Returns the name of the MOE responsible
      * 
-     * @return The ResponsibleName
+     * @return The name of the MOE responsible
      */
-    public String getResponsibleName( )
+    public String getMoeResponsibleName( )
     {
-        return _strResponsibleName;
+        return _strMoeResponsibleName;
     }
 
     /**
-     * Sets the ResponsibleName
+     * Sets the name of the MOE responsible
      * 
-     * @param strResponsibleName
-     *            The ResponsibleName
+     * @param strMoeResponsibleName
+     *            The name of the MOE responsible
      */
-    public void setResponsibleName( String strResponsibleName )
+    public void setMoeResponsibleName( String strMoeResponsibleName )
     {
-        _strResponsibleName = strResponsibleName;
+        _strMoeResponsibleName = strMoeResponsibleName;
     }
 
     /**
-     * Returns the ContactName
+     * Returns the name of the MOA contact
      * 
-     * @return The ContactName
+     * @return The name of the MOA contact
      */
-    public String getContactName( )
+    public String getMoaContactName( )
     {
-        return _strContactName;
+        return _strMoaContactName;
     }
 
     /**
-     * Sets the ContactName
+     * Sets the name of the MOA contact
      * 
-     * @param strContactName
-     *            The ContactName
+     * @param strMoaContactName
+     *            The name of the MOA contact
      */
-    public void setContactName( String strContactName )
+    public void setMoaContactName( String strMoaContactName )
     {
-        _strContactName = strContactName;
+        _strMoaContactName = strMoaContactName;
     }
 
     /**
@@ -245,6 +261,36 @@ public class ServiceContract implements Serializable
     public void setEndingDate( Date _dateEndingDate )
     {
         this._dateEndingDate = _dateEndingDate;
+    }
+
+    public boolean getAuthorizedCreation( )
+    {
+        return _bAuthorizedCreation;
+    }
+
+    public void setAuthorizedCreation( boolean _bAuthorizedCreation )
+    {
+        this._bAuthorizedCreation = _bAuthorizedCreation;
+    }
+
+    public boolean getAuthorizedUpdate( )
+    {
+        return _bAuthorizedUpdate;
+    }
+
+    public void setAuthorizedUpdate( boolean _bAuthorizedUpdate )
+    {
+        this._bAuthorizedUpdate = _bAuthorizedUpdate;
+    }
+
+    public boolean getAuthorizedSearch( )
+    {
+        return _bAuthorizedSearch;
+    }
+
+    public void setAuthorizedSearch( boolean _bAuthorizedSearch )
+    {
+        this._bAuthorizedSearch = _bAuthorizedSearch;
     }
 
     /**
@@ -352,24 +398,14 @@ public class ServiceContract implements Serializable
         _bAuthorizedExport = bAuthorizedExport;
     }
 
-    public boolean getAuthorizedDeleteValue( )
+    public int getDataRetentionPeriodInMonths( )
     {
-        return _bIsAuthorizedDeleteValue;
+        return _nDataRetentionPeriodInMonths;
     }
 
-    public void setAuthorizedDeleteValue( boolean bIsAuthorizedDeleteValue )
+    public void setDataRetentionPeriodInMonths( int _nDataRetentionPeriodInMonths )
     {
-        this._bIsAuthorizedDeleteValue = bIsAuthorizedDeleteValue;
-    }
-
-    public boolean getAuthorizedDeleteCertificate( )
-    {
-        return _bIsAuthorizedDeleteCertificate;
-    }
-
-    public void setAuthorizedDeleteCertificate( boolean bIsAuthorizedDeleteCertificate )
-    {
-        this._bIsAuthorizedDeleteCertificate = bIsAuthorizedDeleteCertificate;
+        this._nDataRetentionPeriodInMonths = _nDataRetentionPeriodInMonths;
     }
 
     public List<AttributeRight> getAttributeRights( )

@@ -240,7 +240,6 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
                     refAttributeCertificationProcessusList.add( refAttributeCertificationProcessus );
                 }
 
-
             }
         }
         return refAttributeCertificationProcessusList;

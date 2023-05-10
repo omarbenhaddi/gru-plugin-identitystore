@@ -102,6 +102,20 @@ public final class ServiceContractHome
     }
 
     /**
+     * Closes the serviceContract by setting an and date
+     *
+     * @param serviceContract
+     *            The instance of the ServiceContract which contains the data to store
+     * @return The instance of the serviceContract which has been updated
+     */
+    public static ServiceContract close( ServiceContract serviceContract )
+    {
+        _serviceContractDAO.close( serviceContract, _plugin );
+
+        return serviceContract;
+    }
+
+    /**
      * Remove the serviceContract whose identifier is specified in parameter
      * 
      * @param nKey
@@ -129,16 +143,6 @@ public final class ServiceContractHome
     }
 
     /**
-     * Load the data of all the serviceContract objects and returns them as a list
-     * 
-     * @return the list which contains the data of all the serviceContract objects
-     */
-    public static List<ServiceContract> getServiceContractsList( )
-    {
-        return _serviceContractDAO.selectServiceContractsList( _plugin );
-    }
-
-    /**
      * Load the id of all the serviceContract objects and returns them as a list
      * 
      * @return the list which contains the id of all the serviceContract objects
@@ -146,16 +150,6 @@ public final class ServiceContractHome
     public static List<Integer> getIdServiceContractsList( )
     {
         return _serviceContractDAO.selectIdServiceContractsList( _plugin );
-    }
-
-    /**
-     * Load the data of all the serviceContract objects and returns them as a referenceList
-     * 
-     * @return the referenceList which contains the data of all the serviceContract objects
-     */
-    public static ReferenceList getServiceContractsReferenceList( )
-    {
-        return _serviceContractDAO.selectServiceContractsReferenceList( _plugin );
     }
 
     /**

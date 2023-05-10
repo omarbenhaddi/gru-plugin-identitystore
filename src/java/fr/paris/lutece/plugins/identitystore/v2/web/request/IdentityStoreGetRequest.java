@@ -64,17 +64,17 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
      *            the connectionId
      * @param strCustomerId
      *            the customerId
-     * @param strClientAppCode
-     *            the applicationCode
+     * @param strClientCode
+     *            the clientCode
      * @param objectMapper
      *            for json transformation
      */
-    public IdentityStoreGetRequest( String strConnectionId, String strCustomerId, String strClientAppCode, ObjectMapper objectMapper )
+    public IdentityStoreGetRequest( String strConnectionId, String strCustomerId, String strClientCode, ObjectMapper objectMapper )
     {
         super( );
         this._strConnectionId = strConnectionId;
         this._strCustomerId = strCustomerId;
-        this._strClientAppCode = strClientAppCode;
+        this._strClientAppCode = strClientCode;
         this._objectMapper = objectMapper;
     }
 

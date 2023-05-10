@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome
 import fr.paris.lutece.plugins.identitystore.business.contract.*;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessusHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevelHome;
+import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractDefinitionException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
@@ -61,17 +62,18 @@ import java.util.stream.Collectors;
 /**
  * This class provides the user interface to manage ServiceContract features ( manage, create, modify, remove )
  */
-@Controller( controllerJsp = "ManageServiceContracts.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
+@Controller( controllerJsp = "ManageServiceContracts.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_ADMIN_MANAGEMENT" )
 public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer, ServiceContract>
 {
     // Templates
     private static final String TEMPLATE_MANAGE_SERVICECONTRACTS = "/admin/plugins/identitystore/manage_servicecontracts.html";
     private static final String TEMPLATE_DISPLAY_SERVICECONTRACTS = "/admin/plugins/identitystore/view_servicecontract.html";
     private static final String TEMPLATE_CREATE_SERVICECONTRACT = "/admin/plugins/identitystore/create_servicecontract.html";
-    private static final String TEMPLATE_MODIFY_SERVICECONTRACT = "/admin/plugins/identitystore/modify_servicecontract.html";
+    private static final String TEMPLATE_MODIFY_SERVICECONTRACT = "/admin/plugins/identitystore/create_servicecontract.html";
 
     // Parameters
     private static final String PARAMETER_ID_SERVICECONTRACT = "id";
+    private static final String PARAMETER_RIGHT_MANDATORY = "mandatory";
     private static final String PARAMETER_RIGHT_SEARCHABLE = "searchable";
     private static final String PARAMETER_RIGHT_READABLE = "readable";
     private static final String PARAMETER_RIGHT_WRITABLE = "writable";
@@ -81,9 +83,9 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     private static final String PARAMETER_CERTICATION_PROCESSUS = "certification_processus";
 
     // Properties for page titles
-    private static final String PROPERTY_PAGE_TITLE_MANAGE_SERVICECONTRACTS = "contractservice.manage_servicecontracts.pageTitle";
-    private static final String PROPERTY_PAGE_TITLE_MODIFY_SERVICECONTRACT = "contractservice.modify_servicecontract.pageTitle";
-    private static final String PROPERTY_PAGE_TITLE_CREATE_SERVICECONTRACT = "contractservice.create_servicecontract.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_MANAGE_SERVICECONTRACTS = "identitystore.manage_servicecontracts.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_MODIFY_SERVICECONTRACT = "identitystore.modify_servicecontract.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_CREATE_SERVICECONTRACT = "identitystore.create_servicecontract.pageTitle";
 
     // Markers
     private static final String MARK_SERVICECONTRACT_LIST = "servicecontract_list";
@@ -91,6 +93,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     private static final String MARK_ATTRIBUTE_REQUIREMENTS_LIST = "servicecontract_attribute_list";
     private static final String MARK_AVAILAIBLE_LEVELS_LIST = "availaible_certification_levels_list";
     private static final String MARK_AVAILAIBLE_CLIENT_APPLICATIONS_LIST = "availaible_client_applications_list";
+    private static final String MARK_EDIT_ACTION = "edit_action";
 
     private static final String JSP_MANAGE_SERVICECONTRACTS = "jsp/admin/plugins/identitystore/ManageServiceContracts.jsp";
 
@@ -229,6 +232,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         }
 
         model.put( MARK_SERVICECONTRACT, _servicecontract );
+        model.put( MARK_EDIT_ACTION, "action_createServiceContract" );
         model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, ServiceContractHome.getDto( _servicecontract ) );
         model.put( MARK_AVAILAIBLE_LEVELS_LIST, ServiceContractHome.selectCertificationLevels( ) );
         model.put( MARK_AVAILAIBLE_CLIENT_APPLICATIONS_LIST, ClientApplicationHome.selectApplicationList( ) );
@@ -293,7 +297,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         {
             ServiceContractService.instance( ).create( _servicecontract, selectedClientAppId );
         }
-        catch( ServiceContractDefinitionException e )
+        catch( ServiceContractDefinitionException | RefAttributeCertificationDefinitionNotFoundException e )
         {
             addError( e.getMessage( ) );
             return redirect( request, VIEW_CREATE_SERVICECONTRACT, PARAMETER_ID_CLIENTAPPLICATION, selectedClientAppId );
@@ -373,6 +377,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         }
 
         model.put( MARK_SERVICECONTRACT, _servicecontract );
+        model.put( MARK_EDIT_ACTION, "action_modifyServiceContract" );
         model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, ServiceContractHome.getDto( _servicecontract ) );
         model.put( MARK_AVAILAIBLE_LEVELS_LIST, ServiceContractHome.selectCertificationLevels( ) );
         model.put( MARK_AVAILAIBLE_CLIENT_APPLICATIONS_LIST, ClientApplicationHome.selectApplicationList( ) );
@@ -441,7 +446,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         {
             ServiceContractService.instance( ).update( _servicecontract, Integer.parseInt( parameterValues [0] ) );
         }
-        catch( ServiceContractDefinitionException e )
+        catch( ServiceContractDefinitionException | RefAttributeCertificationDefinitionNotFoundException e )
         {
             addError( e.getMessage( ) );
             return redirect( request, VIEW_MODIFY_SERVICECONTRACT, PARAMETER_ID_SERVICECONTRACT, _servicecontract.getId( ) );
@@ -463,17 +468,35 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     private Map<String, AttributeRight> getAttributesRightsFromRequest( HttpServletRequest request )
     {
         Map<String, AttributeRight> mapAttributesRights = new HashMap<String, AttributeRight>( );
+        String [ ] tabIdMandatories = request.getParameterValues( PARAMETER_RIGHT_MANDATORY );
         String [ ] tabIdSearchables = request.getParameterValues( PARAMETER_RIGHT_SEARCHABLE );
         String [ ] tabIdReadables = request.getParameterValues( PARAMETER_RIGHT_READABLE );
         String [ ] tabIdWritables = request.getParameterValues( PARAMETER_RIGHT_WRITABLE );
 
         for ( int nCpt = 0; ( tabIdSearchables != null ) && ( nCpt < tabIdSearchables.length ); nCpt++ )
         {
-            String strIdAttribute = tabIdSearchables [nCpt];
-            AttributeRight attributeRight = new AttributeRight( );
+            final String strIdAttribute = tabIdSearchables [nCpt];
+            final AttributeRight attributeRight = new AttributeRight( );
             attributeRight.setSearchable( true );
             attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
             mapAttributesRights.put( strIdAttribute, attributeRight );
+        }
+
+        for ( int nCpt = 0; ( tabIdMandatories != null ) && ( nCpt < tabIdMandatories.length ); nCpt++ )
+        {
+            String strIdAttribute = tabIdMandatories [nCpt];
+
+            if ( mapAttributesRights.get( strIdAttribute ) != null )
+            {
+                mapAttributesRights.get( strIdAttribute ).setMandatory( true );
+            }
+            else
+            {
+                final AttributeRight attributeRight = new AttributeRight( );
+                attributeRight.setMandatory( true );
+                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
+                mapAttributesRights.put( strIdAttribute, attributeRight );
+            }
         }
 
         for ( int nCpt = 0; ( tabIdReadables != null ) && ( nCpt < tabIdReadables.length ); nCpt++ )

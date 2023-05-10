@@ -262,33 +262,35 @@ public final class AttributeRequirementDAO implements IAttributeRequirementDAO
     {
         List<AttributeRequirement> attributeRequirements = new ArrayList<>( );
 
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin )) {
-            daoUtil.setInt(1, servicecontract.getId());
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin ) )
+        {
+            daoUtil.setInt( 1, servicecontract.getId( ) );
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                AttributeRequirement attributeRequirement = new AttributeRequirement();
-                RefCertificationLevel refCertificationLevel = new RefCertificationLevel();
-                AttributeKey attributeKey = new AttributeKey();
+            while ( daoUtil.next( ) )
+            {
+                AttributeRequirement attributeRequirement = new AttributeRequirement( );
+                RefCertificationLevel refCertificationLevel = new RefCertificationLevel( );
+                AttributeKey attributeKey = new AttributeKey( );
 
                 int nIndex = 1;
 
-                attributeKey.setId(daoUtil.getInt(nIndex++));
-                attributeKey.setName(daoUtil.getString(nIndex++));
-                attributeKey.setKeyName(daoUtil.getString(nIndex++));
-                attributeKey.setCommonSearchKeyName(daoUtil.getString(nIndex++));
-                attributeKey.setDescription(daoUtil.getString(nIndex++));
-                attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(nIndex++)));
+                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+                attributeKey.setName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
 
-                refCertificationLevel.setName(daoUtil.getString(nIndex++));
-                refCertificationLevel.setDescription(daoUtil.getString(nIndex++));
-                refCertificationLevel.setLevel(daoUtil.getString(nIndex++));
-                refCertificationLevel.setId(daoUtil.getInt(nIndex++));
+                refCertificationLevel.setName( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setDescription( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setLevel( daoUtil.getString( nIndex++ ) );
+                refCertificationLevel.setId( daoUtil.getInt( nIndex++ ) );
 
-                attributeRequirement.setRefCertificationLevel(refCertificationLevel);
-                attributeRequirement.setAttributeKey(attributeKey);
+                attributeRequirement.setRefCertificationLevel( refCertificationLevel );
+                attributeRequirement.setAttributeKey( attributeKey );
 
-                attributeRequirements.add(attributeRequirement);
+                attributeRequirements.add( attributeRequirement );
             }
 
             return attributeRequirements;

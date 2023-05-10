@@ -1,0 +1,56 @@
+<@box>
+    <@boxHeader i18nTitleKey="identitystore.manage_duplicaterules.title">
+        <@headerButtons>
+            <form class="form-inline pull-right" method="post" name="manage_duplicaterules" action="jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp">
+                <@actionButtons button1Name="view_createDuplicateRule" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_duplicaterules.buttonAdd" />
+            </form>
+        </@headerButtons>
+    </@boxHeader>
+	<@boxBody>    
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    <div class="clearfix"></div>
+    <@table>
+        <tr>
+            <th>#i18n{identitystore.manage_duplicaterules.columnName}</th>
+            <th>#i18n{identitystore.manage_duplicaterules.columnDescription}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+        <#list duplicaterule_list as duplicaterule >
+        <tr>
+            <td>
+				${duplicaterule.name}
+			</td>
+            <td>
+                <pre>${duplicaterule.description}</pre>
+			</td>
+        	<td>
+				<@aButton href='jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp?view=modifyDuplicateRule&id=${duplicaterule.id}' title='#i18n{portal.util.labelModify}' hideTitle=['all'] buttonIcon='pencil' />
+						
+				<@aButton href='jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp?action=confirmRemoveDuplicateRule&id=${duplicaterule.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
+
+                <a href="jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp?view=displayDuplicateRule&id=${duplicaterule.id}"
+                   class="btn btn-primary" title="#i18n{identitystore.manage_duplicaterules.buttonDisplay}" >
+                    <i class="fa fa-eye"></i>
+                </a>
+	        </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@box>
+
+<style>
+    pre {
+        background: inherit !important;
+        color: inherit !important;
+        font-family: inherit !important;
+        padding: 0 !important;
+        border-radius: unset !important;
+        font-size: inherit !important;
+    }
+</style>

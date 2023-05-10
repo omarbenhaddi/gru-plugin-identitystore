@@ -33,7 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
@@ -102,6 +104,22 @@ public final class IdentityRequestValidator
     }
 
     /**
+     * check whether the parameters related to the application are valid or not
+     *
+     * @param strApplicationCode
+     *            client application code
+     * @throws AppException
+     *             if the parameters are not valid
+     */
+    public void checkClientApplicationCode( String strApplicationCode ) throws IdentityStoreException
+    {
+        if ( StringUtils.isBlank( strApplicationCode ) )
+        {
+            throw new IdentityStoreException( Constants.PARAM_APPLICATION_CODE + " is missing" );
+        }
+    }
+
+    /**
      * check whether the parameters related to the identity are valid or not
      *
      * @param strCustomerId
@@ -114,6 +132,22 @@ public final class IdentityRequestValidator
         if ( StringUtils.isBlank( strCustomerId ) )
         {
             throw new IdentityStoreException( Constants.PARAM_ID_CONNECTION + "is missing." );
+        }
+    }
+
+    /**
+     * check whether the parameters related to the service contract are valid or not
+     *
+     * @param contractId
+     *            the service contract id
+     * @throws AppException
+     *             if the parameters are not valid
+     */
+    public void checkContractId( Integer contractId ) throws IdentityStoreException
+    {
+        if ( contractId == null )
+        {
+            throw new IdentityStoreException( Constants.PARAM_ID_SERVICE_CONTRACT + " is missing." );
         }
     }
 
@@ -188,11 +222,61 @@ public final class IdentityRequestValidator
      */
     public void checkMergeRequest( IdentityMergeRequest identityMergeRequest ) throws IdentityStoreException
     {
+        if ( identityMergeRequest.getOrigin( ) == null || StringUtils.isEmpty( identityMergeRequest.getOrigin( ).getName( ) )
+                || identityMergeRequest.getOrigin( ).getType( ) == null )
+        {
+            throw new IdentityStoreException( "Provided Author is null or empty" );
+        }
+
         if ( identityMergeRequest == null || identityMergeRequest.getIdentities( ) == null
                 || StringUtils.isEmpty( identityMergeRequest.getIdentities( ).getPrimaryCuid( ) )
                 || StringUtils.isEmpty( identityMergeRequest.getIdentities( ).getSecondaryCuid( ) ) )
         {
             throw new IdentityStoreException( "Provided Identity Merge request is null or empty" );
+        }
+
+        if ( CollectionUtils.isEmpty( identityMergeRequest.getIdentities( ).getAttributeKeys( ) ) )
+        {
+            throw new IdentityStoreException( "Provided Identity Merge request must define at least one attribute key to be merged" );
+        }
+    }
+
+    public void checkServiceContract( ServiceContractDto serviceContractDto ) throws IdentityStoreException
+    {
+        if ( serviceContractDto == null )
+        {
+            throw new IdentityStoreException( "Provided service contract is null" );
+        }
+
+        if ( serviceContractDto.getStartingDate( ) == null )
+        {
+            throw new IdentityStoreException( "Provided ServiceContractDto must specify a starting date" );
+        }
+    }
+
+    public void checkClosingServiceContract( ServiceContractDto serviceContractDto ) throws IdentityStoreException
+    {
+        if ( serviceContractDto == null )
+        {
+            throw new IdentityStoreException( "Provided service contract is null" );
+        }
+
+        if ( serviceContractDto.getEndingDate( ) == null )
+        {
+            throw new IdentityStoreException( "Provided ServiceContractDto must specify an ending date" );
+        }
+    }
+
+    public void checkClientApplicationDto( ClientApplicationDto clientApplicationDto ) throws IdentityStoreException
+    {
+        if ( clientApplicationDto == null )
+        {
+            throw new IdentityStoreException( "Provided client is null" );
+        }
+
+        if ( clientApplicationDto.getClientCode( ) == null )
+        {
+            throw new IdentityStoreException( "Provided client must specify a client code" );
         }
     }
 }

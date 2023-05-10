@@ -162,13 +162,13 @@ public final class IdentityAttributeHome
      *
      * @param nIdentityId
      *            The identity ID
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of client application
      * @return the list which contains the data of all the identityAttribute objects
      */
-    public static Map<String, IdentityAttribute> getAttributes( int nIdentityId, String strApplicationCode )
+    public static Map<String, IdentityAttribute> getAttributes( int nIdentityId, String strClientCode )
     {
-        return _dao.selectAttributes( nIdentityId, strApplicationCode, _plugin );
+        return _dao.selectAttributes( nIdentityId, strClientCode, _plugin );
     }
 
     /**
@@ -188,15 +188,15 @@ public final class IdentityAttributeHome
      *
      * @param nIdentityId
      *            The identity ID
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of client application
      * @param strAttributeKey
      *            attribute key
      * @return the list which contains the data of all the identityAttribute objects
      */
-    public static IdentityAttribute getAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode )
+    public static IdentityAttribute getAttribute( int nIdentityId, String strAttributeKey, String strClientCode )
     {
-        return _dao.selectAttribute( nIdentityId, strAttributeKey, strApplicationCode, _plugin );
+        return _dao.selectAttribute( nIdentityId, strAttributeKey, strClientCode, _plugin );
     }
 
     /**
@@ -206,14 +206,13 @@ public final class IdentityAttributeHome
      *            The list of identity
      * @param listAttributeKeyNames
      *            The list of attributes to load
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of client application
      * @return the list which contains the data of the identityAttribute objects
      */
-    public static List<IdentityAttribute> getAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames,
-            String strApplicationCode )
+    public static List<IdentityAttribute> getAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strClientCode )
     {
-        return _dao.selectAttributesByIdentityList( listIdentity, listAttributeKeyNames, strApplicationCode, _plugin );
+        return _dao.selectAttributesByIdentityList( listIdentity, listAttributeKeyNames, strClientCode, _plugin );
     }
 
     /**

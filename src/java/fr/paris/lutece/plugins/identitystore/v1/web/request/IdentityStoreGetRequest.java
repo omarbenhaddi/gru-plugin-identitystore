@@ -64,7 +64,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
      * @param strCustomerId
      *            the customerId
      * @param strClientAppCode
-     *            the applicationCode
+     *            the client app Code
      * @param objectMapper
      *            for json transformation
      */

@@ -58,7 +58,7 @@ public final class IdentityStoreRestService
 {
     private static final String ERROR_NO_IDENTITY_FOUND = "No identity found";
     private static final String ERROR_NO_IDENTITY_TO_UPDATE = "no identity to update";
-    private static final String ERROR_DURING_TREATMENT = "An error occured during the treatment.";
+    private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
     private ObjectMapper _objectMapper;
 
     /**
@@ -93,7 +93,7 @@ public final class IdentityStoreRestService
             @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
     {
-        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
+        String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, strQueryClientAppCode );
         try
         {
             IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strConnectionId, strCustomerId, strClientAppCode, _objectMapper );

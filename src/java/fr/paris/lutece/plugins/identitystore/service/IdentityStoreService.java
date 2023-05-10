@@ -88,37 +88,37 @@ public final class IdentityStoreService
     /**
      * Get the application code to use
      * 
-     * @param strHeaderClientAppCode
+     * @param strHeaderClientCode
      *            The application code in HTTP request header
-     * @param strParamAppCode
+     * @param strParamClientCode
      *            The application code provided by the client
      * @return The application code to use
      */
-    public static String getTrustedApplicationCode( String strHeaderClientAppCode, String strParamAppCode )
+    public static String getTrustedClientCode( String strHeaderClientCode, String strParamClientCode )
     {
         // Secure mode
         switch( getSecureMode( ) )
         {
             case JWT:
             {
-                if ( !StringUtils.isEmpty( strHeaderClientAppCode ) )
+                if ( !StringUtils.isEmpty( strHeaderClientCode ) )
                 {
                     String strJwtClaimAppCode = AppPropertiesService.getProperty( IdentityConstants.PROPERTY_JWT_CLAIM_APP_CODE );
-                    return JWTUtil.getPayloadValue( strHeaderClientAppCode, strJwtClaimAppCode );
+                    return JWTUtil.getPayloadValue( strHeaderClientCode, strJwtClaimAppCode );
                 }
                 break;
             }
             case NONE:
             {
-                if ( !StringUtils.isEmpty( strHeaderClientAppCode ) )
+                if ( !StringUtils.isEmpty( strHeaderClientCode ) )
                 {
-                    return strHeaderClientAppCode;
+                    return strHeaderClientCode;
                 }
                 else
                 {
-                    if ( !StringUtils.isEmpty( strParamAppCode ) )
+                    if ( !StringUtils.isEmpty( strParamClientCode ) )
                     {
-                        return strParamAppCode;
+                        return strParamClientCode;
                     }
                 }
             }

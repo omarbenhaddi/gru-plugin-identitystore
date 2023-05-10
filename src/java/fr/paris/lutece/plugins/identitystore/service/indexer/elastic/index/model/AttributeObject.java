@@ -47,10 +47,10 @@ public class AttributeObject
     private String certifierName;
     private Timestamp certificateDate;
     private Timestamp certificateExpirationDate;
-    private String lastUpdateApplicationCode;
+    private String lastUpdateClientCode;
 
     public AttributeObject( String name, String key, String type, String value, String description, boolean pivot, String certifierCode, String certifierName,
-            Timestamp certificateDate, Timestamp certificateExpirationDate, String lastUpdateApplicationCode )
+            Timestamp certificateDate, Timestamp certificateExpirationDate, String lastUpdateClientCode )
     {
         this.name = name;
         this.key = key;
@@ -62,7 +62,7 @@ public class AttributeObject
         this.certifierName = certifierName;
         this.certificateDate = certificateDate;
         this.certificateExpirationDate = certificateExpirationDate;
-        this.lastUpdateApplicationCode = lastUpdateApplicationCode;
+        this.lastUpdateClientCode = lastUpdateClientCode;
     }
 
     public AttributeObject( )
@@ -170,13 +170,13 @@ public class AttributeObject
         this.certificateExpirationDate = certificateExpirationDate;
     }
 
-    public String getLastUpdateApplicationCode( )
+    public String getLastUpdateClientCode( )
     {
-        return lastUpdateApplicationCode;
+        return lastUpdateClientCode;
     }
 
-    public void setLastUpdateApplicationCode( String lastUpdateApplicationCode )
+    public void setLastUpdateClientCode( String lastUpdateClientCode )
     {
-        this.lastUpdateApplicationCode = lastUpdateApplicationCode;
+        this.lastUpdateClientCode = lastUpdateClientCode;
     }
 }

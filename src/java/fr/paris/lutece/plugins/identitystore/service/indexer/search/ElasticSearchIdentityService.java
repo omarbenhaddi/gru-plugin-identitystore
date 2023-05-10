@@ -74,9 +74,12 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         for ( final SearchAttributeDto dto : attributes )
         {
             AttributeKey refKey = null;
-            try {
-                refKey = IdentityService.instance().getAttributeKey(dto.getKey());
-            } catch (IdentityAttributeNotFoundException e) {
+            try
+            {
+                refKey = IdentityService.instance( ).getAttributeKey( dto.getKey( ) );
+            }
+            catch( IdentityAttributeNotFoundException e )
+            {
                 // do nothing, we want to identify if the key exists
             }
             if ( refKey != null )
@@ -86,8 +89,8 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
             else
             {
                 // In this case we have a common search key in the request, so map it
-                final List<AttributeKey> commonAttributeKeys = IdentityService.instance().getCommonAttributeKeys(dto.getKey());
-                final List<String> commonAttributeKeyNames = commonAttributeKeys.stream().map(AttributeKey::getKeyName).collect(Collectors.toList());
+                final List<AttributeKey> commonAttributeKeys = IdentityService.instance( ).getCommonAttributeKeys( dto.getKey( ) );
+                final List<String> commonAttributeKeyNames = commonAttributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
                 searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.isStrict( ) ) );
             }
         }

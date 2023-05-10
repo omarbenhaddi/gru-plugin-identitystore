@@ -60,7 +60,7 @@ public class IdentityAttribute implements Serializable
     private File _file;
     private AttributeCertificate _certificate;
     private Timestamp _dateLastUpdate;
-    private String _strLastUpdateApplicationCode;
+    private String _strLastUpdateClientCode;
     // for DTO conversion, not stored in DB
     private AttributeStatusDto _status;
 
@@ -215,20 +215,20 @@ public class IdentityAttribute implements Serializable
     }
 
     /**
-     * @return the lastUpdateApplicationCode
+     * @return the lastUpdateClientCode
      */
-    public String getLastUpdateApplicationCode( )
+    public String getLastUpdateClientCode( )
     {
-        return _strLastUpdateApplicationCode;
+        return _strLastUpdateClientCode;
     }
 
     /**
-     * @param strLastUpdateApplicationCode
-     *            the lastUpdateApplicationCode to set
+     * @param strLastUpdateClientCode
+     *            the lastUpdateClientCode to set
      */
-    public void setLastUpdateApplicationCode( String strLastUpdateApplicationCode )
+    public void setLastUpdateClientCode( String strLastUpdateClientCode )
     {
-        this._strLastUpdateApplicationCode = strLastUpdateApplicationCode;
+        this._strLastUpdateClientCode = strLastUpdateClientCode;
     }
 
     /**

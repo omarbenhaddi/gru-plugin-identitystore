@@ -56,11 +56,14 @@ public class ClientApplication implements IClientApplication, Serializable
     // Variables declarations
     private int _nId;
     @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Name.notEmpty}" )
-    @Size( max = 100, message = "#i18n{identitystore.validation.clientapplication.Name.size}" )
+    @Size( max = 255, message = "#i18n{identitystore.validation.clientapplication.Name.size}" )
     private String _strName;
     @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Code.notEmpty}" )
-    @Size( max = 100, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
-    private String _strCode;
+    @Size( max = 255, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
+    private String _strClientCode;
+    @NotEmpty( message = "#i18n{identitystore.validation.clientapplication.Code.notEmpty}" )
+    @Size( max = 255, message = "#i18n{identitystore.validation.clientapplication.Code.size}" )
+    private String _strApplicationCode;
 
     private List<ServiceContract> serviceContracts = new ArrayList<>( );
 
@@ -111,9 +114,9 @@ public class ClientApplication implements IClientApplication, Serializable
      *
      */
     @Override
-    public String getCode( )
+    public String getClientCode( )
     {
-        return _strCode;
+        return _strClientCode;
     }
 
     /**
@@ -122,9 +125,19 @@ public class ClientApplication implements IClientApplication, Serializable
      * @param strCode
      *            The Code
      */
-    public void setCode( String strCode )
+    public void setClientCode( String strCode )
     {
-        _strCode = strCode;
+        _strClientCode = strCode;
+    }
+
+    public String getApplicationCode( )
+    {
+        return _strApplicationCode;
+    }
+
+    public void setApplicationCode( String _strApplicationCode )
+    {
+        this._strApplicationCode = _strApplicationCode;
     }
 
     public List<ServiceContract> getServiceContracts( )

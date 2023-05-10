@@ -31,53 +31,59 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.application;
 
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
+import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
  * This class represents a create request for IdentityStoreRestServive
  */
-public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
+public class ClientCreateRequest extends AbstractIdentityStoreRequest
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
-
-    private final IdentityMergeRequest _identityMergeRequest;
+    private final ClientApplicationDto _clientApplicationDto;
 
     /**
      * Constructor of IdentityStoreCreateRequest
      *
-     * @param identityMergeRequest
-     *            the dto of identity's merge
+     * @param clientApplicationDto
+     *            the dto of identity's change
      */
-    public IdentityStoreMergeRequest( IdentityMergeRequest identityMergeRequest, String strClientAppCode )
+    public ClientCreateRequest( ClientApplicationDto clientApplicationDto, String strClientAppCode )
     {
         super( strClientAppCode );
-        this._identityMergeRequest = identityMergeRequest;
+        this._clientApplicationDto = clientApplicationDto;
     }
 
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        // Vérification de la consistence des paramètres
-        IdentityRequestValidator.instance( ).checkMergeRequest( _identityMergeRequest );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+        IdentityRequestValidator.instance( ).checkClientApplicationDto( _clientApplicationDto );
     }
 
     @Override
-    public IdentityMergeResponse doSpecificRequest( ) throws IdentityStoreException
+    public ClientChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final IdentityMergeResponse response = ServiceContractService.instance( ).validateIdentityMerge( _identityMergeRequest, _strClientAppCode );
-
-        if ( !IdentityMergeStatus.FAILURE.equals( response.getStatus( ) ) )
+        final ClientChangeResponse response = new ClientChangeResponse( );
+        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _clientApplicationDto.getClientCode( ) );
+        if ( clientApplication != null )
         {
-            IdentityService.instance( ).merge( _identityMergeRequest, _strClientAppCode, response );
+            response.setStatus( ClientChangeStatusType.CONFLICT );
+            response.setMessage( "A client exists with the code " + _clientApplicationDto.getClientCode( ) );
+        }
+        else
+        {
+            final ClientApplication client = DtoConverter.convertDtoToClient( _clientApplicationDto );
+            ClientApplicationHome.create( client );
+            response.setClientApplication( DtoConverter.convertClientToDto( client ) );
+            response.setStatus( ClientChangeStatusType.SUCCESS );
         }
 
         return response;

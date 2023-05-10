@@ -53,25 +53,27 @@ public class IndexActionDao implements IIndexActionDao
     @Override
     public void insert( IndexAction indexAction, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin )) {
-            indexAction.setId(newPrimaryKey(plugin));
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+        {
+            indexAction.setId( newPrimaryKey( plugin ) );
 
             int nIndex = 1;
 
-            daoUtil.setInt(nIndex++, indexAction.getId());
-            daoUtil.setString(nIndex++, indexAction.getCustomerId());
-            daoUtil.setString(nIndex++, indexAction.getActionType().name());
-            daoUtil.setTimestamp(nIndex++, new Timestamp(new Date().getTime()));
-            daoUtil.executeUpdate();
+            daoUtil.setInt( nIndex++, indexAction.getId( ) );
+            daoUtil.setString( nIndex++, indexAction.getCustomerId( ) );
+            daoUtil.setString( nIndex++, indexAction.getActionType( ).name( ) );
+            daoUtil.setTimestamp( nIndex++, new Timestamp( new Date( ).getTime( ) ) );
+            daoUtil.executeUpdate( );
         }
     }
 
     @Override
     public void delete( IndexAction indexAction, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin )) {
-            daoUtil.setInt(1, indexAction.getId());
-            daoUtil.executeUpdate();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, indexAction.getId( ) );
+            daoUtil.executeUpdate( );
         }
     }
 
@@ -79,19 +81,21 @@ public class IndexActionDao implements IIndexActionDao
     public List<IndexAction> select( int limit, Plugin plugin )
     {
         final List<IndexAction> actions = new ArrayList<>( );
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_WITH_LIMIT, plugin )) {
-            daoUtil.setInt(1, limit);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_WITH_LIMIT, plugin ) )
+        {
+            daoUtil.setInt( 1, limit );
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                final IndexAction indexAction = new IndexAction();
+            while ( daoUtil.next( ) )
+            {
+                final IndexAction indexAction = new IndexAction( );
                 int nIndex = 1;
 
-                indexAction.setId(daoUtil.getInt(nIndex++));
-                indexAction.setCustomerId(daoUtil.getString(nIndex++));
-                indexAction.setActionType(IndexActionType.valueOf(daoUtil.getString(nIndex++)));
-                indexAction.setDateIndex(daoUtil.getDate(nIndex++));
-                actions.add(indexAction);
+                indexAction.setId( daoUtil.getInt( nIndex++ ) );
+                indexAction.setCustomerId( daoUtil.getString( nIndex++ ) );
+                indexAction.setActionType( IndexActionType.valueOf( daoUtil.getString( nIndex++ ) ) );
+                indexAction.setDateIndex( daoUtil.getDate( nIndex++ ) );
+                actions.add( indexAction );
             }
 
             return actions;
@@ -102,18 +106,20 @@ public class IndexActionDao implements IIndexActionDao
     public List<IndexAction> selectAll( Plugin plugin )
     {
         final List<IndexAction> actions = new ArrayList<>( );
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        {
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                final IndexAction indexAction = new IndexAction();
+            while ( daoUtil.next( ) )
+            {
+                final IndexAction indexAction = new IndexAction( );
                 int nIndex = 1;
 
-                indexAction.setId(daoUtil.getInt(nIndex++));
-                indexAction.setCustomerId(daoUtil.getString(nIndex++));
-                indexAction.setActionType(IndexActionType.valueOf(daoUtil.getString(nIndex++)));
-                indexAction.setDateIndex(daoUtil.getDate(nIndex++));
-                actions.add(indexAction);
+                indexAction.setId( daoUtil.getInt( nIndex++ ) );
+                indexAction.setCustomerId( daoUtil.getString( nIndex++ ) );
+                indexAction.setActionType( IndexActionType.valueOf( daoUtil.getString( nIndex++ ) ) );
+                indexAction.setDateIndex( daoUtil.getDate( nIndex++ ) );
+                actions.add( indexAction );
             }
 
             return actions;
@@ -129,13 +135,15 @@ public class IndexActionDao implements IIndexActionDao
      */
     private synchronized int newPrimaryKey( Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin )) {
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
+        {
+            daoUtil.executeQuery( );
 
             int nKey = 1;
 
-            if (daoUtil.next()) {
-                nKey = daoUtil.getInt(1) + 1;
+            if ( daoUtil.next( ) )
+            {
+                nKey = daoUtil.getInt( 1 ) + 1;
             }
 
             return nKey;

@@ -88,11 +88,4 @@ public interface IAttributeRightDAO
      *            the Plugin
      */
     void removeAttributeRights( ServiceContract serviceContract, Plugin plugin );
-
-    /**
-     * @param plugin
-     *            the Plugin
-     * @return map of all attribute wich have application rights
-     */
-    Map<String, AttributeApplicationsRight> getAttributeApplicationsRight( Plugin plugin );
 }

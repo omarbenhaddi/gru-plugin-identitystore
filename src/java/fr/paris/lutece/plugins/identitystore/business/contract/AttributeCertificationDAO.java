@@ -270,47 +270,51 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     {
         List<AttributeCertification> attributeCertifications = new ArrayList<>( );
 
-        try(final DAOUtil attributesDaoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin )) {
-            attributesDaoUtil.setInt(1, servicecontract.getId());
-            attributesDaoUtil.executeQuery();
+        try ( final DAOUtil attributesDaoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin ) )
+        {
+            attributesDaoUtil.setInt( 1, servicecontract.getId( ) );
+            attributesDaoUtil.executeQuery( );
 
-            while (attributesDaoUtil.next()) {
-                AttributeCertification attributeCertification = new AttributeCertification();
-                AttributeKey attributeKey = new AttributeKey();
+            while ( attributesDaoUtil.next( ) )
+            {
+                AttributeCertification attributeCertification = new AttributeCertification( );
+                AttributeKey attributeKey = new AttributeKey( );
 
                 int nIndex = 1;
 
-                attributeKey.setId(attributesDaoUtil.getInt(nIndex++));
-                attributeKey.setName(attributesDaoUtil.getString(nIndex++));
-                attributeKey.setKeyName(attributesDaoUtil.getString(nIndex++));
-                attributeKey.setCommonSearchKeyName(attributesDaoUtil.getString(nIndex++));
-                attributeKey.setDescription(attributesDaoUtil.getString(nIndex++));
-                attributeKey.setKeyType(KeyType.valueOf(attributesDaoUtil.getInt(nIndex++)));
+                attributeKey.setId( attributesDaoUtil.getInt( nIndex++ ) );
+                attributeKey.setName( attributesDaoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyName( attributesDaoUtil.getString( nIndex++ ) );
+                attributeKey.setCommonSearchKeyName( attributesDaoUtil.getString( nIndex++ ) );
+                attributeKey.setDescription( attributesDaoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyType( KeyType.valueOf( attributesDaoUtil.getInt( nIndex++ ) ) );
 
-                attributeCertification.setAttributeKey(attributeKey);
+                attributeCertification.setAttributeKey( attributeKey );
 
-                attributeCertifications.add(attributeCertification);
+                attributeCertifications.add( attributeCertification );
             }
 
         }
 
         for ( final AttributeCertification attributeCertification : attributeCertifications )
         {
-            try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_ATTRIBUTE_CERTIF, plugin )) {
-                daoUtil.setInt(1, servicecontract.getId());
-                daoUtil.setInt(2, attributeCertification.getAttributeKey().getId());
-                daoUtil.executeQuery();
+            try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_ATTRIBUTE_CERTIF, plugin ) )
+            {
+                daoUtil.setInt( 1, servicecontract.getId( ) );
+                daoUtil.setInt( 2, attributeCertification.getAttributeKey( ).getId( ) );
+                daoUtil.executeQuery( );
 
-                while (daoUtil.next()) {
-                    final RefAttributeCertificationProcessus refAttributeCertificationProcessus = new RefAttributeCertificationProcessus();
+                while ( daoUtil.next( ) )
+                {
+                    final RefAttributeCertificationProcessus refAttributeCertificationProcessus = new RefAttributeCertificationProcessus( );
 
                     int nIndex = 1;
 
-                    refAttributeCertificationProcessus.setId(daoUtil.getInt(nIndex++));
-                    refAttributeCertificationProcessus.setLabel(daoUtil.getString(nIndex++));
-                    refAttributeCertificationProcessus.setCode(daoUtil.getString(nIndex++));
+                    refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
+                    refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
+                    refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex++ ) );
 
-                    attributeCertification.getRefAttributeCertificationProcessus().add(refAttributeCertificationProcessus);
+                    attributeCertification.getRefAttributeCertificationProcessus( ).add( refAttributeCertificationProcessus );
                 }
 
             }

@@ -150,11 +150,11 @@ public final class IdentityStoreNotifyListenerService
      * @param identity
      * @param attributeStatus
      * @param author
-     * @param clientApplicationCode
+     * @param clientCode
      * @return AttributeChange from input params
      */
     public static AttributeChange buildAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-            RequestAuthor author, String clientApplicationCode )
+            RequestAuthor author, String clientCode )
     {
         final AttributeChange attributeChange = new AttributeChange( );
 
@@ -176,7 +176,7 @@ public final class IdentityStoreNotifyListenerService
                 attributeChange.setCertificationDate( certificate.getCertificateDate( ) );
             }
         }
-        attributeChange.setClientCode( clientApplicationCode );
+        attributeChange.setClientCode( clientCode );
         attributeChange.setModificationDate( new Timestamp( new Date( ).getTime( ) ) );
 
         return attributeChange;

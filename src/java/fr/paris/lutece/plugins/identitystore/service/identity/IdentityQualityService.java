@@ -129,10 +129,13 @@ public class IdentityQualityService
         for ( final SearchAttributeDto searchAttribute : searchAttributes )
         {
             AttributeKey refKey = null;
-            try {
-                refKey = IdentityService.instance().getAttributeKey(searchAttribute.getKey());
-            } catch (IdentityAttributeNotFoundException e) {
-                //do nothing, we check if attribute exists
+            try
+            {
+                refKey = IdentityService.instance( ).getAttributeKey( searchAttribute.getKey( ) );
+            }
+            catch( IdentityAttributeNotFoundException e )
+            {
+                // do nothing, we check if attribute exists
             }
             if ( refKey != null )
             {
@@ -141,7 +144,7 @@ public class IdentityQualityService
             else
             {
                 // In this case we have a common search key in the request, so retrieve the attribute
-                final List<AttributeKey> commonAttributes = IdentityService.instance().getCommonAttributeKeys(searchAttribute.getKey());
+                final List<AttributeKey> commonAttributes = IdentityService.instance( ).getCommonAttributeKeys( searchAttribute.getKey( ) );
                 attributesToProcess.put( searchAttribute, commonAttributes );
             }
         }

@@ -5,7 +5,7 @@
     <@boxHeader i18nTitleKey="identitystore.view_clientapplication.pageTitle">
 	<@headerButtons>
     <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manage_clientapplications"
-       class="btn btn-secondary btn-sm" >
+       class="btn btn-secondary" >
         #i18n{portal.util.labelBack}
     </a>
 	</@headerButtons>
@@ -18,16 +18,20 @@
         <thead>
             <input type="hidden" id="id" name="id"/>
             <th>#i18n{identitystore.modify_clientapplication.labelName}</th>
-            <th>#i18n{identitystore.modify_clientapplication.labelCode}</th>
+            <th>#i18n{identitystore.modify_clientapplication.labelClientCode}</th>
+            <th>#i18n{identitystore.modify_clientapplication.labelApplicationCode}</th>
         </thead>
 		<tbody>
         <tr>
             <input type="hidden" id="id" name="id"/>
             <td>
-                ${clientapplication.name}
+                ${clientapplication.name!''}
             </td>
             <td>
-                ${clientapplication.code}
+                ${clientapplication.clientCode!''}
+            </td>
+            <td>
+                ${clientapplication.applicationCode!''}
             </td>
         </tr>
 		</tbody>
@@ -47,16 +51,11 @@
 <tr>
     <th>Actif</th>
     <th>#i18n{identitystore.manage_servicecontracts.columnName}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnApplicationCode}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnOrganizationalEntity}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnResponsibleName}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnContactName}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnServiceType}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedMerge}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedAccountUpdate}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedDeletion}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedImport}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedExport}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnClientCode}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnMoaContactName}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnMoeResponsibleName}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnStartingDate}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnEndingDate}</th>
     <th>#i18n{portal.util.labelActions}</th>
 </tr>
 <@tableHeadBodySeparator />
@@ -70,57 +69,22 @@
         </#if>
     </td>
     <td>
-        ${servicecontract.name}
+        ${servicecontract.name!''}
     </td>
     <td>
-        ${clientapplication.code}
+        ${clientapplication.clientCode!''}
     </td>
     <td>
-        ${servicecontract.organizationalEntity}
+        ${servicecontract.moaContactName!''}
     </td>
     <td>
-        ${servicecontract.responsibleName}
+        ${servicecontract.moeResponsibleName!''}
     </td>
     <td>
-        ${servicecontract.contactName}
+        ${servicecontract.startingDate!''}
     </td>
     <td>
-        ${servicecontract.serviceType}
-    </td>
-    <td>
-        <#if servicecontract.authorizedMerge = true>
-            <i class="fas fa-check" aria-hidden="true"></i>
-        <#else>
-            <i class="fas fa-times" aria-hidden="true"></i>
-        </#if>
-    </td>
-    <td>
-        <#if servicecontract.authorizedAccountUpdate = true>
-            <i class="fas fa-check" aria-hidden="true"></i>
-        <#else>
-            <i class="fas fa-times" aria-hidden="true"></i>
-        </#if>
-    </td>
-    <td>
-        <#if servicecontract.authorizedDeletion = true>
-        <i class="fas fa-check" aria-hidden="true"></i>
-        <#else>
-        <i class="fas fa-times" aria-hidden="true"></i>
-    </#if>
-    </td>
-    <td>
-        <#if servicecontract.authorizedImport = true>
-        <i class="fas fa-check" aria-hidden="true"></i>
-        <#else>
-        <i class="fas fa-times" aria-hidden="true"></i>
-    </#if>
-    </td>
-    <td>
-        <#if servicecontract.authorizedExport = true>
-        <i class="fas fa-check" aria-hidden="true"></i>
-        <#else>
-        <i class="fas fa-times" aria-hidden="true"></i>
-    </#if>
+        ${servicecontract.endingDate!''}
     </td>
     <td>
         <@aButton href='jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=modifyServiceContract&id=${servicecontract.id}' title='#i18n{portal.util.labelModify}' hideTitle=['all'] buttonIcon='pencil' />
@@ -128,7 +92,7 @@
         <@aButton href='jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?action=confirmRemoveServiceContract&id=${servicecontract.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
 
         <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=displayServiceContract&id=${servicecontract.id}"
-           class="btn btn-primary btn-sm" title="#i18n{identitystore.manage_servicecontracts.buttonDisplay}" >
+           class="btn btn-primary" title="#i18n{identitystore.manage_servicecontracts.buttonDisplay}" >
             <i class="fa fa-eye"></i>
         </a>
     </td>
@@ -146,11 +110,11 @@
 <!--</form>-->
 <div class="form-inline pull-right">
     <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=createServiceContract&id_client_app=${clientapplication.id}"
-       class="btn btn-primary btn-sm" >
+       class="btn btn-primary" >
         Ajouter un contrat de service
     </a>
     <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manage_clientapplications"
-       class="btn btn-secondary btn-sm" >
+       class="btn btn-secondary" >
         #i18n{portal.util.labelBack}
     </a>
 </div>

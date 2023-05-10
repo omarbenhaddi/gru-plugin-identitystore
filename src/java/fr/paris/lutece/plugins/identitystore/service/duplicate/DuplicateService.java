@@ -39,10 +39,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,12 +57,12 @@ public class DuplicateService implements IDuplicateService
     /**
      * Prefix of the group of rules
      */
-    protected String _prefix;
+    protected String _group;
 
-    public DuplicateService( ISearchIdentityService _searchIdentityService, String _prefix )
+    public DuplicateService( ISearchIdentityService _searchIdentityService, String _group )
     {
         this._searchIdentityService = _searchIdentityService;
-        this._prefix = _prefix;
+        this._group = _group;
     }
 
     /**
@@ -88,7 +86,7 @@ public class DuplicateService implements IDuplicateService
     @Override
     public DuplicateDto findDuplicates( Map<String, String> attributeValues )
     {
-        final List<String> keys = AppPropertiesService.getKeys( _prefix );
+        final List<String> keys = AppPropertiesService.getKeys( _group );
 
         if ( CollectionUtils.isNotEmpty( keys ) )
         {

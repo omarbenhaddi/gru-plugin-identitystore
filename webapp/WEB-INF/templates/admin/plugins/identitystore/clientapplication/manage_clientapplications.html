@@ -18,35 +18,39 @@
     <@table>
         <tr>
             <th>#i18n{identitystore.manage_clientapplications.columnName}</th>
-            <th>#i18n{identitystore.manage_clientapplications.columnCode}</th>
+            <th>#i18n{identitystore.manage_clientapplications.columnClientCode}</th>
+            <th>#i18n{identitystore.manage_clientapplications.columnApplicationCode}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
             <#list clientapplication_list as clientapplication >
         <tr>
             <td>
-                ${clientapplication.name}
+                ${clientapplication.name!''}
             </td>
             <td>
-                ${clientapplication.code}
+                ${clientapplication.clientCode!''}
+            </td>
+            <td>
+                ${clientapplication.applicationCode!''}
             </td>
         <td>
             <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=modifyClientApplication&id=${clientapplication.id}"
-               class="btn btn-primary btn-sm" title="#i18n{portal.util.labelModify}">
+               class="btn btn-primary" title="#i18n{portal.util.labelModify}">
                 <i class="fas fa-edit"></i>
             </a>
 
             <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?action=confirmRemoveClientApplication&id=${clientapplication.id}"
-               class="btn btn-danger btn-sm" title="#i18n{portal.util.labelDelete}" >
+               class="btn btn-danger" title="#i18n{portal.util.labelDelete}" >
                 <i class="fa fa-trash"></i>
             </a>
 
             <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=createServiceContract&id_client_app=${clientapplication.id}"
-               class="btn btn-primary btn-sm" title="#i18n{identitystore.manage_clientapplications.buttonAddContract}" >
+               class="btn btn-primary" title="#i18n{identitystore.manage_clientapplications.buttonAddContract}" >
                 <i class="fa fa-file-contract"></i>
             </a>
             <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=displayClientApplication&id=${clientapplication.id}"
-               class="btn btn-primary btn-sm" title="#i18n{identitystore.manage_clientapplications.buttonDisplay}" >
+               class="btn btn-primary" title="#i18n{identitystore.manage_clientapplications.buttonDisplay}" >
                 <i class="fa fa-eye"></i>
             </a>
         </td>

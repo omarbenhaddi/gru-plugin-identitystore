@@ -31,7 +31,7 @@
 		<@formGroup labelFor='certifiable' labelKey='#i18n{identitystore.modify_attributekey.labelCertifiable}'>
 			<@checkBox id="certifiable" name="certifiable"  value="1" checked=attributekey.certifiable!'false' />
 		</@formGroup>
-		<@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelCommonSearchKey" inputName="common_search_key_name" maxlength=100 mandatory=true value="${attributekey.commonSearchKeyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelCommonSearchKey.help" />
+		<@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelCommonSearchKey" inputName="common_search_key_name" maxlength=100 mandatory=false value="${attributekey.commonSearchKeyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelCommonSearchKey.help" />
         <@actionButtons button1Name="action_modifyAttributeKey" button2Name="view_manageAttributeKeys"/>
     </form>
 </@rowBoxHeader>

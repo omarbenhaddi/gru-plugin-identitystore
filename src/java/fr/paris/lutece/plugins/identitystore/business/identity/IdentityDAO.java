@@ -113,19 +113,21 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public void insert( Identity identity, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin )) {
-            identity.setCreationDate(new Timestamp(new Date().getTime()));
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
+        {
+            identity.setCreationDate( new Timestamp( new Date( ).getTime( ) ) );
 
             int nIndex = 1;
-            identity.setCustomerId(newCustomerIdKey());
-            daoUtil.setString(nIndex++, identity.getConnectionId());
-            daoUtil.setString(nIndex++, identity.getCustomerId());
-            daoUtil.setTimestamp(nIndex++, identity.getCreationDate());
+            identity.setCustomerId( newCustomerIdKey( ) );
+            daoUtil.setString( nIndex++, identity.getConnectionId( ) );
+            daoUtil.setString( nIndex++, identity.getCustomerId( ) );
+            daoUtil.setTimestamp( nIndex++, identity.getCreationDate( ) );
 
-            daoUtil.executeUpdate();
+            daoUtil.executeUpdate( );
 
-            if (daoUtil.nextGeneratedKey()) {
-                identity.setId(daoUtil.getGeneratedKeyInt(1));
+            if ( daoUtil.nextGeneratedKey( ) )
+            {
+                identity.setId( daoUtil.getGeneratedKeyInt( 1 ) );
             }
         }
     }
@@ -136,25 +138,28 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public Identity load( int nKey, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin )) {
-            daoUtil.setInt(1, nKey);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeQuery( );
 
             Identity identity = null;
 
-            if (daoUtil.next()) {
-                identity = new Identity();
+            if ( daoUtil.next( ) )
+            {
+                identity = new Identity( );
 
                 int nIndex = 1;
 
-                identity.setId(daoUtil.getInt(nIndex++));
-                identity.setConnectionId(daoUtil.getString(nIndex++));
-                identity.setCustomerId(daoUtil.getString(nIndex++));
+                identity.setId( daoUtil.getInt( nIndex++ ) );
+                identity.setConnectionId( daoUtil.getString( nIndex++ ) );
+                identity.setCustomerId( daoUtil.getString( nIndex++ ) );
 
             }
 
-            if (identity != null) {
-                identity.setAttributes(IdentityAttributeHome.getAttributes(identity.getId()));
+            if ( identity != null )
+            {
+                identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ) ) );
             }
 
             return identity;
@@ -167,9 +172,10 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public void hardDelete( int nKey, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin )) {
-            daoUtil.setInt(1, nKey);
-            daoUtil.executeUpdate();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeUpdate( );
         }
     }
 
@@ -179,9 +185,10 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public void softDelete( int nKey, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SOFT_DELETE, plugin )) {
-            daoUtil.setInt(1, nKey);
-            daoUtil.executeUpdate();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SOFT_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeUpdate( );
         }
     }
 
@@ -191,10 +198,11 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public void merge( Identity identity, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_MERGE, plugin )) {
-            daoUtil.setInt(1, identity.getMasterIdentityId());
-            daoUtil.setInt(2, identity.getId());
-            daoUtil.executeUpdate();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_MERGE, plugin ) )
+        {
+            daoUtil.setInt( 1, identity.getMasterIdentityId( ) );
+            daoUtil.setInt( 2, identity.getId( ) );
+            daoUtil.executeUpdate( );
         }
     }
 
@@ -204,18 +212,19 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public void store( Identity identity, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin )) {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        {
             int nIndex = 1;
 
-            identity.setLastUpdateDate(new Timestamp(new Date().getTime()));
+            identity.setLastUpdateDate( new Timestamp( new Date( ).getTime( ) ) );
 
-            daoUtil.setInt(nIndex++, identity.getId());
-            daoUtil.setString(nIndex++, identity.getConnectionId());
-            daoUtil.setString(nIndex++, identity.getCustomerId());
-            daoUtil.setTimestamp(nIndex++, identity.getLastUpdateDate());
-            daoUtil.setInt(nIndex, identity.getId());
+            daoUtil.setInt( nIndex++, identity.getId( ) );
+            daoUtil.setString( nIndex++, identity.getConnectionId( ) );
+            daoUtil.setString( nIndex++, identity.getCustomerId( ) );
+            daoUtil.setTimestamp( nIndex++, identity.getLastUpdateDate( ) );
+            daoUtil.setInt( nIndex, identity.getId( ) );
 
-            daoUtil.executeUpdate();
+            daoUtil.executeUpdate( );
         }
     }
 
@@ -225,13 +234,15 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public List<String> selectCustomerIdsList( Plugin plugin )
     {
-        final List<String> listIds = new ArrayList<>();
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS, plugin )) {
-            daoUtil.executeQuery();
+        final List<String> listIds = new ArrayList<>( );
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS, plugin ) )
+        {
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                String identity = daoUtil.getString(1);
-                listIds.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                String identity = daoUtil.getString( 1 );
+                listIds.add( identity );
             }
 
             return listIds;
@@ -244,16 +255,18 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public List<String> selectCustomerIdsList( int nStart, int nLimit, Plugin plugin )
     {
-        final List<String> listIds = new ArrayList<>();
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_WITH_LIMIT, plugin )) {
-            daoUtil.setInt(1, nStart);
-            daoUtil.setInt(2, nLimit);
+        final List<String> listIds = new ArrayList<>( );
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_WITH_LIMIT, plugin ) )
+        {
+            daoUtil.setInt( 1, nStart );
+            daoUtil.setInt( 2, nLimit );
 
-            daoUtil.executeQuery();
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                String identity = daoUtil.getString(1);
-                listIds.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                String identity = daoUtil.getString( 1 );
+                listIds.add( identity );
             }
 
             return listIds;
@@ -267,11 +280,13 @@ public final class IdentityDAO implements IIdentityDAO
     public ReferenceList selectIdentitysReferenceList( Plugin plugin )
     {
         final ReferenceList identityList = new ReferenceList( );
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin )) {
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
+        {
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                identityList.addItem(daoUtil.getInt(1), daoUtil.getString(2));
+            while ( daoUtil.next( ) )
+            {
+                identityList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
             }
 
             return identityList;
@@ -285,22 +300,24 @@ public final class IdentityDAO implements IIdentityDAO
     public List<Identity> selectAll( Plugin plugin )
     {
         final List<Identity> identityList = new ArrayList<>( );
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_FULL, plugin )) {
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_FULL, plugin ) )
+        {
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
+            while ( daoUtil.next( ) )
+            {
                 int nIndex = 1;
-                final Identity identity = new Identity();
-                identityList.add(identity);
-                identity.setId(daoUtil.getInt(nIndex++));
-                identity.setConnectionId(daoUtil.getString(nIndex++));
-                identity.setCustomerId(daoUtil.getString(nIndex++));
-                identity.setDeleted(daoUtil.getBoolean(nIndex++));
-                identity.setMerged(daoUtil.getBoolean(nIndex++));
-                identity.setMasterIdentityId(daoUtil.getInt(nIndex++));
-                identity.setCreationDate(daoUtil.getTimestamp(nIndex++));
-                identity.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
-                identity.setMergeDate(daoUtil.getTimestamp(nIndex++));
+                final Identity identity = new Identity( );
+                identityList.add( identity );
+                identity.setId( daoUtil.getInt( nIndex++ ) );
+                identity.setConnectionId( daoUtil.getString( nIndex++ ) );
+                identity.setCustomerId( daoUtil.getString( nIndex++ ) );
+                identity.setDeleted( daoUtil.getBoolean( nIndex++ ) );
+                identity.setMerged( daoUtil.getBoolean( nIndex++ ) );
+                identity.setMasterIdentityId( daoUtil.getInt( nIndex++ ) );
+                identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
+                identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+                identity.setMergeDate( daoUtil.getTimestamp( nIndex++ ) );
             }
 
             return identityList;
@@ -310,14 +327,16 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public Identity selectByConnectionId( String strConnectionId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CONNECTION_ID, plugin )) {
-            daoUtil.setString(1, strConnectionId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CONNECTION_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strConnectionId );
+            daoUtil.executeQuery( );
 
             Identity identity = null;
 
-            if (daoUtil.next()) {
-                identity = this.getIdentityFromQuery(daoUtil);
+            if ( daoUtil.next( ) )
+            {
+                identity = this.getIdentityFromQuery( daoUtil );
             }
 
             return identity;
@@ -327,14 +346,16 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public Identity selectByCustomerId( String strCustomerId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CUSTOMER_ID, plugin )) {
-            daoUtil.setString(1, strCustomerId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CUSTOMER_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strCustomerId );
+            daoUtil.executeQuery( );
 
             Identity identity = null;
 
-            if (daoUtil.next()) {
-                identity = this.getIdentityFromQuery(daoUtil);
+            if ( daoUtil.next( ) )
+            {
+                identity = this.getIdentityFromQuery( daoUtil );
             }
 
             return identity;
@@ -344,14 +365,16 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public Identity selectNotMergedByCustomerId( String strCustomerId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NOT_MERGED_BY_CUSTOMER_ID, plugin )) {
-            daoUtil.setString(1, strCustomerId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NOT_MERGED_BY_CUSTOMER_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strCustomerId );
+            daoUtil.executeQuery( );
 
             Identity identity = null;
 
-            if (daoUtil.next()) {
-                identity = this.getIdentityFromQuery(daoUtil);
+            if ( daoUtil.next( ) )
+            {
+                identity = this.getIdentityFromQuery( daoUtil );
             }
 
             return identity;
@@ -361,14 +384,16 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public Identity selectNotMergedByConnectionId( String strCustomerId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NOT_MERGED_BY_CONNECTION_ID, plugin )) {
-            daoUtil.setString(1, strCustomerId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NOT_MERGED_BY_CONNECTION_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strCustomerId );
+            daoUtil.executeQuery( );
 
             Identity identity = null;
 
-            if (daoUtil.next()) {
-                identity = this.getIdentityFromQuery(daoUtil);
+            if ( daoUtil.next( ) )
+            {
+                identity = this.getIdentityFromQuery( daoUtil );
             }
 
             return identity;
@@ -378,15 +403,17 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public Identity selectNotMergedByCustomerIdAndConnectionID( String strCustomerId, String strConnectionId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NOT_MERGED_BY_BOTH_CONNECTION_AND_CUSTOMER_ID, plugin )) {
-            daoUtil.setString(1, strCustomerId);
-            daoUtil.setString(2, strConnectionId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_NOT_MERGED_BY_BOTH_CONNECTION_AND_CUSTOMER_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strCustomerId );
+            daoUtil.setString( 2, strConnectionId );
+            daoUtil.executeQuery( );
 
             Identity identity = null;
 
-            if (daoUtil.next()) {
-                identity = this.getIdentityFromQuery(daoUtil);
+            if ( daoUtil.next( ) )
+            {
+                identity = this.getIdentityFromQuery( daoUtil );
             }
 
             return identity;
@@ -396,14 +423,16 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public int selectIdByConnectionId( String strConnectionId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CONNECTION_ID, plugin )) {
-            daoUtil.setString(1, strConnectionId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CONNECTION_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strConnectionId );
+            daoUtil.executeQuery( );
 
             int nIdentityId = -1;
 
-            if (daoUtil.next()) {
-                nIdentityId = daoUtil.getInt(1);
+            if ( daoUtil.next( ) )
+            {
+                nIdentityId = daoUtil.getInt( 1 );
             }
 
             return nIdentityId;
@@ -440,7 +469,7 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public List<Identity> selectByAttributeValue( String strAttributeId, String strAttributeValue, Plugin plugin )
     {
-        List<Identity> listIdentities = new ArrayList<>();
+        List<Identity> listIdentities = new ArrayList<>( );
         String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTE;
         String strValue = strAttributeValue;
         if ( strAttributeValue.contains( "*" ) )
@@ -458,16 +487,19 @@ public final class IdentityDAO implements IIdentityDAO
             strSQL += SQL_QUERY_FILTER_ATTRIBUTE;
         }
 
-        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
-            daoUtil.setString(1, strValue);
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
+            daoUtil.setString( 1, strValue );
 
-            if (StringUtils.isNotEmpty(strAttributeId)) {
-                daoUtil.setInt(2, Integer.parseInt(strAttributeId));
+            if ( StringUtils.isNotEmpty( strAttributeId ) )
+            {
+                daoUtil.setInt( 2, Integer.parseInt( strAttributeId ) );
             }
-            daoUtil.executeQuery();
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                listIdentities.add(this.getIdentityFromQuery(daoUtil));
+            while ( daoUtil.next( ) )
+            {
+                listIdentities.add( this.getIdentityFromQuery( daoUtil ) );
             }
 
             return listIdentities;
@@ -480,7 +512,7 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public List<Identity> selectByAttributesValueForApiSearch( Map<String, List<String>> mapAttributes, int nMaxNbIdentityReturned, Plugin plugin )
     {
-        List<Identity> listIdentities = new ArrayList<>();
+        List<Identity> listIdentities = new ArrayList<>( );
 
         Queue<String> queueAttributeId = new ArrayDeque<>( );
         List<String> listAttributeFilter = new ArrayList<>( );
@@ -519,24 +551,28 @@ public final class IdentityDAO implements IIdentityDAO
         String strSQL = SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH.replace( "${filter}", String.join( " OR ", listAttributeFilter ) );
         strSQL = strSQL.replace( "${limit}", String.valueOf( nMaxNbIdentityReturned ) );
 
-        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
             int nIndex = 1;
 
-            for (String strAttributeId : queueAttributeId) {
-                daoUtil.setString(nIndex++, strAttributeId);
+            for ( String strAttributeId : queueAttributeId )
+            {
+                daoUtil.setString( nIndex++, strAttributeId );
 
-                for (String strAttributeValue : mapAttributes.get(strAttributeId)) {
-                    daoUtil.setString(nIndex++, strAttributeValue);
+                for ( String strAttributeValue : mapAttributes.get( strAttributeId ) )
+                {
+                    daoUtil.setString( nIndex++, strAttributeValue );
                 }
             }
 
-            daoUtil.setInt(nIndex++, queueAttributeId.size());
+            daoUtil.setInt( nIndex++, queueAttributeId.size( ) );
 
-            daoUtil.executeQuery();
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                Identity identity = getIdentityFromQuery(daoUtil);
-                listIdentities.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                Identity identity = getIdentityFromQuery( daoUtil );
+                listIdentities.add( identity );
             }
 
             return listIdentities;
@@ -559,16 +595,18 @@ public final class IdentityDAO implements IIdentityDAO
             strSQL = SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE;
         }
 
-        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
-            daoUtil.setString(1, strFinalAttributeValue);
-            daoUtil.setString(2, strFinalAttributeValue);
-            daoUtil.setString(3, strFinalAttributeValue);
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
+            daoUtil.setString( 1, strFinalAttributeValue );
+            daoUtil.setString( 2, strFinalAttributeValue );
+            daoUtil.setString( 3, strFinalAttributeValue );
 
-            daoUtil.executeQuery();
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                Identity identity = getIdentityFromQuery(daoUtil);
-                listIdentities.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                Identity identity = getIdentityFromQuery( daoUtil );
+                listIdentities.add( identity );
             }
 
             return listIdentities;
@@ -581,7 +619,7 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public List<Identity> selectAllByCustomerId( String strCustomerId, Plugin plugin )
     {
-        List<Identity> listIdentities = new ArrayList<>();
+        List<Identity> listIdentities = new ArrayList<>( );
         String strSQL = SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID;
 
         String strFinalCustomerId = strCustomerId;
@@ -595,14 +633,16 @@ public final class IdentityDAO implements IIdentityDAO
             strSQL += "= ?";
         }
 
-        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
-            daoUtil.setString(1, strFinalCustomerId);
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
+            daoUtil.setString( 1, strFinalCustomerId );
 
-            daoUtil.executeQuery();
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                Identity identity = getIdentityFromQuery(daoUtil);
-                listIdentities.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                Identity identity = getIdentityFromQuery( daoUtil );
+                listIdentities.add( identity );
             }
 
             return listIdentities;
@@ -629,14 +669,16 @@ public final class IdentityDAO implements IIdentityDAO
             strSQL += "= ?";
         }
 
-        try(final DAOUtil daoUtil = new DAOUtil( strSQL, plugin )) {
-            daoUtil.setString(1, strFinalConnectionId);
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
+            daoUtil.setString( 1, strFinalConnectionId );
 
-            daoUtil.executeQuery();
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                Identity identity = getIdentityFromQuery(daoUtil);
-                listIdentities.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                Identity identity = getIdentityFromQuery( daoUtil );
+                listIdentities.add( identity );
             }
 
             return listIdentities;

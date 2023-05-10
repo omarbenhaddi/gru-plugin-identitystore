@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
@@ -65,7 +65,7 @@ import javax.ws.rs.core.Response;
 public final class IdentityStoreRestService
 {
     private static final String ERROR_NO_IDENTITY_FOUND = "No identity found";
-    private static final String ERROR_DURING_TREATMENT = "An error occured during the treatment.";
+    private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
 
     /**
      * private constructor
@@ -93,9 +93,9 @@ public final class IdentityStoreRestService
     } )
     public Response getIdentity(
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the requested identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
     {
-        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, StringUtils.EMPTY );
+        String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         try
         {
             final IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strCustomerId, strClientAppCode );
@@ -126,11 +126,11 @@ public final class IdentityStoreRestService
     } )
     public Response searchIdentities(
             @ApiParam( name = "Request body", value = "Identity Search Request", type = "IdentitySearchRequest" ) IdentitySearchRequest identitySearchRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
     {
         try
         {
-            final String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, StringUtils.EMPTY );
+            final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
             final IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( identitySearchRequest, strClientAppCode );
             final IdentitySearchResponse entity = (IdentitySearchResponse) identityStoreRequest.doRequest( );
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
@@ -177,7 +177,7 @@ public final class IdentityStoreRestService
      *
      * @param identityChangeRequest
      *            the identity creation request
-     * @param applicationCode
+     * @param clientCode
      *            the application code in the HTTP header
      * @return http 200 if creation is ok with {@link IdentityChangeResponse}
      */
@@ -190,12 +190,12 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response createIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String applicationCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
-            final String trustedApplicationCode = IdentityStoreService.getTrustedApplicationCode( applicationCode, StringUtils.EMPTY );
-            final IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeRequest, trustedApplicationCode );
+            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+            final IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeRequest, trustedClientCode );
             final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }
@@ -210,7 +210,7 @@ public final class IdentityStoreRestService
      *
      * @param identityChangeRequest
      *            the identity update request
-     * @param applicationCode
+     * @param clientCode
      *            the header client app code
      * @return http 200 if update is ok with ResponseDto
      */
@@ -225,13 +225,12 @@ public final class IdentityStoreRestService
     } )
     public Response updateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String applicationCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
-            final String trustedApplicationCode = IdentityStoreService.getTrustedApplicationCode( applicationCode, StringUtils.EMPTY );
-            final IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest,
-                    trustedApplicationCode );
+            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+            final IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest, trustedClientCode );
             final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }
@@ -246,8 +245,8 @@ public final class IdentityStoreRestService
      *
      * @param identityMergeRequest
      *            the identity merge request
-     * @param applicationCode
-     *            the application code in the HTTP header
+     * @param clientCode
+     *            the client code in the HTTP header
      * @return http 200 if creation is ok with {@link IdentityChangeResponse}
      */
     @POST
@@ -259,12 +258,12 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
     } )
     public Response mergeIdentities( @ApiParam( name = "Request body", value = "An Identity Merge Request" ) IdentityMergeRequest identityMergeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String applicationCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
-            final String trustedApplicationCode = IdentityStoreService.getTrustedApplicationCode( applicationCode, StringUtils.EMPTY );
-            final IdentityStoreMergeRequest identityStoreRequest = new IdentityStoreMergeRequest( identityMergeRequest, trustedApplicationCode );
+            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+            final IdentityStoreMergeRequest identityStoreRequest = new IdentityStoreMergeRequest( identityMergeRequest, trustedClientCode );
             final IdentityMergeResponse entity = (IdentityMergeResponse) identityStoreRequest.doRequest( );
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }
@@ -279,18 +278,18 @@ public final class IdentityStoreRestService
      *
      * @param strConnectionId
      *            the connection ID
-     * @param strHeaderClientAppCode
+     * @param strHeaderClientCode
      *            the client code from header
-     * @param strQueryClientAppCode
+     * @param strQueryClientCode
      *            the client code from query
      * @return a OK message if the deletion has been performed, a KO message otherwise
      */
     @DELETE
     @Produces( MediaType.APPLICATION_JSON )
     public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
+            @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientCode )
     {
-        String strClientAppCode = IdentityStoreService.getTrustedApplicationCode( strHeaderClientAppCode, strQueryClientAppCode );
+        String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientCode, strQueryClientCode );
         try
         {
             final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strConnectionId, strClientAppCode );
@@ -314,8 +313,8 @@ public final class IdentityStoreRestService
      *
      * @param identityChangeRequest
      *            the identity creation request
-     * @param applicationCode
-     *            the application code in the HTTP header
+     * @param clientCode
+     *            the client application code in the HTTP header
      * @return http 200 if creation is ok with {@link IdentityChangeResponse}
      */
     @POST
@@ -329,12 +328,12 @@ public final class IdentityStoreRestService
     } )
     public Response importMediationIdentity(
             @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String applicationCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
-            final String trustedApplicationCode = IdentityStoreService.getTrustedApplicationCode( applicationCode, StringUtils.EMPTY );
-            final IdentityStoreImportRequest identityStoreRequest = new IdentityStoreImportRequest( identityChangeRequest, trustedApplicationCode );
+            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+            final IdentityStoreImportRequest identityStoreRequest = new IdentityStoreImportRequest( identityChangeRequest, trustedClientCode );
             final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }

@@ -77,6 +77,7 @@ public final class SwaggerConstants
     public static final String REFCERTIFICATIONLEVEL_ATTRIBUTE_DESCRIPTION = "description";
     public static final String REFCERTIFICATIONLEVEL_ATTRIBUTE_LEVEL = "level";
 
+    public static final String CLIENT_CLIENT_CODE_DESCRIPTION = "Client application code of the requester that is used to validate every request over its service contract";
     public static final String CLIENT_APPLICATION_CODE_DESCRIPTION = "Client application code of the requester that is used to validate every request over its service contract";
 
     /**

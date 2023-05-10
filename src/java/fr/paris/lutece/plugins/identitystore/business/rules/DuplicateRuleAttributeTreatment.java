@@ -31,78 +31,53 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service;
+package fr.paris.lutece.plugins.identitystore.business.rules;
 
-/**
- * ChangeAuthor
- */
-public class ChangeAuthor
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class DuplicateRuleAttributeTreatment implements Serializable
 {
-    // Variables declarations
-    private String _strApplicationCode;
-    private String _strAuthorId;
-    private int _nType;
+    private int _nId;
+    private List<AttributeKey> _listAttributes = new ArrayList<>( );
+    private AttributeTreatmentType type;
 
-    /**
-     * Returns the ApplicationCode
-     *
-     * @return The ApplicationCode
-     */
-    public String getApplicationCode( )
+    public int getId( )
     {
-        return _strApplicationCode;
+        return _nId;
     }
 
-    /**
-     * Sets the ApplicationCode
-     *
-     * @param strApplicationCode
-     *            The ApplicationCode
-     */
-    public void setApplicationCode( String strApplicationCode )
+    public void setId( int _nId )
     {
-        _strApplicationCode = strApplicationCode;
+        this._nId = _nId;
     }
 
-    /**
-     * Returns the strAuthorId
-     *
-     * @return The strAuthorId
-     */
-    public String getAuthorId( )
+    public List<AttributeKey> getAttributes( )
     {
-        return _strAuthorId;
+        return _listAttributes;
     }
 
-    /**
-     * Sets the strAuthorId
-     *
-     * @param strAuthorId
-     *            The AuthorId
-     */
-    public void setAuthorId( String strAuthorId )
+    public void setAttributes( List<AttributeKey> _listCheckedAttributes )
     {
-        _strAuthorId = strAuthorId;
+        this._listAttributes = _listCheckedAttributes;
     }
 
-    /**
-     * Returns the Type
-     *
-     * @return The Type
-     */
-    public int getType( )
+    public AttributeTreatmentType getType( )
     {
-        return _nType;
+        return type;
     }
 
-    /**
-     * Sets the Type
-     *
-     * @param nType
-     *            The Type
-     */
-    public void setType( int nType )
+    public void setType( AttributeTreatmentType type )
     {
-        _nType = nType;
+        this.type = type;
+    }
+
+    public List<String> getAttributeKeysStr( )
+    {
+        return this.getAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
     }
 }

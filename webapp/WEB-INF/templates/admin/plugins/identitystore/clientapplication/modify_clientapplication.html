@@ -5,8 +5,9 @@
     <form class="form-horizontal" method="post" name="modify_clientapplication" action="jsp/admin/plugins/identitystore/ManageClientApplications.jsp">
         <@messages errors=errors />
         <input type="hidden" id="id" name="id" value="${clientapplication.id}"/>
-        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelName" inputName="name" mandatory=true value="${clientapplication.name}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelName.help" />
-        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelCode" inputName="code" mandatory=true value="${clientapplication.code}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelCode.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelName" inputName="name" mandatory=true value="${clientapplication.name!''}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelName.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelClientCode" inputName="client_code" mandatory=true value="${clientapplication.clientCode!''}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelClientCode.help" />
+        <@fieldInputText i18nLabelKey="identitystore.modify_clientapplication.labelApplicationCode" inputName="application_code" mandatory=false value="${clientapplication.applicationCode!''}" i18nHelpBlockKey="identitystore.modify_clientapplication.labelApplicationCode.help" />
 
         <@actionButtons button1Name="action_modifyClientApplication" button2Name="view_manageClientApplications"/>
     </form>

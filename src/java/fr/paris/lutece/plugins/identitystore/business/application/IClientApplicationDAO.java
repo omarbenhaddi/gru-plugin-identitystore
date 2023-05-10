@@ -121,13 +121,13 @@ public interface IClientApplicationDAO
     /**
      * Select a ClientApplication by its code
      *
-     * @param strCode
+     * @param strClientCode
      *            The code
      * @param plugin
      *            The plugin
      * @return The ClientApplication
      */
-    ClientApplication selectByCode( String strCode, Plugin plugin );
+    ClientApplication selectByClientCode( String strClientCode, Plugin plugin );
 
     /**
      * Retrieve ClientApplication allowed for a given certifier
@@ -140,4 +140,5 @@ public interface IClientApplicationDAO
      */
     List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin );
 
+    List<ClientApplication> selectByApplicationCode( String strApplicationCode, Plugin plugin );
 }

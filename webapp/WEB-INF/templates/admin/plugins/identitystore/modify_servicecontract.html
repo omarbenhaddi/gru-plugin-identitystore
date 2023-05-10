@@ -3,7 +3,7 @@
 
 
 <@box>
-	<@boxHeader title='#i18n{contractservice.modify_servicecontract.title}' />
+	<@boxHeader title='#i18n{identitystre.modify_servicecontract.title}' />
 	<@boxBody>
     <@tform class="form-horizontal" method="post" name="modify_servicecontract" action="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp" >
 			<@messages errors=errors />
@@ -23,13 +23,13 @@
 					</#if>
 				</@select>
 			</@formGroup>
-			<@formGroup labelFor='organizational_entity' labelKey='#i18n{identitystore.modify_servicecontract.labelOrganizationalEntity}' mandatory=true>
+			<@formGroup labelFor='organizational_entity' labelKey='#i18n{identitystore.modify_servicecontract.labelMoaEntityName}' mandatory=true>
 				<@input type='text' id='organizational_entity' name='organizational_entity'  maxlength=50 value='${servicecontract.organizationalEntity!\'\'}' tabIndex='2' />
 			</@formGroup>
-			<@formGroup labelFor='responsible_name' labelKey='#i18n{identitystore.modify_servicecontract.labelResponsibleName}' mandatory=true>
+			<@formGroup labelFor='responsible_name' labelKey='#i18n{identitystore.modify_servicecontract.labelMoeResponsibleName}' mandatory=true>
 				<@input type='text' id='responsible_name' name='responsible_name'  maxlength=50 value='${servicecontract.responsibleName!\'\'}' tabIndex='3' />
 			</@formGroup>
-			<@formGroup labelFor='contact_name' labelKey='#i18n{identitystore.modify_servicecontract.labelContactName}' mandatory=true>
+			<@formGroup labelFor='contact_name' labelKey='#i18n{identitystore.modify_servicecontract.labelMoaContactName}' mandatory=true>
 				<@input type='text' id='contact_name' name='contact_name'  maxlength=50 value='${servicecontract.contactName!\'\'}' tabIndex='4' />
 			</@formGroup>
 			<@formGroup labelFor='service_type' labelKey='#i18n{identitystore.modify_servicecontract.labelServiceType}' mandatory=true>

@@ -49,6 +49,7 @@ public class AttributeRight implements Serializable
     private boolean _bSearchable;
     private boolean _bReadable;
     private boolean _bWritable;
+    private boolean _bMandatory;
 
     /**
      * @return the _bSearchable
@@ -118,4 +119,13 @@ public class AttributeRight implements Serializable
         this._attributeKey = attributeKey;
     }
 
+    public boolean isMandatory( )
+    {
+        return _bMandatory;
+    }
+
+    public void setMandatory( boolean _bMandatory )
+    {
+        this._bMandatory = _bMandatory;
+    }
 }

@@ -97,15 +97,6 @@ public interface IServiceContractDAO
     Optional<ServiceContract> load( int nKey, Plugin plugin );
 
     /**
-     * Load the data of all the serviceContract objects and returns them as a list
-     * 
-     * @param plugin
-     *            the Plugin
-     * @return The list which contains the data of all the serviceContract objects
-     */
-    List<ServiceContract> selectServiceContractsList( Plugin plugin );
-
-    /**
      * Load the id of all the serviceContract objects and returns them as a list
      * 
      * @param plugin
@@ -113,15 +104,6 @@ public interface IServiceContractDAO
      * @return The list which contains the id of all the serviceContract objects
      */
     List<Integer> selectIdServiceContractsList( Plugin plugin );
-
-    /**
-     * Load the data of all the serviceContract objects and returns them as a referenceList
-     * 
-     * @param plugin
-     *            the Plugin
-     * @return The referenceList which contains the data of all the serviceContract objects
-     */
-    ReferenceList selectServiceContractsReferenceList( Plugin plugin );
 
     /**
      * Load the data of all the avant objects and returns them as a list
@@ -147,5 +129,7 @@ public interface IServiceContractDAO
      */
     List<ServiceContract> selectServiceContractBetweenDate( Plugin plugin, Date startingDate, Date endingDate );
 
-    List<ServiceContract> selectActiveServiceContract( String clientApplicationCode, Plugin plugin );
+    List<ServiceContract> selectActiveServiceContract( String clientCode, Plugin plugin );
+
+    void close( ServiceContract serviceContract, Plugin plugin );
 }

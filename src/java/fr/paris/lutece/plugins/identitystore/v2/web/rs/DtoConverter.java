@@ -76,12 +76,11 @@ public final class DtoConverter
 
             for ( final CertifiedAttribute certifiedAttribute : qualifiedIdentity.getAttributes( ) )
             {
-
                 AttributeDto attrDto = new AttributeDto( );
                 attrDto.setKey( certifiedAttribute.getKey( ) );
                 attrDto.setValue( certifiedAttribute.getValue( ) );
                 attrDto.setType( certifiedAttribute.getType( ) );
-                attrDto.setLastUpdateApplicationCode( certifiedAttribute.getLastUpdateApplicationCode( ) );
+                attrDto.setLastUpdateApplicationCode( certifiedAttribute.getLastUpdateClientCode( ) );
                 attrDto.setLastUpdateDate( certifiedAttribute.getLastUpdateDate( ) );
                 attrDto.setStatus( null ); // TODO n'existe pas en V3
 

@@ -1,0 +1,127 @@
+<div id="template-row" style="display: none">
+	<div class="row template-child">
+		<div class="col-2">
+			<select class="form-select selected-attribute-treatment-type" name="selected_attribute_treatment_type_">
+				<#list available_rule_types as rule_type >
+				<option value="${rule_type!''}">${rule_type!''}</option>
+				</#list>
+			</select>
+		</div>
+		<div class="col-9">
+			<select id="selected_attribute_treatment_attributes_" class="form-select selected-attribute-treatment-attributes" multiple data-allow-clear="true" data-clear-label="Clear" name="selected_attribute_treatment_attributes_" data-suggestions-threshold="0">
+				<#list available_attributes as attribute >
+				<option value="${attribute.keyName!''}">${attribute.name!''}</option>
+				</#list>
+			</select>
+			<div class="invalid-feedback">Please select a valid tag.</div>
+		</div>
+		<div class="col-1">
+			<a class="btn btn-default btn-delete-row">
+				Supp
+			</a>
+		</div>
+	</div>
+</div>
+<@box>
+	<@boxHeader title='#i18n{identitystore.create_duplicaterule.title}' />
+	<@boxBody>
+	<@messages infos=infos />
+    <@tform name='create_duplicaterule' action='jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp' >
+
+        <@messages errors=errors />
+        <@input type="hidden" value="${token}" name="token" />
+        <@input type="hidden" value="${duplicaterule.id!}" name="id" id="id"/>
+
+		<@formGroup labelFor='name' labelKey='#i18n{identitystore.create_duplicaterule.labelName}' mandatory=true>
+			<@input type='text' id='name' name='name' value='${duplicaterule.name!\'\'}' tabIndex='0' />
+		</@formGroup>
+
+		<@formGroup labelFor='description' labelKey='#i18n{identitystore.create_duplicaterule.labelDescription}' mandatory=false>
+			<@input type='textarea' id='description' name='description' value='${duplicaterule.description!\'\'}' tabIndex='1' />
+		</@formGroup>
+
+		<@formGroup labelFor='nbEqualAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}' mandatory=true>
+			<@input type='text' id='nbEqualAttributes' name='nbEqualAttributes' value='${duplicaterule.nbEqualAttributes!\'\'}' tabIndex='2' />
+		</@formGroup>
+
+		<@formGroup labelFor='nbMissingAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbMissingAttributes}' mandatory=true>
+			<@input type='text' id='nbMissingAttributes' name='nbMissingAttributes' value='${duplicaterule.nbMissingAttributes!\'\'}' tabIndex='3' />
+		</@formGroup>
+
+		<@formGroup labelFor='select-checked-attribute' labelKey='#i18n{identitystore.create_duplicaterule.labelCheckedKeys}' mandatory=true>
+			<select class="form-select" id="select-checked-attribute" multiple data-allow-clear="true" data-clear-label="Clear" name="selected_checked_attributes" data-suggestions-threshold="0">
+				<#list available_attributes as attribute >
+				<option value="${attribute.keyName!''}" <#if rule_checked_attributes?seq_contains(attribute.keyName!'')> selected="selected"</#if>>${attribute.name!''}</option>
+				</#list>
+			</select>
+			<div class="invalid-feedback">Please select a valid tag.</div>
+		</@formGroup>
+
+		<@formGroup labelKey='#i18n{identitystore.create_duplicaterule.labelAttributeTreatments}' mandatory=false>
+		<a id="btn-add-attribute-treatment-row" class="btn btn-default">
+			Ajouter un traitement
+		</a>
+		<div id="attribute_treatments_definition" class="col-12">
+		<#list duplicaterule.attributeTreatments as attributeTreatment>
+			<div class="row attribute-treatment-definition-row">
+				<div class="col-2">
+					<select class="form-select" name="selected_attribute_treatment_type_${attributeTreatment?index}">
+						<#list available_rule_types as rule_type >
+						<option value="${rule_type!''}" <#if rule_type == attributeTreatment.type> selected="selected"</#if>>${rule_type!''}</option>
+						</#list>
+					</select>
+				</div>
+				<div class="col-9">
+					<select id="selected_attribute_treatment_attributes_${attributeTreatment?index}" class="form-select" multiple data-allow-clear="true" data-clear-label="Clear" name="selected_attribute_treatment_attributes_${attributeTreatment?index}" data-suggestions-threshold="0">
+						<#list available_attributes as attribute >
+						<option value="${attribute.keyName!''}" <#if attributeTreatment.attributeKeysStr?seq_contains(attribute.keyName!'')> selected="selected"</#if>>${attribute.name!''}</option>
+						</#list>
+					</select>
+					<div class="invalid-feedback">Please select a valid tag.</div>
+				</div>
+				<div class="col-1">
+					<a class="btn btn-default btn-delete-row">
+						Supp
+					</a>
+				</div>
+			</div>
+		</#list>
+		</div>
+		</@formGroup>
+
+
+		<@actionButtons button1Name="${action}" button2Name="view_manageDuplicateRules"/>
+    </@tform>
+	</@boxBody>
+</@box>
+
+<!-- See https://www.cssscript.com/tags-input-bootstrap-5/ -->
+<script type="module">
+	import Tags from "/js/admin/plugins/identitystore/tags.js";
+	Tags.init("#select-checked-attribute");
+	const nbInitRows = $('.attribute-treatment-definition-row').length;
+	for (let i = 0; i < nbInitRows; i++) {
+		Tags.init("#selected_attribute_treatment_attributes_" + i);
+	}
+
+	$('#btn-add-attribute-treatment-row').click(function () {
+		const nbRows = $('.attribute-treatment-definition-row').length;
+		let clone = $('#template-row').clone();
+		let type = clone.find(".selected-attribute-treatment-type");
+		type.attr("name", "selected_attribute_treatment_type_" + nbRows);
+		type.attr("id", "selected_attribute_treatment_type_" + nbRows);
+		let attributes = clone.find(".selected-attribute-treatment-attributes");
+		attributes.attr("name", "selected_attribute_treatment_attributes_" + nbRows);
+		attributes.attr("id", "selected_attribute_treatment_attributes_" + nbRows);
+		let firstRow = clone.find(".template-child");
+		firstRow.addClass("attribute-treatment-definition-row")
+		firstRow.removeClass("template-child")
+		$('#attribute_treatments_definition').append(clone.children());
+		Tags.init("#selected_attribute_treatment_attributes_" + nbRows);
+	});
+
+	$(document).on('click', '.btn-delete-row', function() {
+		$(this).parents(".attribute-treatment-definition-row").remove();
+	});
+
+</script>

@@ -191,11 +191,11 @@ public class Identity implements Serializable
      */
     public boolean isConnected( )
     {
-        return _mapAttributes.containsKey( Constants.PARAM_LOGIN ) ;
+        return _mapAttributes.containsKey( Constants.PARAM_LOGIN );
     }
 
     /**
-     * 
+     *
      * @return the _bIsDeleted
      */
     public boolean isDeleted( )
@@ -205,7 +205,7 @@ public class Identity implements Serializable
 
     /**
      * set true if all the attibutes of identity are deleted
-     * 
+     *
      * @param bIsDeleted
      *            if identity removed (softDelete)
      */

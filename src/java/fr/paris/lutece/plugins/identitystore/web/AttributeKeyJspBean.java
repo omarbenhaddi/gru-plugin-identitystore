@@ -55,7 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * This class provides the user interface to manage AttributeKey features ( manage, create, modify, remove )
  */
-@Controller( controllerJsp = "ManageAttributeKeys.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
+@Controller( controllerJsp = "ManageAttributeKeys.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_ADMIN_MANAGEMENT" )
 public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 {
     // Templates

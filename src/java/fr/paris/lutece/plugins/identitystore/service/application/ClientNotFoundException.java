@@ -31,57 +31,23 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.service.application;
 
-import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
-/**
- * This class represents a delete request for IdentityStoreRestServive
- *
- */
-public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
+public class ClientNotFoundException extends IdentityStoreException
 {
-    private static final String MESSAGE_DELETE_SUCCESSFUL = "Identity successfully deleted.";
-
-    private final String _strConnectionId;
 
     /**
-     * Constructor of IdentityStoreDeleteRequest
-     * 
-     * @param strConnectionId
-     *            the connection id of the identity
-     * @param strClientAppCode
-     *            the application code provided by the client
+     * Constructor
+     *
+     * @param strMessage
+     *            The message
      */
-    public IdentityStoreDeleteRequest( String strConnectionId, String strClientAppCode )
+    public ClientNotFoundException( String strMessage )
     {
-        super( strClientAppCode );
-        _strConnectionId = strConnectionId;
-    }
-
-    /**
-     * Valid the delete request
-     * 
-     * @throws IdentityStoreException
-     *             if there is an exception during the treatment
-     */
-    @Override
-    protected void validRequest( ) throws IdentityStoreException
-    {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
-    }
-
-    /**
-     * Deletes the identity
-     * 
-     * @throws IdentityStoreException
-     *             if there is an exception during the treatment
-     */
-    @Override
-    protected String doSpecificRequest( ) throws IdentityStoreException
-    {
-        return MESSAGE_DELETE_SUCCESSFUL;
+        super( strMessage );
+        AppLogService.error( strMessage );
     }
 }

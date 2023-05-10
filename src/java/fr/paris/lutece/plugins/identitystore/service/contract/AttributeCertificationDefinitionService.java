@@ -37,7 +37,6 @@ import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCe
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessusHome;
 import fr.paris.lutece.plugins.identitystore.cache.RefAttributeCertificationDefinitionCache;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;

@@ -119,9 +119,9 @@ public final class ClientApplicationHome
         return _daoServiceContract.loadFromClientApplication( clientApplication.getId( ), _plugin );
     }
 
-    public static List<ServiceContract> selectActiveServiceContract( String clientApplicationCode )
+    public static List<ServiceContract> selectActiveServiceContract( String clientCode )
     {
-        return _daoServiceContract.selectActiveServiceContract( clientApplicationCode, _plugin );
+        return _daoServiceContract.selectActiveServiceContract( clientCode, _plugin );
     }
 
     /**
@@ -139,13 +139,13 @@ public final class ClientApplicationHome
     /**
      * Returns an instance of a clientApplication whose code is specified in parameter
      *
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of the clientApplication
      * @return an instance of clientApplication
      */
-    public static ClientApplication findByCode( String strApplicationCode )
+    public static ClientApplication findByCode( String strClientCode )
     {
-        return _daoClientApplication.selectByCode( strApplicationCode, _plugin );
+        return _daoClientApplication.selectByClientCode( strClientCode, _plugin );
     }
 
     /**
@@ -166,5 +166,10 @@ public final class ClientApplicationHome
     public static ClientApplication getParentApplication( ServiceContract serviceContract )
     {
         return _daoClientApplication.selectByContractId( serviceContract.getId( ), _plugin );
+    }
+
+    public static List<ClientApplication> findByApplicationCode( String strApplicationCode )
+    {
+        return _daoClientApplication.selectByApplicationCode( strApplicationCode, _plugin );
     }
 }

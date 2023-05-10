@@ -65,8 +65,8 @@ public class ActiveServiceContractCache extends AbstractCacheableService
         clientApplications.forEach( clientApplication -> {
             try
             {
-                final ServiceContract activeServiceContract = this.getActiveServiceContractFromDatabase( clientApplication.getCode( ) );
-                this.put( clientApplication.getCode( ), activeServiceContract );
+                final ServiceContract activeServiceContract = this.getActiveServiceContractFromDatabase( clientApplication.getClientCode( ) );
+                this.put( clientApplication.getClientCode( ), activeServiceContract );
             }
             catch( ServiceContractNotFoundException e )
             {
@@ -75,14 +75,14 @@ public class ActiveServiceContractCache extends AbstractCacheableService
         } );
     }
 
-    public void put( final String applicationCode, final ServiceContract serviceContract )
+    public void put( final String clientCode, final ServiceContract serviceContract )
     {
-        if ( this.getKeys( ).contains( applicationCode ) )
+        if ( this.getKeys( ).contains( clientCode ) )
         {
-            this.removeKey( applicationCode );
+            this.removeKey( clientCode );
         }
-        this.putInCache( applicationCode, serviceContract );
-        _logger.info( "An active service contract has been added for client application with code : " + applicationCode );
+        this.putInCache( clientCode, serviceContract );
+        _logger.info( "An active service contract has been added for client application with code : " + clientCode );
     }
 
     /**
@@ -108,29 +108,29 @@ public class ActiveServiceContractCache extends AbstractCacheableService
         } );
     }
 
-    public ServiceContract get( final String applicationCode ) throws ServiceContractNotFoundException
+    public ServiceContract get( final String clientCode ) throws ServiceContractNotFoundException
     {
-        ServiceContract serviceContract = (ServiceContract) this.getFromCache( applicationCode );
+        ServiceContract serviceContract = (ServiceContract) this.getFromCache( clientCode );
         if ( serviceContract == null )
         {
-            serviceContract = this.getActiveServiceContractFromDatabase( applicationCode );
-            this.put( applicationCode, serviceContract );
+            serviceContract = this.getActiveServiceContractFromDatabase( clientCode );
+            this.put( clientCode, serviceContract );
         }
         return serviceContract;
     }
 
-    private ServiceContract getActiveServiceContractFromDatabase( final String applicationCode ) throws ServiceContractNotFoundException
+    private ServiceContract getActiveServiceContractFromDatabase( final String clientCode ) throws ServiceContractNotFoundException
     {
-        final List<ServiceContract> serviceContracts = ClientApplicationHome.selectActiveServiceContract( applicationCode );
+        final List<ServiceContract> serviceContracts = ClientApplicationHome.selectActiveServiceContract( clientCode );
         if ( CollectionUtils.isEmpty( serviceContracts ) )
         {
-            throw new ServiceContractNotFoundException( "No contract service found for client application with code " + applicationCode );
+            throw new ServiceContractNotFoundException( "No contract service found for client application with code " + clientCode );
         }
         else
             if ( CollectionUtils.size( serviceContracts ) > 1 )
             {
                 throw new ServiceContractNotFoundException(
-                        "There is more than one active service contract for the application with code " + applicationCode + ". There shall be one only." );
+                        "There is more than one active service contract for the application with code " + clientCode + ". There shall be one only." );
             }
 
         final ServiceContract serviceContract = serviceContracts.get( 0 );

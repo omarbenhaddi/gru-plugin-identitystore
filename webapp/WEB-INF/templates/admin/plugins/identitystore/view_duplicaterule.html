@@ -1,0 +1,85 @@
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.view_duplicaterule.pageTitle">
+	<@headerButtons>
+    <a href="jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp?view=manage_duplicaterules"
+       class="btn btn-secondary" >
+        #i18n{portal.util.labelBack}
+    </a>
+	</@headerButtons>
+    </@boxHeader>
+    <@boxBody>    
+    <@messages infos=infos />
+    <div class="clearfix"></div>
+
+    <table class="table table-condensed table-striped">
+		<tbody>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{identitystore.create_duplicaterule.labelName}</th>
+            <td>
+                ${duplicaterule.name}
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelDescription}</th>
+            <td>
+                ${duplicaterule.description}
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}</th>
+            <td>
+                ${duplicaterule.nbEqualAttributes}
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelNbMissingAttributes}</th>
+            <td>
+                ${duplicaterule.nbMissingAttributes}
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelCheckedKeys}</th>
+            <td>
+                <#list duplicaterule.checkedAttributes as checkedAttribute>
+                    <span class="badge bg-primary">${checkedAttribute.name!''}</span>
+                </#list>
+            </td>
+        </tr>
+		</tbody>
+    </table>
+    <div class="clearfix"></div>
+    <table class="table table-condensed table-striped">
+        <tbody>
+        <tr>
+            <th style="width: 20%;" rowspan="${duplicaterule.attributeTreatments?size}">#i18n{identitystore.create_duplicaterule.labelAttributeTreatments}</th>
+            <#assign onemore=false />
+            <#list duplicaterule.attributeTreatments as attributeTreatment>
+                <#if onemore>
+                    </tr>
+                    <tr>
+                <#else>
+                    <#assign onemore=true />
+                </#if>
+                <td style="width: 15%;">
+                    ${attributeTreatment.type!''}
+                </td>
+                <td>
+                    <#list attributeTreatment.attributes as treatedAttribute>
+                        <span class="badge bg-primary">${treatedAttribute.name!''}</span>
+                    </#list>
+                </td>
+            </#list>
+        </tr>
+        </tbody>
+    </table>
+    </@boxBody>
+    <div class="clearfix"></div>
+    <div class="form-inline pull-right">
+        <a href="jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp?view=manage_duplicaterules"
+           class="btn btn-secondary" >
+            #i18n{portal.util.labelBack}
+        </a>
+    </div>
+</@rowBox>
+

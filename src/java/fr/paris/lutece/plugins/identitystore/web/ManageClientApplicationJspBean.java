@@ -51,7 +51,7 @@ import java.util.Map;
 /**
  * This class provides the user interface to manage ClientApplication management features ( manage, create, modify, remove )
  */
-@Controller( controllerJsp = "ManageClientApplications.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
+@Controller( controllerJsp = "ManageClientApplications.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_ADMIN_MANAGEMENT" )
 public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
 {
     private static final long serialVersionUID = 1L;

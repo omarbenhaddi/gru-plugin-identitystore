@@ -103,7 +103,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
         }
         catch( final RefAttributeCertificationDefinitionNotFoundException e )
         {
-            AppLogService.error( "An error occured during database search: ", e );
+            AppLogService.error( "An error occurred during database search: ", e );
         }
         return new ArrayList<>( );
     }

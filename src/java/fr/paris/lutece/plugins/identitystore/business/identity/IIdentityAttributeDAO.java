@@ -111,13 +111,13 @@ public interface IIdentityAttributeDAO
      *
      * @param nIdentityId
      *            The identity ID
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of client application
      * @param plugin
      *            the Plugin
      * @return the map which contains the data of all the identityAttribute objects
      */
-    Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strApplicationCode, Plugin plugin );
+    Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strClientCode, Plugin plugin );
 
     /**
      * Load the data of a selection of attributes that are allowed for the client application provided for a list of identity
@@ -126,13 +126,13 @@ public interface IIdentityAttributeDAO
      *            The list of identity
      * @param listAttributeKeyNames
      *            The list of attributes to load
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of client application
      * @param plugin
      *            the Plugin
      * @return the list which contains the data of the identityAttribute objects
      */
-    List<IdentityAttribute> selectAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strApplicationCode,
+    List<IdentityAttribute> selectAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strClientCode,
             Plugin plugin );
 
     List<IdentityAttribute> selectAllAttributesByIdentityList( List<Identity> listIdentity, Plugin plugin );
@@ -151,7 +151,7 @@ public interface IIdentityAttributeDAO
      *
      * @param nIdentityId
      *            The identity ID
-     * @param strApplicationCode
+     * @param strClientCode
      *            code of client application
      * @param strAttributeKey
      *            attribute key
@@ -159,7 +159,7 @@ public interface IIdentityAttributeDAO
      *            the Plugin
      * @return the list which contains the data of all the identityAttribute objects
      */
-    IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strApplicationCode, Plugin plugin );
+    IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strClientCode, Plugin plugin );
 
     /**
      * Delete all attributes matching the provided identityId

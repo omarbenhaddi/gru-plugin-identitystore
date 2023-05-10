@@ -115,6 +115,8 @@ public class FullIndexTask extends Daemon
             {
                 AppLogService.info( "Failed to reindex " + e.getMessage( ) );
             }
+            // Index pending identities
+            new MissingIndexTask( ).run( );
         }
         else
         {

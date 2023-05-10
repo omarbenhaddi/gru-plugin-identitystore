@@ -31,60 +31,54 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
- * This class represents an update request for IdentityStoreRestServive
+ * This class represents a create request for IdentityStoreRestServive
  */
-public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
+public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
 {
+    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
 
-    private IdentityChangeRequest _identityChangeRequest;
-    private String _strCustomerId;
+    private final IdentityMergeRequest _identityMergeRequest;
 
     /**
-     * Constructor of IdentityStoreUpdateRequest
+     * Constructor of IdentityStoreCreateRequest
      *
-     * @param identityChangeRequest
-     *            the dto of identity's change
+     * @param identityMergeRequest
+     *            the dto of identity's merge
      */
-    public IdentityStoreUpdateRequest( String _strCustomerId, IdentityChangeRequest identityChangeRequest, String strClientAppCode )
+    public IdentityStoreMergeRequest( IdentityMergeRequest identityMergeRequest, String strClientAppCode )
     {
         super( strClientAppCode );
-        this._identityChangeRequest = identityChangeRequest;
-        this._strCustomerId = _strCustomerId;
+        this._identityMergeRequest = identityMergeRequest;
     }
 
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest );
-        IdentityRequestValidator.instance( ).checkIdentityForUpdate( _identityChangeRequest.getIdentity( ).getConnectionId( ), _strCustomerId );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+        // Vérification de la consistence des paramètres
+        IdentityRequestValidator.instance( ).checkMergeRequest( _identityMergeRequest );
+        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
-    /**
-     * update the identity
-     *
-     * @throws IdentityStoreException
-     *             if there is an exception during the treatment
-     */
     @Override
-    public IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
+    public IdentityMergeResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityChange( _identityChangeRequest, _strClientAppCode );
+        final IdentityMergeResponse response = ServiceContractService.instance( ).validateIdentityMerge( _identityMergeRequest, _strClientCode );
 
-        if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
+        if ( !IdentityMergeStatus.FAILURE.equals( response.getStatus( ) ) )
         {
-            IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _strClientAppCode, response );
+            IdentityService.instance( ).merge( _identityMergeRequest, _strClientCode, response );
         }
 
         return response;

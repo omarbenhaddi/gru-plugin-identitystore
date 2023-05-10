@@ -48,12 +48,12 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
 {
     // Constants
     private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX = "SELECT customer_id FROM identitystore_identity identity "
-            + "WHERE is_deleted = 0 AND is_merged = 0 AND exists( " + "    select id_attribute " + "    from identitystore_identity_attribute attribute "
-            + "    where identity.id_identity = attribute.id_identity " + ")";
+            + " WHERE is_deleted = 0 AND is_merged = 0 AND exists( select id_attribute from identitystore_identity_attribute attribute "
+            + " where identity.id_identity = attribute.id_identity )";
     private static final String SQL_QUERY_LOAD_IDENTITY = "SELECT "
             + "    identity.connection_id, identity.customer_id, identity.date_create, identity.last_update_date, "
             + "    attributeKey.name, attributeKey.key_name, attributeKey.key_type, attributeKey.description, attributeKey.pivot, "
-            + "    attribute.attribute_value, attribute.lastupdate_application, "
+            + "    attribute.attribute_value, attribute.lastupdate_client, "
             + "    certificate.certifier_code, certificate.certifier_code, certificate.certificate_date, certificate.expiration_date "
             + " FROM identitystore_identity identity"
             + "    LEFT JOIN identitystore_identity_attribute attribute ON identity.id_identity = attribute.id_identity "
@@ -67,28 +67,31 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
     @Override
     public IdentityObject loadFull( String customerId, Plugin plugin )
     {
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_LOAD_IDENTITY, plugin )) {
-            daoUtil.setString(1, customerId);
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_LOAD_IDENTITY, plugin ) )
+        {
+            daoUtil.setString( 1, customerId );
+            daoUtil.executeQuery( );
 
             IdentityObject identity = null;
 
-            if (daoUtil.next()) {
-                identity = new IdentityObject();
+            if ( daoUtil.next( ) )
+            {
+                identity = new IdentityObject( );
 
                 int nIndex = 1;
 
-                identity.setConnectionId(daoUtil.getString(nIndex++));
-                identity.setCustomerId(daoUtil.getString(nIndex++));
-                identity.setCreationDate(daoUtil.getTimestamp(nIndex++));
-                identity.setLastUpdateDate(daoUtil.getTimestamp(nIndex++));
+                identity.setConnectionId( daoUtil.getString( nIndex++ ) );
+                identity.setCustomerId( daoUtil.getString( nIndex++ ) );
+                identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
+                identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
 
-                final AttributeObject firstAttribute = getAttributeObject(daoUtil, 5);
-                identity.getAttributes().put(firstAttribute.getKey(), firstAttribute);
+                final AttributeObject firstAttribute = getAttributeObject( daoUtil, 5 );
+                identity.getAttributes( ).put( firstAttribute.getKey( ), firstAttribute );
 
-                while (daoUtil.next()) {
-                    final AttributeObject attribute = getAttributeObject(daoUtil, 5);
-                    identity.getAttributes().put(attribute.getKey(), attribute);
+                while ( daoUtil.next( ) )
+                {
+                    final AttributeObject attribute = getAttributeObject( daoUtil, 5 );
+                    identity.getAttributes( ).put( attribute.getKey( ), attribute );
                 }
 
             }
@@ -106,7 +109,7 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
         attribute.setDescription( daoUtil.getString( nIndex++ ) );
         attribute.setPivot( daoUtil.getBoolean( nIndex++ ) );
         attribute.setValue( daoUtil.getString( nIndex++ ) );
-        attribute.setLastUpdateApplicationCode( daoUtil.getString( nIndex++ ) );
+        attribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
         attribute.setCertifierCode( daoUtil.getString( nIndex++ ) );
         attribute.setCertifierName( daoUtil.getString( nIndex++ ) );
         attribute.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
@@ -121,12 +124,14 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
     public List<String> selectEligibleCustomerIdsListForIndex( Plugin plugin )
     {
         final List<String> listIds = new ArrayList<>( );
-        try(final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX, plugin )) {
-            daoUtil.executeQuery();
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX, plugin ) )
+        {
+            daoUtil.executeQuery( );
 
-            while (daoUtil.next()) {
-                String identity = daoUtil.getString(1);
-                listIds.add(identity);
+            while ( daoUtil.next( ) )
+            {
+                String identity = daoUtil.getString( 1 );
+                listIds.add( identity );
             }
 
             return listIds;

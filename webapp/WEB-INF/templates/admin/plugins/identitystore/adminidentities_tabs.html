@@ -1,6 +1,5 @@
 <#macro tabs tab >
     <@tabList>
-    
          <@tabLink active=( tab == "clientapplication" )
                 title="#i18n{identitystore.manage_clientapplications.pageTitle}"
                 href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp"  />
@@ -12,6 +11,5 @@
          <@tabLink active=( tab == "attributekey" )
                 title="#i18n{identitystore.manage_attributekeys.pageTitle}"
                 href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp"  />
-
     </@tabList>
 </#macro>

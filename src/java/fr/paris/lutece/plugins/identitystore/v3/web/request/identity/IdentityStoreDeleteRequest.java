@@ -31,52 +31,57 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
-public class IdentityStoreImportRequest extends AbstractIdentityStoreRequest
+/**
+ * This class represents a delete request for IdentityStoreRestServive
+ *
+ */
+public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
+    private static final String MESSAGE_DELETE_SUCCESSFUL = "Identity successfully deleted.";
 
-    private final IdentityChangeRequest _identityChangeRequest;
+    private final String _strConnectionId;
 
     /**
-     * Constructor of IdentityStoreImportRequest
-     *
-     * @param identityChangeRequest
-     *            the dto of identity's change
+     * Constructor of IdentityStoreDeleteRequest
+     * 
+     * @param strConnectionId
+     *            the connection id of the identity
+     * @param strClientAppCode
+     *            the application code provided by the client
      */
-    public IdentityStoreImportRequest( IdentityChangeRequest identityChangeRequest, String strClientAppCode )
+    public IdentityStoreDeleteRequest( String strConnectionId, String strClientAppCode )
     {
         super( strClientAppCode );
-        this._identityChangeRequest = identityChangeRequest;
+        _strConnectionId = strConnectionId;
     }
 
+    /**
+     * Valid the delete request
+     * 
+     * @throws IdentityStoreException
+     *             if there is an exception during the treatment
+     */
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        // Vérification de la consistence des paramètres
-        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
+    /**
+     * Deletes the identity
+     * 
+     * @throws IdentityStoreException
+     *             if there is an exception during the treatment
+     */
     @Override
-    public IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
+    protected String doSpecificRequest( ) throws IdentityStoreException
     {
-        final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityImport( _identityChangeRequest, _strClientAppCode );
-
-        // Création de l'identité avec les attributs autorisés par le contrat.
-        if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
-        {
-            IdentityService.instance( ).importIdentity( _identityChangeRequest, _strClientAppCode, response );
-        }
-        return response;
+        return MESSAGE_DELETE_SUCCESSFUL;
     }
 }

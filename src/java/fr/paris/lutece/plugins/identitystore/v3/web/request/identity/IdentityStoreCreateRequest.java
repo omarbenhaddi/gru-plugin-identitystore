@@ -31,57 +31,54 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.portal.service.util.AppException;
-import org.apache.commons.lang3.StringUtils;
 
 /**
- * This class represents a get request for IdentityStoreRestServive
- *
+ * This class represents a create request for IdentityStoreRestServive
  */
-public class IdentityStoreGetRequest extends AbstractIdentityStoreRequest
+public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
 {
+    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
 
-    private final String _strCustomerId;
+    private final IdentityChangeRequest _identityChangeRequest;
 
     /**
-     * Constructor of IdentityStoreGetRequest
-     *
-     * @param strCustomerId
-     *            the customerId
-     * @param strClientAppCode
-     *            the applicationCode
+     * Constructor of IdentityStoreCreateRequest
+     * 
+     * @param identityChangeRequest
+     *            the dto of identity's change
      */
-    public IdentityStoreGetRequest( String strCustomerId, String strClientAppCode )
+    public IdentityStoreCreateRequest( IdentityChangeRequest identityChangeRequest, String strClientAppCode )
     {
         super( strClientAppCode );
-        this._strCustomerId = strCustomerId;
+        this._identityChangeRequest = identityChangeRequest;
     }
 
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkCustomerId( _strCustomerId );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );
+        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest );
+        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
-    /**
-     * get the identity
-     * 
-     * @throws AppException
-     *             if there is an exception during the treatment
-     */
     @Override
-    public IdentitySearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final IdentitySearchResponse response = new IdentitySearchResponse( );
+        final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityChange( _identityChangeRequest, _strClientCode );
 
-        IdentityService.instance( ).search( _strCustomerId, StringUtils.EMPTY, response, _strClientAppCode );
+        if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
+        {
+            IdentityService.instance( ).create( _identityChangeRequest, _strClientCode, response );
+        }
 
         return response;
     }
