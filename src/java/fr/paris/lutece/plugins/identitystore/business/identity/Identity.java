@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import org.apache.commons.lang3.StringUtils;
@@ -181,6 +182,16 @@ public class Identity implements Serializable
         }
 
         return strFirstName;
+    }
+
+    /**
+     * check if the identity is connected
+     *
+     * @return true if connected
+     */
+    public boolean isConnected( )
+    {
+        return _mapAttributes.containsKey( Constants.PARAM_LOGIN ) ;
     }
 
     /**

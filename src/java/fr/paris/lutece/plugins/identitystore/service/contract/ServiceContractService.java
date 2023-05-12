@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.contract;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
@@ -288,10 +287,10 @@ public class ServiceContractService
         return response;
     }
 
-    public boolean canModifyIdentity( final boolean connected, final String applicationCode ) throws ServiceContractNotFoundException
+    public boolean canModifyConnectedIdentity( final String applicationCode ) throws ServiceContractNotFoundException
     {
         final ServiceContract serviceContract = this.getActiveServiceContract( applicationCode );
-        return !connected || serviceContract.getAuthorizedAccountUpdate( );
+        return serviceContract.getAuthorizedAccountUpdate( );
     }
 
     private AttributeStatus buildAttributeStatus( final CertifiedAttribute certifiedAttribute, final AttributeChangeStatus status )
