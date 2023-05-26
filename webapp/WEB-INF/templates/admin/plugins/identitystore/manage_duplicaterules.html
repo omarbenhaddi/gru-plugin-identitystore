@@ -14,6 +14,9 @@
         <tr>
             <th>#i18n{identitystore.manage_duplicaterules.columnName}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnDescription}</th>
+            <th>#i18n{identitystore.manage_duplicaterules.columnPriority}</th>
+            <th>#i18n{identitystore.manage_duplicaterules.columnActive}</th>
+            <th>#i18n{identitystore.manage_duplicaterules.columnDaemon}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
@@ -25,6 +28,23 @@
             <td>
                 <pre>${duplicaterule.description}</pre>
 			</td>
+            <td>
+                ${duplicaterule.priority}
+            </td>
+            <td>
+                <#if duplicaterule.active>
+                    <i class="ti ti-check"></i>
+                <#else>
+                    <i class="ti ti-x"></i>
+                </#if>
+            </td>
+            <td>
+                <#if duplicaterule.daemon>
+                    <i class="ti ti-check"></i>
+                <#else>
+                    <i class="ti ti-x"></i>
+                </#if>
+            </td>
         	<td>
 				<@aButton href='jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp?view=modifyDuplicateRule&id=${duplicaterule.id}' title='#i18n{portal.util.labelModify}' hideTitle=['all'] buttonIcon='pencil' />
 						

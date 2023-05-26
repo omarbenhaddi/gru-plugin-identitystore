@@ -48,6 +48,9 @@ public class DuplicateRule implements Serializable
     private int _nNbEqualAttributes;
     private int _nNbMissingAttributes;
     private List<DuplicateRuleAttributeTreatment> _listAttributeTreatments = new ArrayList<>( );
+    private DuplicateRulePriority _priority;
+    private boolean _bActive;
+    private boolean _bDaemon;
 
     public int getId( )
     {
@@ -117,5 +120,35 @@ public class DuplicateRule implements Serializable
     public void setAttributeTreatments( List<DuplicateRuleAttributeTreatment> _listAttributeTreatments )
     {
         this._listAttributeTreatments = _listAttributeTreatments;
+    }
+
+    public DuplicateRulePriority getPriority( )
+    {
+        return _priority;
+    }
+
+    public void setPriority( DuplicateRulePriority _priority )
+    {
+        this._priority = _priority;
+    }
+
+    public boolean isActive( )
+    {
+        return _bActive;
+    }
+
+    public void setActive( boolean _bActive )
+    {
+        this._bActive = _bActive;
+    }
+
+    public boolean isDaemon( )
+    {
+        return _bDaemon;
+    }
+
+    public void setDaemon( boolean _bDaemon )
+    {
+        this._bDaemon = _bDaemon;
     }
 }

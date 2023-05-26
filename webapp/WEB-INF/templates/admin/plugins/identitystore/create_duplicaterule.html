@@ -40,6 +40,29 @@
 			<@input type='textarea' id='description' name='description' value='${duplicaterule.description!\'\'}' tabIndex='1' />
 		</@formGroup>
 
+		<@formGroup labelFor='select-priority' labelKey='#i18n{identitystore.create_duplicaterule.labelPriority}' mandatory=true>
+			<select class="form-select" id="select-priority" name="selected_priority">
+				<#list available_priorities as priority >
+					<option value="${priority}" <#if priority == (duplicaterule.priority!'')>selected</#if> >${priority}</option>
+				</#list>
+			</select>
+			<div class="invalid-feedback">Please select a valid tag.</div>
+		</@formGroup>
+
+		<div class="form-group mb-3">
+			<label class="form-label required col-sm-12 col-lg-3 form-label text-right " for="cb-active">
+				#i18n{identitystore.create_duplicaterule.labelActive} <i class="ti ti-help" style="font-size: large;" title="#i18n{identitystore.create_duplicaterule.labelActiveHelp}"></i>
+			</label>
+			<input type="checkbox" id="cb-active" name="active" <#if duplicaterule.active>checked</#if> >
+		</div>
+
+		<div class="form-group mb-3">
+			<label class="form-label required col-sm-12 col-lg-3 form-label text-right " for="cb-daemon">
+				#i18n{identitystore.create_duplicaterule.labelDaemon} <i class="ti ti-help" style="font-size: large;" title="#i18n{identitystore.create_duplicaterule.labelDaemonHelp}"></i>
+			</label>
+			<input type="checkbox" id="cb-daemon" name="daemon" <#if duplicaterule.daemon>checked</#if> >
+		</div>
+
 		<@formGroup labelFor='nbEqualAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}' mandatory=true>
 			<@input type='text' id='nbEqualAttributes' name='nbEqualAttributes' value='${duplicaterule.nbEqualAttributes!\'\'}' tabIndex='2' />
 		</@formGroup>

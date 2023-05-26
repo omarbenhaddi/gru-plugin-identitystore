@@ -46,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class represents a get request for IdentityStoreRestServive
- *
  */
 public class IdentityStoreGetRequest extends IdentityStoreRequest
 {
@@ -58,7 +57,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
 
     /**
      * Constructor of IdentityStoreGetRequest
-     * 
+     *
      * @param strConnectionId
      *            the connectionId
      * @param strCustomerId
@@ -79,7 +78,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
 
     /**
      * Valid the get request
-     * 
+     *
      * @throws IdentityStoreException
      *             if there is an exception during the treatment
      */
@@ -92,7 +91,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
 
     /**
      * get the identity
-     * 
+     *
      * @throws IdentityStoreException
      *             if there is an exception during the treatment
      */
@@ -101,19 +100,25 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
     {
         final IdentitySearchResponse response = new IdentitySearchResponse( );
 
-        IdentityService.instance( ).search( _strCustomerId, StringUtils.EMPTY, response, _strClientAppCode );
+        IdentityService.instance( ).search( _strCustomerId, _strConnectionId, response, _strClientAppCode );
 
-        final QualifiedIdentity qualifiedIdentity = response.getIdentities( ).get( 0 );
-        final IdentityDto identityDto = DtoConverter.convert( qualifiedIdentity );
+        if ( response.getIdentities( ) != null && response.getIdentities( ).size( ) > 0 )
+        {
 
-        try
-        {
-            return _objectMapper.writeValueAsString( identityDto );
+            final QualifiedIdentity qualifiedIdentity = response.getIdentities( ).get( 0 );
+            final IdentityDto identityDto = DtoConverter.convert( qualifiedIdentity );
+
+            try
+            {
+                return _objectMapper.writeValueAsString( identityDto );
+            }
+            catch( JsonProcessingException e )
+            {
+                throw new IdentityStoreException( ERROR_JSON_MAPPING, e );
+            }
+
         }
-        catch( JsonProcessingException e )
-        {
-            throw new IdentityStoreException( ERROR_JSON_MAPPING, e );
-        }
+        return null;
     }
 
 }

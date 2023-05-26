@@ -107,6 +107,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>fr.paris.lutece.plugins</groupId>
+			<artifactId>plugin-geocodes</artifactId>
+			<version>[1.0.0-SNAPSHOT,)</version>
+			<type>lutece-plugin</type>
+		</dependency>
+
 		<!-- TEST -->
 		<dependency>
 			<groupId>org.testcontainers</groupId>

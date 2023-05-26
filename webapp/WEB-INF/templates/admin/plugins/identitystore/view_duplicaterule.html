@@ -23,7 +23,33 @@
         <tr>
             <th>#i18n{identitystore.create_duplicaterule.labelDescription}</th>
             <td>
-                ${duplicaterule.description}
+                <pre>${duplicaterule.description}</pre>
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelPriority}</th>
+            <td>
+                ${duplicaterule.priority}
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelActive}</th>
+            <td>
+                <#if duplicaterule.active>
+                    <i class="ti ti-check"></i>
+                <#else>
+                    <i class="ti ti-x"></i>
+                </#if>
+            </td>
+        </tr>
+        <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelDaemon}</th>
+            <td>
+                <#if duplicaterule.daemon>
+                    <i class="ti ti-check"></i>
+                <#else>
+                    <i class="ti ti-x"></i>
+                </#if>
             </td>
         </tr>
         <tr>
@@ -82,4 +108,16 @@
         </a>
     </div>
 </@rowBox>
+
+<style>
+    pre {
+        background: inherit !important;
+        color: inherit !important;
+        font-family: inherit !important;
+        padding: 0 !important;
+        border-radius: unset !important;
+        font-size: inherit !important;
+        margin-bottom: 0 !important;
+    }
+</style>
 

@@ -33,11 +33,15 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.identity;
 
+import fr.paris.lutece.plugins.geocodes.business.City;
+import fr.paris.lutece.plugins.geocodes.business.Country;
+import fr.paris.lutece.plugins.geocodes.service.GeoCodesService;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
@@ -66,18 +70,33 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChan
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class IdentityService
 {
+    private static final String ATTR_KEY_BIRTHPLACE = "birthplace";
+    private static final String ATTR_KEY_BIRTHPLACE_CODE = "birthplace_code";
+    private static final String ATTR_KEY_BIRTHCOUNTRY = "birthcountry";
+    private static final String ATTR_KEY_BIRTHCOUNTRY_CODE = "birthcountry_code";
+
     private final AttributeCertificationDefinitionService _attributeCertificationDefinitionService = AttributeCertificationDefinitionService.instance( );
     private final IdentityStoreNotifyListenerService _identityStoreNotifyListenerService = IdentityStoreNotifyListenerService.instance( );
     private final ServiceContractService _serviceContractService = ServiceContractService.instance( );
@@ -150,31 +169,15 @@ public class IdentityService
             identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
         }
         IdentityHome.create( identity );
-        for ( final CertifiedAttribute certifiedAttribute : identityChangeRequest.getIdentity( ).getAttributes( ) )
+
+        final List<CertifiedAttribute> attributesToCreate = identityChangeRequest.getIdentity( ).getAttributes( );
+        processCountryForCreate( identity, attributesToCreate, clientCode, response );
+        processCityForCreate( identity, attributesToCreate, clientCode, response );
+
+        for ( final CertifiedAttribute certifiedAttribute : attributesToCreate )
         {
             // TODO vérifier que la clef d'attribut existe dans le référentiel
-            final IdentityAttribute attribute = new IdentityAttribute( );
-            attribute.setIdIdentity( identity.getId( ) );
-            attribute.setAttributeKey( getAttributeKey( certifiedAttribute.getKey( ) ) );
-            attribute.setValue( certifiedAttribute.getValue( ) );
-            attribute.setLastUpdateClientCode( clientCode );
-
-            if ( certifiedAttribute.getCertificationProcess( ) != null )
-            {
-                final AttributeCertificate certificate = new AttributeCertificate( );
-                certificate.setCertificateDate( new Timestamp( certifiedAttribute.getCertificationDate( ).getTime( ) ) );
-                certificate.setCertifierCode( certifiedAttribute.getCertificationProcess( ) );
-                certificate.setCertifierName( certifiedAttribute.getCertificationProcess( ) );
-                attribute.setCertificate( AttributeCertificateHome.create( certificate ) );
-                attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
-            }
-
-            IdentityAttributeHome.create( attribute );
-            identity.getAttributes( ).put( attribute.getAttributeKey( ).getKeyName( ), attribute );
-
-            final AttributeStatus attributeStatus = new AttributeStatus( );
-            attributeStatus.setKey( certifiedAttribute.getKey( ) );
-            attributeStatus.setStatus( AttributeChangeStatus.CREATED );
+            final AttributeStatus attributeStatus = createAttribute( certifiedAttribute, identity, clientCode );
             response.getAttributeStatuses( ).add( attributeStatus );
         }
 
@@ -313,85 +316,21 @@ public class IdentityService
         final List<CertifiedAttribute> newWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( false ) ) ? sortedAttributes.get( false )
                 : new ArrayList<>( );
 
+        processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
+        processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
+
         /* Create new attributes */
         for ( final CertifiedAttribute attributeToWrite : newWritableAttributes )
         {
-            final IdentityAttribute attribute = new IdentityAttribute( );
-            attribute.setIdIdentity( identity.getId( ) );
-            attribute.setAttributeKey( getAttributeKey( attributeToWrite.getKey( ) ) ); // ?
-            attribute.setValue( attributeToWrite.getValue( ) );
-            attribute.setLastUpdateClientCode( clientCode );
-
-            if ( attributeToWrite.getCertificationProcess( ) != null )
-            {
-                final AttributeCertificate certificate = new AttributeCertificate( );
-                certificate.setCertificateDate( new Timestamp( attributeToWrite.getCertificationDate( ).getTime( ) ) );
-                certificate.setCertifierCode( attributeToWrite.getCertificationProcess( ) );
-                certificate.setCertifierName( attributeToWrite.getCertificationProcess( ) ); // ?
-                attribute.setCertificate( AttributeCertificateHome.create( certificate ) );
-                attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
-            }
-
-            IdentityAttributeHome.create( attribute );
-            identity.getAttributes( ).put( attribute.getAttributeKey( ).getKeyName( ), attribute );
-
-            final AttributeStatus attributeStatus = new AttributeStatus( );
-            attributeStatus.setKey( attributeToWrite.getKey( ) );
-            attributeStatus.setStatus( AttributeChangeStatus.CREATED );
+            final AttributeStatus attributeStatus = createAttribute( attributeToWrite, identity, clientCode );
             response.getAttributeStatuses( ).add( attributeStatus );
         }
 
         /* Update existing attributes */
         for ( final CertifiedAttribute attributeToUpdate : existingWritableAttributes )
         {
-            final IdentityAttribute existingAttribute = identity.getAttributes( ).get( attributeToUpdate.getKey( ) );
-
-            int attributeToUpdateLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( attributeToUpdate.getCertificationProcess( ),
-                    attributeToUpdate.getKey( ) );
-            int existingAttributeLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( existingAttribute.getCertificate( ).getCertifierCode( ),
-                    existingAttribute.getAttributeKey( ).getKeyName( ) );
-            if ( attributeToUpdateLevelInt == existingAttributeLevelInt && StringUtils.equals( attributeToUpdate.getValue( ), existingAttribute.getValue( ) )
-                    && ( attributeToUpdate.getCertificationDate( ).equals( existingAttribute.getCertificate( ).getCertificateDate( ) )
-                            || attributeToUpdate.getCertificationDate( ).before( existingAttribute.getCertificate( ).getCertificateDate( ) ) ) )
-            {
-                final AttributeStatus attributeStatus = new AttributeStatus( );
-                attributeStatus.setKey( attributeToUpdate.getKey( ) );
-                attributeStatus.setStatus( AttributeChangeStatus.NOT_UPDATED );
-                response.getAttributeStatuses( ).add( attributeStatus );
-            }
-            else
-                if ( attributeToUpdateLevelInt >= existingAttributeLevelInt )
-                {
-                    existingAttribute.setValue( attributeToUpdate.getValue( ) );
-                    existingAttribute.setLastUpdateClientCode( clientCode );
-
-                    if ( attributeToUpdate.getCertificationProcess( ) != null )
-                    {
-                        final AttributeCertificate certificate = new AttributeCertificate( );
-                        certificate.setCertificateDate( new Timestamp( attributeToUpdate.getCertificationDate( ).getTime( ) ) );
-                        certificate.setCertifierCode( attributeToUpdate.getCertificationProcess( ) );
-                        certificate.setCertifierName( attributeToUpdate.getCertificationProcess( ) );
-
-                        existingAttribute.setCertificate( AttributeCertificateHome.create( certificate ) ); // TODO supprime-t-on l'ancien
-                        // certificat ?
-                        existingAttribute.setIdCertificate( existingAttribute.getCertificate( ).getId( ) );
-                    }
-
-                    IdentityAttributeHome.update( existingAttribute );
-                    identity.getAttributes( ).put( existingAttribute.getAttributeKey( ).getKeyName( ), existingAttribute );
-
-                    final AttributeStatus attributeStatus = new AttributeStatus( );
-                    attributeStatus.setKey( attributeToUpdate.getKey( ) );
-                    attributeStatus.setStatus( AttributeChangeStatus.UPDATED );
-                    response.getAttributeStatuses( ).add( attributeStatus );
-                }
-                else
-                {
-                    final AttributeStatus attributeStatus = new AttributeStatus( );
-                    attributeStatus.setKey( attributeToUpdate.getKey( ) );
-                    attributeStatus.setStatus( AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL );
-                    response.getAttributeStatuses( ).add( attributeStatus );
-                }
+            final AttributeStatus attributeStatus = updateAttribute( attributeToUpdate, identity, clientCode );
+            response.getAttributeStatuses( ).add( attributeStatus );
         }
 
         IdentityHome.update( identity );
@@ -404,7 +343,11 @@ public class IdentityService
                 .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
                         || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
                         || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) ) );
+                        || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
         response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityChangeStatus.UPDATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.UPDATE_SUCCESS );
 
         /* Historique des modifications */
@@ -418,6 +361,905 @@ public class IdentityService
         _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.UPDATE ) );
 
         return identity;
+    }
+
+    /**
+     * Private methode used to process both "birthcountry_code" and "birthcountry" attributes during an create process of an identity.
+     * 
+     * @param identity
+     * @param attrToCreate
+     * @param clientCode
+     * @param response
+     * @throws IdentityAttributeNotFoundException
+     */
+    private void processCountryForCreate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final String clientCode,
+            final IdentityChangeResponse response ) throws IdentityStoreException
+    {
+
+        CertifiedAttribute countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHCOUNTRY_CODE ) ).findFirst( )
+                .orElse( null );
+        if ( countryCodeToCreate != null )
+        {
+            attrToCreate.remove( countryCodeToCreate );
+        }
+        CertifiedAttribute countryLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHCOUNTRY ) ).findFirst( ).orElse( null );
+        if ( countryLabelToCreate != null )
+        {
+            attrToCreate.remove( countryLabelToCreate );
+        }
+
+        // Country code to CREATE
+        if ( countryCodeToCreate != null )
+        {
+            final Country country = GeoCodesService.getCountryByCode( countryCodeToCreate.getValue( ) ).orElse( null );
+            if ( country == null )
+            {
+                // Country doesn't exist in Geocodes for provided code
+                final AttributeStatus attributeStatus = new AttributeStatus( );
+                attributeStatus.setKey( countryCodeToCreate.getKey( ) );
+                attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+            else
+            {
+                // Country exists in Geocodes for provided code
+                // create country code attribute
+                final AttributeStatus codeStatus = createAttribute( countryCodeToCreate, identity, clientCode );
+                response.getAttributeStatuses( ).add( codeStatus );
+
+                // create country label attribute
+                // Geocodes label value is used, regardless if a label is provided or not
+                final String countryGeocodesLabel = country.getValue( );
+                final AttributeChangeStatus labelStatus = ( countryLabelToCreate == null || countryLabelToCreate.getValue( ).equals( countryGeocodesLabel ) )
+                        ? AttributeChangeStatus.CREATED
+                        : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
+                if ( countryLabelToCreate == null )
+                {
+                    countryLabelToCreate = new CertifiedAttribute( );
+                    countryLabelToCreate.setKey( ATTR_KEY_BIRTHCOUNTRY );
+                }
+                countryLabelToCreate.setValue( countryGeocodesLabel );
+                countryLabelToCreate.setCertificationProcess( countryCodeToCreate.getCertificationProcess( ) );
+                countryLabelToCreate.setCertificationDate( countryCodeToCreate.getCertificationDate( ) );
+
+                final AttributeStatus attributeStatus = createAttribute( countryLabelToCreate, identity, clientCode );
+                attributeStatus.setStatus( labelStatus );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+        }
+        // No country code sent, checking if label was sent
+        else
+        {
+            if ( countryLabelToCreate != null )
+            {
+                final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToCreate.getValue( ) );
+                if ( CollectionUtils.isEmpty( countries ) )
+                {
+                    // Country doesn't exist in Geocodes for provided label
+                    final AttributeStatus attributeStatus = new AttributeStatus( );
+                    attributeStatus.setKey( countryLabelToCreate.getKey( ) );
+                    attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL );
+                    response.getAttributeStatuses( ).add( attributeStatus );
+                }
+                else
+                    if ( countries.size( ) > 1 )
+                    {
+                        // Multiple countries exist in Geocodes for provided label
+                        final AttributeStatus attributeStatus = new AttributeStatus( );
+                        attributeStatus.setKey( countryLabelToCreate.getKey( ) );
+                        attributeStatus.setStatus( AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL );
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+                    else
+                    {
+                        // One country exists in Geocodes for provided label
+                        // Create country label attribute
+                        final AttributeStatus labelStatus = createAttribute( countryLabelToCreate, identity, clientCode );
+                        response.getAttributeStatuses( ).add( labelStatus );
+
+                        // create country code attribute
+                        final String countryGeocodesCode = countries.get( 0 ).getCode( );
+                        countryCodeToCreate = new CertifiedAttribute( );
+                        countryCodeToCreate.setKey( ATTR_KEY_BIRTHCOUNTRY_CODE );
+                        countryCodeToCreate.setValue( countryGeocodesCode );
+                        countryCodeToCreate.setCertificationProcess( countryLabelToCreate.getCertificationProcess( ) );
+                        countryCodeToCreate.setCertificationDate( countryLabelToCreate.getCertificationDate( ) );
+
+                        final AttributeStatus codeStatus = createAttribute( countryCodeToCreate, identity, clientCode );
+                        response.getAttributeStatuses( ).add( codeStatus );
+                    }
+            }
+        }
+    }
+
+    /**
+     * Private methode used to process both "birthplace_code" and "birthplace" attributes during an create process of an identity.
+     * 
+     * @param identity
+     * @param attrToCreate
+     * @param clientCode
+     * @param response
+     * @throws IdentityAttributeNotFoundException
+     */
+    private void processCityForCreate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final String clientCode,
+            final IdentityChangeResponse response ) throws IdentityStoreException
+    {
+
+        CertifiedAttribute cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHPLACE_CODE ) ).findFirst( ).orElse( null );
+        if ( cityCodeToCreate != null )
+        {
+            attrToCreate.remove( cityCodeToCreate );
+        }
+        CertifiedAttribute cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHPLACE ) ).findFirst( ).orElse( null );
+        if ( cityLabelToCreate != null )
+        {
+            attrToCreate.remove( cityLabelToCreate );
+        }
+
+        // City code to CREATE
+        if ( cityCodeToCreate != null )
+        {
+            final City city = GeoCodesService.getCityByCode( cityCodeToCreate.getValue( ) ).orElse( null );
+            if ( city == null )
+            {
+                // city doesn't exist in Geocodes for provided code
+                final AttributeStatus attributeStatus = new AttributeStatus( );
+                attributeStatus.setKey( cityCodeToCreate.getKey( ) );
+                attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+            else
+            {
+                // city exists in Geocodes for provided code
+                // create city code attribute
+                final AttributeStatus codeStatus = createAttribute( cityCodeToCreate, identity, clientCode );
+                response.getAttributeStatuses( ).add( codeStatus );
+
+                // create city label attribute
+                // Geocodes label value is used, regardless if a label is provided or not
+                final String cityGeocodesLabel = city.getValue( );
+                final AttributeChangeStatus labelStatus = ( cityLabelToCreate == null || cityLabelToCreate.getValue( ).equals( cityGeocodesLabel ) )
+                        ? AttributeChangeStatus.CREATED
+                        : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
+                if ( cityLabelToCreate == null )
+                {
+                    cityLabelToCreate = new CertifiedAttribute( );
+                    cityLabelToCreate.setKey( ATTR_KEY_BIRTHPLACE );
+                }
+                cityLabelToCreate.setValue( cityGeocodesLabel );
+                cityLabelToCreate.setCertificationProcess( cityCodeToCreate.getCertificationProcess( ) );
+                cityLabelToCreate.setCertificationDate( cityCodeToCreate.getCertificationDate( ) );
+
+                final AttributeStatus attributeStatus = createAttribute( cityLabelToCreate, identity, clientCode );
+                attributeStatus.setStatus( labelStatus );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+        }
+        // No city code sent, checking if label was sent
+        else
+        {
+            if ( cityLabelToCreate != null )
+            {
+                final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToCreate.getValue( ) );
+                if ( CollectionUtils.isEmpty( cities ) )
+                {
+                    // city doesn't exist in Geocodes for provided label
+                    final AttributeStatus attributeStatus = new AttributeStatus( );
+                    attributeStatus.setKey( cityLabelToCreate.getKey( ) );
+                    attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL );
+                    response.getAttributeStatuses( ).add( attributeStatus );
+                }
+                else
+                    if ( cities.size( ) > 1 )
+                    {
+                        // Multiple cities exist in Geocodes for provided label
+                        final AttributeStatus attributeStatus = new AttributeStatus( );
+                        attributeStatus.setKey( cityLabelToCreate.getKey( ) );
+                        attributeStatus.setStatus( AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL );
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+                    else
+                    {
+                        // One city exists in Geocodes for provided label
+                        // Create city label attribute
+                        final AttributeStatus labelStatus = createAttribute( cityLabelToCreate, identity, clientCode );
+                        response.getAttributeStatuses( ).add( labelStatus );
+
+                        // create city code attribute
+                        final String countryGeocodesCode = cities.get( 0 ).getCode( );
+                        cityCodeToCreate = new CertifiedAttribute( );
+                        cityCodeToCreate.setKey( ATTR_KEY_BIRTHPLACE_CODE );
+                        cityCodeToCreate.setValue( countryGeocodesCode );
+                        cityCodeToCreate.setCertificationProcess( cityLabelToCreate.getCertificationProcess( ) );
+                        cityCodeToCreate.setCertificationDate( cityLabelToCreate.getCertificationDate( ) );
+
+                        final AttributeStatus codeStatus = createAttribute( cityCodeToCreate, identity, clientCode );
+                        response.getAttributeStatuses( ).add( codeStatus );
+                    }
+            }
+        }
+    }
+
+    /**
+     * Private methode used to process both "birthcountry_code" and "birthcountry" attributes during an update process of an identity.
+     * 
+     * @param identity
+     * @param attrToCreate
+     * @param attrToUpdate
+     * @param clientCode
+     * @param response
+     * @throws IdentityAttributeNotFoundException
+     */
+    private void processCountryForUpdate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final List<CertifiedAttribute> attrToUpdate,
+            final String clientCode, final IdentityChangeResponse response ) throws IdentityStoreException
+    {
+
+        final CertifiedAttribute countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHCOUNTRY_CODE ) ).findFirst( )
+                .orElse( null );
+        if ( countryCodeToCreate != null )
+        {
+            attrToCreate.remove( countryCodeToCreate );
+        }
+        CertifiedAttribute countryLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHCOUNTRY ) ).findFirst( ).orElse( null );
+        if ( countryLabelToCreate != null )
+        {
+            attrToCreate.remove( countryLabelToCreate );
+        }
+        final CertifiedAttribute countryCodeToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHCOUNTRY_CODE ) ).findFirst( )
+                .orElse( null );
+        if ( countryCodeToUpdate != null )
+        {
+            attrToUpdate.remove( countryCodeToUpdate );
+        }
+        CertifiedAttribute countryLabelToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHCOUNTRY ) ).findFirst( ).orElse( null );
+        if ( countryLabelToUpdate != null )
+        {
+            attrToUpdate.remove( countryLabelToUpdate );
+        }
+
+        // Country code to CREATE
+        if ( countryCodeToCreate != null )
+        {
+            final Country country = GeoCodesService.getCountryByCode( countryCodeToCreate.getValue( ) ).orElse( null );
+            if ( country == null )
+            {
+                // Country doesn't exist in Geocodes for provided code
+                final AttributeStatus attributeStatus = new AttributeStatus( );
+                attributeStatus.setKey( countryCodeToCreate.getKey( ) );
+                attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+            else
+            {
+                // Country exists in Geocodes for provided code
+                // create country code attribute
+                final AttributeStatus codeStatus = createAttribute( countryCodeToCreate, identity, clientCode );
+                response.getAttributeStatuses( ).add( codeStatus );
+
+                // create country label attribute if it doesn't already exist in the identity
+                // Geocodes label value is used, regardless if a label is provided or not
+                final String countryGeocodesLabel = country.getValue( );
+                if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHCOUNTRY ) )
+                {
+                    final AttributeChangeStatus labelStatus = ( countryLabelToCreate == null
+                            || countryLabelToCreate.getValue( ).equals( countryGeocodesLabel ) ) ? AttributeChangeStatus.CREATED
+                                    : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
+                    if ( countryLabelToCreate == null )
+                    {
+                        countryLabelToCreate = new CertifiedAttribute( );
+                        countryLabelToCreate.setKey( ATTR_KEY_BIRTHCOUNTRY );
+                    }
+                    countryLabelToCreate.setValue( countryGeocodesLabel );
+                    countryLabelToCreate.setCertificationProcess( countryCodeToCreate.getCertificationProcess( ) );
+                    countryLabelToCreate.setCertificationDate( countryCodeToCreate.getCertificationDate( ) );
+
+                    final AttributeStatus attributeStatus = createAttribute( countryLabelToCreate, identity, clientCode );
+                    attributeStatus.setStatus( labelStatus );
+                    response.getAttributeStatuses( ).add( attributeStatus );
+                }
+                // update country label if attribute exists, and value is different from existing
+                else
+                    if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHCOUNTRY ).getValue( ).equals( countryGeocodesLabel ) )
+                    {
+                        final boolean override = ( countryLabelToUpdate != null && !countryLabelToUpdate.getValue( ).equals( countryGeocodesLabel ) );
+                        if ( countryLabelToUpdate == null )
+                        {
+                            countryLabelToUpdate = new CertifiedAttribute( );
+                            countryLabelToUpdate.setKey( ATTR_KEY_BIRTHCOUNTRY );
+                        }
+                        countryLabelToUpdate.setValue( countryGeocodesLabel );
+                        countryLabelToUpdate.setCertificationProcess( countryCodeToCreate.getCertificationProcess( ) );
+                        countryLabelToUpdate.setCertificationDate( countryCodeToCreate.getCertificationDate( ) );
+
+                        final AttributeStatus attributeStatus = updateAttribute( countryLabelToUpdate, identity, clientCode );
+                        if ( attributeStatus.getStatus( ).equals( AttributeChangeStatus.UPDATED ) && override )
+                        {
+                            attributeStatus.setStatus( AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL );
+                        }
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+            }
+        }
+        // Country code to UPDATE
+        else
+            if ( countryCodeToUpdate != null )
+            {
+                final Country country = GeoCodesService.getCountryByCode( countryCodeToUpdate.getValue( ) ).orElse( null );
+                if ( country == null )
+                {
+                    // Country doesn't exist in Geocodes for provided code
+                    final AttributeStatus attributeStatus = new AttributeStatus( );
+                    attributeStatus.setKey( countryCodeToUpdate.getKey( ) );
+                    attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                    response.getAttributeStatuses( ).add( attributeStatus );
+                }
+                else
+                {
+                    // Country exists in Geocodes for provided code
+                    // update country code attribute
+                    final AttributeStatus codeStatus = updateAttribute( countryCodeToUpdate, identity, clientCode );
+                    response.getAttributeStatuses( ).add( codeStatus );
+
+                    // create country label attribute if it doesn't already exist in the identity
+                    // Geocodes label value is used, regardless if a label is provided or not
+                    final String countryGeocodesLabel = country.getValue( );
+                    if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHCOUNTRY ) )
+                    {
+                        final AttributeChangeStatus labelStatus = ( countryLabelToCreate == null
+                                || countryLabelToCreate.getValue( ).equals( countryGeocodesLabel ) ) ? AttributeChangeStatus.CREATED
+                                        : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
+                        if ( countryLabelToCreate == null )
+                        {
+                            countryLabelToCreate = new CertifiedAttribute( );
+                            countryLabelToCreate.setKey( ATTR_KEY_BIRTHCOUNTRY );
+                        }
+                        countryLabelToCreate.setValue( countryGeocodesLabel );
+                        countryLabelToCreate.setCertificationProcess( countryCodeToUpdate.getCertificationProcess( ) );
+                        countryLabelToCreate.setCertificationDate( countryCodeToUpdate.getCertificationDate( ) );
+
+                        final AttributeStatus attributeStatus = createAttribute( countryLabelToCreate, identity, clientCode );
+                        attributeStatus.setStatus( labelStatus );
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+                    // update country label if attribute exists, and value is different from existing
+                    else
+                        if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHCOUNTRY ).getValue( ).equals( countryGeocodesLabel ) )
+                        {
+                            final boolean override = ( countryLabelToUpdate != null && !countryLabelToUpdate.getValue( ).equals( countryGeocodesLabel ) );
+                            if ( countryLabelToUpdate == null )
+                            {
+                                countryLabelToUpdate = new CertifiedAttribute( );
+                                countryLabelToUpdate.setKey( ATTR_KEY_BIRTHCOUNTRY );
+                            }
+                            countryLabelToUpdate.setValue( countryGeocodesLabel );
+                            countryLabelToUpdate.setCertificationProcess( countryCodeToUpdate.getCertificationProcess( ) );
+                            countryLabelToUpdate.setCertificationDate( countryCodeToUpdate.getCertificationDate( ) );
+
+                            final AttributeStatus attributeStatus = updateAttribute( countryLabelToUpdate, identity, clientCode );
+                            if ( attributeStatus.getStatus( ).equals( AttributeChangeStatus.UPDATED ) && override )
+                            {
+                                attributeStatus.setStatus( AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL );
+                            }
+                            response.getAttributeStatuses( ).add( attributeStatus );
+                        }
+                }
+            }
+            // No country code sent, checking if label was sent
+            else
+            {
+                if ( countryLabelToCreate != null )
+                {
+                    final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToCreate.getValue( ) );
+                    if ( CollectionUtils.isEmpty( countries ) )
+                    {
+                        // Country doesn't exist in Geocodes for provided label
+                        final AttributeStatus attributeStatus = new AttributeStatus( );
+                        attributeStatus.setKey( countryLabelToCreate.getKey( ) );
+                        attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL );
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+                    else
+                        if ( countries.size( ) > 1 )
+                        {
+                            // Multiple countries exist in Geocodes for provided label
+                            final AttributeStatus attributeStatus = new AttributeStatus( );
+                            attributeStatus.setKey( countryLabelToCreate.getKey( ) );
+                            attributeStatus.setStatus( AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL );
+                            response.getAttributeStatuses( ).add( attributeStatus );
+                        }
+                        else
+                        {
+                            // One country exists in Geocodes for provided label
+                            // Create country label attribute
+                            final AttributeStatus labelStatus = createAttribute( countryLabelToCreate, identity, clientCode );
+                            response.getAttributeStatuses( ).add( labelStatus );
+
+                            // create country code attribute if it doesn't already exist in the identity
+                            final String countryGeocodesCode = countries.get( 0 ).getCode( );
+                            if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHCOUNTRY_CODE ) )
+                            {
+                                final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                codeToCreate.setKey( ATTR_KEY_BIRTHCOUNTRY_CODE );
+                                codeToCreate.setValue( countryGeocodesCode );
+                                codeToCreate.setCertificationProcess( countryLabelToCreate.getCertificationProcess( ) );
+                                codeToCreate.setCertificationDate( countryLabelToCreate.getCertificationDate( ) );
+
+                                final AttributeStatus codeStatus = createAttribute( codeToCreate, identity, clientCode );
+                                response.getAttributeStatuses( ).add( codeStatus );
+                            }
+                            // update country code if attribute exists, and value is different from existing
+                            else
+                                if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHCOUNTRY_CODE ).getValue( ).equals( countryGeocodesCode ) )
+                                {
+                                    final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                    codeToUpdate.setKey( ATTR_KEY_BIRTHCOUNTRY_CODE );
+                                    codeToUpdate.setValue( countryGeocodesCode );
+                                    codeToUpdate.setCertificationProcess( countryLabelToCreate.getCertificationProcess( ) );
+                                    codeToUpdate.setCertificationDate( countryLabelToCreate.getCertificationDate( ) );
+
+                                    final AttributeStatus codeStatus = updateAttribute( codeToUpdate, identity, clientCode );
+                                    response.getAttributeStatuses( ).add( codeStatus );
+                                }
+                        }
+                }
+                else
+                    if ( countryLabelToUpdate != null )
+                    {
+                        final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToUpdate.getValue( ) );
+                        if ( CollectionUtils.isEmpty( countries ) )
+                        {
+                            // Country doesn't exist in Geocodes for provided label
+                            final AttributeStatus attributeStatus = new AttributeStatus( );
+                            attributeStatus.setKey( countryLabelToUpdate.getKey( ) );
+                            attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL );
+                            response.getAttributeStatuses( ).add( attributeStatus );
+                        }
+                        else
+                            if ( countries.size( ) > 1 )
+                            {
+                                // Multiple countries exist in Geocodes for provided label
+                                final AttributeStatus attributeStatus = new AttributeStatus( );
+                                attributeStatus.setKey( countryLabelToUpdate.getKey( ) );
+                                attributeStatus.setStatus( AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL );
+                                response.getAttributeStatuses( ).add( attributeStatus );
+                            }
+                            else
+                            {
+                                // One country exists in Geocodes for provided label
+                                // Update country label attribute
+                                final AttributeStatus labelStatus = updateAttribute( countryLabelToUpdate, identity, clientCode );
+                                response.getAttributeStatuses( ).add( labelStatus );
+
+                                // create country code attribute if it doesn't already exist in the identity
+                                final String countryGeocodesCode = countries.get( 0 ).getCode( );
+                                if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHCOUNTRY_CODE ) )
+                                {
+                                    final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                    codeToCreate.setKey( ATTR_KEY_BIRTHCOUNTRY_CODE );
+                                    codeToCreate.setValue( countryGeocodesCode );
+                                    codeToCreate.setCertificationProcess( countryLabelToUpdate.getCertificationProcess( ) );
+                                    codeToCreate.setCertificationDate( countryLabelToUpdate.getCertificationDate( ) );
+
+                                    final AttributeStatus codeStatus = createAttribute( codeToCreate, identity, clientCode );
+                                    response.getAttributeStatuses( ).add( codeStatus );
+                                }
+                                // update country code if attribute exists, and value is different from existing
+                                else
+                                    if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHCOUNTRY_CODE ).getValue( ).equals( countryGeocodesCode ) )
+                                    {
+                                        final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                        codeToUpdate.setKey( ATTR_KEY_BIRTHCOUNTRY_CODE );
+                                        codeToUpdate.setValue( countryGeocodesCode );
+                                        codeToUpdate.setCertificationProcess( countryLabelToUpdate.getCertificationProcess( ) );
+                                        codeToUpdate.setCertificationDate( countryLabelToUpdate.getCertificationDate( ) );
+
+                                        final AttributeStatus codeStatus = updateAttribute( codeToUpdate, identity, clientCode );
+                                        response.getAttributeStatuses( ).add( codeStatus );
+                                    }
+                            }
+                    }
+            }
+    }
+
+    /**
+     * Private methode used to process both "birthplace_code" and "birthplace" attributes during an update process of an identity.
+     * 
+     * @param identity
+     * @param attrToCreate
+     * @param attrToUpdate
+     * @param clientCode
+     * @param response
+     * @throws IdentityAttributeNotFoundException
+     */
+    private void processCityForUpdate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final List<CertifiedAttribute> attrToUpdate,
+            final String clientCode, final IdentityChangeResponse response ) throws IdentityStoreException
+    {
+
+        final CertifiedAttribute cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHPLACE_CODE ) ).findFirst( )
+                .orElse( null );
+        if ( cityCodeToCreate != null )
+        {
+            attrToCreate.remove( cityCodeToCreate );
+        }
+        CertifiedAttribute cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHPLACE ) ).findFirst( ).orElse( null );
+        if ( cityLabelToCreate != null )
+        {
+            attrToCreate.remove( cityLabelToCreate );
+        }
+        final CertifiedAttribute cityCodeToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHPLACE_CODE ) ).findFirst( )
+                .orElse( null );
+        if ( cityCodeToUpdate != null )
+        {
+            attrToUpdate.remove( cityCodeToUpdate );
+        }
+        CertifiedAttribute cityLabelToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( ATTR_KEY_BIRTHPLACE ) ).findFirst( ).orElse( null );
+        if ( cityLabelToUpdate != null )
+        {
+            attrToUpdate.remove( cityLabelToUpdate );
+        }
+
+        // City code to CREATE
+        if ( cityCodeToCreate != null )
+        {
+            final City city = GeoCodesService.getCityByCode( cityCodeToCreate.getValue( ) ).orElse( null );
+            if ( city == null )
+            {
+                // city doesn't exist in Geocodes for provided code
+                final AttributeStatus attributeStatus = new AttributeStatus( );
+                attributeStatus.setKey( cityCodeToCreate.getKey( ) );
+                attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+            else
+            {
+                // city exists in Geocodes for provided code
+                // create city code attribute
+                final AttributeStatus codeStatus = createAttribute( cityCodeToCreate, identity, clientCode );
+                response.getAttributeStatuses( ).add( codeStatus );
+
+                // create city label attribute if it doesn't already exist in the identity
+                // Geocodes label value is used, regardless if a label is provided or not
+                final String cityGeocodesLabel = city.getValue( );
+                if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHPLACE ) )
+                {
+                    final AttributeChangeStatus labelStatus = ( cityLabelToCreate == null || cityLabelToCreate.getValue( ).equals( cityGeocodesLabel ) )
+                            ? AttributeChangeStatus.CREATED
+                            : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
+                    if ( cityLabelToCreate == null )
+                    {
+                        cityLabelToCreate = new CertifiedAttribute( );
+                        cityLabelToCreate.setKey( ATTR_KEY_BIRTHPLACE );
+                    }
+                    cityLabelToCreate.setValue( cityGeocodesLabel );
+                    cityLabelToCreate.setCertificationProcess( cityCodeToCreate.getCertificationProcess( ) );
+                    cityLabelToCreate.setCertificationDate( cityCodeToCreate.getCertificationDate( ) );
+
+                    final AttributeStatus attributeStatus = createAttribute( cityLabelToCreate, identity, clientCode );
+                    attributeStatus.setStatus( labelStatus );
+                    response.getAttributeStatuses( ).add( attributeStatus );
+                }
+                // update city label if attribute exists, and value is different from existing
+                else
+                    if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHPLACE ).getValue( ).equals( cityGeocodesLabel ) )
+                    {
+                        final boolean override = ( cityLabelToUpdate != null && !cityLabelToUpdate.getValue( ).equals( cityGeocodesLabel ) );
+                        if ( cityLabelToUpdate == null )
+                        {
+                            cityLabelToUpdate = new CertifiedAttribute( );
+                            cityLabelToUpdate.setKey( ATTR_KEY_BIRTHPLACE );
+                        }
+                        cityLabelToUpdate.setValue( cityGeocodesLabel );
+                        cityLabelToUpdate.setCertificationProcess( cityCodeToCreate.getCertificationProcess( ) );
+                        cityLabelToUpdate.setCertificationDate( cityCodeToCreate.getCertificationDate( ) );
+
+                        final AttributeStatus attributeStatus = updateAttribute( cityLabelToUpdate, identity, clientCode );
+                        if ( attributeStatus.getStatus( ).equals( AttributeChangeStatus.UPDATED ) && override )
+                        {
+                            attributeStatus.setStatus( AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL );
+                        }
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+            }
+        }
+        // city code to UPDATE
+        else
+            if ( cityCodeToUpdate != null )
+            {
+                final City city = GeoCodesService.getCityByCode( cityCodeToUpdate.getValue( ) ).orElse( null );
+                if ( city == null )
+                {
+                    // city doesn't exist in Geocodes for provided code
+                    final AttributeStatus attributeStatus = new AttributeStatus( );
+                    attributeStatus.setKey( cityCodeToUpdate.getKey( ) );
+                    attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                    response.getAttributeStatuses( ).add( attributeStatus );
+                }
+                else
+                {
+                    // city exists in Geocodes for provided code
+                    // update city code attribute
+                    final AttributeStatus codeStatus = updateAttribute( cityCodeToUpdate, identity, clientCode );
+                    response.getAttributeStatuses( ).add( codeStatus );
+
+                    // create city label attribute if it doesn't already exist in the identity
+                    // Geocodes label value is used, regardless if a label is provided or not
+                    final String cityGeocodesLabel = city.getValue( );
+                    if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHPLACE ) )
+                    {
+                        final AttributeChangeStatus labelStatus = ( cityLabelToCreate == null || cityLabelToCreate.getValue( ).equals( cityGeocodesLabel ) )
+                                ? AttributeChangeStatus.CREATED
+                                : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
+                        if ( cityLabelToCreate == null )
+                        {
+                            cityLabelToCreate = new CertifiedAttribute( );
+                            cityLabelToCreate.setKey( ATTR_KEY_BIRTHPLACE );
+                        }
+                        cityLabelToCreate.setValue( cityGeocodesLabel );
+                        cityLabelToCreate.setCertificationProcess( cityCodeToUpdate.getCertificationProcess( ) );
+                        cityLabelToCreate.setCertificationDate( cityCodeToUpdate.getCertificationDate( ) );
+
+                        final AttributeStatus attributeStatus = createAttribute( cityLabelToCreate, identity, clientCode );
+                        attributeStatus.setStatus( labelStatus );
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+                    // update city label if attribute exists, and value is different from existing
+                    else
+                        if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHPLACE ).getValue( ).equals( cityGeocodesLabel ) )
+                        {
+                            final boolean override = ( cityLabelToUpdate != null && !cityLabelToUpdate.getValue( ).equals( cityGeocodesLabel ) );
+                            if ( cityLabelToUpdate == null )
+                            {
+                                cityLabelToUpdate = new CertifiedAttribute( );
+                                cityLabelToUpdate.setKey( ATTR_KEY_BIRTHPLACE );
+                            }
+                            cityLabelToUpdate.setValue( cityGeocodesLabel );
+                            cityLabelToUpdate.setCertificationProcess( cityCodeToUpdate.getCertificationProcess( ) );
+                            cityLabelToUpdate.setCertificationDate( cityCodeToUpdate.getCertificationDate( ) );
+
+                            final AttributeStatus attributeStatus = updateAttribute( cityLabelToUpdate, identity, clientCode );
+                            if ( attributeStatus.getStatus( ).equals( AttributeChangeStatus.UPDATED ) && override )
+                            {
+                                attributeStatus.setStatus( AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL );
+                            }
+                            response.getAttributeStatuses( ).add( attributeStatus );
+                        }
+                }
+            }
+            // No city code sent, checking if label was sent
+            else
+            {
+                if ( cityLabelToCreate != null )
+                {
+                    final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToCreate.getValue( ) );
+                    if ( CollectionUtils.isEmpty( cities ) )
+                    {
+                        // city doesn't exist in Geocodes for provided label
+                        final AttributeStatus attributeStatus = new AttributeStatus( );
+                        attributeStatus.setKey( cityLabelToCreate.getKey( ) );
+                        attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL );
+                        response.getAttributeStatuses( ).add( attributeStatus );
+                    }
+                    else
+                        if ( cities.size( ) > 1 )
+                        {
+                            // Multiple cities exist in Geocodes for provided label
+                            final AttributeStatus attributeStatus = new AttributeStatus( );
+                            attributeStatus.setKey( cityLabelToCreate.getKey( ) );
+                            attributeStatus.setStatus( AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL );
+                            response.getAttributeStatuses( ).add( attributeStatus );
+                        }
+                        else
+                        {
+                            // One city exists in Geocodes for provided label
+                            // Create city label attribute
+                            final AttributeStatus labelStatus = createAttribute( cityLabelToCreate, identity, clientCode );
+                            response.getAttributeStatuses( ).add( labelStatus );
+
+                            // create city code attribute if it doesn't already exist in the identity
+                            final String cityGeocodesCode = cities.get( 0 ).getCode( );
+                            if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHPLACE_CODE ) )
+                            {
+                                final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                codeToCreate.setKey( ATTR_KEY_BIRTHPLACE_CODE );
+                                codeToCreate.setValue( cityGeocodesCode );
+                                codeToCreate.setCertificationProcess( cityLabelToCreate.getCertificationProcess( ) );
+                                codeToCreate.setCertificationDate( cityLabelToCreate.getCertificationDate( ) );
+
+                                final AttributeStatus codeStatus = createAttribute( codeToCreate, identity, clientCode );
+                                response.getAttributeStatuses( ).add( codeStatus );
+                            }
+                            // update city code if attribute exists, and value is different from existing
+                            else
+                                if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHPLACE_CODE ).getValue( ).equals( cityGeocodesCode ) )
+                                {
+                                    final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                    codeToUpdate.setKey( ATTR_KEY_BIRTHPLACE_CODE );
+                                    codeToUpdate.setValue( cityGeocodesCode );
+                                    codeToUpdate.setCertificationProcess( cityLabelToCreate.getCertificationProcess( ) );
+                                    codeToUpdate.setCertificationDate( cityLabelToCreate.getCertificationDate( ) );
+
+                                    final AttributeStatus codeStatus = updateAttribute( codeToUpdate, identity, clientCode );
+                                    response.getAttributeStatuses( ).add( codeStatus );
+                                }
+                        }
+                }
+                else
+                    if ( cityLabelToUpdate != null )
+                    {
+                        final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToUpdate.getValue( ) );
+                        if ( CollectionUtils.isEmpty( cities ) )
+                        {
+                            // city doesn't exist in Geocodes for provided label
+                            final AttributeStatus attributeStatus = new AttributeStatus( );
+                            attributeStatus.setKey( cityLabelToUpdate.getKey( ) );
+                            attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL );
+                            response.getAttributeStatuses( ).add( attributeStatus );
+                        }
+                        else
+                            if ( cities.size( ) > 1 )
+                            {
+                                // Multiple cities exist in Geocodes for provided label
+                                final AttributeStatus attributeStatus = new AttributeStatus( );
+                                attributeStatus.setKey( cityLabelToUpdate.getKey( ) );
+                                attributeStatus.setStatus( AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL );
+                                response.getAttributeStatuses( ).add( attributeStatus );
+                            }
+                            else
+                            {
+                                // One city exists in Geocodes for provided label
+                                // Update city label attribute
+                                final AttributeStatus labelStatus = updateAttribute( cityLabelToUpdate, identity, clientCode );
+                                response.getAttributeStatuses( ).add( labelStatus );
+
+                                // create city code attribute if it doesn't already exist in the identity
+                                final String countryGeocodesCode = cities.get( 0 ).getCode( );
+                                if ( !identity.getAttributes( ).containsKey( ATTR_KEY_BIRTHPLACE_CODE ) )
+                                {
+                                    final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                    codeToCreate.setKey( ATTR_KEY_BIRTHPLACE_CODE );
+                                    codeToCreate.setValue( countryGeocodesCode );
+                                    codeToCreate.setCertificationProcess( cityLabelToUpdate.getCertificationProcess( ) );
+                                    codeToCreate.setCertificationDate( cityLabelToUpdate.getCertificationDate( ) );
+
+                                    final AttributeStatus codeStatus = createAttribute( codeToCreate, identity, clientCode );
+                                    response.getAttributeStatuses( ).add( codeStatus );
+                                }
+                                // update city code if attribute exists, and value is different from existing
+                                else
+                                    if ( !identity.getAttributes( ).get( ATTR_KEY_BIRTHPLACE_CODE ).getValue( ).equals( countryGeocodesCode ) )
+                                    {
+                                        final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                        codeToUpdate.setKey( ATTR_KEY_BIRTHPLACE_CODE );
+                                        codeToUpdate.setValue( countryGeocodesCode );
+                                        codeToUpdate.setCertificationProcess( cityLabelToUpdate.getCertificationProcess( ) );
+                                        codeToUpdate.setCertificationDate( cityLabelToUpdate.getCertificationDate( ) );
+
+                                        final AttributeStatus codeStatus = updateAttribute( codeToUpdate, identity, clientCode );
+                                        response.getAttributeStatuses( ).add( codeStatus );
+                                    }
+                            }
+                    }
+            }
+    }
+
+    /**
+     * Private method used to create an attribute for an identity.
+     * 
+     * @param attributeToCreate
+     * @param identity
+     * @param clientCode
+     * @return AttributeStatus
+     * @throws IdentityAttributeNotFoundException
+     */
+    private AttributeStatus createAttribute( final CertifiedAttribute attributeToCreate, final Identity identity, final String clientCode )
+            throws IdentityStoreException
+    {
+        final IdentityAttribute attribute = new IdentityAttribute( );
+        attribute.setIdIdentity( identity.getId( ) );
+        attribute.setAttributeKey( getAttributeKey( attributeToCreate.getKey( ) ) ); // ?
+        attribute.setValue( attributeToCreate.getValue( ) );
+        attribute.setLastUpdateClientCode( clientCode );
+
+        if ( attributeToCreate.getCertificationProcess( ) != null )
+        {
+            final AttributeCertificate certificate = new AttributeCertificate( );
+            certificate.setCertificateDate( new Timestamp( attributeToCreate.getCertificationDate( ).getTime( ) ) );
+            certificate.setCertifierCode( attributeToCreate.getCertificationProcess( ) );
+            certificate.setCertifierName( attributeToCreate.getCertificationProcess( ) ); // ?
+            attribute.setCertificate( AttributeCertificateHome.create( certificate ) );
+            attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
+        }
+
+        IdentityAttributeHome.create( attribute );
+        identity.getAttributes( ).put( attribute.getAttributeKey( ).getKeyName( ), attribute );
+
+        final AttributeStatus attributeStatus = new AttributeStatus( );
+        attributeStatus.setKey( attribute.getAttributeKey( ).getKeyName( ) );
+        attributeStatus.setStatus( AttributeChangeStatus.CREATED );
+
+        return attributeStatus;
+    }
+
+    /**
+     * private method used to update an attribute of an identity
+     * 
+     * @param attributeToUpdate
+     * @param identity
+     * @param clientCode
+     * @return AttributeStatus
+     * @throws IdentityStoreException
+     */
+    private AttributeStatus updateAttribute( final CertifiedAttribute attributeToUpdate, final Identity identity, final String clientCode )
+            throws IdentityStoreException
+    {
+        final IdentityAttribute existingAttribute = identity.getAttributes( ).get( attributeToUpdate.getKey( ) );
+
+        int attributeToUpdateLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( attributeToUpdate.getCertificationProcess( ),
+                attributeToUpdate.getKey( ) );
+        int existingAttributeLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( existingAttribute.getCertificate( ).getCertifierCode( ),
+                existingAttribute.getAttributeKey( ).getKeyName( ) );
+        if ( attributeToUpdateLevelInt == existingAttributeLevelInt && StringUtils.equals( attributeToUpdate.getValue( ), existingAttribute.getValue( ) )
+                && ( attributeToUpdate.getCertificationDate( ).equals( existingAttribute.getCertificate( ).getCertificateDate( ) )
+                        || attributeToUpdate.getCertificationDate( ).before( existingAttribute.getCertificate( ).getCertificateDate( ) ) ) )
+        {
+            final AttributeStatus attributeStatus = new AttributeStatus( );
+            attributeStatus.setKey( attributeToUpdate.getKey( ) );
+            attributeStatus.setStatus( AttributeChangeStatus.NOT_UPDATED );
+            return attributeStatus;
+        }
+        if ( attributeToUpdateLevelInt >= existingAttributeLevelInt )
+        {
+            if ( StringUtils.isBlank( attributeToUpdate.getValue( ) ) )
+            {
+                // #232 : remove attribute if :
+                // - attribute is not mandatory
+                // - new value is null or blank
+                // - sent certification level is >= to existing one
+                final Optional<AttributeRight> right = _serviceContractService.getActiveServiceContract( clientCode ).getAttributeRights( ).stream( )
+                        .filter( ar -> ar.getAttributeKey( ).getKeyName( ).equals( attributeToUpdate.getKey( ) ) ).findAny( );
+                if ( right.isPresent( ) && right.get( ).isMandatory( ) )
+                {
+                    final AttributeStatus attributeStatus = new AttributeStatus( );
+                    attributeStatus.setKey( attributeToUpdate.getKey( ) );
+                    attributeStatus.setStatus( AttributeChangeStatus.NOT_REMOVED );
+                    return attributeStatus;
+                }
+                IdentityAttributeHome.remove( identity.getId( ), existingAttribute.getAttributeKey( ).getId( ) );
+                identity.getAttributes( ).remove( existingAttribute.getAttributeKey( ).getKeyName( ) );
+
+                final AttributeStatus attributeStatus = new AttributeStatus( );
+                attributeStatus.setKey( attributeToUpdate.getKey( ) );
+                attributeStatus.setStatus( AttributeChangeStatus.REMOVED );
+                return attributeStatus;
+            }
+
+            existingAttribute.setValue( attributeToUpdate.getValue( ) );
+            existingAttribute.setLastUpdateClientCode( clientCode );
+
+            if ( attributeToUpdate.getCertificationProcess( ) != null )
+            {
+                final AttributeCertificate certificate = new AttributeCertificate( );
+                certificate.setCertificateDate( new Timestamp( attributeToUpdate.getCertificationDate( ).getTime( ) ) );
+                certificate.setCertifierCode( attributeToUpdate.getCertificationProcess( ) );
+                certificate.setCertifierName( attributeToUpdate.getCertificationProcess( ) );
+
+                existingAttribute.setCertificate( AttributeCertificateHome.create( certificate ) ); // TODO supprime-t-on l'ancien certificat ?
+                existingAttribute.setIdCertificate( existingAttribute.getCertificate( ).getId( ) );
+            }
+
+            IdentityAttributeHome.update( existingAttribute );
+            identity.getAttributes( ).put( existingAttribute.getAttributeKey( ).getKeyName( ), existingAttribute );
+
+            final AttributeStatus attributeStatus = new AttributeStatus( );
+            attributeStatus.setKey( attributeToUpdate.getKey( ) );
+            attributeStatus.setStatus( AttributeChangeStatus.UPDATED );
+            return attributeStatus;
+        }
+
+        final AttributeStatus attributeStatus = new AttributeStatus( );
+        attributeStatus.setKey( attributeToUpdate.getKey( ) );
+        attributeStatus.setStatus( AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL );
+        return attributeStatus;
     }
 
     /**
