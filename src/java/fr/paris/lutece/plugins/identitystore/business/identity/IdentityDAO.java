@@ -84,7 +84,7 @@ public final class IdentityDAO implements IIdentityDAO
             + " FROM identitystore_identity a,  identitystore_identity_attribute b " + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE = " AND b.id_attribute = ? ";
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge"
-            + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_attribute c"
+            + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_ref_attribute c"
             + " WHERE a.id_identity = b.id_identity AND b.id_attribute = c.id_attribute AND (${filter})"
             + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT ${limit}";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND b.attribute_value IN (${list}))";

@@ -51,22 +51,22 @@ import java.util.Optional;
 public final class AttributeCertificationDAO implements IAttributeCertificationDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, id_ref_attribute_certification_processus, id_service_contract  FROM identitystore_attribute_certification WHERE id_attribute_certification = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certification ( id_attribute, id_ref_attribute_certification_processus, id_service_contract ) VALUES ( ?,?,? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_certification WHERE id_service_contract = ? ";
-    private static final String SQL_QUERY_DELETE_WITH_SERVICE_CONTRACT_ID = "DELETE FROM identitystore_attribute_certification WHERE id_service_contract = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certification SET id_attribute_certification = ?,  WHERE id_attribute_certification = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certification,  FROM identitystore_attribute_certification";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certification FROM identitystore_attribute_certification";
-    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute_certification, FROM identitystore_attribute_certification WHERE id_attribute_certification IN (  ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, id_ref_attribute_certification_processus, id_service_contract  FROM identitystore_service_contract_attribute_certification WHERE id_attribute_certification = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_service_contract_attribute_certification ( id_attribute, id_ref_attribute_certification_processus, id_service_contract ) VALUES ( ?,?,? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_service_contract_attribute_certification WHERE id_service_contract = ? ";
+    private static final String SQL_QUERY_DELETE_WITH_SERVICE_CONTRACT_ID = "DELETE FROM identitystore_service_contract_attribute_certification WHERE id_service_contract = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_service_contract_attribute_certification SET id_attribute_certification = ?,  WHERE id_attribute_certification = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certification,  FROM identitystore_service_contract_attribute_certification";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certification FROM identitystore_service_contract_attribute_certification";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute_certification, FROM identitystore_service_contract_attribute_certification WHERE id_attribute_certification IN (  ";
 
     private static final String SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT = "SELECT DISTINCT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type"
-            + " FROM identitystore_attribute a"
-            + " LEFT JOIN  identitystore_attribute_certification b ON  a.id_attribute = b.id_attribute AND id_service_contract = ?"
-            + " LEFT JOIN  identitystore_ref_attribute_certification_processus c ON  c.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus";
+            + " FROM identitystore_ref_attribute a"
+            + " LEFT JOIN  identitystore_service_contract_attribute_certification b ON  a.id_attribute = b.id_attribute AND id_service_contract = ?"
+            + " LEFT JOIN  identitystore_ref_certification_processus c ON  c.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus";
 
-    private static final String SQL_QUERY_SELECTALL_BY_ATTRIBUTE_CERTIF = "SELECT b.id_ref_attribute_certification_processus, b.label, b.code FROM identitystore_attribute_certification a"
-            + " JOIN identitystore_ref_attribute_certification_processus b ON a.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus"
+    private static final String SQL_QUERY_SELECTALL_BY_ATTRIBUTE_CERTIF = "SELECT b.id_ref_attribute_certification_processus, b.label, b.code FROM identitystore_service_contract_attribute_certification a"
+            + " JOIN identitystore_ref_certification_processus b ON a.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus"
             + " WHERE a.id_service_contract = ? AND a.id_attribute = ?";
 
     /**

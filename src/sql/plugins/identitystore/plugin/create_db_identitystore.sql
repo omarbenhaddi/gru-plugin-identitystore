@@ -3,20 +3,20 @@
 --
 
 
-DROP TABLE IF EXISTS identitystore_attribute_certification CASCADE;
+DROP TABLE IF EXISTS identitystore_service_contract_attribute_certification CASCADE;
 DROP TABLE IF EXISTS identitystore_identity CASCADE;
-DROP TABLE IF EXISTS identitystore_attribute_requirement CASCADE;
-DROP TABLE IF EXISTS identitystore_attribute_right CASCADE;
+DROP TABLE IF EXISTS identitystore_service_contract_attribute_requirement CASCADE;
+DROP TABLE IF EXISTS identitystore_service_contract_attribute_right CASCADE;
 DROP TABLE IF EXISTS identitystore_service_contract CASCADE;
-DROP TABLE IF EXISTS identitystore_history_identity_attribute CASCADE;
+DROP TABLE IF EXISTS identitystore_identity_attribute_history  CASCADE;
 DROP TABLE IF EXISTS identitystore_client_application CASCADE;
 DROP TABLE IF EXISTS identitystore_client_application_certifiers CASCADE;
-DROP TABLE IF EXISTS identitystore_attribute_certificate CASCADE;
+DROP TABLE IF EXISTS identitystore_identity_attribute_certificate CASCADE;
 DROP TABLE IF EXISTS identitystore_identity_attribute CASCADE;
-DROP TABLE IF EXISTS identitystore_ref_attribute_certification_processus CASCADE;
-DROP TABLE IF EXISTS identitystore_ref_attribute_certification_level CASCADE;
+DROP TABLE IF EXISTS identitystore_ref_certification_processus CASCADE;
+DROP TABLE IF EXISTS identitystore_ref_certification_attribute_level CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_certification_level CASCADE;
-DROP TABLE IF EXISTS identitystore_attribute CASCADE;
+DROP TABLE IF EXISTS identitystore_ref_attribute CASCADE;
 DROP TABLE IF EXISTS identitystore_identity CASCADE;
 --
 -- Structure for table identitystore_identity
@@ -68,7 +68,7 @@ CREATE TABLE identitystore_ref_certification_level
     PRIMARY KEY (id_ref_certification_level)
 );
 
-CREATE TABLE identitystore_ref_attribute_certification_processus
+CREATE TABLE identitystore_ref_certification_processus
 (
     id_ref_attribute_certification_processus int AUTO_INCREMENT,
     label                                    varchar(50) default '' NOT NULL,
@@ -76,19 +76,19 @@ CREATE TABLE identitystore_ref_attribute_certification_processus
     PRIMARY KEY (id_ref_attribute_certification_processus)
 );
 
-CREATE TABLE identitystore_ref_attribute_certification_level
+CREATE TABLE identitystore_ref_certification_attribute_level
 (
     id_attribute                             int NOT NULL,
     id_ref_certification_level               int NOT NULL,
     id_ref_attribute_certification_processus int NOT NULL,
     PRIMARY KEY (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus)
 );
-ALTER TABLE identitystore_ref_attribute_certification_level
+ALTER TABLE identitystore_ref_certification_attribute_level
     ADD CONSTRAINT fk_attribute_ref_certification_level_certification_level FOREIGN KEY (id_ref_certification_level) REFERENCES identitystore_ref_certification_level (id_ref_certification_level);
-ALTER TABLE identitystore_ref_attribute_certification_level
-    ADD CONSTRAINT fk_attribute_ref_certification_level_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus);
-ALTER TABLE identitystore_ref_attribute_certification_level
-    ADD CONSTRAINT fk_attribute_ref_certification_level_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
+ALTER TABLE identitystore_ref_certification_attribute_level
+    ADD CONSTRAINT fk_attribute_ref_certification_level_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES identitystore_ref_certification_processus (id_ref_attribute_certification_processus);
+ALTER TABLE identitystore_ref_certification_attribute_level
+    ADD CONSTRAINT fk_attribute_ref_certification_level_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
 
 --
 -- Structure for table identitystore_identity_attribute
@@ -108,14 +108,14 @@ CREATE TABLE identitystore_identity_attribute
 ALTER TABLE identitystore_identity_attribute
     ADD CONSTRAINT fk_identity_attribute_id_identity FOREIGN KEY (id_identity) REFERENCES identitystore_identity (id_identity);
 ALTER TABLE identitystore_identity_attribute
-    ADD CONSTRAINT fk_identity_attribute_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
+    ADD CONSTRAINT fk_identity_attribute_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
 CREATE INDEX ix_attribute_value ON identitystore_identity_attribute (attribute_value ASC);
 
 --
--- Structure for table identitystore_attribute_certificate
+-- Structure for table identitystore_identity_attribute_certificate
 --
 
-CREATE TABLE identitystore_attribute_certificate
+CREATE TABLE identitystore_identity_attribute_certificate
 (
     id_attribute_certificate int AUTO_INCREMENT,
     certifier_code           varchar(255) NOT NULL default '',
@@ -151,10 +151,10 @@ CREATE TABLE identitystore_client_application
 );
 
 --
--- Structure for table identitystore_history_identity_attribute
+-- Structure for table identitystore_identity_attribute_history 
 --
 
-CREATE TABLE identitystore_history_identity_attribute
+CREATE TABLE identitystore_identity_attribute_history 
 (
     id_history            int AUTO_INCREMENT,
     change_type           int          NOT NULL,
@@ -171,7 +171,7 @@ CREATE TABLE identitystore_history_identity_attribute
     modification_date     timestamp    NOT NULL default CURRENT_TIMESTAMP,
     PRIMARY KEY (id_history)
 );
-ALTER TABLE identitystore_history_identity_attribute
+ALTER TABLE identitystore_identity_attribute_history 
     ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY (id_identity) REFERENCES identitystore_identity (id_identity);
 
 --
@@ -206,7 +206,7 @@ ALTER TABLE identitystore_service_contract
 -- Structure for table identitystore_client_access_control_list
 --
 
-CREATE TABLE identitystore_attribute_right
+CREATE TABLE identitystore_service_contract_attribute_right
 (
     id_service_contract int      NOT NULL,
     id_attribute        int      NOT NULL,
@@ -215,46 +215,46 @@ CREATE TABLE identitystore_attribute_right
     writable            smallint NOT NULL default 0,
     PRIMARY KEY (id_service_contract, id_attribute)
 );
-ALTER TABLE identitystore_attribute_right
-    ADD CONSTRAINT fk_attribute_right_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
-ALTER TABLE identitystore_attribute_right
+ALTER TABLE identitystore_service_contract_attribute_right
+    ADD CONSTRAINT fk_attribute_right_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
+ALTER TABLE identitystore_service_contract_attribute_right
     ADD CONSTRAINT fk_attribute_right_id_service_contract FOREIGN KEY (id_service_contract) REFERENCES identitystore_service_contract (id_service_contract);
 
 
 --
--- Structure for table identitystore_attribute_requirement
+-- Structure for table identitystore_service_contract_attribute_requirement
 --
-CREATE TABLE identitystore_attribute_requirement
+CREATE TABLE identitystore_service_contract_attribute_requirement
 (
     id_service_contract        int NOT NULL,
     id_attribute               int NOT NULL,
     id_ref_certification_level int NOT NULL,
     PRIMARY KEY (id_attribute, id_service_contract, id_ref_certification_level)
 );
-ALTER TABLE identitystore_attribute_requirement
+ALTER TABLE identitystore_service_contract_attribute_requirement
     ADD CONSTRAINT fk_attribute_requirement_id_service_contract FOREIGN KEY (id_service_contract) REFERENCES identitystore_service_contract (id_service_contract);
-ALTER TABLE identitystore_attribute_requirement
-    ADD CONSTRAINT fk_attribute_requirement_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
-ALTER TABLE identitystore_attribute_requirement
+ALTER TABLE identitystore_service_contract_attribute_requirement
+    ADD CONSTRAINT fk_attribute_requirement_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
+ALTER TABLE identitystore_service_contract_attribute_requirement
     ADD CONSTRAINT fk_attribute_requirement_certification_level FOREIGN KEY (id_ref_certification_level) REFERENCES identitystore_ref_certification_level (id_ref_certification_level);
 
 --
--- Structure for table identitystore_attribute_certification
+-- Structure for table identitystore_service_contract_attribute_certification
 --
 
-CREATE TABLE identitystore_attribute_certification
+CREATE TABLE identitystore_service_contract_attribute_certification
 (
     id_service_contract                      int NOT NULL,
     id_attribute                             int NOT NULL,
     id_ref_attribute_certification_processus int NOT NULL,
     PRIMARY KEY (id_attribute, id_ref_attribute_certification_processus, id_service_contract)
 );
-ALTER TABLE identitystore_attribute_certification
+ALTER TABLE identitystore_service_contract_attribute_certification
     ADD CONSTRAINT fk_attribute_certification_id_service_contract FOREIGN KEY (id_service_contract) REFERENCES identitystore_service_contract (id_service_contract);
-ALTER TABLE identitystore_attribute_certification
-    ADD CONSTRAINT fk_attribute_certification_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
-ALTER TABLE identitystore_attribute_certification
-    ADD CONSTRAINT fk_attribute_certification_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus);
+ALTER TABLE identitystore_service_contract_attribute_certification
+    ADD CONSTRAINT fk_attribute_certification_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
+ALTER TABLE identitystore_service_contract_attribute_certification
+    ADD CONSTRAINT fk_attribute_certification_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES identitystore_ref_certification_processus (id_ref_attribute_certification_processus);
 
 --
 -- Structure for table identitystore_attribute

@@ -1,5 +1,5 @@
 
-INSERT INTO identitystore_attribute (key_name, name, description, key_type, certifiable, pivot, key_weight) VALUES
+INSERT INTO identitystore_ref_attribute (key_name, name, description, key_type, certifiable, pivot, key_weight) VALUES
 ('gender', 'Genre', '0:Non défini /  1:Homme / 2:Femme', 0, 1, 1, 3),
 ('family_name', 'Nom de famille de naissance', '', 0, 1, 1, 18),
 ('preferred_username', 'Nom usuel','', 0, 0, 0, 15),

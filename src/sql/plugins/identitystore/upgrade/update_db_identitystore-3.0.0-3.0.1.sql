@@ -1,15 +1,15 @@
 --
--- Structure for table identitystore_attribute_certificate
+-- Structure for table identitystore_identity_attribute_certificate
 --
-ALTER TABLE identitystore_attribute_certificate DROP COLUMN certificate_level;
+ALTER TABLE identitystore_identity_attribute_certificate DROP COLUMN certificate_level;
 
 --
 -- Structure for table identitystore_attribute
 --
-ALTER TABLE identitystore_attribute ADD COLUMN common_search_key VARCHAR(100) NULL;
-UPDATE identitystore_attribute SET common_search_key = 'common_lastname' WHERE key_name IN ('family_name', 'preferred_username');
-UPDATE identitystore_attribute SET common_search_key = 'common_email' WHERE key_name IN ('email', 'login');
-UPDATE identitystore_attribute SET common_search_key = 'common_phone' WHERE key_name IN ('mobile_phone', 'fixed_phone');
+ALTER TABLE identitystore_ref_attribute ADD COLUMN common_search_key VARCHAR(100) NULL;
+UPDATE identitystore_ref_attribute SET common_search_key = 'common_lastname' WHERE key_name IN ('family_name', 'preferred_username');
+UPDATE identitystore_ref_attribute SET common_search_key = 'common_email' WHERE key_name IN ('email', 'login');
+UPDATE identitystore_ref_attribute SET common_search_key = 'common_phone' WHERE key_name IN ('mobile_phone', 'fixed_phone');
 
 --
 -- Structure for table identitystore_client_application
@@ -56,9 +56,9 @@ ALTER TABLE identitystore_service_contract DROP COLUMN is_application_authorized
 ALTER TABLE identitystore_service_contract DROP COLUMN is_application_authorized_to_delete_value;
 
 --
--- Structure for table identitystore_attribute_right
+-- Structure for table identitystore_service_contract_attribute_right
 --
-ALTER TABLE identitystore_attribute_right ADD COLUMN mandatory SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE identitystore_service_contract_attribute_right ADD COLUMN mandatory SMALLINT NOT NULL DEFAULT 0;
 
 --
 -- Structure for table identitystore_duplicate_rule
@@ -82,7 +82,7 @@ CREATE TABLE identitystore_duplicate_rule_checked_attributes (
 ALTER TABLE identitystore_duplicate_rule_checked_attributes
     ADD CONSTRAINT fk_duplicate_rule_checked_attributes_id_rule FOREIGN KEY (id_rule) REFERENCES identitystore_duplicate_rule (id_rule) ON DELETE CASCADE;
 ALTER TABLE identitystore_duplicate_rule_checked_attributes
-    ADD CONSTRAINT fk_duplicate_rule_checked_attributes_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
+    ADD CONSTRAINT fk_duplicate_rule_checked_attributes_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
 
 --
 -- Structure for table identitystore_duplicate_rule_attribute_treatment
@@ -106,7 +106,7 @@ CREATE TABLE identitystore_duplicate_rule_attribute_treatment_nuples (
 ALTER TABLE identitystore_duplicate_rule_attribute_treatment_nuples
     ADD CONSTRAINT fk_duplicate_rule_attribute_treatment_nuples_id_rule FOREIGN KEY (id_attribute_treatment) REFERENCES identitystore_duplicate_rule_attribute_treatment (id_attribute_treatment) ON DELETE CASCADE;
 ALTER TABLE identitystore_duplicate_rule_attribute_treatment_nuples
-    ADD CONSTRAINT fk_duplicate_rule_attribute_treatment_nuples_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_attribute (id_attribute);
+    ADD CONSTRAINT fk_duplicate_rule_attribute_treatment_nuples_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
 
 --
 -- Data for table core_admin_right

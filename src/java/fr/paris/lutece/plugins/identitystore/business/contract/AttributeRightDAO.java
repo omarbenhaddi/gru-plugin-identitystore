@@ -47,10 +47,10 @@ import fr.paris.lutece.util.sql.DAOUtil;
 public final class AttributeRightDAO implements IAttributeRightDAO
 {
     // Constants
-    private static final String SQL_QUERY_DELETE_ALL_BY_SERVICE_CONTRACT = "DELETE FROM identitystore_attribute_right WHERE id_service_contract = ? ";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_right ( id_attribute, id_service_contract, searchable, readable, writable, mandatory ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_right SET readable = ? , writable = ?, searchable = ?, mandatory = ? WHERE id_attribute = ? AND id_service_contract = ?";
-    private static final String SQL_QUERY_SELECT_ALL_BY_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, b.searchable, b.readable, b.writable, b.mandatory FROM identitystore_attribute a LEFT JOIN  identitystore_attribute_right b ON  a.id_attribute = b.id_attribute AND id_service_contract = ? ";
+    private static final String SQL_QUERY_DELETE_ALL_BY_SERVICE_CONTRACT = "DELETE FROM identitystore_service_contract_attribute_right WHERE id_service_contract = ? ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_service_contract_attribute_right ( id_attribute, id_service_contract, searchable, readable, writable, mandatory ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_service_contract_attribute_right SET readable = ? , writable = ?, searchable = ?, mandatory = ? WHERE id_attribute = ? AND id_service_contract = ?";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, b.searchable, b.readable, b.writable, b.mandatory FROM identitystore_ref_attribute a LEFT JOIN  identitystore_service_contract_attribute_right b ON  a.id_attribute = b.id_attribute AND id_service_contract = ? ";
     private static final int CONST_INT_TRUE = 1;
     private static final int CONST_INT_FALSE = 0;
 

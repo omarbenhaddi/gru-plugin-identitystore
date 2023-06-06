@@ -59,7 +59,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
     private static final String SQL_QUERY_SELECTALL_RULE = "SELECT id_rule, name, description, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule";
 
     /** Checked attributes */
-    private static final String SQL_QUERY_SELECTALL_CHECKED_ATTRIBUTES_BY_RULE_ID = "SELECT ia.id_attribute, ia.name, ia.description, ia.key_name, ia.key_type, ia.key_weight, ia.certifiable, ia.pivot, ia.common_search_key FROM identitystore_duplicate_rule_checked_attributes idrca JOIN identitystore_attribute ia on idrca.id_attribute = ia.id_attribute WHERE idrca.id_rule = ?";
+    private static final String SQL_QUERY_SELECTALL_CHECKED_ATTRIBUTES_BY_RULE_ID = "SELECT ia.id_attribute, ia.name, ia.description, ia.key_name, ia.key_type, ia.key_weight, ia.certifiable, ia.pivot, ia.common_search_key FROM identitystore_duplicate_rule_checked_attributes idrca JOIN identitystore_ref_attribute ia on idrca.id_attribute = ia.id_attribute WHERE idrca.id_rule = ?";
     private static final String SQL_QUERY_INSERT_CHECKED_ATTRIBUTES = "INSERT INTO identitystore_duplicate_rule_checked_attributes(id_rule, id_attribute) VALUES (?,?)";
     private static final String SQL_QUERY_DELETE_CHECKED_ATTRIBUTES = "DELETE FROM identitystore_duplicate_rule_checked_attributes WHERE id_rule = ?";
 
@@ -67,7 +67,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
     private static final String SQL_QUERY_SELECTALL_ATTRIBUTE_TREATMENTS_BY_RULE_ID = "SELECT idratn.id_attribute_treatment, idrat.type, ia.id_attribute, ia.name, ia.description, ia.key_name, ia.key_type, ia.key_weight, ia.certifiable, ia.pivot, ia.common_search_key "
             + "FROM identitystore_duplicate_rule_attribute_treatment idrat "
             + "    JOIN identitystore_duplicate_rule_attribute_treatment_nuples idratn on idrat.id_attribute_treatment = idratn.id_attribute_treatment "
-            + "    JOIN identitystore_attribute ia on idratn.id_attribute = ia.id_attribute " + "WHERE idrat.id_rule = ?";
+            + "    JOIN identitystore_ref_attribute ia on idratn.id_attribute = ia.id_attribute " + "WHERE idrat.id_rule = ?";
 
     private static final String SQL_QUERY_INSERT_ATTRIBUTE_TREATMENTS = "INSERT INTO identitystore_duplicate_rule_attribute_treatment(type, id_rule) VALUES (?,?)";
     private static final String SQL_QUERY_DELETE_ATTRIBUTE_TREATMENTS = "DELETE FROM identitystore_duplicate_rule_attribute_treatment WHERE id_rule = ?";

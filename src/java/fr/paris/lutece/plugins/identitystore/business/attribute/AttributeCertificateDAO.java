@@ -48,12 +48,12 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 {
     // Constants
     private static final String SQL_QUERY_SELECT = "SELECT id_attribute_certificate, certifier_code, certificate_date, expiration_date "
-            + " FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_certificate (  certifier_code, certificate_date, expiration_date ) VALUES ( ?, ?, ? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_certificate WHERE id_attribute_certificate = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_certificate SET id_attribute_certificate = ?, certifier_code = ?, certificate_date = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, certifier_code, certificate_date, expiration_date FROM identitystore_attribute_certificate";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certificate FROM identitystore_attribute_certificate";
+            + " FROM identitystore_identity_attribute_certificate WHERE id_attribute_certificate = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute_certificate (  certifier_code, certificate_date, expiration_date ) VALUES ( ?, ?, ? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute_certificate WHERE id_attribute_certificate = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute_certificate SET id_attribute_certificate = ?, certifier_code = ?, certificate_date = ?, expiration_date = ? WHERE id_attribute_certificate = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_certificate, certifier_code, certificate_date, expiration_date FROM identitystore_identity_attribute_certificate";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certificate FROM identitystore_identity_attribute_certificate";
 
     /**
      * {@inheritDoc }

@@ -51,17 +51,17 @@ import java.util.Optional;
 public final class AttributeRequirementDAO implements IAttributeRequirementDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, id_ref_certification_level, id_service_contract FROM identitystore_attribute_requirement WHERE id_attribute_requirement = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_attribute_requirement ( id_attribute, id_ref_certification_level, id_service_contract ) VALUES ( ?,?,? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_attribute_requirement WHERE id_attribute_requirement = ? ";
-    private static final String SQL_QUERY_DELETE_WITH_SERVICE_CONTRACT_ID = "DELETE FROM identitystore_attribute_requirement WHERE id_service_contract = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_attribute_requirement SET id_attribute_requirement = ?,  WHERE id_attribute_requirement = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_requirement,  FROM identitystore_attribute_requirement";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_requirement FROM identitystore_attribute_requirement";
-    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute_requirement,  FROM identitystore_attribute_requirement WHERE id_attribute_requirement IN (  ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, id_ref_certification_level, id_service_contract FROM identitystore_service_contract_attribute_requirement WHERE id_attribute_requirement = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_service_contract_attribute_requirement ( id_attribute, id_ref_certification_level, id_service_contract ) VALUES ( ?,?,? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_service_contract_attribute_requirement WHERE id_attribute_requirement = ? ";
+    private static final String SQL_QUERY_DELETE_WITH_SERVICE_CONTRACT_ID = "DELETE FROM identitystore_service_contract_attribute_requirement WHERE id_service_contract = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_service_contract_attribute_requirement SET id_attribute_requirement = ?,  WHERE id_attribute_requirement = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute_requirement,  FROM identitystore_service_contract_attribute_requirement";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_requirement FROM identitystore_service_contract_attribute_requirement";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute_requirement,  FROM identitystore_service_contract_attribute_requirement WHERE id_attribute_requirement IN (  ";
     private static final String SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, c.name, c.description, c.level, c.id_ref_certification_level"
-            + " FROM identitystore_attribute a"
-            + " LEFT JOIN  identitystore_attribute_requirement b ON  a.id_attribute = b.id_attribute AND id_service_contract = ?"
+            + " FROM identitystore_ref_attribute a"
+            + " LEFT JOIN  identitystore_service_contract_attribute_requirement b ON  a.id_attribute = b.id_attribute AND id_service_contract = ?"
             + " LEFT JOIN  identitystore_ref_certification_level c ON  c.id_ref_certification_level = b.id_ref_certification_level";
 
     /**

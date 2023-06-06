@@ -47,13 +47,13 @@ import java.util.List;
 public final class RefAttributeCertificationProcessusDAO implements IRefAttributeCertificationProcessusDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_ref_attribute_certification_processus, label, code FROM identitystore_ref_attribute_certification_processus WHERE id_ref_attribute_certification_processus = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_attribute_certification_processus ( label, code ) VALUES ( ?, ? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_attribute_certification_processus WHERE id_ref_attribute_certification_processus = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_attribute_certification_processus SET label = ?, code = ?  WHERE id_ref_attribute_certification_processus = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_ref_attribute_certification_processus, label, code  FROM identitystore_ref_attribute_certification_processus";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_ref_attribute_certification_processus FROM identitystore_ref_attribute_certification_processus";
-    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_ref_attribute_certification_processus, label, code FROM identitystore_ref_attribute_certification_processus WHERE id_ref_attribute_certification_processus IN (  ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_ref_attribute_certification_processus, label, code FROM identitystore_ref_certification_processus WHERE id_ref_attribute_certification_processus = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_certification_processus ( label, code ) VALUES ( ?, ? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_certification_processus WHERE id_ref_attribute_certification_processus = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_certification_processus SET label = ?, code = ?  WHERE id_ref_attribute_certification_processus = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_ref_attribute_certification_processus, label, code  FROM identitystore_ref_certification_processus";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_ref_attribute_certification_processus FROM identitystore_ref_certification_processus";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_ref_attribute_certification_processus, label, code FROM identitystore_ref_certification_processus WHERE id_ref_attribute_certification_processus IN (  ";
 
     /**
      * {@inheritDoc }

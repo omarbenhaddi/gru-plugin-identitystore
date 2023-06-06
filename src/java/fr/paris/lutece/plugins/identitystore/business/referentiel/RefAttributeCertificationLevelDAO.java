@@ -51,27 +51,27 @@ import java.util.Optional;
 public final class RefAttributeCertificationLevelDAO implements IRefAttributeCertificationLevelDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_attribute_certification_level WHERE id_attribute_certification_level = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_attribute_certification_level ( id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level ) VALUES ( ?,?,? ) ";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_attribute_certification_level WHERE id_attribute = ? AND id_ref_attribute_certification_processus = ? AND id_ref_certification_level = ?";
-    private static final String SQL_QUERY_DELETE_WITH_PROCESS_ID = "DELETE FROM identitystore_ref_attribute_certification_level WHERE id_ref_attribute_certification_processus = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_attribute_certification_level SET id_attribute_certification_level = ?  WHERE id_attribute = ? AND id_ref_attribute_certification_processus = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_attribute_certification_level";
-    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_attribute_certification_level";
-    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_attribute_certification_level WHERE id_ref_attribute_certification_processus IN (  ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_certification_attribute_level WHERE id_attribute_certification_level = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_certification_attribute_level ( id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level ) VALUES ( ?,?,? ) ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_certification_attribute_level WHERE id_attribute = ? AND id_ref_attribute_certification_processus = ? AND id_ref_certification_level = ?";
+    private static final String SQL_QUERY_DELETE_WITH_PROCESS_ID = "DELETE FROM identitystore_ref_certification_attribute_level WHERE id_ref_attribute_certification_processus = ? ";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_certification_attribute_level SET id_attribute_certification_level = ?  WHERE id_attribute = ? AND id_ref_attribute_certification_processus = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_certification_attribute_level";
+    private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_certification_attribute_level";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute, id_ref_attribute_certification_processus, id_ref_certification_level FROM identitystore_ref_certification_attribute_level WHERE id_ref_attribute_certification_processus IN (  ";
 
     private static final String SQL_QUERY_SELECTALL_BY_ATTRIBUTE = "SELECT a.id_ref_attribute_certification_processus, a.label, a.code, c.name, c.description, c.level, c.id_ref_certification_level"
-            + " FROM identitystore_ref_attribute_certification_processus a"
-            + " JOIN  identitystore_ref_attribute_certification_level b ON  a.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus AND id_attribute = ?"
+            + " FROM identitystore_ref_certification_processus a"
+            + " JOIN  identitystore_ref_certification_attribute_level b ON  a.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus AND id_attribute = ?"
             + " JOIN  identitystore_ref_certification_level c ON  c.id_ref_certification_level = b.id_ref_certification_level";
     private static final String SQL_QUERY_SELECTALL_BY_REF_PROCESSUS = "SELECT a.id_attribute, a.name, a.key_name, a.description, a.key_type, c.name, c.description, c.level, c.id_ref_certification_level"
-            + " FROM identitystore_attribute a"
-            + " LEFT JOIN  identitystore_ref_attribute_certification_level b ON  a.id_attribute = b.id_attribute AND id_ref_attribute_certification_processus = ?"
+            + " FROM identitystore_ref_attribute a"
+            + " LEFT JOIN  identitystore_ref_certification_attribute_level b ON  a.id_attribute = b.id_attribute AND id_ref_attribute_certification_processus = ?"
             + " LEFT JOIN  identitystore_ref_certification_level c ON  c.id_ref_certification_level = b.id_ref_certification_level";
 
     private static final String SQL_QUERY_SELECT_BY_PROCESSUS_AND_KEY_NAME = "SELECT b.id_attribute, b.name, b.key_name, b.description, b.key_type, c.id_ref_attribute_certification_processus, c.code, c.label, d.name, d.description, d.level, d.id_ref_certification_level "
-            + " FROM identitystore_ref_attribute_certification_level a " + " JOIN identitystore_attribute b ON a.id_attribute = b.id_attribute "
-            + " JOIN identitystore_ref_attribute_certification_processus c ON a.id_ref_attribute_certification_processus = c.id_ref_attribute_certification_processus "
+            + " FROM identitystore_ref_certification_attribute_level a " + " JOIN identitystore_ref_attribute b ON a.id_attribute = b.id_attribute "
+            + " JOIN identitystore_ref_certification_processus c ON a.id_ref_attribute_certification_processus = c.id_ref_attribute_certification_processus "
             + " JOIN identitystore_ref_certification_level d on a.id_ref_certification_level = d.id_ref_certification_level "
             + " WHERE c.code = ? AND b.key_name = ?";
 

@@ -1008,10 +1008,10 @@ CREATE TABLE public.identitystore_attribute (
 ALTER TABLE public.identitystore_attribute OWNER TO idstore;
 
 --
--- Name: identitystore_attribute_certificate; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_certificate; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_attribute_certificate (
+CREATE TABLE public.identitystore_identity_attribute_certificate (
     id_attribute_certificate integer NOT NULL,
     certifier_code character varying(255) DEFAULT ''::character varying NOT NULL,
     certificate_date timestamp without time zone NOT NULL,
@@ -1019,7 +1019,7 @@ CREATE TABLE public.identitystore_attribute_certificate (
 );
 
 
-ALTER TABLE public.identitystore_attribute_certificate OWNER TO idstore;
+ALTER TABLE public.identitystore_identity_attribute_certificate OWNER TO idstore;
 
 --
 -- Name: identitystore_attribute_certificat_id_attribute_certificate_seq; Type: SEQUENCE; Schema: public; Owner: idstore
@@ -1039,21 +1039,21 @@ ALTER TABLE public.identitystore_attribute_certificat_id_attribute_certificate_s
 -- Name: identitystore_attribute_certificat_id_attribute_certificate_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: idstore
 --
 
-ALTER SEQUENCE public.identitystore_attribute_certificat_id_attribute_certificate_seq OWNED BY public.identitystore_attribute_certificate.id_attribute_certificate;
+ALTER SEQUENCE public.identitystore_attribute_certificat_id_attribute_certificate_seq OWNED BY public.identitystore_identity_attribute_certificate.id_attribute_certificate;
 
 
 --
--- Name: identitystore_attribute_certification; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_certification; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_attribute_certification (
+CREATE TABLE public.identitystore_service_contract_attribute_certification (
     id_service_contract integer NOT NULL,
     id_attribute integer NOT NULL,
     id_ref_attribute_certification_processus integer NOT NULL
 );
 
 
-ALTER TABLE public.identitystore_attribute_certification OWNER TO idstore;
+ALTER TABLE public.identitystore_service_contract_attribute_certification OWNER TO idstore;
 
 --
 -- Name: identitystore_attribute_id_attribute_seq; Type: SEQUENCE; Schema: public; Owner: idstore
@@ -1077,23 +1077,23 @@ ALTER SEQUENCE public.identitystore_attribute_id_attribute_seq OWNED BY public.i
 
 
 --
--- Name: identitystore_attribute_requirement; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_requirement; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_attribute_requirement (
+CREATE TABLE public.identitystore_service_contract_attribute_requirement (
     id_service_contract integer NOT NULL,
     id_attribute integer NOT NULL,
     id_ref_certification_level integer NOT NULL
 );
 
 
-ALTER TABLE public.identitystore_attribute_requirement OWNER TO idstore;
+ALTER TABLE public.identitystore_service_contract_attribute_requirement OWNER TO idstore;
 
 --
--- Name: identitystore_attribute_right; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_right; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_attribute_right (
+CREATE TABLE public.identitystore_service_contract_attribute_right (
     id_service_contract integer NOT NULL,
     id_attribute integer NOT NULL,
     searchable smallint DEFAULT 0 NOT NULL,
@@ -1102,7 +1102,7 @@ CREATE TABLE public.identitystore_attribute_right (
 );
 
 
-ALTER TABLE public.identitystore_attribute_right OWNER TO idstore;
+ALTER TABLE public.identitystore_service_contract_attribute_right OWNER TO idstore;
 
 --
 -- Name: identitystore_client_application; Type: TABLE; Schema: public; Owner: idstore
@@ -1151,10 +1151,10 @@ ALTER SEQUENCE public.identitystore_client_application_id_client_app_seq OWNED B
 
 
 --
--- Name: identitystore_history_identity_attribute; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history ; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_history_identity_attribute (
+CREATE TABLE public.identitystore_identity_attribute_history  (
     id_history integer NOT NULL,
     change_type integer NOT NULL,
     change_satus character varying(255) NOT NULL,
@@ -1171,13 +1171,13 @@ CREATE TABLE public.identitystore_history_identity_attribute (
 );
 
 
-ALTER TABLE public.identitystore_history_identity_attribute OWNER TO idstore;
+ALTER TABLE public.identitystore_identity_attribute_history  OWNER TO idstore;
 
 --
--- Name: identitystore_history_identity_attribute_id_history_seq; Type: SEQUENCE; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history _id_history_seq; Type: SEQUENCE; Schema: public; Owner: idstore
 --
 
-CREATE SEQUENCE public.identitystore_history_identity_attribute_id_history_seq
+CREATE SEQUENCE public.identitystore_identity_attribute_history _id_history_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1185,13 +1185,13 @@ CREATE SEQUENCE public.identitystore_history_identity_attribute_id_history_seq
     CACHE 1;
 
 
-ALTER TABLE public.identitystore_history_identity_attribute_id_history_seq OWNER TO idstore;
+ALTER TABLE public.identitystore_identity_attribute_history _id_history_seq OWNER TO idstore;
 
 --
--- Name: identitystore_history_identity_attribute_id_history_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history _id_history_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: idstore
 --
 
-ALTER SEQUENCE public.identitystore_history_identity_attribute_id_history_seq OWNED BY public.identitystore_history_identity_attribute.id_history;
+ALTER SEQUENCE public.identitystore_identity_attribute_history _id_history_seq OWNED BY public.identitystore_identity_attribute_history .id_history;
 
 
 --
@@ -1288,17 +1288,17 @@ ALTER SEQUENCE public.identitystore_index_action_id_index_action_seq OWNED BY pu
 
 
 --
--- Name: identitystore_ref_attribute_certification_processus; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_processus; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_ref_attribute_certification_processus (
+CREATE TABLE public.identitystore_ref_certification_processus (
     id_ref_attribute_certification_processus integer NOT NULL,
     label character varying(50) DEFAULT ''::character varying NOT NULL,
     code character varying(50) DEFAULT ''::character varying NOT NULL
 );
 
 
-ALTER TABLE public.identitystore_ref_attribute_certification_processus OWNER TO idstore;
+ALTER TABLE public.identitystore_ref_certification_processus OWNER TO idstore;
 
 --
 -- Name: identitystore_ref_attribute_c_id_ref_attribute_certificatio_seq; Type: SEQUENCE; Schema: public; Owner: idstore
@@ -1318,21 +1318,21 @@ ALTER TABLE public.identitystore_ref_attribute_c_id_ref_attribute_certificatio_s
 -- Name: identitystore_ref_attribute_c_id_ref_attribute_certificatio_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: idstore
 --
 
-ALTER SEQUENCE public.identitystore_ref_attribute_c_id_ref_attribute_certificatio_seq OWNED BY public.identitystore_ref_attribute_certification_processus.id_ref_attribute_certification_processus;
+ALTER SEQUENCE public.identitystore_ref_attribute_c_id_ref_attribute_certificatio_seq OWNED BY public.identitystore_ref_certification_processus.id_ref_attribute_certification_processus;
 
 
 --
--- Name: identitystore_ref_attribute_certification_level; Type: TABLE; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_attribute_level; Type: TABLE; Schema: public; Owner: idstore
 --
 
-CREATE TABLE public.identitystore_ref_attribute_certification_level (
+CREATE TABLE public.identitystore_ref_certification_attribute_level (
     id_attribute integer NOT NULL,
     id_ref_certification_level integer NOT NULL,
     id_ref_attribute_certification_processus integer NOT NULL
 );
 
 
-ALTER TABLE public.identitystore_ref_attribute_certification_level OWNER TO idstore;
+ALTER TABLE public.identitystore_ref_certification_attribute_level OWNER TO idstore;
 
 --
 -- Name: identitystore_ref_certification_level; Type: TABLE; Schema: public; Owner: idstore
@@ -1523,17 +1523,17 @@ ALTER TABLE ONLY public.core_stylesheet ALTER COLUMN id_stylesheet SET DEFAULT n
 ALTER TABLE ONLY public.core_xsl_export ALTER COLUMN id_xsl_export SET DEFAULT nextval('public.core_xsl_export_id_xsl_export_seq'::regclass);
 
 --
--- Name: identitystore_attribute id_attribute; Type: DEFAULT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_attribute id_attribute; Type: DEFAULT; Schema: public; Owner: idstore
 --
 
 ALTER TABLE ONLY public.identitystore_attribute ALTER COLUMN id_attribute SET DEFAULT nextval('public.identitystore_attribute_id_attribute_seq'::regclass);
 
 
 --
--- Name: identitystore_attribute_certificate id_attribute_certificate; Type: DEFAULT; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_certificate id_attribute_certificate; Type: DEFAULT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_certificate ALTER COLUMN id_attribute_certificate SET DEFAULT nextval('public.identitystore_attribute_certificat_id_attribute_certificate_seq'::regclass);
+ALTER TABLE ONLY public.identitystore_identity_attribute_certificate ALTER COLUMN id_attribute_certificate SET DEFAULT nextval('public.identitystore_attribute_certificat_id_attribute_certificate_seq'::regclass);
 
 
 --
@@ -1544,10 +1544,10 @@ ALTER TABLE ONLY public.identitystore_client_application ALTER COLUMN id_client_
 
 
 --
--- Name: identitystore_history_identity_attribute id_history; Type: DEFAULT; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history  id_history; Type: DEFAULT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_history_identity_attribute ALTER COLUMN id_history SET DEFAULT nextval('public.identitystore_history_identity_attribute_id_history_seq'::regclass);
+ALTER TABLE ONLY public.identitystore_identity_attribute_history  ALTER COLUMN id_history SET DEFAULT nextval('public.identitystore_identity_attribute_history _id_history_seq'::regclass);
 
 
 --
@@ -1565,10 +1565,10 @@ ALTER TABLE ONLY public.identitystore_index_action ALTER COLUMN id_index_action 
 
 
 --
--- Name: identitystore_ref_attribute_certification_processus id_ref_attribute_certification_processus; Type: DEFAULT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_processus id_ref_attribute_certification_processus; Type: DEFAULT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_ref_attribute_certification_processus ALTER COLUMN id_ref_attribute_certification_processus SET DEFAULT nextval('public.identitystore_ref_attribute_c_id_ref_attribute_certificatio_seq'::regclass);
+ALTER TABLE ONLY public.identitystore_ref_certification_processus ALTER COLUMN id_ref_attribute_certification_processus SET DEFAULT nextval('public.identitystore_ref_attribute_c_id_ref_attribute_certificatio_seq'::regclass);
 
 
 --
@@ -2170,150 +2170,150 @@ INSERT INTO public.identitystore_attribute (id_attribute, name, key_name, descri
 
 
 --
--- Data for Name: identitystore_attribute_certificate; Type: TABLE DATA; Schema: public; Owner: idstore
+-- Data for Name: identitystore_identity_attribute_certificate; Type: TABLE DATA; Schema: public; Owner: idstore
 --
 
 
 
 --
--- Data for Name: identitystore_attribute_certification; Type: TABLE DATA; Schema: public; Owner: idstore
+-- Data for Name: identitystore_service_contract_attribute_certification; Type: TABLE DATA; Schema: public; Owner: idstore
 --
 
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 2, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 3, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 1, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 12, 6);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 13, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 4);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 4);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 4);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 17, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 17, 4);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 17, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 2, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 7);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 1);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 9, 5);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 9, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 20, 3);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 20, 8);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 20, 2);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 10, 5);
-INSERT INTO public.identitystore_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 10, 1);
-
-
---
--- Data for Name: identitystore_attribute_requirement; Type: TABLE DATA; Schema: public; Owner: idstore
---
-
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 11, 1);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 2, 1);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 3, 1);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 1, 4);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 1, 3);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 2, 4);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 3, 4);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 11, 5);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (3, 1, 1);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (3, 3, 1);
-INSERT INTO public.identitystore_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (3, 4, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 11, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 1, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 2, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (1, 3, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 11, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (2, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 11, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 12, 6);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 13, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 4);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 14, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 4);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 15, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 4);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 16, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 17, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 17, 4);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 17, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 1, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 2, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 3, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 4, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 5, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 6, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 7, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 7);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 1);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 8, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 9, 5);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 9, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 20, 3);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 20, 8);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 20, 2);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 10, 5);
+INSERT INTO public.identitystore_service_contract_attribute_certification (id_service_contract, id_attribute, id_ref_attribute_certification_processus) VALUES (3, 10, 1);
 
 
 --
--- Data for Name: identitystore_attribute_right; Type: TABLE DATA; Schema: public; Owner: idstore
+-- Data for Name: identitystore_service_contract_attribute_requirement; Type: TABLE DATA; Schema: public; Owner: idstore
 --
 
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 11, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 1, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 2, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 3, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 11, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 1, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 2, 0, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 3, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 22, 1, 1, 0);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 23, 1, 1, 0);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 24, 1, 1, 0);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 25, 1, 1, 0);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 10, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 11, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 12, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 13, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 14, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 15, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 16, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 17, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 18, 1, 1, 0);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 19, 1, 1, 0);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 1, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 2, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 3, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 4, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 5, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 6, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 7, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 8, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 9, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 20, 1, 1, 1);
-INSERT INTO public.identitystore_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 21, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 11, 1);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 2, 1);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 3, 1);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (1, 1, 4);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 1, 3);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 2, 4);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 3, 4);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (2, 11, 5);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (3, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (3, 3, 1);
+INSERT INTO public.identitystore_service_contract_attribute_requirement (id_service_contract, id_attribute, id_ref_certification_level) VALUES (3, 4, 1);
+
+
+--
+-- Data for Name: identitystore_service_contract_attribute_right; Type: TABLE DATA; Schema: public; Owner: idstore
+--
+
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 11, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 1, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 2, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (1, 3, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 11, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 1, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 2, 0, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (2, 3, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 22, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 23, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 24, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 25, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 10, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 11, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 12, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 13, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 14, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 15, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 16, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 17, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 18, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 19, 1, 1, 0);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 1, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 2, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 3, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 4, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 5, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 6, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 7, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 8, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 9, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 20, 1, 1, 1);
+INSERT INTO public.identitystore_service_contract_attribute_right (id_service_contract, id_attribute, searchable, readable, writable) VALUES (3, 21, 1, 1, 0);
 
 
 --
@@ -2332,7 +2332,7 @@ INSERT INTO public.identitystore_client_application (id_client_app, name, code) 
 
 
 --
--- Data for Name: identitystore_history_identity_attribute; Type: TABLE DATA; Schema: public; Owner: idstore
+-- Data for Name: identitystore_identity_attribute_history ; Type: TABLE DATA; Schema: public; Owner: idstore
 --
 
 
@@ -2356,85 +2356,85 @@ INSERT INTO public.identitystore_client_application (id_client_app, name, code) 
 
 
 --
--- Data for Name: identitystore_ref_attribute_certification_level; Type: TABLE DATA; Schema: public; Owner: idstore
+-- Data for Name: identitystore_ref_certification_attribute_level; Type: TABLE DATA; Schema: public; Owner: idstore
 --
 
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (17, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (20, 5, 3);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 6, 4);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 6, 4);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 6, 4);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (17, 6, 4);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (9, 6, 5);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (10, 6, 5);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (12, 6, 6);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 7, 7);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (2, 1, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (9, 6, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (20, 7, 8);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (10, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (13, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 3, 1);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (20, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (17, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 4, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 5, 2);
-INSERT INTO public.identitystore_ref_attribute_certification_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (17, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (20, 5, 3);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 6, 4);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 6, 4);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 6, 4);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (17, 6, 4);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (9, 6, 5);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (10, 6, 5);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (12, 6, 6);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 7, 7);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (2, 1, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (9, 6, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (20, 7, 8);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (10, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (13, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 3, 1);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (7, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (8, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (20, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (17, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (1, 4, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (16, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (15, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (14, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (3, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (4, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (5, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (11, 5, 2);
+INSERT INTO public.identitystore_ref_certification_attribute_level (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus) VALUES (6, 5, 2);
 
 
 --
--- Data for Name: identitystore_ref_attribute_certification_processus; Type: TABLE DATA; Schema: public; Owner: idstore
+-- Data for Name: identitystore_ref_certification_processus; Type: TABLE DATA; Schema: public; Owner: idstore
 --
 
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (3, 'Certifiable Agent pièce originales', 'agent');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (4, 'Certifiable Courrier', 'courrier');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (5, 'Certifiable Mail', 'mail');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (6, 'Certifiable SMS', 'sms');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (7, 'Certifiable R2P', 'r2p');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (8, 'Certifiable FC', 'fc');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (1, 'Mon Paris', 'mon_paris');
-INSERT INTO public.identitystore_ref_attribute_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (2, 'Certifiable PJ', 'pj');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (3, 'Certifiable Agent pièce originales', 'agent');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (4, 'Certifiable Courrier', 'courrier');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (5, 'Certifiable Mail', 'mail');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (6, 'Certifiable SMS', 'sms');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (7, 'Certifiable R2P', 'r2p');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (8, 'Certifiable FC', 'fc');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (1, 'Mon Paris', 'mon_paris');
+INSERT INTO public.identitystore_ref_certification_processus (id_ref_attribute_certification_processus, label, code) VALUES (2, 'Certifiable PJ', 'pj');
 
 
 --
@@ -2586,10 +2586,10 @@ SELECT pg_catalog.setval('public.identitystore_client_application_id_client_app_
 
 
 --
--- Name: identitystore_history_identity_attribute_id_history_seq; Type: SEQUENCE SET; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history _id_history_seq; Type: SEQUENCE SET; Schema: public; Owner: idstore
 --
 
-SELECT pg_catalog.setval('public.identitystore_history_identity_attribute_id_history_seq', 8242462, true);
+SELECT pg_catalog.setval('public.identitystore_identity_attribute_history _id_history_seq', 8242462, true);
 
 
 --
@@ -2972,23 +2972,23 @@ ALTER TABLE ONLY public.core_xsl_export
 
 
 --
--- Name: identitystore_attribute_certificate identitystore_attribute_certificate_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_certificate identitystore_identity_attribute_certificate_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_certificate
-    ADD CONSTRAINT identitystore_attribute_certificate_pkey PRIMARY KEY (id_attribute_certificate);
-
-
---
--- Name: identitystore_attribute_certification identitystore_attribute_certification_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
---
-
-ALTER TABLE ONLY public.identitystore_attribute_certification
-    ADD CONSTRAINT identitystore_attribute_certification_pkey PRIMARY KEY (id_attribute, id_ref_attribute_certification_processus, id_service_contract);
+ALTER TABLE ONLY public.identitystore_identity_attribute_certificate
+    ADD CONSTRAINT identitystore_identity_attribute_certificate_pkey PRIMARY KEY (id_attribute_certificate);
 
 
 --
--- Name: identitystore_attribute identitystore_attribute_key_name_key; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_certification identitystore_service_contract_attribute_certification_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+--
+
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_certification
+    ADD CONSTRAINT identitystore_service_contract_attribute_certification_pkey PRIMARY KEY (id_attribute, id_ref_attribute_certification_processus, id_service_contract);
+
+
+--
+-- Name: identitystore_ref_attribute identitystore_attribute_key_name_key; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
 ALTER TABLE ONLY public.identitystore_attribute
@@ -2996,7 +2996,7 @@ ALTER TABLE ONLY public.identitystore_attribute
 
 
 --
--- Name: identitystore_attribute identitystore_attribute_name_key; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_attribute identitystore_attribute_name_key; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
 ALTER TABLE ONLY public.identitystore_attribute
@@ -3004,7 +3004,7 @@ ALTER TABLE ONLY public.identitystore_attribute
 
 
 --
--- Name: identitystore_attribute identitystore_attribute_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_attribute identitystore_attribute_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
 ALTER TABLE ONLY public.identitystore_attribute
@@ -3012,19 +3012,19 @@ ALTER TABLE ONLY public.identitystore_attribute
 
 
 --
--- Name: identitystore_attribute_requirement identitystore_attribute_requirement_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_requirement identitystore_service_contract_attribute_requirement_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_requirement
-    ADD CONSTRAINT identitystore_attribute_requirement_pkey PRIMARY KEY (id_attribute, id_service_contract, id_ref_certification_level);
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_requirement
+    ADD CONSTRAINT identitystore_service_contract_attribute_requirement_pkey PRIMARY KEY (id_attribute, id_service_contract, id_ref_certification_level);
 
 
 --
--- Name: identitystore_attribute_right identitystore_attribute_right_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_right identitystore_service_contract_attribute_right_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_right
-    ADD CONSTRAINT identitystore_attribute_right_pkey PRIMARY KEY (id_service_contract, id_attribute);
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_right
+    ADD CONSTRAINT identitystore_service_contract_attribute_right_pkey PRIMARY KEY (id_service_contract, id_attribute);
 
 
 --
@@ -3060,11 +3060,11 @@ ALTER TABLE ONLY public.identitystore_client_application
 
 
 --
--- Name: identitystore_history_identity_attribute identitystore_history_identity_attribute_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history  identitystore_identity_attribute_history _pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_history_identity_attribute
-    ADD CONSTRAINT identitystore_history_identity_attribute_pkey PRIMARY KEY (id_history);
+ALTER TABLE ONLY public.identitystore_identity_attribute_history 
+    ADD CONSTRAINT identitystore_identity_attribute_history _pkey PRIMARY KEY (id_history);
 
 
 --
@@ -3108,19 +3108,19 @@ ALTER TABLE ONLY public.identitystore_index_action
 
 
 --
--- Name: identitystore_ref_attribute_certification_level identitystore_ref_attribute_certification_level_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_attribute_level identitystore_ref_certification_attribute_level_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_ref_attribute_certification_level
-    ADD CONSTRAINT identitystore_ref_attribute_certification_level_pkey PRIMARY KEY (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus);
+ALTER TABLE ONLY public.identitystore_ref_certification_attribute_level
+    ADD CONSTRAINT identitystore_ref_certification_attribute_level_pkey PRIMARY KEY (id_attribute, id_ref_certification_level, id_ref_attribute_certification_processus);
 
 
 --
--- Name: identitystore_ref_attribute_certification_processus identitystore_ref_attribute_certification_processus_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_processus identitystore_ref_certification_processus_pkey; Type: CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_ref_attribute_certification_processus
-    ADD CONSTRAINT identitystore_ref_attribute_certification_processus_pkey PRIMARY KEY (id_ref_attribute_certification_processus);
+ALTER TABLE ONLY public.identitystore_ref_certification_processus
+    ADD CONSTRAINT identitystore_ref_certification_processus_pkey PRIMARY KEY (id_ref_attribute_certification_processus);
 
 
 --
@@ -3252,98 +3252,98 @@ CREATE INDEX ix_attribute_value ON public.identitystore_identity_attribute USING
 
 
 --
--- Name: identitystore_attribute_certification fk_attribute_certification_certification_processus; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_certification fk_attribute_certification_certification_processus; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_certification
-    ADD CONSTRAINT fk_attribute_certification_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES public.identitystore_ref_attribute_certification_processus(id_ref_attribute_certification_processus);
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_certification
+    ADD CONSTRAINT fk_attribute_certification_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES public.identitystore_ref_certification_processus(id_ref_attribute_certification_processus);
 
 
 --
--- Name: identitystore_attribute_certification fk_attribute_certification_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_certification fk_attribute_certification_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_certification
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_certification
     ADD CONSTRAINT fk_attribute_certification_id_attribute FOREIGN KEY (id_attribute) REFERENCES public.identitystore_attribute(id_attribute);
 
 
 --
--- Name: identitystore_attribute_certification fk_attribute_certification_id_service_contract; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_certification fk_attribute_certification_id_service_contract; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_certification
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_certification
     ADD CONSTRAINT fk_attribute_certification_id_service_contract FOREIGN KEY (id_service_contract) REFERENCES public.identitystore_service_contract(id_service_contract);
 
 
 --
--- Name: identitystore_ref_attribute_certification_level fk_attribute_ref_certification_level_certification_level; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_attribute_level fk_attribute_ref_certification_level_certification_level; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_ref_attribute_certification_level
+ALTER TABLE ONLY public.identitystore_ref_certification_attribute_level
     ADD CONSTRAINT fk_attribute_ref_certification_level_certification_level FOREIGN KEY (id_ref_certification_level) REFERENCES public.identitystore_ref_certification_level(id_ref_certification_level);
 
 
 --
--- Name: identitystore_ref_attribute_certification_level fk_attribute_ref_certification_level_certification_processus; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_attribute_level fk_attribute_ref_certification_level_certification_processus; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_ref_attribute_certification_level
-    ADD CONSTRAINT fk_attribute_ref_certification_level_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES public.identitystore_ref_attribute_certification_processus(id_ref_attribute_certification_processus);
+ALTER TABLE ONLY public.identitystore_ref_certification_attribute_level
+    ADD CONSTRAINT fk_attribute_ref_certification_level_certification_processus FOREIGN KEY (id_ref_attribute_certification_processus) REFERENCES public.identitystore_ref_certification_processus(id_ref_attribute_certification_processus);
 
 
 --
--- Name: identitystore_ref_attribute_certification_level fk_attribute_ref_certification_level_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_ref_certification_attribute_level fk_attribute_ref_certification_level_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_ref_attribute_certification_level
+ALTER TABLE ONLY public.identitystore_ref_certification_attribute_level
     ADD CONSTRAINT fk_attribute_ref_certification_level_id_attribute FOREIGN KEY (id_attribute) REFERENCES public.identitystore_attribute(id_attribute);
 
 
 --
--- Name: identitystore_attribute_requirement fk_attribute_requirement_certification_level; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_requirement fk_attribute_requirement_certification_level; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_requirement
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_requirement
     ADD CONSTRAINT fk_attribute_requirement_certification_level FOREIGN KEY (id_ref_certification_level) REFERENCES public.identitystore_ref_certification_level(id_ref_certification_level);
 
 
 --
--- Name: identitystore_attribute_requirement fk_attribute_requirement_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_requirement fk_attribute_requirement_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_requirement
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_requirement
     ADD CONSTRAINT fk_attribute_requirement_id_attribute FOREIGN KEY (id_attribute) REFERENCES public.identitystore_attribute(id_attribute);
 
 
 --
--- Name: identitystore_attribute_requirement fk_attribute_requirement_id_service_contract; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_requirement fk_attribute_requirement_id_service_contract; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_requirement
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_requirement
     ADD CONSTRAINT fk_attribute_requirement_id_service_contract FOREIGN KEY (id_service_contract) REFERENCES public.identitystore_service_contract(id_service_contract);
 
 
 --
--- Name: identitystore_attribute_right fk_attribute_right_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_right fk_attribute_right_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_right
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_right
     ADD CONSTRAINT fk_attribute_right_id_attribute FOREIGN KEY (id_attribute) REFERENCES public.identitystore_attribute(id_attribute);
 
 
 --
--- Name: identitystore_attribute_right fk_attribute_right_id_service_contract; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_service_contract_attribute_right fk_attribute_right_id_service_contract; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_attribute_right
+ALTER TABLE ONLY public.identitystore_service_contract_attribute_right
     ADD CONSTRAINT fk_attribute_right_id_service_contract FOREIGN KEY (id_service_contract) REFERENCES public.identitystore_service_contract(id_service_contract);
 
 
 --
--- Name: identitystore_history_identity_attribute fk_history_identity_attribute_id_identity; Type: FK CONSTRAINT; Schema: public; Owner: idstore
+-- Name: identitystore_identity_attribute_history  fk_history_identity_attribute_id_identity; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 
-ALTER TABLE ONLY public.identitystore_history_identity_attribute
+ALTER TABLE ONLY public.identitystore_identity_attribute_history 
     ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY (id_identity) REFERENCES public.identitystore_identity(id_identity);
 
 

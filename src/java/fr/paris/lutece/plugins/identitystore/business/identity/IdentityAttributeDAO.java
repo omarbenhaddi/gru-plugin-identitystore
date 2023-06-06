@@ -65,30 +65,30 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
             + " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ? ORDER BY a.id_attribute";
     private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
-            + " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d "
+            + " FROM identitystore_identity_attribute a , identitystore_ref_attribute b, identitystore_service_contract_attribute_right c, identitystore_client_application d "
             + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
     private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
-            + " FROM identitystore_identity_attribute a , identitystore_attribute b, identitystore_attribute_right c, identitystore_client_application d "
+            + " FROM identitystore_identity_attribute a , identitystore_ref_attribute b, identitystore_service_contract_attribute_right c, identitystore_client_application d "
             + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
     private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY_AND_LIST_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.id_identity, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client"
-            + " FROM identitystore_identity_attribute a, identitystore_attribute b"
+            + " FROM identitystore_identity_attribute a, identitystore_ref_attribute b"
             + " WHERE a.id_attribute = b.id_attribute AND a.id_identity IN (${list_identity}) ${filter_attribute_key_names}";
 
     private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.id_identity, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client"
-            + " FROM identitystore_identity_attribute a, identitystore_attribute b"
+            + " FROM identitystore_identity_attribute a, identitystore_ref_attribute b"
             + " WHERE a.id_attribute = b.id_attribute AND a.id_identity IN (${list_identity})";
     private static final String SQL_FILTER_ATTRIBUTE_KEY_NAMES = "AND b.key_name IN (${list_attribute_key_names})";
     // Historical
-    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_history_identity_attribute "
+    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_attribute_history  "
             + "   (change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date) "
             + "   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history," + "       change_type, " + "       change_satus, "
             + "       change_message, " + "       author_type, " + "       author_name, " + "       client_code, " + "       id_identity, "
             + "       attribute_key, " + "       attribute_value, " + "       certification_process, " + "       certification_date, "
-            + "       modification_date " + "FROM identitystore_history_identity_attribute " + "WHERE attribute_key = ? " + "  AND id_identity = ? "
+            + "       modification_date " + "FROM identitystore_identity_attribute_history  " + "WHERE attribute_key = ? " + "  AND id_identity = ? "
             + "ORDER BY modification_date DESC";
-    private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_history_identity_attribute WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
-    private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_history_identity_attribute WHERE id_identity = ?";
+    private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_identity_attribute_history  WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
+    private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_identity_attribute_history  WHERE id_identity = ?";
 
     /**
      * {@inheritDoc }

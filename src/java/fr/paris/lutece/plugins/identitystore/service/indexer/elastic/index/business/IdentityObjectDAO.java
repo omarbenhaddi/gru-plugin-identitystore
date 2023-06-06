@@ -57,8 +57,8 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
             + "    certificate.certifier_code, certificate.certifier_code, certificate.certificate_date, certificate.expiration_date "
             + " FROM identitystore_identity identity"
             + "    LEFT JOIN identitystore_identity_attribute attribute ON identity.id_identity = attribute.id_identity "
-            + "    LEFT JOIN identitystore_attribute attributeKey ON attribute.id_attribute = attributeKey.id_attribute "
-            + "    LEFT JOIN identitystore_attribute_certificate certificate on attribute.id_certification = certificate.id_attribute_certificate "
+            + "    LEFT JOIN identitystore_ref_attribute attributeKey ON attribute.id_attribute = attributeKey.id_attribute "
+            + "    LEFT JOIN identitystore_identity_attribute_certificate certificate on attribute.id_certification = certificate.id_attribute_certificate "
             + " WHERE identity.customer_id = ? ";
 
     /**
