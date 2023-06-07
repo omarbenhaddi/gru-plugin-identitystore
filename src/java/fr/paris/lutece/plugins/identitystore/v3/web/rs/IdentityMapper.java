@@ -47,6 +47,7 @@ public class IdentityMapper
         Identity jsonIdentity = new Identity( );
         jsonIdentity.setConnectionId( identity.getConnectionId( ) );
         jsonIdentity.setCustomerId( identity.getCustomerId( ) );
+        jsonIdentity.setMonParisActive( identity.isMonParisActive( ) );
 
         List<CertifiedAttribute> certifiedAttributes = identity.getAttributes( ).entrySet( ).stream( ).map( attr -> {
             CertifiedAttribute attribute = new CertifiedAttribute( );

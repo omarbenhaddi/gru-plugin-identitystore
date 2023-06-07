@@ -242,4 +242,23 @@ public interface IIdentityDAO
      */
     List<Identity> selectAllByConnectionId( String strConnectionId, Plugin plugin );
 
+    /**
+     * Find all identities that have all attributes specified in the list in parameters.<br/>
+     * Identities <b>MUST</b> have all those attributes in order to be returned.
+     * 
+     * @param idAttributeList
+     *            the attributes id
+     * @param notMerged
+     *            if the returned identities have to be not merged
+     * @param notSuspicious
+     *            if the returned identities have to not be suspicious
+     * @param limit
+     *            number max of identities to return
+     * @param plugin
+     *            the plugin
+     * @return A list of matching identities
+     */
+    List<Identity> selectByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious, final int limit,
+            final Plugin plugin );
+
 }

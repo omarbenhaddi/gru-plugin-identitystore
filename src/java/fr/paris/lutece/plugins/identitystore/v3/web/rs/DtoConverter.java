@@ -97,6 +97,7 @@ public final class DtoConverter
         qualifiedIdentity.setMerged( identity.isMerged( ) );
         qualifiedIdentity.setLastUpdateDate( identity.getLastUpdateDate( ) );
         qualifiedIdentity.setCreationDate( identity.getCreationDate( ) );
+        qualifiedIdentity.setMonParisActive( identity.isMonParisActive( ) );
 
         if ( MapUtils.isNotEmpty( identity.getAttributes( ) ) )
         {

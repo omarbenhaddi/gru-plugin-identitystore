@@ -112,6 +112,17 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         return identities;
     }
 
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
+            final boolean notSuspicious )
+    {
+        // FIXME NOT YET IMPLEMENTED
+        return new ArrayList<>( );
+    }
+
     private QualifiedIdentity toQualifiedIdentity( final IdentityObject identityObject )
             throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
