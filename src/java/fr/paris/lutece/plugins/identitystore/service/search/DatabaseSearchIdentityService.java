@@ -34,17 +34,19 @@
 package fr.paris.lutece.plugins.identitystore.service.search;
 
 import com.google.common.collect.Lists;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,43 +70,71 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
                 .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
         try
         {
-            final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( );
-
             final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues, max );
-            if ( listIdentity == null || listIdentity.isEmpty( ) )
+            if ( listIdentity != null && !listIdentity.isEmpty( ) )
             {
-                return qualifiedIdentities;
+                return populateWithAttributesAndConvertToDto( listIdentity );
             }
-
-            final List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityListFullAttributes( listIdentity );
-
-            for ( final Identity identity : listIdentity )
-            {
-                for ( final IdentityAttribute identityAttribute : listIdentityAttribute )
-                {
-                    if ( identity.getId( ) == identityAttribute.getIdIdentity( ) )
-                    {
-                        Map<String, IdentityAttribute> mapIdentityAttributes = identity.getAttributes( );
-
-                        if ( mapIdentityAttributes == null )
-                        {
-                            mapIdentityAttributes = new HashMap<>( );
-                        }
-
-                        mapIdentityAttributes.put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
-                        identity.setAttributes( mapIdentityAttributes );
-                    }
-                }
-
-                qualifiedIdentities.add( DtoConverter.convertIdentityToDto( identity ) );
-            }
-
-            return qualifiedIdentities;
         }
-        catch( final RefAttributeCertificationDefinitionNotFoundException e )
+        catch( final IdentityStoreException e )
         {
             AppLogService.error( "An error occurred during database search: ", e );
         }
-        return new ArrayList<>( );
+        return Collections.emptyList( );
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
+            final boolean notSuspicious )
+    {
+        try
+        {
+            final List<Identity> identityList = IdentityHome.findByAttributeExisting(
+                    attributeKeys.stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) ), notMerged, notSuspicious, max );
+            if ( identityList != null && !identityList.isEmpty( ) )
+            {
+                return populateWithAttributesAndConvertToDto( identityList );
+            }
+        }
+        catch( final IdentityStoreException e )
+        {
+            AppLogService.error( "An error occurred during database search: ", e );
+        }
+        return Collections.emptyList( );
+    }
+
+    /**
+     * Populates identities with their attributes fetched from database, and convert them to DTO.
+     * 
+     * @param identityList
+     *            the identies to populate
+     * @return the DTO list
+     * @throws IdentityStoreException
+     */
+    private List<QualifiedIdentity> populateWithAttributesAndConvertToDto( final List<Identity> identityList ) throws IdentityStoreException
+    {
+        final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( identityList.size( ) );
+        final List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityListFullAttributes( identityList );
+        for ( final Identity identity : identityList )
+        {
+            for ( final IdentityAttribute identityAttribute : listIdentityAttribute )
+            {
+                if ( identity.getId( ) == identityAttribute.getIdIdentity( ) )
+                {
+                    Map<String, IdentityAttribute> mapIdentityAttributes = identity.getAttributes( );
+                    if ( mapIdentityAttributes == null )
+                    {
+                        mapIdentityAttributes = new HashMap<>( );
+                    }
+                    mapIdentityAttributes.put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
+                    identity.setAttributes( mapIdentityAttributes );
+                }
+            }
+            qualifiedIdentities.add( DtoConverter.convertIdentityToDto( identity ) );
+        }
+        return qualifiedIdentities;
     }
 }

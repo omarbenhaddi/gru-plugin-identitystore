@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
@@ -83,6 +84,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +108,7 @@ public class IdentityService
     private final IDuplicateService _duplicateServiceImportSuspicion = SpringContextService.getBean( "identitystore.duplicateService.import.suspicion" );
     private final IdentityAttributeCache _cache = SpringContextService.getBean( "identitystore.identityAttributeCache" );
     protected ISearchIdentityService _searchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService" );
+    protected ISearchIdentityService _searchDbIdentityService = SpringContextService.getBean( "identitystore.db.searchIdentityService" );
 
     private static IdentityService _instance;
 
@@ -1617,5 +1620,37 @@ public class IdentityService
         }
         filteredIdentities.sort( comparator );
         return filteredIdentities;
+    }
+
+    /**
+     * Gets a list of identities on which to search potential duplicates.<br/>
+     * Returned identities must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.
+     * 
+     * @param rule
+     *            the rule used to get matching identities
+     * @return the list of identities
+     */
+    public List<QualifiedIdentity> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int limit )
+    {
+        if ( rule == null )
+        {
+            return Collections.emptyList( );
+        }
+        return _searchDbIdentityService.getQualifiedIdentitiesHavingAttributes( rule.getCheckedAttributes( ), limit, true, true );
+    }
+
+    /**
+     * Search and returns the number of potential duplicates of the identity corresponding to the provided customer ID, according the the provided rule.
+     * 
+     * @param customerId
+     *            the customer ID
+     * @param rule
+     *            the duplicate rule
+     * @return number of potential duplicates found
+     */
+    public int getNumberOfPotentialDuplicates( final String customerId, final DuplicateRule rule )
+    {
+        // TODO NOT IMPLEMENTED YET
+        return 0;
     }
 }

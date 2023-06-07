@@ -433,4 +433,24 @@ public final class IdentityHome
         return _dao.selectIdentitysReferenceList( _plugin );
     }
 
+    /**
+     * Find all identities that have all attributes specified in the list in parameters.<br/>
+     * Identities <b>MUST</b> have all those attributes in order to be returned.
+     * 
+     * @param idAttributeList
+     *            the attributes id
+     * @param notMerged
+     *            if the returned identities have to be not merged
+     * @param notSuspicious
+     *            if the returned identities have to not be suspicious
+     * @param limit
+     *            number max of identities to return
+     * @return A list of matching identities
+     */
+    public static List<Identity> findByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious,
+            final int limit )
+    {
+        return _dao.selectByAttributeExisting( idAttributeList, notMerged, notSuspicious, limit, _plugin );
+    }
+
 }

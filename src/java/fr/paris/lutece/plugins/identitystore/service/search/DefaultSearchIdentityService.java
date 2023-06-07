@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.search;
 
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
@@ -53,6 +54,13 @@ public class DefaultSearchIdentityService implements ISearchIdentityService
 
     @Override
     public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
+    {
+        return new ArrayList<>( );
+    }
+
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
+            final boolean notSuspicious )
     {
         return new ArrayList<>( );
     }

@@ -40,7 +40,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This class provides Data Access methods for Identity objects
@@ -96,6 +103,12 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now(), connection_id = null WHERE id_identity = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), id_master_identity = ? WHERE id_identity = ?";
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge"
+            + " FROM identitystore_identity a" + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
+            + " WHERE b.id_attribute IN (${id_attribute_list}) AND (${not_merged}) AND (${not_suspicious})"
+            + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) = ${count} LIMIT ${limit}";
+    private static final String SQL_QUERY_FILTER_NOT_MERGED = "a.is_merged = 0 AND a.date_merge IS NULL";
+    private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
 
     /**
      * Generates a new customerId key using Java UUID
@@ -459,7 +472,7 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setMerged( daoUtil.getBoolean( nIndex++ ) );
         identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
         identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-        identity.setMergeDate( daoUtil.getTimestamp( nIndex++ ) );
+        identity.setMergeDate( daoUtil.getTimestamp( nIndex ) );
         return identity;
     }
 
@@ -683,6 +696,35 @@ public final class IdentityDAO implements IIdentityDAO
 
             return listIdentities;
         }
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<Identity> selectByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious, final int limit,
+            final Plugin plugin )
+    {
+        final List<Identity> listIdentities = new ArrayList<>( );
+        if ( idAttributeList == null || idAttributeList.isEmpty( ) )
+        {
+            return listIdentities;
+        }
+        String sql = SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING
+                .replace( "${id_attribute_list}", idAttributeList.stream( ).map( Object::toString ).collect( Collectors.joining( ", " ) ) )
+                .replace( "${not_merged}", ( notMerged ? SQL_QUERY_FILTER_NOT_MERGED : "1=1" ) )
+                .replace( "${not_suspicious}", ( notSuspicious ? SQL_QUERY_FILTER_NOT_SUSPICIOUS : "1=1" ) )
+                .replace( "${count}", String.valueOf( idAttributeList.size( ) ) ).replace( "${limit}", String.valueOf( limit ) );
+        try ( final DAOUtil daoUtil = new DAOUtil( sql, plugin ) )
+        {
+            daoUtil.executeQuery( );
+            while ( daoUtil.next( ) )
+            {
+                final Identity identity = getIdentityFromQuery( daoUtil );
+                listIdentities.add( identity );
+            }
+        }
+        return listIdentities;
     }
 
 }
