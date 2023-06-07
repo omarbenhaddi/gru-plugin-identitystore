@@ -152,26 +152,26 @@ public class IdentityService
             throw new IdentityStoreException( "You cannot specify a CUID when requesting for a creation" );
         }
 
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) 
+        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) )
         		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot specify a GUID when requesting for a creation" );
         }
 
         // check if can set "mon_paris_active" flag to true
-        if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) )  
+        if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) )
         		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
         	throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
         }
 
         // check if GUID is already in use
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) 
+        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) )
         		&& IdentityHome.findByCustomerId( identityChangeRequest.getIdentity( ).getConnectionId( ) ) != null  )
         {
             throw new IdentityStoreException( "GUID is already in use." );
         }
-        
+
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
         final DuplicateDto duplicates = _duplicateServiceCreation.findDuplicates( attributes );
@@ -402,7 +402,7 @@ public class IdentityService
 
     /**
      * Private methode used to process both "birthcountry_code" and "birthcountry" attributes during an create process of an identity.
-     * 
+     *
      * @param identity
      * @param attrToCreate
      * @param clientCode
@@ -511,7 +511,7 @@ public class IdentityService
 
     /**
      * Private methode used to process both "birthplace_code" and "birthplace" attributes during an create process of an identity.
-     * 
+     *
      * @param identity
      * @param attrToCreate
      * @param clientCode
@@ -619,7 +619,7 @@ public class IdentityService
 
     /**
      * Private methode used to process both "birthcountry_code" and "birthcountry" attributes during an update process of an identity.
-     * 
+     *
      * @param identity
      * @param attrToCreate
      * @param attrToUpdate
@@ -900,7 +900,7 @@ public class IdentityService
 
     /**
      * Private methode used to process both "birthplace_code" and "birthplace" attributes during an update process of an identity.
-     * 
+     *
      * @param identity
      * @param attrToCreate
      * @param attrToUpdate
@@ -1181,7 +1181,7 @@ public class IdentityService
 
     /**
      * Private method used to create an attribute for an identity.
-     * 
+     *
      * @param attributeToCreate
      * @param identity
      * @param clientCode
@@ -1219,7 +1219,7 @@ public class IdentityService
 
     /**
      * private method used to update an attribute of an identity
-     * 
+     *
      * @param attributeToUpdate
      * @param identity
      * @param clientCode
@@ -1659,7 +1659,7 @@ public class IdentityService
     /**
      * Gets a list of identities on which to search potential duplicates.<br/>
      * Returned identities must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.
-     * 
+     *
      * @param rule
      *            the rule used to get matching identities
      * @return the list of identities
@@ -1675,7 +1675,7 @@ public class IdentityService
 
     /**
      * Search and returns the number of potential duplicates of the identity corresponding to the provided customer ID, according the the provided rule.
-     * 
+     *
      * @param customerId
      *            the customer ID
      * @param rule
@@ -1687,8 +1687,8 @@ public class IdentityService
         // TODO NOT IMPLEMENTED YET
         return 0;
     }
-    
-    
+
+
     public void deleteRequest( final String customerId, final String clientCode,
     		IdentityChangeRequest identityChangeRequest,
             final IdentityChangeResponse response ) throws IdentityStoreException
@@ -1700,7 +1700,7 @@ public class IdentityService
             response.setMessage( "The client application is not authorized to request the deletion of an identity." );
             return;
         }
-        
+
         // check identity
         Identity identity = IdentityHome.findByCustomerId( customerId );
         if ( identity == null )
@@ -1724,16 +1724,16 @@ public class IdentityService
             response.setMessage( "Identity in merged state can not be deleted." );
             return;
         }
-        
+
         // expire identity (the  deletion is managed by the dedicated Daemon)
 	    IdentityHome.softRemove( customerId );
-	        
+
 	    response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
-	      
+
 	    /* Notify listeners for indexation, history, ...  */
-	    _identityStoreNotifyListenerService.notifyListenersIdentityChange( 
+	    _identityStoreNotifyListenerService.notifyListenersIdentityChange(
 	    		new IdentityChange( identity, IdentityChangeType.DELETE, identityChangeRequest.getOrigin() ) );
-        
-        
+
+
     }
 }
