@@ -69,9 +69,9 @@ public final class IdentityHome
      *            The instance of the Identity which contains the informations to store
      * @return The instance of identity which has been created with its primary key.
      */
-    public static Identity create( Identity identity )
+    public static Identity create( final Identity identity, final int dataRetentionPeriodInMonth )
     {
-        _dao.insert( identity, _plugin );
+        _dao.insert( identity, dataRetentionPeriodInMonth, _plugin );
 
         return identity;
     }

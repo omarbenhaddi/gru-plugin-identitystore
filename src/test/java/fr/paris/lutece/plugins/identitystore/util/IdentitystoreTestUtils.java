@@ -73,7 +73,7 @@ public class IdentitystoreTestUtils
     public static Identity createIdentityInDatabase( )
     {
         Identity identity = createIdentity( );
-        identity = IdentityHome.create( identity );
+        identity = IdentityHome.create( identity, 36 );
 
         return identity;
     }

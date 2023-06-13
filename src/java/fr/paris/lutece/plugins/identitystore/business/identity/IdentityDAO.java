@@ -40,6 +40,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,54 +59,54 @@ public final class IdentityDAO implements IIdentityDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_identity ) FROM identitystore_identity";
-    private static final String SQL_QUERY_SELECT = "SELECT id_identity, connection_id, customer_id, is_mon_paris_active FROM identitystore_identity WHERE id_identity = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity (  connection_id, customer_id, date_create, is_mon_paris_active ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT = "SELECT id_identity, connection_id, customer_id, is_mon_paris_active, expiration_date FROM identitystore_identity WHERE id_identity = ?";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity (  connection_id, customer_id, date_create, is_mon_paris_active, expiration_date ) VALUES ( ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity WHERE id_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity SET id_identity = ?, connection_id = ?, customer_id = ?, last_update_date = ?, is_mon_paris_active = ? WHERE id_identity = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, is_mon_paris_active FROM identitystore_identity";
-    private static final String SQL_QUERY_SELECTALL_FULL = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active FROM identitystore_identity";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, is_mon_paris_active, expiration_date FROM identitystore_identity";
+    private static final String SQL_QUERY_SELECTALL_FULL = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date FROM identitystore_identity";
     private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS = "SELECT customer_id FROM identitystore_identity";
     private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS_WITH_LIMIT = "SELECT customer_id FROM identitystore_identity ORDER BY id_identity ASC LIMIT ?, ?";
-    private static final String SQL_QUERY_SELECT_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active FROM identitystore_identity WHERE connection_id = ?";
-    private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id,  customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active FROM identitystore_identity WHERE customer_id = ?";
+    private static final String SQL_QUERY_SELECT_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date FROM identitystore_identity WHERE connection_id = ?";
+    private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_identity, connection_id,  customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date FROM identitystore_identity WHERE customer_id = ?";
     private static final String SQL_QUERY_SELECT_NOT_MERGED_BY_CUSTOMER_ID = "WITH RECURSIVE identity_tree AS ("
-            + "    SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active"
+            + "    SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date"
             + "    FROM identitystore_identity" + "    WHERE customer_id = ?" + "    UNION ALL"
-            + "    SELECT id.id_identity, id.connection_id, id.customer_id, id.is_deleted, id.is_merged, id.id_master_identity, id.date_create, id.last_update_date, id.date_merge, id.is_mon_paris_active"
+            + "    SELECT id.id_identity, id.connection_id, id.customer_id, id.is_deleted, id.is_merged, id.id_master_identity, id.date_create, id.last_update_date, id.date_merge, id.is_mon_paris_active, id.expiration_date"
             + "    FROM identitystore_identity id" + "        INNER JOIN identity_tree mtree ON mtree.id_master_identity = id.id_identity" + " )"
-            + " select id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active from identity_tree where is_merged = 0;";
+            + " select id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date from identity_tree where is_merged = 0;";
 
     private static final String SQL_QUERY_SELECT_NOT_MERGED_BY_CONNECTION_ID = "WITH RECURSIVE identity_tree AS ("
-            + "    SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active"
+            + "    SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date"
             + "    FROM identitystore_identity" + "    WHERE connection_id = ?" + "    UNION ALL"
-            + "    SELECT id.id_identity, id.connection_id, id.customer_id, id.is_deleted, id.is_merged, id.id_master_identity, id.date_create, id.last_update_date, id.date_merge, id.is_mon_paris_active"
+            + "    SELECT id.id_identity, id.connection_id, id.customer_id, id.is_deleted, id.is_merged, id.id_master_identity, id.date_create, id.last_update_date, id.date_merge, id.is_mon_paris_active, id.expiration_date"
             + "    FROM identitystore_identity id" + "        INNER JOIN identity_tree mtree ON mtree.id_master_identity = id.id_identity" + " )"
-            + " select id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active from identity_tree where is_merged = 0;";
+            + " select id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date from identity_tree where is_merged = 0;";
 
     private static final String SQL_QUERY_SELECT_NOT_MERGED_BY_BOTH_CONNECTION_AND_CUSTOMER_ID = "WITH RECURSIVE identity_tree AS ("
-            + "    SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active"
+            + "    SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, id_master_identity, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date"
             + "    FROM identitystore_identity" + "    WHERE customer_id = ? AND connection_id = ?" + "    UNION ALL"
-            + "    SELECT id.id_identity, id.connection_id, id.customer_id, id.is_deleted, id.is_merged, id.id_master_identity, id.date_create, id.last_update_date, id.date_merge, id.is_mon_paris_active"
+            + "    SELECT id.id_identity, id.connection_id, id.customer_id, id.is_deleted, id.is_merged, id.id_master_identity, id.date_create, id.last_update_date, id.date_merge, id.is_mon_paris_active, id.expiration_date"
             + "    FROM identitystore_identity id" + "        INNER JOIN identity_tree mtree ON mtree.id_master_identity = id.id_identity" + " )"
-            + " select id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active from identity_tree where is_merged = 0;";
+            + " select id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date from identity_tree where is_merged = 0;";
     private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity, is_deleted, is_merged FROM identitystore_identity WHERE connection_id = ?";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active "
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date "
             + " FROM identitystore_identity a,  identitystore_identity_attribute b " + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE = " AND b.id_attribute = ? ";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active"
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date"
             + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_ref_attribute c"
             + " WHERE a.id_identity = b.id_identity AND b.id_attribute = c.id_attribute AND (${filter})"
             + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT ${limit}";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND b.attribute_value IN (${list}))";
-    private static final String SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active FROM identitystore_identity WHERE connection_id ";
-    private static final String SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active  FROM identitystore_identity WHERE customer_id ";
-    private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active FROM identitystore_identity a,  identitystore_identity_attribute b "
+    private static final String SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date FROM identitystore_identity WHERE connection_id ";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date  FROM identitystore_identity WHERE customer_id ";
+    private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date FROM identitystore_identity a,  identitystore_identity_attribute b "
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value LIKE ? )" + " OR a.customer_id LIKE ? OR a.connection_id LIKE ?";
-    private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active FROM identitystore_identity a,  identitystore_identity_attribute b "
+    private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date FROM identitystore_identity a,  identitystore_identity_attribute b "
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now(), connection_id = null WHERE id_identity = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), id_master_identity = ? WHERE id_identity = ?";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active"
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date"
             + " FROM identitystore_identity a" + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
             + " WHERE b.id_attribute IN (${id_attribute_list}) AND (${not_merged}) AND (${not_suspicious})"
             + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) = ${count} LIMIT ${limit}";
@@ -124,18 +127,21 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public void insert( Identity identity, Plugin plugin )
+    public void insert( final Identity identity, final int dataRetentionPeriodInMonth, final Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
-            identity.setCreationDate( new Timestamp( new Date( ).getTime( ) ) );
+            final ZonedDateTime now = ZonedDateTime.now( ZoneId.systemDefault( ) );
+            identity.setCreationDate( Timestamp.from( now.toInstant( ) ) );
+            identity.setExpirationDate( Timestamp.from( now.plus( dataRetentionPeriodInMonth, ChronoUnit.MONTHS ).toInstant( ) ) );
 
             int nIndex = 1;
             identity.setCustomerId( newCustomerIdKey( ) );
             daoUtil.setString( nIndex++, identity.getConnectionId( ) );
             daoUtil.setString( nIndex++, identity.getCustomerId( ) );
             daoUtil.setTimestamp( nIndex++, identity.getCreationDate( ) );
-            daoUtil.setBoolean( nIndex, identity.isMonParisActive( ) );
+            daoUtil.setBoolean( nIndex++, identity.isMonParisActive( ) );
+            daoUtil.setTimestamp( nIndex, identity.getExpirationDate( ) );
 
             daoUtil.executeUpdate( );
 
@@ -168,8 +174,8 @@ public final class IdentityDAO implements IIdentityDAO
                 identity.setId( daoUtil.getInt( nIndex++ ) );
                 identity.setConnectionId( daoUtil.getString( nIndex++ ) );
                 identity.setCustomerId( daoUtil.getString( nIndex++ ) );
-                identity.setMonParisActive( daoUtil.getBoolean( nIndex ) );
-
+                identity.setMonParisActive( daoUtil.getBoolean( nIndex++ ) );
+                identity.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
             }
 
             if ( identity != null )
@@ -334,7 +340,8 @@ public final class IdentityDAO implements IIdentityDAO
                 identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
                 identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
                 identity.setMergeDate( daoUtil.getTimestamp( nIndex++ ) );
-                identity.setMonParisActive( daoUtil.getBoolean( nIndex ) );
+                identity.setMonParisActive( daoUtil.getBoolean( nIndex++ ) );
+                identity.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
             }
 
             return identityList;
@@ -477,7 +484,8 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
         identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
         identity.setMergeDate( daoUtil.getTimestamp( nIndex++ ) );
-        identity.setMonParisActive( daoUtil.getBoolean( nIndex ) );
+        identity.setMonParisActive( daoUtil.getBoolean( nIndex++ ) );
+        identity.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
         return identity;
     }
 
