@@ -182,7 +182,8 @@ public final class IdentityRequestValidator
      */
     public void checkIdentityChange( IdentityChangeRequest identityChange ) throws IdentityStoreException
     {
-        if ( identityChange == null || identityChange.getIdentity( ) == null || CollectionUtils.isEmpty( identityChange.getIdentity( ).getAttributes( ) ) )
+        if ( identityChange == null || identityChange.getIdentity( ) == null
+                || ( identityChange.getIdentity( ).getMonParisActive( ) == null && CollectionUtils.isEmpty( identityChange.getIdentity( ).getAttributes( ) ) ) )
         {
             throw new IdentityStoreException( "Provided Identity Change request is null or empty" );
         }

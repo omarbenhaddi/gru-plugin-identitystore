@@ -155,6 +155,17 @@ public class IdentityService
             throw new IdentityStoreException( "You cannot specify a GUID when requesting for a creation" );
         }
 
+        // check if can set "mon_paris_active" flag to true
+        if ( !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        {
+            if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) ) )
+            {
+                response.setStatus( IdentityChangeStatus.CONFLICT );
+                response.setMessage( "The client application is not authorized to initialize the 'mon_paris_active' flag." );
+                return null;
+            }
+        }
+
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
         final DuplicateDto duplicates = _duplicateServiceCreation.findDuplicates( attributes );
@@ -167,6 +178,8 @@ public class IdentityService
         }
 
         final Identity identity = new Identity( );
+        identity.setMonParisActive(
+                identityChangeRequest.getIdentity( ).getMonParisActive( ) != null ? identityChangeRequest.getIdentity( ).getMonParisActive( ) : false );
         if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) )
         {
             identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
@@ -271,12 +284,23 @@ public class IdentityService
         }
 
         // if the identity is connected, check if the service contract allow the update
-        if ( identity.isConnected( ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        // check if can update "mon_paris_active" flag
+        if ( !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-            response.setStatus( IdentityChangeStatus.CONFLICT );
-            response.setCustomerId( identity.getCustomerId( ) );
-            response.setMessage( "The client application is not authorized to update a connected identity." );
-            return null;
+            if ( identity.isConnected( ) )
+            {
+                response.setStatus( IdentityChangeStatus.CONFLICT );
+                response.setCustomerId( identity.getCustomerId( ) );
+                response.setMessage( "The client application is not authorized to update a connected identity." );
+                return null;
+            }
+            if ( identityChangeRequest.getIdentity( ).getMonParisActive( ) != null )
+            {
+                response.setStatus( IdentityChangeStatus.CONFLICT );
+                response.setCustomerId( identity.getCustomerId( ) );
+                response.setMessage( "The client application is not authorized to update the 'mon_paris_active' flag." );
+                return null;
+            }
         }
 
         // check if update does not create duplicates
@@ -336,6 +360,10 @@ public class IdentityService
             response.getAttributeStatuses( ).add( attributeStatus );
         }
 
+        if ( identityChangeRequest.getIdentity( ).getMonParisActive( ) != null )
+        {
+            identity.setMonParisActive( identityChangeRequest.getIdentity( ).getMonParisActive( ) );
+        }
         IdentityHome.update( identity );
 
         response.setCustomerId( identity.getCustomerId( ) );

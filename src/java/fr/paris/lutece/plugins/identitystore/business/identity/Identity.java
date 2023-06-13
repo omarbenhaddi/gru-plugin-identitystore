@@ -67,6 +67,7 @@ public class Identity implements Serializable
     private boolean _bIsMerged;
     private Timestamp _dateMergeDate;
     private int _nMasterIdentityId;
+    private boolean _bIsMonParisActive;
 
     /**
      * Returns the Id
@@ -262,5 +263,15 @@ public class Identity implements Serializable
     public void setLastUpdateDate( Timestamp lastUpdateDate )
     {
         this._dateLastUpdateDate = lastUpdateDate;
+    }
+
+    public boolean isMonParisActive( )
+    {
+        return _bIsMonParisActive;
+    }
+
+    public void setMonParisActive( boolean _bIsMonParisActive )
+    {
+        this._bIsMonParisActive = _bIsMonParisActive;
     }
 }

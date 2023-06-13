@@ -1,0 +1,1 @@
+ALTER TABLE identitystore_identity ADD COLUMN is_mon_paris_active smallint NOT NULL DEFAULT 0;
