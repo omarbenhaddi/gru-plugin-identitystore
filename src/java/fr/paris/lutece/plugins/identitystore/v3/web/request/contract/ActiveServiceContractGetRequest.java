@@ -82,6 +82,12 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
         final ServiceContractSearchResponse response = new ServiceContractSearchResponse( );
 
         final ServiceContract activeServiceContract = ServiceContractService.instance( ).getActiveServiceContract( _strClientCode );
+        if ( activeServiceContract == null )
+        {
+            response.setStatus( ServiceContractSearchStatusType.NOT_FOUND );
+            return response;
+        }
+
         // TODO amélioration générale à mener sur ce point
         for ( final AttributeCertification certification : activeServiceContract.getAttributeCertifications( ) )
         {
@@ -92,15 +98,8 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
             }
         }
 
-        if ( activeServiceContract == null )
-        {
-            response.setStatus( ServiceContractSearchStatusType.NOT_FOUND );
-        }
-        else
-        {
-            response.setServiceContract( DtoConverter.convertContractToDto( activeServiceContract ) );
-            response.setStatus( ServiceContractSearchStatusType.SUCCESS );
-        }
+        response.setServiceContract( DtoConverter.convertContractToDto( activeServiceContract ) );
+        response.setStatus( ServiceContractSearchStatusType.SUCCESS );
 
         return response;
     }

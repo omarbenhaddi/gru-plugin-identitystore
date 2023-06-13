@@ -51,12 +51,13 @@ public enum KeyType
     STRING( 0, "string" ),
     NUMERIC( 1, "numeric" ),
     FILE( 2, "file" ),
-    DATE( 3, "date" );
+    DATE( 3, "date" ),
+    ENUM( 4, "enum" );
 
     private static final String MESSAGE_PREFIX = "identitystore.keytype.label.";
-    private static Map<Integer, KeyType> _mapKeyType = new HashMap<Integer, KeyType>( );
-    private int _nId;
-    private String _strCode;
+    private static final Map<Integer, KeyType> _mapKeyType = new HashMap<Integer, KeyType>( );
+    private final int _nId;
+    private final String _strCode;
 
     /**
      * private constructor
@@ -66,7 +67,7 @@ public enum KeyType
      * @param strCode
      *            code
      */
-    KeyType( int nId, String strCode )
+    KeyType( final int nId, final String strCode )
     {
         _nId = nId;
         _strCode = strCode;
@@ -74,7 +75,7 @@ public enum KeyType
 
     static
     {
-        for ( KeyType enumKeyType : EnumSet.allOf( KeyType.class ) )
+        for ( final KeyType enumKeyType : values( ) )
         {
             _mapKeyType.put( enumKeyType._nId, enumKeyType );
         }
@@ -145,7 +146,7 @@ public enum KeyType
     {
         ReferenceList refListLevel = new ReferenceList( );
 
-        for ( KeyType keyType : KeyType.values( ) )
+        for ( final KeyType keyType : values( ) )
         {
             refListLevel.addItem( keyType.getId( ), keyType.getLocalizedMessage( locale ) );
         }
