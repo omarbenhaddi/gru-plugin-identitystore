@@ -98,6 +98,7 @@ public final class DtoConverter
         qualifiedIdentity.setLastUpdateDate( identity.getLastUpdateDate( ) );
         qualifiedIdentity.setCreationDate( identity.getCreationDate( ) );
         qualifiedIdentity.setMonParisActive( identity.isMonParisActive( ) );
+        qualifiedIdentity.setExpirationDate( identity.getExpirationDate( ) );
 
         if ( MapUtils.isNotEmpty( identity.getAttributes( ) ) )
         {

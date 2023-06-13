@@ -181,7 +181,7 @@ public class IdentityService
         {
             identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
         }
-        IdentityHome.create( identity );
+        IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
 
         final List<CertifiedAttribute> attributesToCreate = identityChangeRequest.getIdentity( ).getAttributes( );
         processCountryForCreate( identity, attributesToCreate, clientCode, response );

@@ -311,6 +311,12 @@ public class ServiceContractService
         return serviceContract.getAuthorizedUpdate( );
     }
 
+    public int getDataRetentionPeriodInMonths( final String clientCode ) throws ServiceContractNotFoundException
+    {
+        final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
+        return serviceContract.getDataRetentionPeriodInMonths( );
+    }
+
     private AttributeStatus buildAttributeStatus( final CertifiedAttribute certifiedAttribute, final AttributeChangeStatus status )
     {
         final AttributeStatus attributeStatus = new AttributeStatus( );

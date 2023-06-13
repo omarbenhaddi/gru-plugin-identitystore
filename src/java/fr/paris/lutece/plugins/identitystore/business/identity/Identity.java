@@ -68,6 +68,7 @@ public class Identity implements Serializable
     private Timestamp _dateMergeDate;
     private int _nMasterIdentityId;
     private boolean _bIsMonParisActive;
+    private Timestamp _dateExpirationDate;
 
     /**
      * Returns the Id
@@ -273,5 +274,15 @@ public class Identity implements Serializable
     public void setMonParisActive( boolean _bIsMonParisActive )
     {
         this._bIsMonParisActive = _bIsMonParisActive;
+    }
+
+    public Timestamp getExpirationDate( )
+    {
+        return _dateExpirationDate;
+    }
+
+    public void setExpirationDate( Timestamp _dateExpirationDate )
+    {
+        this._dateExpirationDate = _dateExpirationDate;
     }
 }

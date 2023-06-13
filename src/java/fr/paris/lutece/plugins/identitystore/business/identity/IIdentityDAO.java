@@ -54,7 +54,7 @@ public interface IIdentityDAO
      * @param plugin
      *            the Plugin
      */
-    void insert( Identity identity, Plugin plugin );
+    void insert( Identity identity, int dataRetentionPeriodInMonth, Plugin plugin );
 
     /**
      * Update the record in the table
