@@ -33,45 +33,34 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Bool
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public abstract class AbstractSpan
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
+    @JsonIgnore
+    protected String name;
+    protected String query;
 
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    public String getName( )
     {
-        return must;
+        return name;
     }
 
-    public void setMust( List<AbstractContainer> must )
+    public void setName( String name )
     {
-        this.must = must;
+        this.name = name;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public String getQuery( )
+    {
+        return query;
     }
 
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
+    public void setQuery( String query )
+    {
+        this.query = query;
     }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
 }

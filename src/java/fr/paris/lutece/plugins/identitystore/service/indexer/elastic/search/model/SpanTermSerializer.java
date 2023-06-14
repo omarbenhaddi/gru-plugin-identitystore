@@ -31,47 +31,23 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.SpanTerm;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
-public class Bool
+public class SpanTermSerializer extends JsonSerializer<SpanTerm>
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    @Override
+    public void serialize(SpanTerm o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
     {
-        return must;
+        jsonGenerator.writeStartObject( );
+        jsonGenerator.writeObjectField( o.getName( ), o.getValue() );
+        jsonGenerator.writeEndObject( );
     }
-
-    public void setMust( List<AbstractContainer> must )
-    {
-        this.must = must;
-    }
-
-    public List<AbstractContainer> getShould() {
-        return should;
-    }
-
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
-    }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
 }

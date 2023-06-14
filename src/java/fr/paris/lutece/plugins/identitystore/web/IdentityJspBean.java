@@ -186,7 +186,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 }
                 if ( CollectionUtils.isNotEmpty( atttributes ) )
                 {
-                    qualifiedIdentities.addAll( _searchIdentityService.getQualifiedIdentities( atttributes, 0, false ) );
+                    qualifiedIdentities.addAll( _searchIdentityService.getQualifiedIdentities( atttributes, null,0, false ) );
                 }
             }
         }

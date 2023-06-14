@@ -33,45 +33,53 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bool
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class SpanNear
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    @JsonProperty( "clauses" )
+    protected List<AbstractSpan> clauses;
+    protected Integer boost;
+    protected Integer slop;
+    @JsonProperty( "in_order" )
+    protected boolean inOrder;
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
-    {
-        return must;
+    public List<AbstractSpan> getClauses() {
+        if(this.clauses == null)
+            this.clauses = new ArrayList<>();
+        return clauses;
     }
 
-    public void setMust( List<AbstractContainer> must )
-    {
-        this.must = must;
+    public void setClauses(List<AbstractSpan> clauses) {
+        this.clauses = clauses;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public Integer getBoost() {
+        return boost;
     }
 
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
+    public void setBoost(Integer boost) {
+        this.boost = boost;
     }
 
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
+    public Integer getSlop() {
+        return slop;
     }
 
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
+    public void setSlop(Integer slop) {
+        this.slop = slop;
     }
 
+    public boolean isInOrder() {
+        return inOrder;
+    }
+
+    public void setInOrder(boolean inOrder) {
+        this.inOrder = inOrder;
+    }
 }

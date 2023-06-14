@@ -137,4 +137,9 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
         }
         return qualifiedIdentities;
     }
+
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, Integer minimalShouldMatch, int max, boolean connected) {
+        return null;
+    }
 }

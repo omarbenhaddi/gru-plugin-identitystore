@@ -33,45 +33,29 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SpanMultiSerializer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Bool
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class SpanMultiFuzzyMatchContainer
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    @JsonProperty( "fuzzy" )
+    @JsonSerialize( using = SpanMultiSerializer.class )
+    protected SpanMultiFuzzyMatch fuzzy;
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    public SpanMultiFuzzyMatchContainer(SpanMultiFuzzyMatch fuzzy )
     {
-        return must;
+        this.fuzzy = fuzzy;
     }
 
-    public void setMust( List<AbstractContainer> must )
-    {
-        this.must = must;
+    public SpanMultiFuzzyMatch getFuzzy() {
+        return fuzzy;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public void setFuzzy(SpanMultiFuzzyMatch fuzzy) {
+        this.fuzzy = fuzzy;
     }
-
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
-    }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
 }

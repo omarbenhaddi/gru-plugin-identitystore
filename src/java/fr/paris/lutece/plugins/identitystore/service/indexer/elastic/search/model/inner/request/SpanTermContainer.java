@@ -34,44 +34,26 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SpanTermSerializer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Bool
+public class SpanTermContainer extends AbstractSpan
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    @JsonProperty( "span_term" )
+    @JsonSerialize( using = SpanTermSerializer.class )
+    protected SpanTerm spanTerm;
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    public SpanTermContainer( SpanTerm spanTerm )
     {
-        return must;
+        this.spanTerm = spanTerm;
     }
 
-    public void setMust( List<AbstractContainer> must )
-    {
-        this.must = must;
+    public SpanTerm getSpanTerm() {
+        return spanTerm;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public void setSpanTerm(SpanTerm spanTerm) {
+        this.spanTerm = spanTerm;
     }
-
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
-    }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
 }

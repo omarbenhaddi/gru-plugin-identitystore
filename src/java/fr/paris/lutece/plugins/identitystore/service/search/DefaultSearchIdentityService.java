@@ -52,8 +52,9 @@ public class DefaultSearchIdentityService implements ISearchIdentityService
     {
     }
 
+
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,  final int max, final boolean connected )
     {
         return new ArrayList<>( );
     }

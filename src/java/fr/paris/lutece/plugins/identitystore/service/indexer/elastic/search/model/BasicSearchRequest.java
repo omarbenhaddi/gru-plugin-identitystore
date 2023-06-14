@@ -37,16 +37,19 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BasicSearchRequest extends ASearchRequest
 {
     private boolean connected = false;
+    private Integer minimalShouldMatch;
 
-    public BasicSearchRequest( final List<SearchAttribute> attributes, final boolean connected )
+    public BasicSearchRequest( final List<SearchAttribute> attributes, Integer minimalShouldMatch, final boolean connected )
     {
         this.getSearchAttributes( ).addAll( attributes );
         this.connected = connected;
+        this.minimalShouldMatch = minimalShouldMatch;
     }
 
     @Override
@@ -55,28 +58,70 @@ public class BasicSearchRequest extends ASearchRequest
         final InnerSearchRequest body = new InnerSearchRequest( );
         final Query query = new Query( );
         final Bool bool = new Bool( );
-        final ArrayList<AbstractContainer> must = new ArrayList<>( );
+        if(this.minimalShouldMatch != null){
+            bool.setMinimumShouldMatch(minimalShouldMatch);
+        }
+        final ArrayList<AbstractContainer> shouldOrMust = new ArrayList<>( );
         this.getSearchAttributes( ).forEach( searchAttribute -> {
             switch( searchAttribute.getInputKey( ) )
             {
+                case Constants.PARAM_FAMILY_NAME:
+                    if ( searchAttribute.isStrict( ) )
+                    {
+                        shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                    }
+                    else
+                    {
+                        shouldOrMust.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                    }
+                    break;
                 case Constants.PARAM_FIRST_NAME:
                     if ( searchAttribute.isStrict( ) )
                     {
-                        must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                        shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
                     }
                     else
                     {
-                        must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                        SpanNear spanNear = new SpanNear();
+                        String[] splitSearchValue = searchAttribute.getValue().split(" ");
+                        if(splitSearchValue.length >1 ) {
+                            spanNear.setSlop(splitSearchValue.length - 1);
+                            Arrays.stream(splitSearchValue).forEach(word -> {
+                                SpanMultiFuzzyMatch miltiMatch = new SpanMultiFuzzyMatch();
+                                miltiMatch.setName("attributes." + searchAttribute.getInputKey() + ".value");
+                                miltiMatch.setFuzziness("1");
+                                miltiMatch.setValue(word);
+                                spanNear.getClauses().add(new SpanMultiContainer(new SpanMulti( new SpanMultiFuzzyMatchContainer(miltiMatch))));
+                            });
+                            spanNear.setInOrder(true);
+                         }else{
+                            SpanTerm spanTerm = new SpanTerm();
+                            spanTerm.setName(searchAttribute.getInputKey( ));
+                            spanTerm.setValue(searchAttribute.getValue());
+                            spanNear.getClauses().add(new SpanTermContainer(spanTerm));
+                        }
+                        spanNear.setBoost(1);
+                        shouldOrMust.add( new SpanNearContainer( spanNear ) );
                     }
-
+                    break;
+                case Constants.PARAM_PREFERRED_USERNAME:
+                    if ( searchAttribute.isStrict( ) )
+                    {
+                        shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                    }
+                    else
+                    {
+                        shouldOrMust.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                    }
+                    break;
                 default:
                     if ( searchAttribute.getOutputKeys( ).size( ) == 1 )
                     {
-                        must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                        shouldOrMust.add( new MatchContainer( getMatch( searchAttribute ) ) );
                     }
                     else
                     {
-                        must.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
+                        shouldOrMust.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
                     }
                     break;
             }
@@ -86,13 +131,17 @@ public class BasicSearchRequest extends ASearchRequest
         {
             final Exists connectionId = new Exists( );
             connectionId.setField( "connectionId" );
-            must.add( new ExistsContainer( connectionId ) );
+            shouldOrMust.add( new ExistsContainer( connectionId ) );
             final Exists login = new Exists( );
             login.setField( "attributes.login.value" );
-            must.add( new ExistsContainer( login ) );
+            shouldOrMust.add( new ExistsContainer( login ) );
         }
 
-        bool.setMust( must );
+        if(this.minimalShouldMatch != null){
+            bool.setShould(shouldOrMust);
+        }else{
+            bool.setMust( shouldOrMust );
+        }
         query.setBool( bool );
         body.setQuery( query );
         return body;

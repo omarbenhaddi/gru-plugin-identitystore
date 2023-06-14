@@ -37,6 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClient;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ASearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.BasicSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
@@ -64,12 +65,10 @@ public class IdentitySearcher implements IIdentitySearcher
         this._elasticClient = new ElasticClient( strServerUrl );
     }
 
-    @Override
-    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected )
-    {
-        try
-        {
-            final BasicSearchRequest request = new BasicSearchRequest( attributes, connected );
+    public Response search(final List<SearchAttribute> attributes, final Integer minimalShouldMatch, final int max, final boolean connected) {
+        try {
+            final ASearchRequest request = new BasicSearchRequest(attributes,minimalShouldMatch, connected);
+
             final InnerSearchRequest initialRequest = request.body( );
             final int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );
             final int size = ( max == 0 ) ? propertySize : ( max < propertySize ) ? max : propertySize;

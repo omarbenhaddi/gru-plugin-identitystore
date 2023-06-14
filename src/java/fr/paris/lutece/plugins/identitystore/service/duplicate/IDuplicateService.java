@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
 
 import java.util.Map;
@@ -41,4 +42,6 @@ public interface IDuplicateService
 {
 
     DuplicateDto findDuplicates( Map<String, String> attributeValues );
+
+    DuplicateDto findDuplicates(Identity identity, int ruleId);
 }

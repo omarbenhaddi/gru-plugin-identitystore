@@ -1556,7 +1556,7 @@ public class IdentityService
     public void search( final IdentitySearchRequest identitySearchRequest, final IdentitySearchResponse response, final String clientCode )
             throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( identitySearchRequest.getSearch( ).getAttributes( ),
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( identitySearchRequest.getSearch( ).getAttributes( ), null,
                 identitySearchRequest.getMax( ), identitySearchRequest.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
@@ -1680,5 +1680,9 @@ public class IdentityService
     {
         // TODO NOT IMPLEMENTED YET
         return 0;
+    }
+
+    public DuplicateDto findDuplicates(Identity identity, Integer ruleId) {
+        return this._duplicateServiceImportSuspicion.findDuplicates(identity,ruleId);
     }
 }

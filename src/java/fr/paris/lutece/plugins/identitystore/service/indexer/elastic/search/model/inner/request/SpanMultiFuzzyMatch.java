@@ -33,45 +33,42 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Bool
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class SpanMultiFuzzyMatch
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    @JsonIgnore
+    protected String name;
+    protected String value;
+    protected String fuzziness;
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    public String getName( )
     {
-        return must;
+        return name;
     }
 
-    public void setMust( List<AbstractContainer> must )
+    public void setName( String name )
     {
-        this.must = must;
+        this.name = name;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public String getValue() {
+        return value;
     }
 
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
+    public String getFuzziness( )
+    {
+        return fuzziness;
     }
 
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
+    public void setFuzziness( String fuzziness )
+    {
+        this.fuzziness = fuzziness;
     }
-
 }

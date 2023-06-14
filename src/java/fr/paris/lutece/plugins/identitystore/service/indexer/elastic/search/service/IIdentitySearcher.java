@@ -41,6 +41,6 @@ import java.util.List;
 public interface IIdentitySearcher
 {
     String NAME = "identitystore.identitySearcher";
+    Response search( final List<SearchAttribute> attributes,final Integer minimalShouldMatch, final int max, final boolean connected );
 
-    Response search( final List<SearchAttribute> attributes, final int max, final boolean connected );
 }

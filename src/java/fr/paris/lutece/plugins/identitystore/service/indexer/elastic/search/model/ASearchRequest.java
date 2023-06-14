@@ -60,6 +60,7 @@ public abstract class ASearchRequest
         return match;
     }
 
+
     protected MultiMatch getMultiMatch( final SearchAttribute attribute )
     {
         final MultiMatch match = new MultiMatch( );

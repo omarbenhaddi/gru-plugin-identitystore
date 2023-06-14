@@ -68,7 +68,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
      * {@inheritDoc }
      */
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch, final int max, final boolean connected )
     {
         final List<SearchAttribute> searchAttributes = new ArrayList<>( );
         for ( final SearchAttributeDto dto : attributes )
@@ -94,7 +94,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
                 searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.isStrict( ) ) );
             }
         }
-        final Response search = _identitySearcher.search( searchAttributes, max, connected );
+        final Response search = _identitySearcher.search( searchAttributes,minimalShouldMatch, max, connected );
         final List<QualifiedIdentity> identities = new ArrayList<>( );
         if ( search != null )
         {

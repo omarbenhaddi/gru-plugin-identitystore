@@ -34,44 +34,24 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Bool
+public class SpanNearContainer extends AbstractContainer
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    @JsonProperty( "span_near" )
+    protected SpanNear spanNear;
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    public SpanNearContainer(SpanNear spanNear )
     {
-        return must;
+        this.spanNear = spanNear;
     }
 
-    public void setMust( List<AbstractContainer> must )
-    {
-        this.must = must;
+    public SpanNear getSpanNear() {
+        return spanNear;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public void setSpanNear(SpanNear spanNear) {
+        this.spanNear = spanNear;
     }
-
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
-    }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
 }

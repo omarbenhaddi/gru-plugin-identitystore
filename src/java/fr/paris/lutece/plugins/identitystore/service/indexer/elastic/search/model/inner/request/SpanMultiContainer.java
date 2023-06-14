@@ -35,43 +35,21 @@ package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mod
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Bool
+public class SpanMultiContainer extends AbstractSpan
 {
-    @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    @JsonProperty( "span_multi" )
+    protected SpanMulti spanMulti;
 
-    @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
-
-    @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
-    public List<AbstractContainer> getMust( )
+    public SpanMultiContainer(SpanMulti spanMulti )
     {
-        return must;
+        this.spanMulti = spanMulti;
     }
 
-    public void setMust( List<AbstractContainer> must )
-    {
-        this.must = must;
+    public SpanMulti getSpanMulti() {
+        return spanMulti;
     }
 
-    public List<AbstractContainer> getShould() {
-        return should;
+    public void setSpanMulti(SpanMulti spanMulti) {
+        this.spanMulti = spanMulti;
     }
-
-    public void setShould(List<AbstractContainer> should) {
-        this.should = should;
-    }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
 }
