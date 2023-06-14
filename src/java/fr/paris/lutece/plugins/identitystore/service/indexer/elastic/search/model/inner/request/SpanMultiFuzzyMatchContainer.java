@@ -31,50 +31,31 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SpanMultiSerializer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-public class DefaultSearchIdentityService implements ISearchIdentityService
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class SpanMultiFuzzyMatchContainer
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    @JsonProperty( "fuzzy" )
+    @JsonSerialize( using = SpanMultiSerializer.class )
+    protected SpanMultiFuzzyMatch fuzzy;
+
+    public SpanMultiFuzzyMatchContainer(SpanMultiFuzzyMatch fuzzy )
     {
+        this.fuzzy = fuzzy;
     }
 
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,  final Integer maxMissingAttributes, final int max, final boolean connected )
-    {
-        return new ArrayList<>( );
+    public SpanMultiFuzzyMatch getFuzzy() {
+        return fuzzy;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, int max, boolean connected) {
-        return new ArrayList<>( );
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious )
-    {
-        return new ArrayList<>( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+    public void setFuzzy(SpanMultiFuzzyMatch fuzzy) {
+        this.fuzzy = fuzzy;
     }
 }

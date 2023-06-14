@@ -31,50 +31,55 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class DefaultSearchIdentityService implements ISearchIdentityService
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class SpanNear
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
-    {
+    @JsonProperty( "clauses" )
+    protected List<AbstractSpan> clauses;
+    protected Integer boost;
+    protected Integer slop;
+    @JsonProperty( "in_order" )
+    protected boolean inOrder;
+
+    public List<AbstractSpan> getClauses() {
+        if(this.clauses == null)
+            this.clauses = new ArrayList<>();
+        return clauses;
     }
 
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,  final Integer maxMissingAttributes, final int max, final boolean connected )
-    {
-        return new ArrayList<>( );
+    public void setClauses(List<AbstractSpan> clauses) {
+        this.clauses = clauses;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, int max, boolean connected) {
-        return new ArrayList<>( );
+    public Integer getBoost() {
+        return boost;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious )
-    {
-        return new ArrayList<>( );
+    public void setBoost(Integer boost) {
+        this.boost = boost;
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+    public Integer getSlop() {
+        return slop;
+    }
+
+    public void setSlop(Integer slop) {
+        this.slop = slop;
+    }
+
+    public boolean isInOrder() {
+        return inOrder;
+    }
+
+    public void setInOrder(boolean inOrder) {
+        this.inOrder = inOrder;
     }
 }

@@ -33,18 +33,22 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.rules.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleAttributeTreatment;
+import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DuplicateService implements IDuplicateService
@@ -58,6 +62,9 @@ public class DuplicateService implements IDuplicateService
      * Prefix of the group of rules
      */
     protected String _group;
+
+    private ArrayList<String> defaultParams = new ArrayList<>(Arrays.asList(Constants.PARAM_FAMILY_NAME,Constants.PARAM_FIRST_NAME,Constants.PARAM_PREFERRED_USERNAME,Constants.PARAM_GENDER,
+            Constants.PARAM_BIRTH_DATE,Constants.PARAM_BIRTH_PLACE_CODE,Constants.PARAM_BIRTH_COUNTRY_CODE));
 
     public DuplicateService( ISearchIdentityService _searchIdentityService, String _group )
     {
@@ -98,7 +105,7 @@ public class DuplicateService implements IDuplicateService
                 final String property = AppPropertiesService.getProperty( rule );
                 final List<SearchAttributeDto> searchAttributes = this.mapAttributes( property, attributeValues );
 
-                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, 0, false ).stream( )
+                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, null, 0, false ).stream( )
                         .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
@@ -112,6 +119,58 @@ public class DuplicateService implements IDuplicateService
 
         return null;
     }
+
+
+    @Override
+    public DuplicateDto findDuplicates(Identity identity, int ruleId)
+    {
+
+        DuplicateRule duplicateRule = DuplicateRuleHome.find(ruleId);
+        if ( CollectionUtils.isNotEmpty( duplicateRule.getAttributeTreatments() ) )
+        {
+
+            final List<SearchAttributeDto> searchAttributes = this.mapAttributes(identity,  duplicateRule.getAttributeTreatments() );
+
+            final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes(), duplicateRule.getNbMissingAttributes(),0, false ).stream( )
+                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).filter(qualifiedIdentity -> getMissingField(qualifiedIdentity, duplicateRule.getNbMissingAttributes())).collect( Collectors.toList( ) );
+
+
+            if ( CollectionUtils.isNotEmpty( resultIdentities ) )
+            {
+                final DuplicateDto duplicateDto = new DuplicateDto( );
+                duplicateDto.setMessage( "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId() + " avec la règle : " + duplicateRule.getName() );
+                duplicateDto.setIdentities( resultIdentities );
+                return duplicateDto;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean getMissingField(QualifiedIdentity qualifiedIdentity, int nbMissingAttributes) {
+        return  defaultParams.stream().filter(defaultParam -> !qualifiedIdentity.getAttributes().stream().anyMatch(attribute -> attribute.getKey().equals(defaultParam))).count() <= nbMissingAttributes;
+    }
+
+    private List<SearchAttributeDto> mapAttributes(Identity identity, List<DuplicateRuleAttributeTreatment> attributeTreatments) {
+        List<SearchAttributeDto> searchAttributes = new ArrayList<>();
+        for(DuplicateRuleAttributeTreatment attributeTreatment : attributeTreatments){
+            List<AttributeKey> attribute = attributeTreatment.getAttributes();
+
+            for(AttributeKey key : attribute){
+                Optional<String> attributeKey = identity.getAttributes().keySet().stream().filter(attKey -> attKey.equals(key.getKeyName())).findFirst();
+                if(attributeKey.isPresent()){
+                    SearchAttributeDto searchAttribute = new SearchAttributeDto();
+                    searchAttribute.setKey(key.getKeyName());
+                    searchAttribute.setValue(identity.getAttributes().get(key.getKeyName()).getValue());
+                    searchAttribute.setStrict(attributeTreatment.getType().equals(AttributeTreatmentType.DIFFERENT));
+                    searchAttributes.add(searchAttribute);
+                }
+            }
+
+        }
+        return searchAttributes;
+    }
+
 
     private List<SearchAttributeDto> mapAttributes( final String property, final Map<String, String> attributeValues )
     {

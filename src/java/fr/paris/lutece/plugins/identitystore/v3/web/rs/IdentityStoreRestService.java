@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.*;
@@ -41,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
@@ -165,6 +168,24 @@ public final class IdentityStoreRestService
         }
     }
 
+    @GET
+    @Path( "duplicate/{customer_id}")
+    @Consumes( MediaType.APPLICATION_JSON )
+    @Produces( MediaType.APPLICATION_JSON )
+    public Response findDuplicates(  @ApiParam(name = "customer_id", value = "the id of the customer") @PathParam("customer_id") String customer_id, @ApiParam(name = "rule_id", value = "the id of the rule") @QueryParam("rule_id") Integer rule_id, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+    {
+        try
+        {
+            Identity identity = IdentityHome.findByCustomerId(customer_id);
+            DuplicateDto identities = IdentityService.instance().findDuplicates(identity, rule_id);
+            return Response.status( Response.Status.OK ).entity( identities ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        }
+        catch( Exception exception )
+        {
+            return getErrorResponse( exception );
+        }
+    }
+
     /**
      * Creates an identity.<br/>
      * The identity is created from the provided attributes in {@link IdentityChangeRequest}.<br/>
@@ -190,7 +211,7 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response createIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+                                    @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
@@ -224,8 +245,8 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response updateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+                                    @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+                                    @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
@@ -258,7 +279,7 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
     } )
     public Response mergeIdentities( @ApiParam( name = "Request body", value = "An Identity Merge Request" ) IdentityMergeRequest identityMergeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+                                     @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
@@ -272,11 +293,11 @@ public final class IdentityStoreRestService
             return getErrorResponse( exception );
         }
     }
-    
+
     /**
      * Delete request for an identity from the specified CustomerId
      * The identity will be marked as expired, for the deletion Deamon.
-     * 
+     *
      * @param strCustomerId
      * @param strClientCode
      * @return a OK message if the deletion has been performed, a KO message otherwise
@@ -290,7 +311,7 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND ),
             @ApiResponse( code = 409, message = "Conflict" )
     } )
-    public Response deleteIdentity(       
+    public Response deleteIdentity(
     		@ApiParam( name = "Request body", value = "An Identity Change Request to specify the author" ) IdentityChangeRequest identityChangeRequest,
     		@ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode )
@@ -300,7 +321,7 @@ public final class IdentityStoreRestService
             final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strCustomerId, strClientCode, identityChangeRequest );
             final IdentityChangeResponse response = (IdentityChangeResponse) identityStoreRequest.doRequest( );
             return Response.status( response.getStatus( ).getCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        
+
         }
         catch( Exception exception )
         {
@@ -381,7 +402,7 @@ public final class IdentityStoreRestService
 
     /**
      * Builds a {@code Response} object from the specified message and status
-     * 
+     *
      * @param strMessage
      *            the message
      * @param status

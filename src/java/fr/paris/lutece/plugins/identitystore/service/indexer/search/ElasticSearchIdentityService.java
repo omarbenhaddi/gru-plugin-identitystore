@@ -64,12 +64,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         this._identitySearcher = _identitySearcher;
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
-    {
+    private List<SearchAttribute> getSearchAttributes(List<SearchAttributeDto> attributes){
         final List<SearchAttribute> searchAttributes = new ArrayList<>( );
         for ( final SearchAttributeDto dto : attributes )
         {
@@ -94,8 +89,13 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
                 searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.isStrict( ) ) );
             }
         }
-        final Response search = _identitySearcher.search( searchAttributes, max, connected );
+        return searchAttributes;
+    }
+
+
+    private List<QualifiedIdentity> getEntities(Response search) {
         final List<QualifiedIdentity> identities = new ArrayList<>( );
+
         if ( search != null )
         {
             search.getResult( ).getHits( ).forEach( hit -> {
@@ -110,6 +110,28 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
             } );
         }
         return identities;
+    }
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch, final Integer maxMissingAttributes, final int max, final boolean connected )
+    {
+        final List<SearchAttribute> searchAttributes = this.getSearchAttributes(attributes);
+
+        final Response search = _identitySearcher.search( searchAttributes,minimalShouldMatch, maxMissingAttributes, max, connected );
+
+        return getEntities(search);
+    }
+
+
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, int max, boolean connected) {
+        final List<SearchAttribute> searchAttributes = this.getSearchAttributes(attributes);
+
+        final Response search = _identitySearcher.search( searchAttributes, max, connected );
+
+        return getEntities(search);
     }
 
     /**

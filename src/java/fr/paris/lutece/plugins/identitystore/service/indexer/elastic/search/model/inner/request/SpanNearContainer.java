@@ -31,50 +31,27 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-public class DefaultSearchIdentityService implements ISearchIdentityService
+public class SpanNearContainer extends AbstractContainer
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    @JsonProperty( "span_near" )
+    protected SpanNear spanNear;
+
+    public SpanNearContainer(SpanNear spanNear )
     {
+        this.spanNear = spanNear;
     }
 
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,  final Integer maxMissingAttributes, final int max, final boolean connected )
-    {
-        return new ArrayList<>( );
+    public SpanNear getSpanNear() {
+        return spanNear;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, int max, boolean connected) {
-        return new ArrayList<>( );
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious )
-    {
-        return new ArrayList<>( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+    public void setSpanNear(SpanNear spanNear) {
+        this.spanNear = spanNear;
     }
 }

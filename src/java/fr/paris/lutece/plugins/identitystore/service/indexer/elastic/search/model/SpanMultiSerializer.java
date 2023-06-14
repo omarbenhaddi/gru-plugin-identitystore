@@ -31,50 +31,25 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.AbstractMatch;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.SpanMulti;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.SpanMultiFuzzyMatch;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
 
-public class DefaultSearchIdentityService implements ISearchIdentityService
+public class SpanMultiSerializer extends JsonSerializer<SpanMultiFuzzyMatch>
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
-    {
-    }
-
 
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,  final Integer maxMissingAttributes, final int max, final boolean connected )
+    public void serialize(SpanMultiFuzzyMatch o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
     {
-        return new ArrayList<>( );
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, int max, boolean connected) {
-        return new ArrayList<>( );
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious )
-    {
-        return new ArrayList<>( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+        jsonGenerator.writeStartObject( );
+        jsonGenerator.writeObjectField( o.getName( ), o );
+        jsonGenerator.writeEndObject( );
     }
 }

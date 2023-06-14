@@ -137,4 +137,24 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
         }
         return qualifiedIdentities;
     }
+
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, Integer minimalShouldMatch, Integer maxMissingAttributes, int max, boolean connected) {
+
+        final Map<String, List<String>> mapAttributeValues = attributes.stream( )
+                .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
+        try
+        {
+            final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues, max );
+            if ( listIdentity != null && !listIdentity.isEmpty( ) )
+            {
+                return populateWithAttributesAndConvertToDto( listIdentity );
+            }
+        }
+        catch( final IdentityStoreException e )
+        {
+            AppLogService.error( "An error occurred during database search: ", e );
+        }
+        return Collections.emptyList( );
+    }
 }

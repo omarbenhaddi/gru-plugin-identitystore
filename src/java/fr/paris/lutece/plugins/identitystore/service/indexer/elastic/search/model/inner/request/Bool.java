@@ -43,6 +43,11 @@ public class Bool
     @JsonProperty( "must" )
     protected List<AbstractContainer> must = new ArrayList<>( );
 
+    @JsonProperty( "should" )
+    protected List<AbstractContainer> should = new ArrayList<>( );
+
+    @JsonProperty( "minimum_should_match" )
+    protected int minimumShouldMatch;
     public List<AbstractContainer> getMust( )
     {
         return must;
@@ -52,4 +57,21 @@ public class Bool
     {
         this.must = must;
     }
+
+    public List<AbstractContainer> getShould() {
+        return should;
+    }
+
+    public void setShould(List<AbstractContainer> should) {
+        this.should = should;
+    }
+
+    public int getMinimumShouldMatch() {
+        return minimumShouldMatch;
+    }
+
+    public void setMinimumShouldMatch(int minimumShouldMatch) {
+        this.minimumShouldMatch = minimumShouldMatch;
+    }
+
 }
