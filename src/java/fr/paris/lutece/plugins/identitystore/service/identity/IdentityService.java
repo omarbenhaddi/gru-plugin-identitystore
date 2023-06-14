@@ -78,7 +78,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearch
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
@@ -150,20 +150,17 @@ public class IdentityService
             throw new IdentityStoreException( "You cannot specify a CUID when requesting for a creation" );
         }
 
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) )
+        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) 
+        		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot specify a GUID when requesting for a creation" );
         }
 
         // check if can set "mon_paris_active" flag to true
-        if ( !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) )  
+        		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-            if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) ) )
-            {
-                response.setStatus( IdentityChangeStatus.CONFLICT );
-                response.setMessage( "The client application is not authorized to initialize the 'mon_paris_active' flag." );
-                return null;
-            }
+        	throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
         }
 
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
