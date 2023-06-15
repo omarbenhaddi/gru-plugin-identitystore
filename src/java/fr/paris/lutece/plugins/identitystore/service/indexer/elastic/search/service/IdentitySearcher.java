@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.Elas
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ASearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.BasicSearchRequest;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.NearSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
@@ -65,9 +66,18 @@ public class IdentitySearcher implements IIdentitySearcher
         this._elasticClient = new ElasticClient( strServerUrl );
     }
 
-    public Response search(final List<SearchAttribute> attributes, final Integer minimalShouldMatch, final int max, final boolean connected) {
+    public Response search(final List<SearchAttribute> attributes, final Integer minimalShouldMatch, final Integer maxMissingAttributes, final int max, final boolean connected) {
+        final ASearchRequest request =  new NearSearchRequest(attributes,minimalShouldMatch, maxMissingAttributes, connected);
+       return this.getResponse(request, max);
+    }
+
+    public Response search(final List<SearchAttribute> attributes, final int max, final boolean connected) {
+        final ASearchRequest request = new BasicSearchRequest(attributes, connected);
+        return this.getResponse(request, max);
+    }
+
+    private Response getResponse(ASearchRequest request, int max){
         try {
-            final ASearchRequest request = new BasicSearchRequest(attributes,minimalShouldMatch, connected);
 
             final InnerSearchRequest initialRequest = request.body( );
             final int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );

@@ -1556,7 +1556,7 @@ public class IdentityService
     public void search( final IdentitySearchRequest identitySearchRequest, final IdentitySearchResponse response, final String clientCode )
             throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( identitySearchRequest.getSearch( ).getAttributes( ), null,
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( identitySearchRequest.getSearch( ).getAttributes( ),
                 identitySearchRequest.getMax( ), identitySearchRequest.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {

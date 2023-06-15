@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +62,9 @@ public class DuplicateService implements IDuplicateService
      * Prefix of the group of rules
      */
     protected String _group;
+
+    private ArrayList<String> defaultParams = new ArrayList<>(Arrays.asList(Constants.PARAM_FAMILY_NAME,Constants.PARAM_FIRST_NAME,Constants.PARAM_PREFERRED_USERNAME,Constants.PARAM_GENDER,
+            Constants.PARAM_BIRTH_DATE,Constants.PARAM_BIRTH_PLACE_CODE,Constants.PARAM_BIRTH_COUNTRY_CODE));
 
     public DuplicateService( ISearchIdentityService _searchIdentityService, String _group )
     {
@@ -101,7 +105,7 @@ public class DuplicateService implements IDuplicateService
                 final String property = AppPropertiesService.getProperty( rule );
                 final List<SearchAttributeDto> searchAttributes = this.mapAttributes( property, attributeValues );
 
-                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, 0, false ).stream( )
+                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, null, 0, false ).stream( )
                         .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
@@ -127,8 +131,8 @@ public class DuplicateService implements IDuplicateService
 
             final List<SearchAttributeDto> searchAttributes = this.mapAttributes(identity,  duplicateRule.getAttributeTreatments() );
 
-            final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes(),0, false ).stream( )
-                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
+            final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes(), duplicateRule.getNbMissingAttributes(),0, false ).stream( )
+                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).filter(qualifiedIdentity -> getMissingField(qualifiedIdentity, duplicateRule.getNbMissingAttributes())).collect( Collectors.toList( ) );
 
 
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
@@ -141,6 +145,10 @@ public class DuplicateService implements IDuplicateService
         }
 
         return null;
+    }
+
+    private boolean getMissingField(QualifiedIdentity qualifiedIdentity, int nbMissingAttributes) {
+        return  defaultParams.stream().filter(defaultParam -> !qualifiedIdentity.getAttributes().stream().anyMatch(attribute -> attribute.getKey().equals(defaultParam))).count() <= nbMissingAttributes;
     }
 
     private List<SearchAttributeDto> mapAttributes(Identity identity, List<DuplicateRuleAttributeTreatment> attributeTreatments) {
