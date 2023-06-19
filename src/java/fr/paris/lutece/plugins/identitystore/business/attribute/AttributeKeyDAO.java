@@ -137,7 +137,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation( daoUtil.getBoolean(nIndex));
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
             }
 
             return attributeKey;
@@ -177,7 +177,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             daoUtil.setBoolean( nIndex++, attributeKey.getPivot( ) );
             daoUtil.setInt( nIndex++, attributeKey.getKeyWeight( ) );
             daoUtil.setInt( nIndex++, attributeKey.getId( ) );
-            daoUtil.setBoolean(nIndex, attributeKey.isMandatoryForCreation());
+            daoUtil.setBoolean( nIndex, attributeKey.isMandatoryForCreation( ) );
 
             daoUtil.executeUpdate( );
         }
@@ -208,7 +208,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation(daoUtil.getBoolean(nIndex));
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
 
                 attributeKeyList.add( attributeKey );
             }
@@ -264,7 +264,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation(daoUtil.getBoolean(nIndex));
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
             }
 
             return attributeKey;
@@ -318,7 +318,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
      * {@inheritDoc}
      */
     @Override
-    public List<AttributeKey> selectMandatoryForCreationAttributeKeyList(Plugin plugin) {
+    public List<AttributeKey> selectMandatoryForCreationAttributeKeyList( Plugin plugin )
+    {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_MANDATORY, plugin ) )
         {
             daoUtil.executeQuery( );
@@ -337,7 +338,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation(daoUtil.getBoolean(nIndex));
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
 
                 attributeKeyList.add( attributeKey );
             }

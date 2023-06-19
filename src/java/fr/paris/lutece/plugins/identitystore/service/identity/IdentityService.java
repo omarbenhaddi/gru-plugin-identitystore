@@ -157,16 +157,16 @@ public class IdentityService
         }
 
         // check if all mandatory attributes are present
-        final List<String> mandatoryAttributes = _serviceContractService.getMandatoryAttributes(clientCode, AttributeKeyHome.getMandatoryForCreationAttributeKeyList());
-        if(CollectionUtils.isNotEmpty(mandatoryAttributes)) {
-            final Set<String> providedKeySet = identityChangeRequest.getIdentity().getAttributes()
-                                                                    .stream()
-                                                                    .filter(a -> StringUtils.isNotBlank(a.getValue()))
-                                                                    .map(CertifiedAttribute::getKey)
-                                                                    .collect(Collectors.toSet());
-            if (!providedKeySet.containsAll(mandatoryAttributes)) {
-                response.setStatus(IdentityChangeStatus.FAILURE);
-                response.setMessage("All mandatory attributes must be provided : " + mandatoryAttributes);
+        final List<String> mandatoryAttributes = _serviceContractService.getMandatoryAttributes( clientCode,
+                AttributeKeyHome.getMandatoryForCreationAttributeKeyList( ) );
+        if ( CollectionUtils.isNotEmpty( mandatoryAttributes ) )
+        {
+            final Set<String> providedKeySet = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
+                    .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
+            if ( !providedKeySet.containsAll( mandatoryAttributes ) )
+            {
+                response.setStatus( IdentityChangeStatus.FAILURE );
+                response.setMessage( "All mandatory attributes must be provided : " + mandatoryAttributes );
                 return null;
             }
         }
@@ -1698,7 +1698,8 @@ public class IdentityService
         return 0;
     }
 
-    public DuplicateDto findDuplicates(Identity identity, Integer ruleId) {
-        return this._duplicateServiceImportSuspicion.findDuplicates(identity,ruleId);
+    public DuplicateDto findDuplicates( Identity identity, Integer ruleId )
+    {
+        return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }
 }

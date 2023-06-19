@@ -40,7 +40,6 @@ public class Query
     @JsonProperty( "bool" )
     protected Bool bool;
 
-
     public Bool getBool( )
     {
         return bool;

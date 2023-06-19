@@ -42,16 +42,18 @@ public class SpanNearContainer extends AbstractContainer
     @JsonProperty( "span_near" )
     protected SpanNear spanNear;
 
-    public SpanNearContainer(SpanNear spanNear )
+    public SpanNearContainer( SpanNear spanNear )
     {
         this.spanNear = spanNear;
     }
 
-    public SpanNear getSpanNear() {
+    public SpanNear getSpanNear( )
+    {
         return spanNear;
     }
 
-    public void setSpanNear(SpanNear spanNear) {
+    public void setSpanNear( SpanNear spanNear )
+    {
         this.spanNear = spanNear;
     }
 }

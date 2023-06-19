@@ -46,7 +46,7 @@ public class SpanMultiSerializer extends JsonSerializer<SpanMultiFuzzyMatch>
 {
 
     @Override
-    public void serialize(SpanMultiFuzzyMatch o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
+    public void serialize( SpanMultiFuzzyMatch o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
     {
         jsonGenerator.writeStartObject( );
         jsonGenerator.writeObjectField( o.getName( ), o );

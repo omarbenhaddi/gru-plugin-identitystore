@@ -54,11 +54,13 @@ public class SpanMultiFuzzyMatch
         this.name = name;
     }
 
-    public String getValue() {
+    public String getValue( )
+    {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue( String value )
+    {
         this.value = value;
     }
 

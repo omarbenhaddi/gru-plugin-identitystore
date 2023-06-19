@@ -307,12 +307,14 @@ public class ServiceContractService
         return response;
     }
 
-    public List<String> getMandatoryAttributes(final String clientCode, final List<AttributeKey> sharedMandatoryAttributeList) throws ServiceContractNotFoundException {
-        final List<AttributeRight> rights = this.getActiveServiceContract(clientCode).getAttributeRights();
-        return Stream.concat(sharedMandatoryAttributeList.stream().map(AttributeKey::getKeyName),
-                             rights.stream().filter(AttributeRight::isMandatory).map(ar -> ar.getAttributeKey().getKeyName()))
-                     .distinct()
-                     .collect(Collectors.toList());
+    public List<String> getMandatoryAttributes( final String clientCode, final List<AttributeKey> sharedMandatoryAttributeList )
+            throws ServiceContractNotFoundException
+    {
+        final List<AttributeRight> rights = this.getActiveServiceContract( clientCode ).getAttributeRights( );
+        return Stream
+                .concat( sharedMandatoryAttributeList.stream( ).map( AttributeKey::getKeyName ),
+                        rights.stream( ).filter( AttributeRight::isMandatory ).map( ar -> ar.getAttributeKey( ).getKeyName( ) ) )
+                .distinct( ).collect( Collectors.toList( ) );
 
     }
 

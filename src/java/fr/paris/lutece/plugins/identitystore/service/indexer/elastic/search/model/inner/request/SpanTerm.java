@@ -43,6 +43,7 @@ public class SpanTerm
     protected String name;
     @JsonIgnore
     protected String value;
+
     public String getName( )
     {
         return name;
@@ -53,12 +54,13 @@ public class SpanTerm
         this.name = name;
     }
 
-    public String getValue() {
+    public String getValue( )
+    {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue( String value )
+    {
         this.value = value;
     }
 }
-

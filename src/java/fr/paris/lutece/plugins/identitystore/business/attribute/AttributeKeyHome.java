@@ -169,7 +169,8 @@ public final class AttributeKeyHome
      *
      * @return the list which contains the data of all the mandatory attributeKey objects
      */
-    public static List<AttributeKey> getMandatoryForCreationAttributeKeyList() {
-        return _dao.selectMandatoryForCreationAttributeKeyList(_plugin);
+    public static List<AttributeKey> getMandatoryForCreationAttributeKeyList( )
+    {
+        return _dao.selectMandatoryForCreationAttributeKeyList( _plugin );
     }
 }

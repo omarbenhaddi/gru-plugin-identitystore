@@ -44,10 +44,10 @@ public class SpanTermSerializer extends JsonSerializer<SpanTerm>
 {
 
     @Override
-    public void serialize(SpanTerm o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
+    public void serialize( SpanTerm o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
     {
         jsonGenerator.writeStartObject( );
-        jsonGenerator.writeObjectField( o.getName( ), o.getValue() );
+        jsonGenerator.writeObjectField( o.getName( ), o.getValue( ) );
         jsonGenerator.writeEndObject( );
     }
 }

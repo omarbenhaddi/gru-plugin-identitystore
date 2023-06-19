@@ -243,17 +243,22 @@ public class AttributeKey implements Serializable
 
     /**
      * Is this attribute mandatory for creating a new identity
+     * 
      * @return true or false
      */
-    public boolean isMandatoryForCreation() {
+    public boolean isMandatoryForCreation( )
+    {
         return _bMandatoryForCreation;
     }
 
     /**
      * Sets if this attribute is mandatory for creating a new identity
-     * @param _bMandatoryForCreation true or false
+     * 
+     * @param _bMandatoryForCreation
+     *            true or false
      */
-    public void setMandatoryForCreation(boolean _bMandatoryForCreation) {
+    public void setMandatoryForCreation( boolean _bMandatoryForCreation )
+    {
         this._bMandatoryForCreation = _bMandatoryForCreation;
     }
 }

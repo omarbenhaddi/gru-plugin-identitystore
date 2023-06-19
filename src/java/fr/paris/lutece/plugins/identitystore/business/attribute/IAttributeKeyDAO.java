@@ -146,5 +146,5 @@ public interface IAttributeKeyDAO
      *            the Plugin
      * @return The list which contains the data of all the mandatory attributeKey objects
      */
-    List<AttributeKey> selectMandatoryForCreationAttributeKeyList(Plugin plugin);
+    List<AttributeKey> selectMandatoryForCreationAttributeKeyList( Plugin plugin );
 }

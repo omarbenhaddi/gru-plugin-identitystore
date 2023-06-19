@@ -139,7 +139,9 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities(List<SearchAttributeDto> attributes, Integer minimalShouldMatch, Integer maxMissingAttributes, int max, boolean connected) {
+    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttributeDto> attributes, Integer minimalShouldMatch, Integer maxMissingAttributes,
+            int max, boolean connected )
+    {
 
         final Map<String, List<String>> mapAttributeValues = attributes.stream( )
                 .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );

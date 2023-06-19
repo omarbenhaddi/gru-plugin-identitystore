@@ -169,15 +169,17 @@ public final class IdentityStoreRestService
     }
 
     @GET
-    @Path( "duplicate/{customer_id}")
+    @Path( "duplicate/{customer_id}" )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.APPLICATION_JSON )
-    public Response findDuplicates(  @ApiParam(name = "customer_id", value = "the id of the customer") @PathParam("customer_id") String customer_id, @ApiParam(name = "rule_id", value = "the id of the rule") @QueryParam("rule_id") Integer rule_id, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+    public Response findDuplicates( @ApiParam( name = "customer_id", value = "the id of the customer" ) @PathParam( "customer_id" ) String customer_id,
+            @ApiParam( name = "rule_id", value = "the id of the rule" ) @QueryParam( "rule_id" ) Integer rule_id,
+            @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
     {
         try
         {
-            Identity identity = IdentityHome.findByCustomerId(customer_id);
-            DuplicateDto identities = IdentityService.instance().findDuplicates(identity, rule_id);
+            Identity identity = IdentityHome.findByCustomerId( customer_id );
+            DuplicateDto identities = IdentityService.instance( ).findDuplicates( identity, rule_id );
             return Response.status( Response.Status.OK ).entity( identities ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }
         catch( Exception exception )
@@ -211,7 +213,7 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response createIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-                                    @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
@@ -245,8 +247,8 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response updateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-                                    @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-                                    @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
@@ -279,7 +281,7 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
     } )
     public Response mergeIdentities( @ApiParam( name = "Request body", value = "An Identity Merge Request" ) IdentityMergeRequest identityMergeRequest,
-                                     @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
     {
         try
         {
@@ -308,7 +310,7 @@ public final class IdentityStoreRestService
     @DELETE
     @Produces( MediaType.APPLICATION_JSON )
     public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-                                    @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientCode )
+            @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientCode )
     {
         String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientCode, strQueryClientCode );
         try

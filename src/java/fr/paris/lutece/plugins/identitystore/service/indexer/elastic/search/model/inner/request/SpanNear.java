@@ -49,37 +49,45 @@ public class SpanNear
     @JsonProperty( "in_order" )
     protected boolean inOrder;
 
-    public List<AbstractSpan> getClauses() {
-        if(this.clauses == null)
-            this.clauses = new ArrayList<>();
+    public List<AbstractSpan> getClauses( )
+    {
+        if ( this.clauses == null )
+            this.clauses = new ArrayList<>( );
         return clauses;
     }
 
-    public void setClauses(List<AbstractSpan> clauses) {
+    public void setClauses( List<AbstractSpan> clauses )
+    {
         this.clauses = clauses;
     }
 
-    public Integer getBoost() {
+    public Integer getBoost( )
+    {
         return boost;
     }
 
-    public void setBoost(Integer boost) {
+    public void setBoost( Integer boost )
+    {
         this.boost = boost;
     }
 
-    public Integer getSlop() {
+    public Integer getSlop( )
+    {
         return slop;
     }
 
-    public void setSlop(Integer slop) {
+    public void setSlop( Integer slop )
+    {
         this.slop = slop;
     }
 
-    public boolean isInOrder() {
+    public boolean isInOrder( )
+    {
         return inOrder;
     }
 
-    public void setInOrder(boolean inOrder) {
+    public void setInOrder( boolean inOrder )
+    {
         this.inOrder = inOrder;
     }
 }

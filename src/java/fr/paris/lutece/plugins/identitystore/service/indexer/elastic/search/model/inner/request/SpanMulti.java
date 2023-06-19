@@ -47,11 +47,13 @@ public class SpanMulti
         this.match = match;
     }
 
-    public SpanMultiFuzzyMatchContainer getMatch() {
+    public SpanMultiFuzzyMatchContainer getMatch( )
+    {
         return match;
     }
 
-    public void setMatch(SpanMultiFuzzyMatchContainer match) {
+    public void setMatch( SpanMultiFuzzyMatchContainer match )
+    {
         this.match = match;
     }
 }
