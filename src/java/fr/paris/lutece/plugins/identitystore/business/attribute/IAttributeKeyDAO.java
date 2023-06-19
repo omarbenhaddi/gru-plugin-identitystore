@@ -138,4 +138,13 @@ public interface IAttributeKeyDAO
      * @return the base
      */
     Integer selectQualityBaseFactor( Plugin plugin );
+
+    /**
+     * Load the data of all the attributeKey objects that are mandatory for creating an identity and returns them as a list
+     *
+     * @param plugin
+     *            the Plugin
+     * @return The list which contains the data of all the mandatory attributeKey objects
+     */
+    List<AttributeKey> selectMandatoryForCreationAttributeKeyList( Plugin plugin );
 }

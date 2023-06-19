@@ -48,6 +48,7 @@ public class Bool
 
     @JsonProperty( "minimum_should_match" )
     protected int minimumShouldMatch;
+
     public List<AbstractContainer> getMust( )
     {
         return must;
@@ -58,19 +59,23 @@ public class Bool
         this.must = must;
     }
 
-    public List<AbstractContainer> getShould() {
+    public List<AbstractContainer> getShould( )
+    {
         return should;
     }
 
-    public void setShould(List<AbstractContainer> should) {
+    public void setShould( List<AbstractContainer> should )
+    {
         this.should = should;
     }
 
-    public int getMinimumShouldMatch() {
+    public int getMinimumShouldMatch( )
+    {
         return minimumShouldMatch;
     }
 
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
+    public void setMinimumShouldMatch( int minimumShouldMatch )
+    {
         this.minimumShouldMatch = minimumShouldMatch;
     }
 

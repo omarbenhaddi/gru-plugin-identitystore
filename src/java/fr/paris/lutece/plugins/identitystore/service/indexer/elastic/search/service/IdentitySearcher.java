@@ -66,18 +66,23 @@ public class IdentitySearcher implements IIdentitySearcher
         this._elasticClient = new ElasticClient( strServerUrl );
     }
 
-    public Response search(final List<SearchAttribute> attributes, final Integer minimalShouldMatch, final Integer maxMissingAttributes, final int max, final boolean connected) {
-        final ASearchRequest request =  new NearSearchRequest(attributes,minimalShouldMatch, maxMissingAttributes, connected);
-       return this.getResponse(request, max);
+    public Response search( final List<SearchAttribute> attributes, final Integer minimalShouldMatch, final Integer maxMissingAttributes, final int max,
+            final boolean connected )
+    {
+        final ASearchRequest request = new NearSearchRequest( attributes, minimalShouldMatch, maxMissingAttributes, connected );
+        return this.getResponse( request, max );
     }
 
-    public Response search(final List<SearchAttribute> attributes, final int max, final boolean connected) {
-        final ASearchRequest request = new BasicSearchRequest(attributes, connected);
-        return this.getResponse(request, max);
+    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected )
+    {
+        final ASearchRequest request = new BasicSearchRequest( attributes, connected );
+        return this.getResponse( request, max );
     }
 
-    private Response getResponse(ASearchRequest request, int max){
-        try {
+    private Response getResponse( ASearchRequest request, int max )
+    {
+        try
+        {
 
             final InnerSearchRequest initialRequest = request.body( );
             final int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );

@@ -92,6 +92,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class IdentityService
@@ -156,6 +157,21 @@ public class IdentityService
         		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot specify a GUID when requesting for a creation" );
+        }
+
+        // check if all mandatory attributes are present
+        final List<String> mandatoryAttributes = _serviceContractService.getMandatoryAttributes( clientCode,
+                AttributeKeyHome.getMandatoryForCreationAttributeKeyList( ) );
+        if ( CollectionUtils.isNotEmpty( mandatoryAttributes ) )
+        {
+            final Set<String> providedKeySet = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
+                    .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
+            if ( !providedKeySet.containsAll( mandatoryAttributes ) )
+            {
+                response.setStatus( IdentityChangeStatus.FAILURE );
+                response.setMessage( "All mandatory attributes must be provided : " + mandatoryAttributes );
+                return null;
+            }
         }
 
         // check if can set "mon_paris_active" flag to true

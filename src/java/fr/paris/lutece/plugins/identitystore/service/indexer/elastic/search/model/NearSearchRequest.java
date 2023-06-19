@@ -46,7 +46,7 @@ public class NearSearchRequest extends ASearchRequest
     private Integer minimalShouldMatch;
     private Integer maxMissingAttributes;
 
-    public NearSearchRequest(final List<SearchAttribute> attributes, Integer minimalShouldMatch, final Integer maxMissingAttributes, final boolean connected )
+    public NearSearchRequest( final List<SearchAttribute> attributes, Integer minimalShouldMatch, final Integer maxMissingAttributes, final boolean connected )
     {
         this.getSearchAttributes( ).addAll( attributes );
         this.connected = connected;
@@ -60,8 +60,9 @@ public class NearSearchRequest extends ASearchRequest
         final InnerSearchRequest body = new InnerSearchRequest( );
         final Query query = new Query( );
         final Bool bool = new Bool( );
-        if(this.minimalShouldMatch != null){
-            bool.setMinimumShouldMatch(minimalShouldMatch);
+        if ( this.minimalShouldMatch != null )
+        {
+            bool.setMinimumShouldMatch( minimalShouldMatch );
         }
         final ArrayList<AbstractContainer> shouldOrMust = new ArrayList<>( );
         this.getSearchAttributes( ).forEach( searchAttribute -> {
@@ -84,21 +85,25 @@ public class NearSearchRequest extends ASearchRequest
                     }
                     else
                     {
-                        SpanNear spanNear = new SpanNear();
-                        String[] splitSearchValue = searchAttribute.getValue().split(" ");
-                        if(splitSearchValue.length >1 ) {
-                            spanNear.setSlop(splitSearchValue.length - 1);
-                            Arrays.stream(splitSearchValue).forEach(word -> {
-                                spanNear.getClauses().add(new SpanMultiContainer(new SpanMulti( new SpanMultiFuzzyMatchContainer(getSpanMultiFuzzyMatch( searchAttribute, word )))));
-                            });
-                            spanNear.setInOrder(true);
-                         }else{
-                            SpanTerm spanTerm = new SpanTerm();
-                            spanTerm.setName(searchAttribute.getInputKey( ));
-                            spanTerm.setValue(searchAttribute.getValue());
-                            spanNear.getClauses().add(new SpanTermContainer(spanTerm));
+                        SpanNear spanNear = new SpanNear( );
+                        String [ ] splitSearchValue = searchAttribute.getValue( ).split( " " );
+                        if ( splitSearchValue.length > 1 )
+                        {
+                            spanNear.setSlop( splitSearchValue.length - 1 );
+                            Arrays.stream( splitSearchValue ).forEach( word -> {
+                                spanNear.getClauses( ).add( new SpanMultiContainer(
+                                        new SpanMulti( new SpanMultiFuzzyMatchContainer( getSpanMultiFuzzyMatch( searchAttribute, word ) ) ) ) );
+                            } );
+                            spanNear.setInOrder( true );
                         }
-                        spanNear.setBoost(1);
+                        else
+                        {
+                            SpanTerm spanTerm = new SpanTerm( );
+                            spanTerm.setName( searchAttribute.getInputKey( ) );
+                            spanTerm.setValue( searchAttribute.getValue( ) );
+                            spanNear.getClauses( ).add( new SpanTermContainer( spanTerm ) );
+                        }
+                        spanNear.setBoost( 1 );
                         shouldOrMust.add( new SpanNearContainer( spanNear ) );
                     }
                     break;
@@ -135,9 +140,12 @@ public class NearSearchRequest extends ASearchRequest
             shouldOrMust.add( new ExistsContainer( login ) );
         }
 
-        if(this.minimalShouldMatch != null){
-            bool.setShould(shouldOrMust);
-        }else{
+        if ( this.minimalShouldMatch != null )
+        {
+            bool.setShould( shouldOrMust );
+        }
+        else
+        {
             bool.setMust( shouldOrMust );
         }
         query.setBool( bool );
@@ -145,11 +153,12 @@ public class NearSearchRequest extends ASearchRequest
         return body;
     }
 
-    private SpanMultiFuzzyMatch getSpanMultiFuzzyMatch(SearchAttribute searchAttribute, String value) {
-        SpanMultiFuzzyMatch miltiMatch = new SpanMultiFuzzyMatch();
-        miltiMatch.setName("attributes." + searchAttribute.getInputKey() + ".value");
-        miltiMatch.setFuzziness("1");
-        miltiMatch.setValue(value);
+    private SpanMultiFuzzyMatch getSpanMultiFuzzyMatch( SearchAttribute searchAttribute, String value )
+    {
+        SpanMultiFuzzyMatch miltiMatch = new SpanMultiFuzzyMatch( );
+        miltiMatch.setName( "attributes." + searchAttribute.getInputKey( ) + ".value" );
+        miltiMatch.setFuzziness( "1" );
+        miltiMatch.setValue( value );
         return miltiMatch;
     }
 

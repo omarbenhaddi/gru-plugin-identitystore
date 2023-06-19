@@ -40,16 +40,18 @@ public class SpanMultiContainer extends AbstractSpan
     @JsonProperty( "span_multi" )
     protected SpanMulti spanMulti;
 
-    public SpanMultiContainer(SpanMulti spanMulti )
+    public SpanMultiContainer( SpanMulti spanMulti )
     {
         this.spanMulti = spanMulti;
     }
 
-    public SpanMulti getSpanMulti() {
+    public SpanMulti getSpanMulti( )
+    {
         return spanMulti;
     }
 
-    public void setSpanMulti(SpanMulti spanMulti) {
+    public void setSpanMulti( SpanMulti spanMulti )
+    {
         this.spanMulti = spanMulti;
     }
 }

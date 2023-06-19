@@ -46,16 +46,18 @@ public class SpanMultiFuzzyMatchContainer
     @JsonSerialize( using = SpanMultiSerializer.class )
     protected SpanMultiFuzzyMatch fuzzy;
 
-    public SpanMultiFuzzyMatchContainer(SpanMultiFuzzyMatch fuzzy )
+    public SpanMultiFuzzyMatchContainer( SpanMultiFuzzyMatch fuzzy )
     {
         this.fuzzy = fuzzy;
     }
 
-    public SpanMultiFuzzyMatch getFuzzy() {
+    public SpanMultiFuzzyMatch getFuzzy( )
+    {
         return fuzzy;
     }
 
-    public void setFuzzy(SpanMultiFuzzyMatch fuzzy) {
+    public void setFuzzy( SpanMultiFuzzyMatch fuzzy )
+    {
         this.fuzzy = fuzzy;
     }
 }

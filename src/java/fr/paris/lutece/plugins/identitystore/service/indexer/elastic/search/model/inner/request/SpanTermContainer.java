@@ -49,11 +49,13 @@ public class SpanTermContainer extends AbstractSpan
         this.spanTerm = spanTerm;
     }
 
-    public SpanTerm getSpanTerm() {
+    public SpanTerm getSpanTerm( )
+    {
         return spanTerm;
     }
 
-    public void setSpanTerm(SpanTerm spanTerm) {
+    public void setSpanTerm( SpanTerm spanTerm )
+    {
         this.spanTerm = spanTerm;
     }
 }

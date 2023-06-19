@@ -50,7 +50,8 @@ public interface ISearchIdentityService
      *            list of values to search for some attributes with strict or fuzzy mode
      * @return a list of identities satisfying the criteria of the {@link SearchAttributeDto} list
      */
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,final Integer minimalShouldMatch, final Integer maxMissingAttributes, final int max, final boolean connected );
+    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,
+            final Integer maxMissingAttributes, final int max, final boolean connected );
 
     List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected );
 

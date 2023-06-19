@@ -163,4 +163,14 @@ public final class AttributeKeyHome
     {
         return _dao.selectQualityBaseFactor( _plugin );
     }
+
+    /**
+     * Load the data of all the attributeKey objects that are mandatory for creating an identity and returns them as a list
+     *
+     * @return the list which contains the data of all the mandatory attributeKey objects
+     */
+    public static List<AttributeKey> getMandatoryForCreationAttributeKeyList( )
+    {
+        return _dao.selectMandatoryForCreationAttributeKeyList( _plugin );
+    }
 }

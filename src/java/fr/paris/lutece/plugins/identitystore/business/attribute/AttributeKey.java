@@ -62,6 +62,8 @@ public class AttributeKey implements Serializable
 
     private int _nKeyWeight;
 
+    private boolean _bMandatoryForCreation;
+
     /**
      * Returns the Id
      *
@@ -237,5 +239,26 @@ public class AttributeKey implements Serializable
     public void setKeyWeight( int _nKeyWeight )
     {
         this._nKeyWeight = _nKeyWeight;
+    }
+
+    /**
+     * Is this attribute mandatory for creating a new identity
+     * 
+     * @return true or false
+     */
+    public boolean isMandatoryForCreation( )
+    {
+        return _bMandatoryForCreation;
+    }
+
+    /**
+     * Sets if this attribute is mandatory for creating a new identity
+     * 
+     * @param _bMandatoryForCreation
+     *            true or false
+     */
+    public void setMandatoryForCreation( boolean _bMandatoryForCreation )
+    {
+        this._bMandatoryForCreation = _bMandatoryForCreation;
     }
 }
