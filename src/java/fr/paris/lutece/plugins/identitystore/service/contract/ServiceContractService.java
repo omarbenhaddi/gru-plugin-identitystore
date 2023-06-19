@@ -35,7 +35,12 @@ package fr.paris.lutece.plugins.identitystore.service.contract;
 
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
-import fr.paris.lutece.plugins.identitystore.business.contract.*;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.cache.ActiveServiceContractCache;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
@@ -49,14 +54,23 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeSt
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ServiceContractService
 {
@@ -291,6 +305,15 @@ public class ServiceContractService
         }
 
         return response;
+    }
+
+    public List<String> getMandatoryAttributes(final String clientCode, final List<AttributeKey> sharedMandatoryAttributeList) throws ServiceContractNotFoundException {
+        final List<AttributeRight> rights = this.getActiveServiceContract(clientCode).getAttributeRights();
+        return Stream.concat(sharedMandatoryAttributeList.stream().map(AttributeKey::getKeyName),
+                             rights.stream().filter(AttributeRight::isMandatory).map(ar -> ar.getAttributeKey().getKeyName()))
+                     .distinct()
+                     .collect(Collectors.toList());
+
     }
 
     public boolean canModifyConnectedIdentity( final String clientCode ) throws ServiceContractNotFoundException
