@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.business.rules;
+package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
 
 public enum DuplicateRulePriority
 {

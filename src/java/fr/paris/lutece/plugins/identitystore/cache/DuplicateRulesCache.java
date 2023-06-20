@@ -34,9 +34,8 @@
 package fr.paris.lutece.plugins.identitystore.cache;
 
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleHome;
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
 import fr.paris.lutece.portal.service.util.AppLogService;
