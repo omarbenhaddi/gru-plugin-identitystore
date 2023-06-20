@@ -44,7 +44,7 @@ CREATE INDEX identitystore_identity_customer_id ON identitystore_identity (custo
 -- Structure for table identitystore_attribute
 --
 
-CREATE TABLE identitystore_attribute
+CREATE TABLE identitystore_ref_attribute
 (
     id_attribute int AUTO_INCREMENT,
     name         varchar(100) NOT NULL default '' UNIQUE,
