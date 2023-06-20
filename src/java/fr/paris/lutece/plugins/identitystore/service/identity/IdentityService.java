@@ -1584,54 +1584,67 @@ public class IdentityService
     public void search( final IdentitySearchRequest identitySearchRequest, final IdentitySearchResponse response, final String clientCode )
             throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
-        final List<SearchAttributeDto> providedAttributes = identitySearchRequest.getSearch().getAttributes();
-        final Set<String> providedKeys = providedAttributes.stream().map(SearchAttributeDto::getKey).collect(Collectors.toSet());
+        final List<SearchAttributeDto> providedAttributes = identitySearchRequest.getSearch( ).getAttributes( );
+        final Set<String> providedKeys = providedAttributes.stream( ).map( SearchAttributeDto::getKey ).collect( Collectors.toSet( ) );
 
         boolean hasRequirements = false;
-        final List<IdentitySearchRule> searchRules = IdentitySearchRuleHome.findAll();
-        final Iterator<IdentitySearchRule> iterator = searchRules.iterator();
-        while(!hasRequirements && iterator.hasNext()){
-            final IdentitySearchRule searchRule = iterator.next();
-            final Set<String> requiredKeys = searchRule.getAttributes().stream().map(AttributeKey::getKeyName).collect(Collectors.toSet());
-            if (searchRule.getType() == SearchRuleType.AND) {
-                if(providedKeys.containsAll(requiredKeys)) {
-                    hasRequirements = true;
-                }
-            } else if (searchRule.getType() == SearchRuleType.OR) {
-                if(providedKeys.stream().anyMatch(requiredKeys::contains)) {
+        final List<IdentitySearchRule> searchRules = IdentitySearchRuleHome.findAll( );
+        final Iterator<IdentitySearchRule> iterator = searchRules.iterator( );
+        while ( !hasRequirements && iterator.hasNext( ) )
+        {
+            final IdentitySearchRule searchRule = iterator.next( );
+            final Set<String> requiredKeys = searchRule.getAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) );
+            if ( searchRule.getType( ) == SearchRuleType.AND )
+            {
+                if ( providedKeys.containsAll( requiredKeys ) )
+                {
                     hasRequirements = true;
                 }
             }
-        }
-
-        if(!hasRequirements){
-            final StringBuilder sb = new StringBuilder();
-            final Iterator<IdentitySearchRule> ruleIt = searchRules.iterator();
-            while(ruleIt.hasNext()) {
-                final IdentitySearchRule rule = ruleIt.next();
-                sb.append("( ");
-                final Iterator<AttributeKey> attrIt = rule.getAttributes().iterator();
-                while(attrIt.hasNext()){
-                    final AttributeKey attr = attrIt.next();
-                    sb.append(attr.getKeyName()).append(" ");
-                    if(attrIt.hasNext()) {
-                        sb.append(rule.getType().name()).append(" ");
+            else
+                if ( searchRule.getType( ) == SearchRuleType.OR )
+                {
+                    if ( providedKeys.stream( ).anyMatch( requiredKeys::contains ) )
+                    {
+                        hasRequirements = true;
                     }
                 }
-                sb.append(")");
-                if(ruleIt.hasNext()){
-                    sb.append(" OR ");
+        }
+
+        if ( !hasRequirements )
+        {
+            final StringBuilder sb = new StringBuilder( );
+            final Iterator<IdentitySearchRule> ruleIt = searchRules.iterator( );
+            while ( ruleIt.hasNext( ) )
+            {
+                final IdentitySearchRule rule = ruleIt.next( );
+                sb.append( "( " );
+                final Iterator<AttributeKey> attrIt = rule.getAttributes( ).iterator( );
+                while ( attrIt.hasNext( ) )
+                {
+                    final AttributeKey attr = attrIt.next( );
+                    sb.append( attr.getKeyName( ) ).append( " " );
+                    if ( attrIt.hasNext( ) )
+                    {
+                        sb.append( rule.getType( ).name( ) ).append( " " );
+                    }
+                }
+                sb.append( ")" );
+                if ( ruleIt.hasNext( ) )
+                {
+                    sb.append( " OR " );
                 }
             }
             final IdentitySearchMessage alert = new IdentitySearchMessage( );
-            alert.setAttributeName( sb.toString() );
+            alert.setAttributeName( sb.toString( ) );
             alert.setMessage( "Please provide those required attributes to be able to search identities." );
             response.getAlerts( ).add( alert );
-            response.setStatus(IdentitySearchStatusType.FAILURE);
+            response.setStatus( IdentitySearchStatusType.FAILURE );
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities(providedAttributes, identitySearchRequest.getMax( ), identitySearchRequest.isConnected( ) );
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, identitySearchRequest.getMax( ),
+                identitySearchRequest.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
             final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( identitySearchRequest, clientCode, qualifiedIdentities );
