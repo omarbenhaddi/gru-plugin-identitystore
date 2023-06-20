@@ -1,0 +1,37 @@
+<@box>
+    <@boxHeader title='#i18n{identitystore.create_identitysearchrule.title}' />
+    <@boxBody>
+    <@messages infos=infos />
+    <@tform name='create_identitysearchrule' action='jsp/admin/plugins/identitystore/ManageIdentitySearchRules.jsp' >
+
+        <@messages errors=errors />
+        <@input type="hidden" value="${token}" name="token" />
+        <@input type="hidden" value="${identitysearchrule.id!}" name="id" id="id"/>
+
+        <@formGroup labelFor='select-type' labelKey='#i18n{identitystore.create_identitysearchrule.labelType}' mandatory=true>
+            <select class="form-select" id="select-type" name="selected_type">
+                <#list available_rule_types as type >
+                    <option value="${type}" <#if type == (identitysearchrule.type!'')>selected</#if> >${type}</option>
+                </#list>
+            </select>
+        </@formGroup>
+
+        <@formGroup labelFor='select-attribute' labelKey='#i18n{identitystore.create_identitysearchrule.labelAttributes}' mandatory=true>
+            <select class="form-select" id="select-attribute" multiple data-allow-clear="true" data-clear-label="Clear" name="selected_attributes" data-suggestions-threshold="0">
+                <#list available_attributes as attribute >
+                    <option value="${attribute.keyName!''}" <#if rule_attributes?seq_contains(attribute.keyName!'')> selected="selected"</#if>>${attribute.name!''}</option>
+                </#list>
+            </select>
+            <div class="invalid-feedback">Please select a valid tag.</div>
+        </@formGroup>
+
+        <@actionButtons button1Name="${action}" button2Name="view_manageIdentitySearchRules"/>
+    </@tform>
+    </@boxBody>
+</@box>
+
+<!-- See https://www.cssscript.com/tags-input-bootstrap-5/ -->
+<script type="module">
+    import Tags from "/js/admin/plugins/identitystore/tags.js";
+    Tags.init("#select-attribute");
+</script>

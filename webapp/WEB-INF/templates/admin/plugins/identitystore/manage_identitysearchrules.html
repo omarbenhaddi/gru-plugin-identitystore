@@ -1,0 +1,46 @@
+<@box>
+    <@boxHeader i18nTitleKey="identitystore.manage_identitysearchrules.title">
+        <@headerButtons>
+            <form class="form-inline pull-right" method="post" name="manage_identitysearchrules" action="jsp/admin/plugins/identitystore/ManageIdentitySearchRules.jsp">
+                <@actionButtons button1Name="view_createIdentitySearchRule" icon1="icon-plus icon-white" i18nValue1Key="identitystore.manage_identitysearchrules.buttonAdd" />
+            </form>
+        </@headerButtons>
+    </@boxHeader>
+    <@boxBody>
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    <div class="clearfix"></div>
+    <@table>
+        <tr>
+            <th>#i18n{identitystore.manage_identitysearchrules.columnId}</th>
+            <th>#i18n{identitystore.manage_identitysearchrules.columnType}</th>
+            <th>#i18n{identitystore.manage_identitysearchrules.columnAttributes}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+        <#list identitysearchrule_list as rule >
+        <tr>
+            <td>
+                ${rule.id}
+            </td>
+            <td>
+                ${rule.type}
+            </td>
+            <td>
+                <#list rule.attributes as attribute >
+                    <span class="badge">${attribute.name}</span>
+                </#list>
+            </td>
+            <td>
+                <@aButton href='jsp/admin/plugins/identitystore/ManageIdentitySearchRules.jsp?view=modifyIdentitySearchRule&id=${rule.id}' title='#i18n{portal.util.labelModify}' hideTitle=['all'] buttonIcon='pencil' />
+
+                <@aButton href='jsp/admin/plugins/identitystore/ManageIdentitySearchRules.jsp?action=confirmRemoveIdentitySearchRule&id=${rule.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
+            </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@box>
