@@ -31,53 +31,10 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.business.rules;
+package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class DuplicateRuleAttributeTreatment implements Serializable
+public enum AttributeTreatmentType
 {
-    private int _nId;
-    private List<AttributeKey> _listAttributes = new ArrayList<>( );
-    private AttributeTreatmentType type;
-
-    public int getId( )
-    {
-        return _nId;
-    }
-
-    public void setId( int _nId )
-    {
-        this._nId = _nId;
-    }
-
-    public List<AttributeKey> getAttributes( )
-    {
-        return _listAttributes;
-    }
-
-    public void setAttributes( List<AttributeKey> _listCheckedAttributes )
-    {
-        this._listAttributes = _listCheckedAttributes;
-    }
-
-    public AttributeTreatmentType getType( )
-    {
-        return type;
-    }
-
-    public void setType( AttributeTreatmentType type )
-    {
-        this.type = type;
-    }
-
-    public List<String> getAttributeKeysStr( )
-    {
-        return this.getAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
-    }
+    DIFFERENT,
+    APPROXIMATED
 }

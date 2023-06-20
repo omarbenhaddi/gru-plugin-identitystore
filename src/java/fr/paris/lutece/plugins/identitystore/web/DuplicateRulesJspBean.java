@@ -35,11 +35,11 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
-import fr.paris.lutece.plugins.identitystore.business.rules.AttributeTreatmentType;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleAttributeTreatment;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleHome;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRulePriority;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRulePriority;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;

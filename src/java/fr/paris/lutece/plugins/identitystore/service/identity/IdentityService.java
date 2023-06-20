@@ -47,7 +47,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;

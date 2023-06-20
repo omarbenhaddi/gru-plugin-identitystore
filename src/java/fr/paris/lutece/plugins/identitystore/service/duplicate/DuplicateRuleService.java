@@ -33,8 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleHome;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.cache.DuplicateRulesCache;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 

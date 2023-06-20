@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.business.rules;
+package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.portal.service.plugin.Plugin;

@@ -35,10 +35,10 @@ package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.business.rules.AttributeTreatmentType;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRule;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleAttributeTreatment;
-import fr.paris.lutece.plugins.identitystore.business.rules.DuplicateRuleHome;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
