@@ -1,3 +1,36 @@
+/*
+ * Copyright (c) 2002-2023, City of Paris
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice
+ *     and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice
+ *     and the following disclaimer in the documentation and/or other materials
+ *     provided with the distribution.
+ *
+ *  3. Neither the name of 'Mairie de Paris' nor 'Lutece' nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * License 1.0
+ */
 package fr.paris.lutece.plugins.identitystore.business.rules.search;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
@@ -10,7 +43,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
+public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO
+{
 
     private static final String SQL_QUERY_SELECT_RULE = "SELECT id_rule, type FROM identitystore_identity_search_rule WHERE id_rule = ? ";
     private static final String SQL_QUERY_SELECTALL_RULE = "SELECT id_rule, type FROM identitystore_identity_search_rule";
@@ -29,8 +63,9 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
      * {@inheritDoc }
      */
     @Override
-    public IdentitySearchRule select(final int nRuleId, final Plugin plugin) {
-        try ( final DAOUtil daoUtil = new DAOUtil(SQL_QUERY_SELECT_RULE, plugin ) )
+    public IdentitySearchRule select( final int nRuleId, final Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_RULE, plugin ) )
         {
             daoUtil.setInt( 1, nRuleId );
             daoUtil.executeQuery( );
@@ -49,7 +84,8 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
      * {@inheritDoc }
      */
     @Override
-    public List<IdentitySearchRule> selectAll(Plugin plugin) {
+    public List<IdentitySearchRule> selectAll( Plugin plugin )
+    {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_RULE, plugin ) )
         {
             final List<IdentitySearchRule> rules = new ArrayList<>( );
@@ -62,17 +98,17 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
         }
     }
 
-    private IdentitySearchRule getRule(final DAOUtil daoUtil, final int offset, final Plugin plugin)
+    private IdentitySearchRule getRule( final DAOUtil daoUtil, final int offset, final Plugin plugin )
     {
         int nIndex = offset;
         final IdentitySearchRule rule = new IdentitySearchRule( );
         rule.setId( daoUtil.getInt( ++nIndex ) );
-        rule.setType(SearchRuleType.valueOf(daoUtil.getString(++nIndex)));
-        rule.getAttributes().addAll(this.getAttributes(rule.getId(), plugin));
+        rule.setType( SearchRuleType.valueOf( daoUtil.getString( ++nIndex ) ) );
+        rule.getAttributes( ).addAll( this.getAttributes( rule.getId( ), plugin ) );
         return rule;
     }
 
-    private List<AttributeKey> getAttributes(final int ruleId, final Plugin plugin)
+    private List<AttributeKey> getAttributes( final int ruleId, final Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ATTRIBUTES_BY_RULE_ID, plugin ) )
         {
@@ -85,7 +121,7 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
             }
             if ( !checkedAttributes.isEmpty( ) )
             {
-                checkedAttributes.sort(Comparator.comparing(AttributeKey::getName));
+                checkedAttributes.sort( Comparator.comparing( AttributeKey::getName ) );
             }
             return checkedAttributes;
         }
@@ -99,12 +135,12 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
         attributeKey.setName( daoUtil.getString( ++nIndex ) );
         attributeKey.setDescription( daoUtil.getString( ++nIndex ) );
         attributeKey.setKeyName( daoUtil.getString( ++nIndex ) );
-        attributeKey.setKeyType(KeyType.valueOf(daoUtil.getInt(++nIndex)));
+        attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( ++nIndex ) ) );
         attributeKey.setKeyWeight( daoUtil.getInt( ++nIndex ) );
         attributeKey.setCertifiable( daoUtil.getBoolean( ++nIndex ) );
         attributeKey.setPivot( daoUtil.getBoolean( ++nIndex ) );
         attributeKey.setCommonSearchKeyName( daoUtil.getString( ++nIndex ) );
-        attributeKey.setMandatoryForCreation(daoUtil.getBoolean(++nIndex));
+        attributeKey.setMandatoryForCreation( daoUtil.getBoolean( ++nIndex ) );
         return attributeKey;
     }
 
@@ -112,26 +148,27 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
      * {@inheritDoc }
      */
     @Override
-    public void insert(final IdentitySearchRule identitySearchRule, final Plugin plugin) {
-        try ( final DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_RULE, Statement.RETURN_GENERATED_KEYS, plugin ) )
+    public void insert( final IdentitySearchRule identitySearchRule, final Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_RULE, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
             int nIndex = 0;
-            daoUtil.setString( ++nIndex, identitySearchRule.getType().name() );
+            daoUtil.setString( ++nIndex, identitySearchRule.getType( ).name( ) );
             daoUtil.executeUpdate( );
             if ( daoUtil.nextGeneratedKey( ) )
             {
                 identitySearchRule.setId( daoUtil.getGeneratedKeyInt( 1 ) );
-                for ( final AttributeKey attribute : identitySearchRule.getAttributes() )
+                for ( final AttributeKey attribute : identitySearchRule.getAttributes( ) )
                 {
-                    this.insertRuleAttribute(identitySearchRule.getId(), attribute.getId(), plugin);
+                    this.insertRuleAttribute( identitySearchRule.getId( ), attribute.getId( ), plugin );
                 }
             }
         }
     }
 
-    private void insertRuleAttribute(final int ruleId, final int attributeId, final Plugin plugin)
+    private void insertRuleAttribute( final int ruleId, final int attributeId, final Plugin plugin )
     {
-        try ( final DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_RULE_ATTRIBUTE, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_RULE_ATTRIBUTE, plugin ) )
         {
             int nIndex = 0;
             daoUtil.setInt( ++nIndex, ruleId );
@@ -140,22 +177,22 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
         }
     }
 
-
     /**
      * {@inheritDoc }
      */
     @Override
-    public void update(final IdentitySearchRule identitySearchRule, final Plugin plugin) {
+    public void update( final IdentitySearchRule identitySearchRule, final Plugin plugin )
+    {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE_RULE, plugin ) )
         {
             int nIndex = 0;
-            daoUtil.setString( ++nIndex, identitySearchRule.getType().name() );
+            daoUtil.setString( ++nIndex, identitySearchRule.getType( ).name( ) );
             daoUtil.setInt( ++nIndex, identitySearchRule.getId( ) );
             daoUtil.executeUpdate( );
             this.deleteRuleAttributes( identitySearchRule.getId( ), plugin );
-            for ( final AttributeKey attribute : identitySearchRule.getAttributes() )
+            for ( final AttributeKey attribute : identitySearchRule.getAttributes( ) )
             {
-                this.insertRuleAttribute(identitySearchRule.getId(), attribute.getId(), plugin);
+                this.insertRuleAttribute( identitySearchRule.getId( ), attribute.getId( ), plugin );
             }
         }
     }
@@ -173,8 +210,9 @@ public final class IdentitySearchRuleDAO implements IIdentitySearchRuleDAO {
      * {@inheritDoc }
      */
     @Override
-    public void delete(final int nRuleId, final Plugin plugin) {
-        this.deleteRuleAttributes(nRuleId, plugin);
+    public void delete( final int nRuleId, final Plugin plugin )
+    {
+        this.deleteRuleAttributes( nRuleId, plugin );
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_RULE, plugin ) )
         {
             daoUtil.setInt( 1, nRuleId );
