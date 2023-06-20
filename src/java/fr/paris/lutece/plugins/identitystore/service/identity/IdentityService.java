@@ -48,6 +48,9 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
+import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
@@ -74,10 +77,12 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import org.apache.commons.collections.CollectionUtils;
@@ -88,6 +93,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1578,8 +1584,54 @@ public class IdentityService
     public void search( final IdentitySearchRequest identitySearchRequest, final IdentitySearchResponse response, final String clientCode )
             throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( identitySearchRequest.getSearch( ).getAttributes( ),
-                identitySearchRequest.getMax( ), identitySearchRequest.isConnected( ) );
+        final List<SearchAttributeDto> providedAttributes = identitySearchRequest.getSearch().getAttributes();
+        final Set<String> providedKeys = providedAttributes.stream().map(SearchAttributeDto::getKey).collect(Collectors.toSet());
+
+        boolean hasRequirements = false;
+        final List<IdentitySearchRule> searchRules = IdentitySearchRuleHome.findAll();
+        final Iterator<IdentitySearchRule> iterator = searchRules.iterator();
+        while(!hasRequirements && iterator.hasNext()){
+            final IdentitySearchRule searchRule = iterator.next();
+            final Set<String> requiredKeys = searchRule.getAttributes().stream().map(AttributeKey::getKeyName).collect(Collectors.toSet());
+            if (searchRule.getType() == SearchRuleType.AND) {
+                if(providedKeys.containsAll(requiredKeys)) {
+                    hasRequirements = true;
+                }
+            } else if (searchRule.getType() == SearchRuleType.OR) {
+                if(providedKeys.stream().anyMatch(requiredKeys::contains)) {
+                    hasRequirements = true;
+                }
+            }
+        }
+
+        if(!hasRequirements){
+            final StringBuilder sb = new StringBuilder();
+            final Iterator<IdentitySearchRule> ruleIt = searchRules.iterator();
+            while(ruleIt.hasNext()) {
+                final IdentitySearchRule rule = ruleIt.next();
+                sb.append("( ");
+                final Iterator<AttributeKey> attrIt = rule.getAttributes().iterator();
+                while(attrIt.hasNext()){
+                    final AttributeKey attr = attrIt.next();
+                    sb.append(attr.getKeyName()).append(" ");
+                    if(attrIt.hasNext()) {
+                        sb.append(rule.getType().name()).append(" ");
+                    }
+                }
+                sb.append(")");
+                if(ruleIt.hasNext()){
+                    sb.append(" OR ");
+                }
+            }
+            final IdentitySearchMessage alert = new IdentitySearchMessage( );
+            alert.setAttributeName( sb.toString() );
+            alert.setMessage( "Please provide those required attributes to be able to search identities." );
+            response.getAlerts( ).add( alert );
+            response.setStatus(IdentitySearchStatusType.FAILURE);
+            return;
+        }
+
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities(providedAttributes, identitySearchRequest.getMax( ), identitySearchRequest.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
             final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( identitySearchRequest, clientCode, qualifiedIdentities );
