@@ -221,15 +221,16 @@ public class IdentityService
 
         response.setCustomerId( identity.getCustomerId( ) );
         response.setCreationDate( identity.getCreationDate( ) );
-        final boolean incompleteCreation = response.getAttributeStatuses().stream().anyMatch(s -> s.getStatus().equals(AttributeChangeStatus.NOT_CREATED));
+        final boolean incompleteCreation = response.getAttributeStatuses( ).stream( )
+                .anyMatch( s -> s.getStatus( ).equals( AttributeChangeStatus.NOT_CREATED ) );
         response.setStatus( incompleteCreation ? IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.CREATE_SUCCESS );
 
         /* Historique des modifications */
-        response.getAttributeStatuses( ).stream().filter(s -> s.getStatus().equals(AttributeChangeStatus.CREATED)).forEach(attributeStatus -> {
+        response.getAttributeStatuses( ).stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).forEach( attributeStatus -> {
             AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus,
                     identityChangeRequest.getOrigin( ), clientCode );
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-        });
+        } );
 
         /* Indexation */
         _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.CREATE ) );
@@ -396,7 +397,7 @@ public class IdentityService
         boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
                 .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
                         || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_CREATED.equals(attributeStatus.getStatus())
+                        || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
                         || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
                         || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
                         || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
@@ -739,30 +740,35 @@ public class IdentityService
         else
             if ( countryCodeToUpdate != null )
             {
-                if (StringUtils.isBlank(countryCodeToUpdate.getValue())) {
+                if ( StringUtils.isBlank( countryCodeToUpdate.getValue( ) ) )
+                {
                     // Remove code & label attributes
-                    final AttributeStatus codeStatus = updateAttribute(countryCodeToUpdate, identity, clientCode);
-                    response.getAttributeStatuses().add(codeStatus);
-                    if (identity.getAttributes().get(ATTR_KEY_BIRTHCOUNTRY) != null) {
-                        if (countryLabelToUpdate == null) {
-                            countryLabelToUpdate = new CertifiedAttribute();
-                            countryLabelToUpdate.setKey(ATTR_KEY_BIRTHCOUNTRY);
+                    final AttributeStatus codeStatus = updateAttribute( countryCodeToUpdate, identity, clientCode );
+                    response.getAttributeStatuses( ).add( codeStatus );
+                    if ( identity.getAttributes( ).get( ATTR_KEY_BIRTHCOUNTRY ) != null )
+                    {
+                        if ( countryLabelToUpdate == null )
+                        {
+                            countryLabelToUpdate = new CertifiedAttribute( );
+                            countryLabelToUpdate.setKey( ATTR_KEY_BIRTHCOUNTRY );
                         }
-                        countryLabelToUpdate.setValue("");
-                        countryLabelToUpdate.setCertificationProcess(countryCodeToUpdate.getCertificationProcess());
-                        countryLabelToUpdate.setCertificationDate(countryCodeToUpdate.getCertificationDate());
-                        final AttributeStatus labelStatus = updateAttribute(countryLabelToUpdate, identity, clientCode);
-                        response.getAttributeStatuses().add(labelStatus);
+                        countryLabelToUpdate.setValue( "" );
+                        countryLabelToUpdate.setCertificationProcess( countryCodeToUpdate.getCertificationProcess( ) );
+                        countryLabelToUpdate.setCertificationDate( countryCodeToUpdate.getCertificationDate( ) );
+                        final AttributeStatus labelStatus = updateAttribute( countryLabelToUpdate, identity, clientCode );
+                        response.getAttributeStatuses( ).add( labelStatus );
                     }
-                } else {
+                }
+                else
+                {
                     final Country country = GeoCodesService.getCountryByCode( countryCodeToUpdate.getValue( ) ).orElse( null );
                     if ( country == null )
                     {
                         // Country doesn't exist in Geocodes for provided code
-                        final AttributeStatus attributeStatus = new AttributeStatus();
-                        attributeStatus.setKey(countryCodeToUpdate.getKey());
-                        attributeStatus.setStatus(AttributeChangeStatus.UNKNOWN_GEOCODES_CODE);
-                        response.getAttributeStatuses().add(attributeStatus);
+                        final AttributeStatus attributeStatus = new AttributeStatus( );
+                        attributeStatus.setKey( countryCodeToUpdate.getKey( ) );
+                        attributeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                        response.getAttributeStatuses( ).add( attributeStatus );
                     }
                     else
                     {
@@ -879,20 +885,24 @@ public class IdentityService
                 else
                     if ( countryLabelToUpdate != null )
                     {
-                        if (StringUtils.isBlank(countryLabelToUpdate.getValue())) {
+                        if ( StringUtils.isBlank( countryLabelToUpdate.getValue( ) ) )
+                        {
                             // Attempt to remove attribute
-                            final AttributeStatus labelStatus = updateAttribute(countryLabelToUpdate, identity, clientCode);
-                            response.getAttributeStatuses().add(labelStatus);
-                            if (identity.getAttributes().get(ATTR_KEY_BIRTHCOUNTRY_CODE) != null) {
-                                final CertifiedAttribute countryCodeToDelete = new CertifiedAttribute();
-                                countryCodeToDelete.setKey(ATTR_KEY_BIRTHCOUNTRY_CODE);
-                                countryCodeToDelete.setValue("");
-                                countryCodeToDelete.setCertificationProcess(countryLabelToUpdate.getCertificationProcess());
-                                countryCodeToDelete.setCertificationDate(countryLabelToUpdate.getCertificationDate());
-                                final AttributeStatus codeStatus = updateAttribute(countryCodeToDelete, identity, clientCode);
-                                response.getAttributeStatuses().add(codeStatus);
+                            final AttributeStatus labelStatus = updateAttribute( countryLabelToUpdate, identity, clientCode );
+                            response.getAttributeStatuses( ).add( labelStatus );
+                            if ( identity.getAttributes( ).get( ATTR_KEY_BIRTHCOUNTRY_CODE ) != null )
+                            {
+                                final CertifiedAttribute countryCodeToDelete = new CertifiedAttribute( );
+                                countryCodeToDelete.setKey( ATTR_KEY_BIRTHCOUNTRY_CODE );
+                                countryCodeToDelete.setValue( "" );
+                                countryCodeToDelete.setCertificationProcess( countryLabelToUpdate.getCertificationProcess( ) );
+                                countryCodeToDelete.setCertificationDate( countryLabelToUpdate.getCertificationDate( ) );
+                                final AttributeStatus codeStatus = updateAttribute( countryCodeToDelete, identity, clientCode );
+                                response.getAttributeStatuses( ).add( codeStatus );
                             }
-                        } else {
+                        }
+                        else
+                        {
                             final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToUpdate.getValue( ) );
                             if ( CollectionUtils.isEmpty( countries ) )
                             {
@@ -1058,22 +1068,27 @@ public class IdentityService
         else
             if ( cityCodeToUpdate != null )
             {
-                if (StringUtils.isBlank(cityCodeToUpdate.getValue())) {
+                if ( StringUtils.isBlank( cityCodeToUpdate.getValue( ) ) )
+                {
                     // Remove code & label attributes
-                    final AttributeStatus codeStatus = updateAttribute(cityCodeToUpdate, identity, clientCode);
-                    response.getAttributeStatuses().add(codeStatus);
-                    if (identity.getAttributes().get(ATTR_KEY_BIRTHPLACE) != null) {
-                        if (cityLabelToUpdate == null) {
-                            cityLabelToUpdate = new CertifiedAttribute();
-                            cityLabelToUpdate.setKey(ATTR_KEY_BIRTHPLACE);
+                    final AttributeStatus codeStatus = updateAttribute( cityCodeToUpdate, identity, clientCode );
+                    response.getAttributeStatuses( ).add( codeStatus );
+                    if ( identity.getAttributes( ).get( ATTR_KEY_BIRTHPLACE ) != null )
+                    {
+                        if ( cityLabelToUpdate == null )
+                        {
+                            cityLabelToUpdate = new CertifiedAttribute( );
+                            cityLabelToUpdate.setKey( ATTR_KEY_BIRTHPLACE );
                         }
-                        cityLabelToUpdate.setValue("");
-                        cityLabelToUpdate.setCertificationProcess(cityCodeToUpdate.getCertificationProcess());
-                        cityLabelToUpdate.setCertificationDate(cityCodeToUpdate.getCertificationDate());
-                        final AttributeStatus labelStatus = updateAttribute(cityLabelToUpdate, identity, clientCode);
-                        response.getAttributeStatuses().add(labelStatus);
+                        cityLabelToUpdate.setValue( "" );
+                        cityLabelToUpdate.setCertificationProcess( cityCodeToUpdate.getCertificationProcess( ) );
+                        cityLabelToUpdate.setCertificationDate( cityCodeToUpdate.getCertificationDate( ) );
+                        final AttributeStatus labelStatus = updateAttribute( cityLabelToUpdate, identity, clientCode );
+                        response.getAttributeStatuses( ).add( labelStatus );
                     }
-                } else {
+                }
+                else
+                {
                     final City city = GeoCodesService.getCityByCode( cityCodeToUpdate.getValue( ) ).orElse( null );
                     if ( city == null )
                     {
@@ -1132,7 +1147,7 @@ public class IdentityService
                                 }
                                 response.getAttributeStatuses( ).add( attributeStatus );
                             }
-                        }
+                    }
                 }
             }
             // No city code sent, checking if label was sent
@@ -1196,20 +1211,24 @@ public class IdentityService
                 else
                     if ( cityLabelToUpdate != null )
                     {
-                        if (StringUtils.isBlank(cityLabelToUpdate.getValue())) {
+                        if ( StringUtils.isBlank( cityLabelToUpdate.getValue( ) ) )
+                        {
                             // Attempt to remove attribute
-                            final AttributeStatus labelStatus = updateAttribute(cityLabelToUpdate, identity, clientCode);
-                            response.getAttributeStatuses().add(labelStatus);
-                            if (identity.getAttributes().get(ATTR_KEY_BIRTHPLACE_CODE) != null) {
-                                final CertifiedAttribute cityCodeToDelete = new CertifiedAttribute();
-                                cityCodeToDelete.setKey(ATTR_KEY_BIRTHPLACE_CODE);
-                                cityCodeToDelete.setValue("");
-                                cityCodeToDelete.setCertificationProcess(cityLabelToUpdate.getCertificationProcess());
-                                cityCodeToDelete.setCertificationDate(cityLabelToUpdate.getCertificationDate());
-                                final AttributeStatus codeStatus = updateAttribute(cityCodeToDelete, identity, clientCode);
-                                response.getAttributeStatuses().add(codeStatus);
+                            final AttributeStatus labelStatus = updateAttribute( cityLabelToUpdate, identity, clientCode );
+                            response.getAttributeStatuses( ).add( labelStatus );
+                            if ( identity.getAttributes( ).get( ATTR_KEY_BIRTHPLACE_CODE ) != null )
+                            {
+                                final CertifiedAttribute cityCodeToDelete = new CertifiedAttribute( );
+                                cityCodeToDelete.setKey( ATTR_KEY_BIRTHPLACE_CODE );
+                                cityCodeToDelete.setValue( "" );
+                                cityCodeToDelete.setCertificationProcess( cityLabelToUpdate.getCertificationProcess( ) );
+                                cityCodeToDelete.setCertificationDate( cityLabelToUpdate.getCertificationDate( ) );
+                                final AttributeStatus codeStatus = updateAttribute( cityCodeToDelete, identity, clientCode );
+                                response.getAttributeStatuses( ).add( codeStatus );
                             }
-                        } else {
+                        }
+                        else
+                        {
                             final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToUpdate.getValue( ) );
                             if ( CollectionUtils.isEmpty( cities ) )
                             {
@@ -1279,7 +1298,8 @@ public class IdentityService
     private AttributeStatus createAttribute( final CertifiedAttribute attributeToCreate, final Identity identity, final String clientCode )
             throws IdentityStoreException
     {
-        if (StringUtils.isBlank(attributeToCreate.getValue())) {
+        if ( StringUtils.isBlank( attributeToCreate.getValue( ) ) )
+        {
             final AttributeStatus attributeStatus = new AttributeStatus( );
             attributeStatus.setKey( attributeToCreate.getKey( ) );
             attributeStatus.setStatus( AttributeChangeStatus.NOT_CREATED );
