@@ -79,6 +79,7 @@ public class NearSearchRequest extends ASearchRequest
                     }
                     break;
                 case Constants.PARAM_FIRST_NAME:
+                    searchAttribute.setValue(searchAttribute.getValue( ).toLowerCase());
                     if ( searchAttribute.isStrict( ) )
                     {
                         shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
@@ -95,16 +96,14 @@ public class NearSearchRequest extends ASearchRequest
                                         new SpanMulti( new SpanMultiFuzzyMatchContainer( getSpanMultiFuzzyMatch( searchAttribute, word ) ) ) ) );
                             } );
                             spanNear.setInOrder( true );
+                            spanNear.setBoost( 1 );
+                            shouldOrMust.add( new SpanNearContainer( spanNear ) );
                         }
                         else
                         {
-                            SpanTerm spanTerm = new SpanTerm( );
-                            spanTerm.setName( searchAttribute.getInputKey( ) );
-                            spanTerm.setValue( searchAttribute.getValue( ) );
-                            spanNear.getClauses( ).add( new SpanTermContainer( spanTerm ) );
+                            shouldOrMust.add( new MatchContainer( getMatch( searchAttribute ) ) );
                         }
-                        spanNear.setBoost( 1 );
-                        shouldOrMust.add( new SpanNearContainer( spanNear ) );
+
                     }
                     break;
                 case Constants.PARAM_PREFERRED_USERNAME:
