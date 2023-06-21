@@ -189,7 +189,7 @@ public class IdentityService
         }
 
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
-                .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
+                .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
         final DuplicateDto duplicates = _duplicateServiceCreation.findDuplicates( attributes );
         if ( duplicates != null )
         {
