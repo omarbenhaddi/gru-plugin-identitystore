@@ -1736,7 +1736,7 @@ public class IdentityService
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, identitySearchRequest.getMax( ),
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes,providedAttributes.size(), null, identitySearchRequest.getMax( ),
                 identitySearchRequest.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
