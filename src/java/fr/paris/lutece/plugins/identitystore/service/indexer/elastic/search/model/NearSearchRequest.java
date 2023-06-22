@@ -69,7 +69,8 @@ public class NearSearchRequest extends ASearchRequest
             switch( searchAttribute.getInputKey( ) )
             {
                 case Constants.PARAM_FAMILY_NAME:
-                    searchAttribute.setValue(searchAttribute.getValue( ).trim().replaceAll("(-)\\1+","$1").replaceAll(" +", " ").replaceAll(" - ", "-"));
+                    searchAttribute
+                            .setValue( searchAttribute.getValue( ).trim( ).replaceAll( "(-)\\1+", "$1" ).replaceAll( " +", " " ).replaceAll( " - ", "-" ) );
                     if ( searchAttribute.isStrict( ) )
                     {
                         shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
@@ -80,7 +81,7 @@ public class NearSearchRequest extends ASearchRequest
                     }
                     break;
                 case Constants.PARAM_FIRST_NAME:
-                    searchAttribute.setValue(searchAttribute.getValue( ).trim().replaceAll(" +", " ").toLowerCase());
+                    searchAttribute.setValue( searchAttribute.getValue( ).trim( ).replaceAll( " +", " " ).toLowerCase( ) );
                     if ( searchAttribute.isStrict( ) )
                     {
                         shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );

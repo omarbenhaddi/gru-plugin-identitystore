@@ -111,7 +111,8 @@ public class IdentityQualityService
         final AtomicInteger levels = new AtomicInteger( );
         for ( final CertifiedAttribute attribute : qualifiedIdentity.getAttributes( ) )
         {
-            if (attribute.getCertificationLevel() == null || attribute.getCertificationLevel() == 0 || StringUtils.isBlank(attribute.getValue())) {
+            if ( attribute.getCertificationLevel( ) == null || attribute.getCertificationLevel( ) == 0 || StringUtils.isBlank( attribute.getValue( ) ) )
+            {
                 continue;
             }
             final AttributeKey attributeKey = _identityAttributeCache.get( attribute.getKey( ) );
