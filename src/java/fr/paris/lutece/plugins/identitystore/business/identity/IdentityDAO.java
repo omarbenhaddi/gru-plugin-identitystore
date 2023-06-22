@@ -104,7 +104,7 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value LIKE ? )" + " OR a.customer_id LIKE ? OR a.connection_id LIKE ?";
     private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date FROM identitystore_identity a,  identitystore_identity_attribute b "
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
-    private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now(), connection_id = null WHERE id_identity = ?";
+    private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now( ), is_mon_paris_active = 0, expiration_date=now( ), last_update_date=now( )  WHERE customer_id = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), id_master_identity = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date"
             + " FROM identitystore_identity a" + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
@@ -204,11 +204,11 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public void softDelete( int nKey, Plugin plugin )
+    public void softDelete( String strCuid, Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SOFT_DELETE, plugin ) )
         {
-            daoUtil.setInt( 1, nKey );
+            daoUtil.setString( 1, strCuid );
             daoUtil.executeUpdate( );
         }
     }

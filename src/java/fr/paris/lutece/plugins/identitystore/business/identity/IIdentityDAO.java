@@ -92,7 +92,7 @@ public interface IIdentityDAO
      * @param plugin
      *            the Plugin
      */
-    void softDelete( int nKey, Plugin plugin );
+    void softDelete( String strCuid, Plugin plugin );
 
     // /////////////////////////////////////////////////////////////////////////
     // Finders

@@ -59,9 +59,11 @@ import fr.paris.lutece.plugins.identitystore.service.duplicate.IDuplicateService
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreDeleteRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
@@ -205,8 +207,8 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
         } );
 
-        /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.CREATE ) );
+        /* Notify listeners for indexation, history, ...  */
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.CREATE, identityChangeRequest.getOrigin( ) ) );
 
         return identity;
     }
@@ -386,7 +388,7 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.UPDATE ) );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.UPDATE, identityChangeRequest.getOrigin( ) ) );
 
         return identity;
     }
@@ -1439,9 +1441,9 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
         } );
 
-        /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( secondaryIdentity, IdentityChangeType.DELETE ) );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( primaryIdentity, IdentityChangeType.UPDATE ) );
+        /* Indexation, journalisation, ... */
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( secondaryIdentity, IdentityChangeType.MERGED, identityMergeRequest.getOrigin( ) ) );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( primaryIdentity, IdentityChangeType.CONSOLIDATED, identityMergeRequest.getOrigin( ) ) );
 
         return primaryIdentity;
     }
@@ -1677,5 +1679,54 @@ public class IdentityService
     {
         // TODO NOT IMPLEMENTED YET
         return 0;
+    }
+    
+    
+    public void deleteRequest( final String customerId, final String clientCode,
+    		IdentityChangeRequest identityChangeRequest,
+            final IdentityChangeResponse response ) throws IdentityStoreException
+    {
+        if ( !_serviceContractService.canDeleteIdentity( clientCode ) )
+        {
+            response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setCustomerId( customerId );
+            response.setMessage( "The client application is not authorized to request the deletion of an identity." );
+            return;
+        }
+        
+        // check identity
+        Identity identity = IdentityHome.findByCustomerId( customerId );
+        if ( identity == null )
+        {
+        	response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setCustomerId( customerId );
+            response.setMessage( "Identity not found." );
+            return;
+        }
+        if ( identity.isDeleted( ) )
+        {
+        	response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setCustomerId( customerId );
+            response.setMessage( "Identity  allready in deleted state." );
+            return;
+        }
+        if ( identity.isMerged( ) )
+        {
+        	response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setCustomerId( customerId );
+            response.setMessage( "Identity in merged state can not be deleted." );
+            return;
+        }
+        
+        // expire identity (the  deletion is managed by the dedicated Daemon)
+	    IdentityHome.softRemove( customerId );
+	        
+	    response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
+	      
+	    /* Notify listeners for indexation, history, ...  */
+	    _identityStoreNotifyListenerService.notifyListenersIdentityChange( 
+	    		new IdentityChange( identity, IdentityChangeType.DELETE, identityChangeRequest.getOrigin() ) );
+        
+        
     }
 }

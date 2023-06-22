@@ -193,7 +193,7 @@ public class Identity implements Serializable
      */
     public boolean isConnected( )
     {
-        return _mapAttributes.containsKey( Constants.PARAM_LOGIN );
+        return _bIsMonParisActive;
     }
 
     /**

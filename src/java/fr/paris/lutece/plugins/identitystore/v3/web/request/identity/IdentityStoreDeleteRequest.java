@@ -33,8 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
@@ -43,9 +49,9 @@ import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreExceptio
  */
 public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
 {
-    private static final String MESSAGE_DELETE_SUCCESSFUL = "Identity successfully deleted.";
 
-    private final String _strConnectionId;
+    private final String _strCustomerId;
+    private final IdentityChangeRequest _identityChangeRequest;
 
     /**
      * Constructor of IdentityStoreDeleteRequest
@@ -55,10 +61,11 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
      * @param strClientAppCode
      *            the application code provided by the client
      */
-    public IdentityStoreDeleteRequest( String strConnectionId, String strClientAppCode )
+    public IdentityStoreDeleteRequest( String strCustomerId, String strClientAppCode, IdentityChangeRequest identityChangeRequest)
     {
         super( strClientAppCode );
-        _strConnectionId = strConnectionId;
+        _strCustomerId = strCustomerId;
+        _identityChangeRequest = identityChangeRequest;
     }
 
     /**
@@ -71,6 +78,7 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
     protected void validRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
+        IdentityRequestValidator.instance( ).checkOrigin( _identityChangeRequest );
     }
 
     /**
@@ -80,8 +88,13 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    protected String doSpecificRequest( ) throws IdentityStoreException
+    protected IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        return MESSAGE_DELETE_SUCCESSFUL;
+        
+        IdentityChangeResponse response = new IdentityChangeResponse( );
+        
+		IdentityService.instance( ).deleteRequest(_strCustomerId, _strClientCode, _identityChangeRequest, response);
+        
+		return response;
     }
 }

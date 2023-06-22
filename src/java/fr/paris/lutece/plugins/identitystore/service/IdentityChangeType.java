@@ -45,7 +45,9 @@ public enum IdentityChangeType
 {
     CREATE( 0 ),
     UPDATE( 1 ),
-    DELETE( 2 );
+    DELETE( 2 ),
+	MERGED( 3 ),
+	CONSOLIDATED( 4 );
 
     private static Map<Integer, IdentityChangeType> _mapTypes = new HashMap<Integer, IdentityChangeType>( );
     private int _nValue;

@@ -272,28 +272,35 @@ public final class IdentityStoreRestService
             return getErrorResponse( exception );
         }
     }
-
+    
     /**
-     * Deletes an identity from the specified connectionId
-     *
-     * @param strConnectionId
-     *            the connection ID
-     * @param strHeaderClientCode
-     *            the client code from header
-     * @param strQueryClientCode
-     *            the client code from query
+     * Delete request for an identity from the specified CustomerId
+     * The identity will be marked as expired, for the deletion Deamon.
+     * 
+     * @param strCustomerId
+     * @param strClientCode
      * @return a OK message if the deletion has been performed, a KO message otherwise
      */
     @DELETE
+    @Path( "{" + Constants.PARAM_ID_CUSTOMER + "}" )
     @Produces( MediaType.APPLICATION_JSON )
-    public Response deleteIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
-            @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientCode, @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientCode )
+    @ApiOperation( value = "Delete request for an existing Identity", notes = "The delete is conditioned by the service contract definition associated to the client application code.", response = IdentityChangeResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND ),
+            @ApiResponse( code = 409, message = "Conflict" )
+    } )
+    public Response deleteIdentity(       
+    		@ApiParam( name = "Request body", value = "An Identity Change Request to specify the author" ) IdentityChangeRequest identityChangeRequest,
+    		@ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode )
     {
-        String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientCode, strQueryClientCode );
         try
         {
-            final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strConnectionId, strClientAppCode );
-            return buildResponse( (String) identityStoreRequest.doRequest( ), Response.Status.OK );
+            final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strCustomerId, strClientCode, identityChangeRequest );
+            final IdentityChangeResponse response = (IdentityChangeResponse) identityStoreRequest.doRequest( );
+            return Response.status( response.getStatus( ).getCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        
         }
         catch( Exception exception )
         {

@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 
 /**
  * AttributeChange
@@ -43,15 +44,17 @@ public class IdentityChange
     // Variables declarations
     private Identity _identity;
     private IdentityChangeType _identityChangeType;
+    private RequestAuthor _author;
 
     public IdentityChange( )
     {
     }
 
-    public IdentityChange( Identity _identity, IdentityChangeType _identityChangeType )
+    public IdentityChange( Identity _identity, IdentityChangeType _identityChangeType, RequestAuthor author )
     {
         this._identity = _identity;
         this._identityChangeType = _identityChangeType;
+        this.setAuthor( author );
     }
 
     /**
@@ -95,4 +98,21 @@ public class IdentityChange
     {
         _identityChangeType = identityChangeType;
     }
+
+    /**
+     * get author
+     * @return the author
+     */
+	public RequestAuthor getAuthor() {
+		return _author;
+	}
+
+	/**
+	 * set author
+	 * 
+	 * @param author
+	 */
+	public void setAuthor(RequestAuthor author ) {
+		this._author = author;
+	}
 }

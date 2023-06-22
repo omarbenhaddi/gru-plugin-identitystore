@@ -310,6 +310,12 @@ public class ServiceContractService
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         return serviceContract.getAuthorizedUpdate( );
     }
+    
+	public boolean canDeleteIdentity(String clientCode)  throws ServiceContractNotFoundException
+	{
+        final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
+        return serviceContract.getAuthorizedDeletion( );
+	}
 
     public int getDataRetentionPeriodInMonths( final String clientCode ) throws ServiceContractNotFoundException
     {
@@ -514,4 +520,5 @@ public class ServiceContractService
         }
         return false;
     }
+
 }

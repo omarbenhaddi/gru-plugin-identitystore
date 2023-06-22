@@ -104,25 +104,6 @@ public final class IdentityHome
     }
 
     /**
-     * Removes the identity whose identifier is specified in parameter
-     *
-     * @param strConnectionId
-     *            the connection id
-     * @return the id of the deleted identity
-     */
-    public static int removeByConnectionId( String strConnectionId )
-    {
-        int nIdentityId = findIdByConnectionId( strConnectionId );
-
-        if ( nIdentityId >= 0 )
-        {
-            softRemove( nIdentityId );
-        }
-
-        return nIdentityId;
-    }
-
-    /**
      * Remove the identity whose identifier is specified in parameter
      *
      * @param nIdentityId
@@ -134,10 +115,9 @@ public final class IdentityHome
         _dao.hardDelete( nIdentityId, _plugin );
     }
 
-    public static void softRemove( int nIdentityId )
+    public static void softRemove( String strCuid )
     {
-        IdentityAttributeHome.removeAllAttributes( nIdentityId );
-        _dao.softDelete( nIdentityId, _plugin );
+        _dao.softDelete( strCuid, _plugin );
     }
 
     /**

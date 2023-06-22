@@ -40,7 +40,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChan
 /**
  * Database Logging Listener
  */
-public class DatabaseLoggingListener implements AttributeChangeListener
+public class AttributeHistoryListener implements AttributeChangeListener
 {
     private static final String SERVICE_NAME = "Database logging AttributeChangeListener";
 

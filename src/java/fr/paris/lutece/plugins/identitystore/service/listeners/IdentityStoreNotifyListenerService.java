@@ -55,11 +55,7 @@ import java.util.List;
  */
 public final class IdentityStoreNotifyListenerService
 {
-    // Beans
-    private static final String BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST = "identitystore.attributes.changelisteners.list";
-    private static final String BEAN_IDENTITY_CHANGE_LISTENERS_LIST = "identitystore.identity.changelisteners.list";
-
-    // singleton
+     // singleton
     private static IdentityStoreNotifyListenerService _singleton;
 
     // List
@@ -72,7 +68,7 @@ public final class IdentityStoreNotifyListenerService
     private IdentityStoreNotifyListenerService( )
     {
         // init attributeChangelistListeners
-        _attributeChangelistListeners = SpringContextService.getBean( BEAN_ATTRIBUTE_CHANGE_LISTENERS_LIST );
+        _attributeChangelistListeners = SpringContextService.getBeansOfType( AttributeChangeListener.class );
 
         StringBuilder sbLog = new StringBuilder( );
         sbLog.append( "IdentityStore - loading listeners  : " );
@@ -85,20 +81,18 @@ public final class IdentityStoreNotifyListenerService
         AppLogService.info( sbLog.toString( ) );
 
         // init identityChangeListListeners
-        if ( _identityChangeListListeners == null )
+        _identityChangeListListeners = SpringContextService.getBeansOfType( IdentityChangeListener.class );
+        
+        sbLog = new StringBuilder( );
+        sbLog.append( "IdentityStore - loading listeners  : " );
+
+        for ( IdentityChangeListener listener : _identityChangeListListeners )
         {
-            _identityChangeListListeners = SpringContextService.getBean( BEAN_IDENTITY_CHANGE_LISTENERS_LIST );
-
-            sbLog = new StringBuilder( );
-            sbLog.append( "IdentityStore - loading listeners  : " );
-
-            for ( IdentityChangeListener listener : _identityChangeListListeners )
-            {
-                sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
-            }
-
-            AppLogService.info( sbLog.toString( ) );
+            sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
+
+        AppLogService.info( sbLog.toString( ) );
+        
     }
 
     /**
