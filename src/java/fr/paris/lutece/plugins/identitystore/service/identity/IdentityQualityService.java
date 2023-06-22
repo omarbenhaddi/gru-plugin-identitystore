@@ -111,11 +111,13 @@ public class IdentityQualityService
         final AtomicInteger levels = new AtomicInteger( );
         for ( final CertifiedAttribute attribute : qualifiedIdentity.getAttributes( ) )
         {
+            if (attribute.getCertificationLevel() == null || attribute.getCertificationLevel() == 0 || StringUtils.isBlank(attribute.getValue())) {
+                continue;
+            }
             final AttributeKey attributeKey = _identityAttributeCache.get( attribute.getKey( ) );
             if ( attributeKey.getKeyWeight( ) > 0 )
             {
-                final Integer certificateLevel = attribute.getCertificationLevel( ) != null ? attribute.getCertificationLevel( ) : 0;
-                levels.addAndGet( attributeKey.getKeyWeight( ) * certificateLevel );
+                levels.addAndGet( attributeKey.getKeyWeight( ) * attribute.getCertificationLevel( ) );
             }
         }
         qualifiedIdentity.setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
