@@ -165,6 +165,13 @@ public class IdentityService
         	throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
         }
 
+        // check if GUID is already in use
+        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) 
+        		&& IdentityHome.findByCustomerId( identityChangeRequest.getIdentity( ).getConnectionId( ) ) != null  )
+        {
+            throw new IdentityStoreException( "GUID is already in use." );
+        }
+        
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
         final DuplicateDto duplicates = _duplicateServiceCreation.findDuplicates( attributes );
