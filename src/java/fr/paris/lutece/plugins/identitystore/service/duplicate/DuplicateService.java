@@ -171,14 +171,11 @@ public class DuplicateService implements IDuplicateService
                     SearchAttributeDto searchAttribute = new SearchAttributeDto( );
                     searchAttribute.setKey( key.getKeyName( ) );
                     searchAttribute.setValue( identity.getAttributes( ).get( key.getKeyName( ) ).getValue( ) );
-                    DuplicateRuleAttributeTreatment priorityTreatment = duplicateRule.getAttributeTreatments().stream()
-                            .filter(attTreamtment -> attTreamtment.getAttributes().stream().anyMatch(att -> att.getKeyName().equals(key.getKeyName())))
-                            .max((p1, p2) -> Integer.compare(p1.getAttributes().stream().filter(att -> att.getKeyName().equals(key.getKeyName())).findFirst().get().getKeyWeight(),
-                                    p2.getAttributes().stream().filter(att -> att.getKeyName().equals(key.getKeyName())).findFirst().get().getKeyWeight())).get();
+                    DuplicateRuleAttributeTreatment priorityTreatment = (DuplicateRuleAttributeTreatment) duplicateRule.getAttributeTreatments().stream()
+                            .filter(attTreamtment -> attTreamtment.getAttributes().stream().anyMatch(att -> att.getKeyName().equals(key.getKeyName()))).collect(Collectors.toList());
                     searchAttribute.setStrict( priorityTreatment !=null?priorityTreatment.getType( ).equals( AttributeTreatmentType.DIFFERENT ): true );
                     searchAttributes.add( searchAttribute );
                 }
-
         }
         return searchAttributes;
     }
