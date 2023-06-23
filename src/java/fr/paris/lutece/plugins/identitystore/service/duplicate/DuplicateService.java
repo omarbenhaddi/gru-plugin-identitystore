@@ -40,15 +40,21 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DuplicateService implements IDuplicateService
@@ -125,15 +131,18 @@ public class DuplicateService implements IDuplicateService
         DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
-
             final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
 
-            final List<QualifiedIdentity> resultIdentities = _searchIdentityService
-                    .getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false )
-                    .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) )
-                    // .filter( qualifiedIdentity -> hasMinEqualsAttribute(identity, qualifiedIdentity, duplicateRule ) )
-                    .collect( Collectors.toList( ) );
+            final List<QualifiedIdentity> rawResults = _searchIdentityService
+                    .getQualifiedIdentities(searchAttributes, duplicateRule.getNbEqualAttributes(),
+                                            duplicateRule.getNbMissingAttributes(), 0, false);
+            final List<QualifiedIdentity> rawResultsNotMerged =
+                    rawResults.stream().filter(qualifiedIdentity -> !qualifiedIdentity.isMerged()).collect(
+                            Collectors.toList());
+            final List<QualifiedIdentity> resultIdentities =
+                    rawResultsNotMerged.stream()
+                                       .filter(qualifiedIdentity -> hasMissingField(qualifiedIdentity, duplicateRule))
+                                       .collect(Collectors.toList());
 
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
             {
@@ -144,13 +153,31 @@ public class DuplicateService implements IDuplicateService
                 return duplicateDto;
             }
         }
-
-        return null;
+        final DuplicateDto duplicateDto = new DuplicateDto( );
+        duplicateDto.setMessage(
+                "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getName( ) );
+        duplicateDto.setIdentities(Collections.emptyList());
+        return duplicateDto;
     }
 
     private boolean hasMissingField(QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
     {
-        return duplicateRule.getCheckedAttributes().stream().filter(duplicateRuleAttribute -> qualifiedIdentity.getAttributes().stream().anyMatch(qualifiedIdentityAtt -> qualifiedIdentityAtt.getKey().equals(duplicateRuleAttribute.getKeyName()))).count() <= duplicateRule.getNbMissingAttributes();
+        final Set<String> identityAttrKeys =
+                qualifiedIdentity.getAttributes().stream().filter(a -> StringUtils.isNotBlank(a.getValue())).map(CertifiedAttribute::getKey)
+                                 .collect(Collectors.toSet());
+        final Set<String> ruleAttrKeys =
+                duplicateRule.getCheckedAttributes().stream().map(AttributeKey::getKeyName).collect(Collectors.toSet());
+        if(duplicateRule.getNbMissingAttributes() == 0) {
+            return identityAttrKeys.containsAll(ruleAttrKeys);
+        }else{
+            int missingField = 0;
+            for(final String ruleAttrKey : ruleAttrKeys){
+                if(!identityAttrKeys.contains(ruleAttrKey)){
+                    missingField++;
+                }
+            }
+            return missingField <= duplicateRule.getNbMissingAttributes();
+        }
     }
 
     private boolean hasMinEqualsAttribute(Identity identity, QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
