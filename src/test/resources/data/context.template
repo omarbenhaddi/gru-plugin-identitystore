@@ -75,6 +75,7 @@
         <constructor-arg>
             <list>
                 <ref bean="identitystore.listener.index" />
+                <ref bean="identitystore.listener.databaseLogging" />
             </list>
         </constructor-arg>
     </bean>

@@ -33,7 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
+
+import java.sql.Timestamp;
 
 /**
  * AttributeChange
@@ -43,7 +47,12 @@ public class IdentityChange
     // Variables declarations
     private Identity _identity;
     private IdentityChangeType _identityChangeType;
-
+    protected String changeSatus;
+    protected String changeMessage;
+    protected AuthorType authorType;
+    protected String authorName;
+    protected String clientCode;
+    protected Timestamp modificationDate;
     public IdentityChange( )
     {
     }
@@ -94,5 +103,53 @@ public class IdentityChange
     public void setChangeType( IdentityChangeType identityChangeType )
     {
         _identityChangeType = identityChangeType;
+    }
+
+    public String getChangeSatus() {
+        return changeSatus;
+    }
+
+    public void setChangeSatus(String changeSatus) {
+        this.changeSatus = changeSatus;
+    }
+
+    public String getChangeMessage() {
+        return changeMessage;
+    }
+
+    public void setChangeMessage(String changeMessage) {
+        this.changeMessage = changeMessage;
+    }
+
+    public AuthorType getAuthorType() {
+        return authorType;
+    }
+
+    public void setAuthorType(AuthorType authorType) {
+        this.authorType = authorType;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getClientCode() {
+        return clientCode;
+    }
+
+    public void setClientCode(String clientCode) {
+        this.clientCode = clientCode;
+    }
+
+    public Timestamp getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Timestamp modificationDate) {
+        this.modificationDate = modificationDate;
     }
 }

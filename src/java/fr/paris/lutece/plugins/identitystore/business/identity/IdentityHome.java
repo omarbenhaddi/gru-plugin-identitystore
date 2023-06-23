@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -451,6 +452,18 @@ public final class IdentityHome
             final int limit )
     {
         return _dao.selectByAttributeExisting( idAttributeList, notMerged, notSuspicious, limit, _plugin );
+    }
+
+
+    /**
+     * add an identity change event in history table
+     *
+     * @param identityChange
+     *            identity change event
+     */
+    public static void addIdentityChangeHistory(IdentityChange identityChange )
+    {
+        _dao.addChangeHistory( identityChange, _plugin );
     }
 
 }

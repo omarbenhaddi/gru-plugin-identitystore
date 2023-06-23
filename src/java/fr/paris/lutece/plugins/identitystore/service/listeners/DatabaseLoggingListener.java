@@ -34,28 +34,37 @@
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
+import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 
 /**
  * Database Logging Listener
  */
-public class DatabaseLoggingListener implements AttributeChangeListener
-{
+public class DatabaseLoggingListener implements AttributeChangeListener, IdentityChangeListener {
     private static final String SERVICE_NAME = "Database logging AttributeChangeListener";
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange( AttributeChange attributeChange )
-    {
-        IdentityAttributeHome.addAttributeChangeHistory( attributeChange );
+    public void processAttributeChange(AttributeChange attributeChange) {
+        IdentityAttributeHome.addAttributeChangeHistory(attributeChange);
+    }
+
+
+    @Override
+    public String getName() {
+        return SERVICE_NAME;
     }
 
     @Override
-    public String getName( )
-    {
-        return SERVICE_NAME;
+    public void processIdentityChange(IdentityChange identityChange) {
+        IdentityHome.addIdentityChangeHistory(identityChange);
     }
+
+
+
 }

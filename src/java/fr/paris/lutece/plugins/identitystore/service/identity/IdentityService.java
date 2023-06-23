@@ -233,7 +233,8 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.CREATE ) );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus().getCode().toString(),response.getMessage(),
+                        identityChangeRequest.getOrigin( ), clientCode ));
 
         return identity;
     }
@@ -414,7 +415,9 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.UPDATE ) );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus().getCode().toString(),response.getMessage(),
+                identityChangeRequest.getOrigin( ), clientCode ));
+
 
         return identity;
     }
@@ -1564,8 +1567,12 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( secondaryIdentity, IdentityChangeType.DELETE ) );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( primaryIdentity, IdentityChangeType.UPDATE ) );
+
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, primaryIdentity, response.getStatus().getCode().toString(),
+                response.getStatus().getLabel() ,identityMergeRequest.getOrigin( ), clientCode ));
+
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, primaryIdentity, response.getStatus().getCode().toString(),
+                response.getStatus().getLabel() ,identityMergeRequest.getOrigin( ), clientCode ));
 
         return primaryIdentity;
     }
