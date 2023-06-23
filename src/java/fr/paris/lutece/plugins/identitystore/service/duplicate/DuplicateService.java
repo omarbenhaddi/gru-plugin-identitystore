@@ -132,7 +132,7 @@ public class DuplicateService implements IDuplicateService
                     .getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false )
                     .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
                     .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) )
-                    .filter( qualifiedIdentity -> hasMinEqualsAttribute(identity, qualifiedIdentity, duplicateRule ) )
+                    // .filter( qualifiedIdentity -> hasMinEqualsAttribute(identity, qualifiedIdentity, duplicateRule ) )
                     .collect( Collectors.toList( ) );
 
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
