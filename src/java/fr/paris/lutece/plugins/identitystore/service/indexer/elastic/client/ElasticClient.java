@@ -370,7 +370,6 @@ public class ElasticClient
         {
             final String strJSON = _mapper.writeValueAsString( search );
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
-            System.out.println( strJSON );
             strResponse = _connexion.POST( strURI, strJSON );
         }
         catch( final JsonProcessingException | HttpAccessException ex )
