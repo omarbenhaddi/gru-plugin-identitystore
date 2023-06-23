@@ -69,25 +69,24 @@ public class NearSearchRequest extends ASearchRequest
             switch( searchAttribute.getInputKey( ) )
             {
                 case Constants.PARAM_FAMILY_NAME:
-                    searchAttribute
-                            .setValue( searchAttribute.getValue( ).trim( ).replaceAll( "(-)\\1+", "$1" ).replaceAll( " +", " " ).replaceAll( " - ", "-" ) );
-                    if ( searchAttribute.isStrict( ) )
+                      if ( searchAttribute.isStrict( ) )
                     {
                         shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
                     }
                     else
                     {
+                        searchAttribute.setValue(searchAttribute.getValue( ).trim().replaceAll("(-)\\1+","$1").replaceAll(" +", " ").replaceAll(" - ", "-"));
                         shouldOrMust.add( new MatchContainer( getMatch( searchAttribute ) ) );
                     }
                     break;
                 case Constants.PARAM_FIRST_NAME:
-                    searchAttribute.setValue( searchAttribute.getValue( ).trim( ).replaceAll( " +", " " ).toLowerCase( ) );
                     if ( searchAttribute.isStrict( ) )
                     {
                         shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
                     }
                     else
                     {
+                        searchAttribute.setValue(searchAttribute.getValue( ).trim().replaceAll(" +", " ").toLowerCase());
                         SpanNear spanNear = new SpanNear( );
                         String [ ] splitSearchValue = searchAttribute.getValue( ).split( " " );
                         if ( splitSearchValue.length > 1 )

@@ -63,9 +63,6 @@ public class DuplicateService implements IDuplicateService
      */
     protected String _group;
 
-    private ArrayList<String> defaultParams = new ArrayList<>(
-            Arrays.asList( Constants.PARAM_FAMILY_NAME, Constants.PARAM_FIRST_NAME, Constants.PARAM_PREFERRED_USERNAME, Constants.PARAM_GENDER,
-                    Constants.PARAM_BIRTH_DATE, Constants.PARAM_BIRTH_PLACE_CODE, Constants.PARAM_BIRTH_COUNTRY_CODE ) );
 
     public DuplicateService( ISearchIdentityService _searchIdentityService, String _group )
     {
@@ -126,15 +123,16 @@ public class DuplicateService implements IDuplicateService
     {
 
         DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
-        if ( CollectionUtils.isNotEmpty( duplicateRule.getAttributeTreatments( ) ) )
+        if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
 
-            final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule.getAttributeTreatments( ) );
+            final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
 
             final List<QualifiedIdentity> resultIdentities = _searchIdentityService
                     .getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false )
                     .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
-                    .filter( qualifiedIdentity -> getMissingField( qualifiedIdentity, duplicateRule.getNbMissingAttributes( ) ) )
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) )
+                    // .filter( qualifiedIdentity -> hasMinEqualsAttribute(identity, qualifiedIdentity, duplicateRule ) )
                     .collect( Collectors.toList( ) );
 
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
@@ -150,21 +148,21 @@ public class DuplicateService implements IDuplicateService
         return null;
     }
 
-    private boolean getMissingField( QualifiedIdentity qualifiedIdentity, int nbMissingAttributes )
+    private boolean hasMissingField(QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
     {
-        return defaultParams.stream( )
-                .filter( defaultParam -> !qualifiedIdentity.getAttributes( ).stream( ).anyMatch( attribute -> attribute.getKey( ).equals( defaultParam ) ) )
-                .count( ) <= nbMissingAttributes;
+        return duplicateRule.getCheckedAttributes().stream().filter(duplicateRuleAttribute -> qualifiedIdentity.getAttributes().stream().anyMatch(qualifiedIdentityAtt -> qualifiedIdentityAtt.getKey().equals(duplicateRuleAttribute.getKeyName()))).count() <= duplicateRule.getNbMissingAttributes();
     }
 
-    private List<SearchAttributeDto> mapAttributes( Identity identity, List<DuplicateRuleAttributeTreatment> attributeTreatments )
+    private boolean hasMinEqualsAttribute(Identity identity, QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
+    {
+       return qualifiedIdentity.getAttributes().stream().filter(att -> identity.getAttributes().get(att.getKey())!=null && identity.getAttributes().get(att.getKey()).getValue().equals(att.getValue())).count() >= duplicateRule.getNbEqualAttributes();
+    }
+
+    private List<SearchAttributeDto> mapAttributes( Identity identity, DuplicateRule duplicateRule )
     {
         List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
-        for ( DuplicateRuleAttributeTreatment attributeTreatment : attributeTreatments )
-        {
-            List<AttributeKey> attribute = attributeTreatment.getAttributes( );
 
-            for ( AttributeKey key : attribute )
+            for ( AttributeKey key : duplicateRule.getCheckedAttributes() )
             {
                 Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) )
                         .findFirst( );
@@ -173,11 +171,11 @@ public class DuplicateService implements IDuplicateService
                     SearchAttributeDto searchAttribute = new SearchAttributeDto( );
                     searchAttribute.setKey( key.getKeyName( ) );
                     searchAttribute.setValue( identity.getAttributes( ).get( key.getKeyName( ) ).getValue( ) );
-                    searchAttribute.setStrict( attributeTreatment.getType( ).equals( AttributeTreatmentType.DIFFERENT ) );
+                    List<DuplicateRuleAttributeTreatment> priorityTreatment =  duplicateRule.getAttributeTreatments().stream()
+                            .filter(attTreamtment -> attTreamtment.getAttributes().stream().anyMatch(att -> att.getKeyName().equals(key.getKeyName()))).collect(Collectors.toList());
+                    searchAttribute.setStrict( priorityTreatment !=null && priorityTreatment.size()>0?priorityTreatment.get(0).getType( ).equals( AttributeTreatmentType.DIFFERENT ): true );
                     searchAttributes.add( searchAttribute );
                 }
-            }
-
         }
         return searchAttributes;
     }
