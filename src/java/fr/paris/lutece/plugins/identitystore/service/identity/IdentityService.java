@@ -1568,7 +1568,7 @@ public class IdentityService
 
         /* Indexation */
 
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, primaryIdentity, response.getStatus().getCode().toString(),
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, secondaryIdentity, response.getStatus().getCode().toString(),
                 response.getStatus().getLabel() ,identityMergeRequest.getOrigin( ), clientCode ));
 
         _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, primaryIdentity, response.getStatus().getCode().toString(),
