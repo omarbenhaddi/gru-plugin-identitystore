@@ -232,8 +232,8 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus().getCode().toString(),response.getMessage(),
-                        identityChangeRequest.getOrigin( ), clientCode ));
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
+                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
         return identity;
     }
@@ -414,9 +414,8 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus().getCode().toString(),response.getMessage(),
-                identityChangeRequest.getOrigin( ), clientCode ));
-
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
+                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
         return identity;
     }
@@ -1567,11 +1566,13 @@ public class IdentityService
 
         /* Indexation */
 
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, secondaryIdentity, response.getStatus().getCode().toString(),
-                response.getStatus().getLabel() ,identityMergeRequest.getOrigin( ), clientCode ));
+        _identityStoreNotifyListenerService
+                .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, secondaryIdentity,
+                        response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
 
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, primaryIdentity, response.getStatus().getCode().toString(),
-                response.getStatus().getLabel() ,identityMergeRequest.getOrigin( ), clientCode ));
+        _identityStoreNotifyListenerService
+                .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, primaryIdentity,
+                        response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
 
         return primaryIdentity;
     }
@@ -1868,7 +1869,7 @@ public class IdentityService
         return 0;
     }
 
-    public DuplicateSearchResponse findDuplicates(Identity identity, Integer ruleId)
+    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId )
     {
         return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }

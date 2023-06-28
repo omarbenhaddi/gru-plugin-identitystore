@@ -43,5 +43,5 @@ public interface IDuplicateService
 
     DuplicateSearchResponse findDuplicates( Map<String, String> attributeValues );
 
-    DuplicateSearchResponse findDuplicates(Identity identity, int ruleId);
+    DuplicateSearchResponse findDuplicates( Identity identity, int ruleId );
 }

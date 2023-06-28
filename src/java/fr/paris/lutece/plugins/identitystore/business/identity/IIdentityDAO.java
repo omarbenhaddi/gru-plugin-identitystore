@@ -262,7 +262,6 @@ public interface IIdentityDAO
     List<Identity> selectByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious, final int limit,
             final Plugin plugin );
 
-    void addChangeHistory(IdentityChange identityChange, Plugin plugin );
-
+    void addChangeHistory( IdentityChange identityChange, Plugin plugin );
 
 }

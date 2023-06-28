@@ -43,28 +43,29 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChan
 /**
  * Database Logging Listener
  */
-public class DatabaseLoggingListener implements AttributeChangeListener, IdentityChangeListener {
+public class DatabaseLoggingListener implements AttributeChangeListener, IdentityChangeListener
+{
     private static final String SERVICE_NAME = "Database logging AttributeChangeListener";
 
     /**
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange(AttributeChange attributeChange) {
-        IdentityAttributeHome.addAttributeChangeHistory(attributeChange);
+    public void processAttributeChange( AttributeChange attributeChange )
+    {
+        IdentityAttributeHome.addAttributeChangeHistory( attributeChange );
     }
 
-
     @Override
-    public String getName() {
+    public String getName( )
+    {
         return SERVICE_NAME;
     }
 
     @Override
-    public void processIdentityChange(IdentityChange identityChange) {
-        IdentityHome.addIdentityChangeHistory(identityChange);
+    public void processIdentityChange( IdentityChange identityChange )
+    {
+        IdentityHome.addIdentityChangeHistory( identityChange );
     }
-
-
 
 }

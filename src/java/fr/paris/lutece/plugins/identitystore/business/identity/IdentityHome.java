@@ -454,14 +454,13 @@ public final class IdentityHome
         return _dao.selectByAttributeExisting( idAttributeList, notMerged, notSuspicious, limit, _plugin );
     }
 
-
     /**
      * add an identity change event in history table
      *
      * @param identityChange
      *            identity change event
      */
-    public static void addIdentityChangeHistory(IdentityChange identityChange )
+    public static void addIdentityChangeHistory( IdentityChange identityChange )
     {
         _dao.addChangeHistory( identityChange, _plugin );
     }

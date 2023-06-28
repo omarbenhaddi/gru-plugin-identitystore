@@ -53,6 +53,7 @@ public class IdentityChange
     protected String authorName;
     protected String clientCode;
     protected Timestamp modificationDate;
+
     public IdentityChange( )
     {
     }
@@ -105,51 +106,63 @@ public class IdentityChange
         _identityChangeType = identityChangeType;
     }
 
-    public String getChangeSatus() {
+    public String getChangeSatus( )
+    {
         return changeSatus;
     }
 
-    public void setChangeSatus(String changeSatus) {
+    public void setChangeSatus( String changeSatus )
+    {
         this.changeSatus = changeSatus;
     }
 
-    public String getChangeMessage() {
+    public String getChangeMessage( )
+    {
         return changeMessage;
     }
 
-    public void setChangeMessage(String changeMessage) {
+    public void setChangeMessage( String changeMessage )
+    {
         this.changeMessage = changeMessage;
     }
 
-    public AuthorType getAuthorType() {
+    public AuthorType getAuthorType( )
+    {
         return authorType;
     }
 
-    public void setAuthorType(AuthorType authorType) {
+    public void setAuthorType( AuthorType authorType )
+    {
         this.authorType = authorType;
     }
 
-    public String getAuthorName() {
+    public String getAuthorName( )
+    {
         return authorName;
     }
 
-    public void setAuthorName(String authorName) {
+    public void setAuthorName( String authorName )
+    {
         this.authorName = authorName;
     }
 
-    public String getClientCode() {
+    public String getClientCode( )
+    {
         return clientCode;
     }
 
-    public void setClientCode(String clientCode) {
+    public void setClientCode( String clientCode )
+    {
         this.clientCode = clientCode;
     }
 
-    public Timestamp getModificationDate() {
+    public Timestamp getModificationDate( )
+    {
         return modificationDate;
     }
 
-    public void setModificationDate(Timestamp modificationDate) {
+    public void setModificationDate( Timestamp modificationDate )
+    {
         this.modificationDate = modificationDate;
     }
 }

@@ -183,17 +183,18 @@ public final class IdentityStoreNotifyListenerService
         return attributeChange;
     }
 
-
-    public static IdentityChange buildIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode) {
+    public static IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
+            RequestAuthor author, String clientCode )
+    {
 
         final IdentityChange identityChange = new IdentityChange( );
         identityChange.setChangeType( identityChangeType );
         identityChange.setChangeSatus( statusCode );
-        identityChange.setChangeMessage(statusMessage);
+        identityChange.setChangeMessage( statusMessage );
         identityChange.setAuthorType( author.getType( ) );
         identityChange.setAuthorName( author.getName( ) );
-        identityChange.setIdentity( identity);
-        identityChange.setClientCode(clientCode);
+        identityChange.setIdentity( identity );
+        identityChange.setClientCode( clientCode );
         return identityChange;
     }
 
