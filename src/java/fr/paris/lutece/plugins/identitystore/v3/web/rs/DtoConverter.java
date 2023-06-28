@@ -45,9 +45,9 @@ import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCe
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevelHome;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeDefinitionDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeType;
@@ -269,7 +269,7 @@ public final class DtoConverter
 
         for ( final AttributeDefinitionDto attributeDefinition : serviceContractDto.getAttributeDefinitions( ) )
         {
-            final AttributeKey attributeKey = IdentityService.instance( ).getAttributeKey( attributeDefinition.getKeyName( ) );
+            final AttributeKey attributeKey = IdentityAttributeService.instance( ).getAttributeKey( attributeDefinition.getKeyName( ) );
             final AttributeRight attributeRight = new AttributeRight( );
             attributeRight.setMandatory( attributeDefinition.getAttributeRight( ).isMandatory( ) );
             attributeRight.setReadable( attributeDefinition.getAttributeRight( ).isReadable( ) );

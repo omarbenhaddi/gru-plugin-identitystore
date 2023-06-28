@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.identitystore.web;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -46,11 +46,10 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This class provides the user interface to manage AttributeKey features ( manage, create, modify, remove )
@@ -180,7 +179,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
 
-        IdentityService.instance( ).createAttributeKey( _attributekey );
+        IdentityAttributeService.instance( ).createAttributeKey( _attributekey );
         addInfo( INFO_ATTRIBUTEKEY_CREATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
@@ -227,7 +226,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
         }
-        IdentityService.instance( ).deleteAttributeKey( attributeKey );
+        IdentityAttributeService.instance( ).deleteAttributeKey( attributeKey );
         addInfo( INFO_ATTRIBUTEKEY_REMOVED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
@@ -276,7 +275,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
             return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId( ) );
         }
 
-        IdentityService.instance( ).updateAttributeKey( _attributekey );
+        IdentityAttributeService.instance( ).updateAttributeKey( _attributekey );
         addInfo( INFO_ATTRIBUTEKEY_UPDATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );

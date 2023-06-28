@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirem
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
@@ -134,7 +135,7 @@ public class IdentityQualityService
             AttributeKey refKey = null;
             try
             {
-                refKey = IdentityService.instance( ).getAttributeKey( searchAttribute.getKey( ) );
+                refKey = IdentityAttributeService.instance( ).getAttributeKey( searchAttribute.getKey( ) );
             }
             catch( IdentityAttributeNotFoundException e )
             {
@@ -147,7 +148,7 @@ public class IdentityQualityService
             else
             {
                 // In this case we have a common search key in the request, so retrieve the attribute
-                final List<AttributeKey> commonAttributes = IdentityService.instance( ).getCommonAttributeKeys( searchAttribute.getKey( ) );
+                final List<AttributeKey> commonAttributes = IdentityAttributeService.instance( ).getCommonAttributeKeys( searchAttribute.getKey( ) );
                 attributesToProcess.put( searchAttribute, commonAttributes );
             }
         }
