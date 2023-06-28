@@ -41,7 +41,7 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -92,10 +92,10 @@ public class DuplicateService implements IDuplicateService
      *
      * @param attributeValues
      *            a {@link Map} of attribute key and attribute value
-     * @return a {@link DuplicateDto} that contains the result of the search request
+     * @return a {@link DuplicateSearchResponse} that contains the result of the search request
      */
     @Override
-    public DuplicateDto findDuplicates( Map<String, String> attributeValues )
+    public DuplicateSearchResponse findDuplicates( Map<String, String> attributeValues )
     {
         final List<String> keys = AppPropertiesService.getKeys( _group );
 
@@ -113,10 +113,10 @@ public class DuplicateService implements IDuplicateService
                         .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
-                    final DuplicateDto duplicateDto = new DuplicateDto( );
-                    duplicateDto.setMessage( "Une ou plusieurs identités existent avec cette règle : " + property );
-                    duplicateDto.setIdentities( resultIdentities );
-                    return duplicateDto;
+                    final DuplicateSearchResponse response = new DuplicateSearchResponse( );
+                    response.setMessage( "Une ou plusieurs identités existent avec cette règle : " + property );
+                    response.setIdentities( resultIdentities );
+                    return response;
                 }
             }
         }
@@ -125,7 +125,7 @@ public class DuplicateService implements IDuplicateService
     }
 
     @Override
-    public DuplicateDto findDuplicates( Identity identity, int ruleId )
+    public DuplicateSearchResponse findDuplicates(Identity identity, int ruleId)
     {
 
         DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
@@ -146,18 +146,18 @@ public class DuplicateService implements IDuplicateService
 
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
             {
-                final DuplicateDto duplicateDto = new DuplicateDto( );
-                duplicateDto.setMessage(
+                final DuplicateSearchResponse response = new DuplicateSearchResponse( );
+                response.setMessage(
                         "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId( ) + " avec la règle : " + duplicateRule.getName( ) );
-                duplicateDto.setIdentities( resultIdentities );
-                return duplicateDto;
+                response.setIdentities( resultIdentities );
+                return response;
             }
         }
-        final DuplicateDto duplicateDto = new DuplicateDto( );
-        duplicateDto.setMessage(
+        final DuplicateSearchResponse response = new DuplicateSearchResponse( );
+        response.setMessage(
                 "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getName( ) );
-        duplicateDto.setIdentities(Collections.emptyList());
-        return duplicateDto;
+        response.setIdentities(Collections.emptyList());
+        return response;
     }
 
     private boolean hasMissingField(QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )

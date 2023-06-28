@@ -52,7 +52,6 @@ import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearc
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
@@ -74,7 +73,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChan
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
@@ -190,7 +189,7 @@ public class IdentityService
 
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
-        final DuplicateDto duplicates = _duplicateServiceCreation.findDuplicates( attributes );
+        final DuplicateSearchResponse duplicates = _duplicateServiceCreation.findDuplicates( attributes );
         if ( duplicates != null )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
@@ -1596,7 +1595,7 @@ public class IdentityService
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
 
-        final DuplicateDto certitudeDuplicates = _duplicateServiceImportCertitude.findDuplicates( attributes );
+        final DuplicateSearchResponse certitudeDuplicates = _duplicateServiceImportCertitude.findDuplicates( attributes );
         if ( certitudeDuplicates != null && CollectionUtils.isNotEmpty( certitudeDuplicates.getIdentities( ) ) )
         {
             if ( certitudeDuplicates.getIdentities( ).size( ) == 1 )
@@ -1605,7 +1604,7 @@ public class IdentityService
             }
         }
 
-        final DuplicateDto suspicionDuplicates = _duplicateServiceImportSuspicion.findDuplicates( attributes );
+        final DuplicateSearchResponse suspicionDuplicates = _duplicateServiceImportSuspicion.findDuplicates( attributes );
         if ( suspicionDuplicates != null && CollectionUtils.isNotEmpty( suspicionDuplicates.getIdentities( ) ) )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
@@ -1869,7 +1868,7 @@ public class IdentityService
         return 0;
     }
 
-    public DuplicateDto findDuplicates( Identity identity, Integer ruleId )
+    public DuplicateSearchResponse findDuplicates(Identity identity, Integer ruleId)
     {
         return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }
