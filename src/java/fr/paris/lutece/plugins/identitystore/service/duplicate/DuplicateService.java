@@ -39,6 +39,8 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeT
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
@@ -137,8 +139,15 @@ public class DuplicateService implements IDuplicateService
             final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
                     .collect( Collectors.toList( ) );
             final List<QualifiedIdentity> resultIdentities = rawResultsNotMerged.stream( )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).collect( Collectors.toList( ) );
-
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) )
+                    .map(i -> {
+                        try {
+                            IdentityQualityService.instance().computeQuality(i);
+                        } catch (IdentityAttributeNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                        return i;
+                    }).collect(Collectors.toList());
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );
