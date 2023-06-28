@@ -50,13 +50,7 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DuplicateService implements IDuplicateService
@@ -139,15 +133,17 @@ public class DuplicateService implements IDuplicateService
             final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
                     .collect( Collectors.toList( ) );
             final List<QualifiedIdentity> resultIdentities = rawResultsNotMerged.stream( )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) )
-                    .map(i -> {
-                        try {
-                            IdentityQualityService.instance().computeQuality(i);
-                        } catch (IdentityAttributeNotFoundException e) {
-                            throw new RuntimeException(e);
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( i -> {
+                        try
+                        {
+                            IdentityQualityService.instance( ).computeQuality( i );
+                        }
+                        catch( IdentityAttributeNotFoundException e )
+                        {
+                            throw new RuntimeException( e );
                         }
                         return i;
-                    }).collect(Collectors.toList());
+                    } ).collect( Collectors.toList( ) );
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );

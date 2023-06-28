@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
@@ -49,7 +49,10 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdent
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ElasticSearchIdentityService implements ISearchIdentityService
@@ -72,7 +75,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
             AttributeKey refKey = null;
             try
             {
-                refKey = IdentityService.instance( ).getAttributeKey( dto.getKey( ) );
+                refKey = IdentityAttributeService.instance( ).getAttributeKey( dto.getKey( ) );
             }
             catch( IdentityAttributeNotFoundException e )
             {
@@ -85,7 +88,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
             else
             {
                 // In this case we have a common search key in the request, so map it
-                final List<AttributeKey> commonAttributeKeys = IdentityService.instance( ).getCommonAttributeKeys( dto.getKey( ) );
+                final List<AttributeKey> commonAttributeKeys = IdentityAttributeService.instance( ).getCommonAttributeKeys( dto.getKey( ) );
                 final List<String> commonAttributeKeyNames = commonAttributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
                 searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.isStrict( ) ) );
             }
