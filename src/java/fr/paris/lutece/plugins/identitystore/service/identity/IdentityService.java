@@ -52,7 +52,6 @@ import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearc
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
@@ -76,7 +75,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChan
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
@@ -196,7 +195,7 @@ public class IdentityService
 
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
-        final DuplicateDto duplicates = _duplicateServiceCreation.findDuplicates( attributes );
+        final DuplicateSearchResponse duplicates = _duplicateServiceCreation.findDuplicates( attributes );
         if ( duplicates != null )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
@@ -238,8 +237,9 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
         } );
 
-        /* Notify listeners for indexation, history, ...  */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.CREATE, identityChangeRequest.getOrigin( ) ) );
+        /* Indexation */
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
+                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
         return identity;
     }
@@ -420,7 +420,8 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( identity, IdentityChangeType.UPDATE, identityChangeRequest.getOrigin( ) ) );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
+                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
         return identity;
     }
@@ -1569,9 +1570,15 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
         } );
 
-        /* Indexation, journalisation, ... */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( secondaryIdentity, IdentityChangeType.MERGED, identityMergeRequest.getOrigin( ) ) );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IdentityChange( primaryIdentity, IdentityChangeType.CONSOLIDATED, identityMergeRequest.getOrigin( ) ) );
+        /* Indexation */
+
+        _identityStoreNotifyListenerService
+                .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
+                        response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
+
+        _identityStoreNotifyListenerService
+                .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity,
+                        response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
 
         return primaryIdentity;
     }
@@ -1595,7 +1602,7 @@ public class IdentityService
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
 
-        final DuplicateDto certitudeDuplicates = _duplicateServiceImportCertitude.findDuplicates( attributes );
+        final DuplicateSearchResponse certitudeDuplicates = _duplicateServiceImportCertitude.findDuplicates( attributes );
         if ( certitudeDuplicates != null && CollectionUtils.isNotEmpty( certitudeDuplicates.getIdentities( ) ) )
         {
             if ( certitudeDuplicates.getIdentities( ).size( ) == 1 )
@@ -1604,7 +1611,7 @@ public class IdentityService
             }
         }
 
-        final DuplicateDto suspicionDuplicates = _duplicateServiceImportSuspicion.findDuplicates( attributes );
+        final DuplicateSearchResponse suspicionDuplicates = _duplicateServiceImportSuspicion.findDuplicates( attributes );
         if ( suspicionDuplicates != null && CollectionUtils.isNotEmpty( suspicionDuplicates.getIdentities( ) ) )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
@@ -1868,7 +1875,16 @@ public class IdentityService
         return 0;
     }
 
-
+    /**
+     * request a deletion of identity .
+     *
+     * @param customerId
+     *            the customer ID
+     * @param client_code
+     *            the client code
+     * @param identityChangeRequest
+     *            the identityChangeRequest
+     */
     public void deleteRequest( final String customerId, final String clientCode,
     		IdentityChangeRequest identityChangeRequest,
             final IdentityChangeResponse response ) throws IdentityStoreException
@@ -1912,8 +1928,15 @@ public class IdentityService
 
 	    /* Notify listeners for indexation, history, ...  */
 	    _identityStoreNotifyListenerService.notifyListenersIdentityChange(
-	    		new IdentityChange( identity, IdentityChangeType.DELETE, identityChangeRequest.getOrigin() ) );
+          IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
+              identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
 
     }
+
+    public DuplicateSearchResponse findDuplicates(Identity identity, Integer ruleId)
+    {
+        return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
+    }
+
 }

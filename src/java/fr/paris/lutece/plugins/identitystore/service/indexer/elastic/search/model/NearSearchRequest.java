@@ -69,13 +69,14 @@ public class NearSearchRequest extends ASearchRequest
             switch( searchAttribute.getInputKey( ) )
             {
                 case Constants.PARAM_FAMILY_NAME:
-                      if ( searchAttribute.isStrict( ) )
+                    if ( searchAttribute.isStrict( ) )
                     {
                         shouldOrMust.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
                     }
                     else
                     {
-                        searchAttribute.setValue(searchAttribute.getValue( ).trim().replaceAll("(-)\\1+","$1").replaceAll(" +", " ").replaceAll(" - ", "-"));
+                        searchAttribute
+                                .setValue( searchAttribute.getValue( ).trim( ).replaceAll( "(-)\\1+", "$1" ).replaceAll( " +", " " ).replaceAll( " - ", "-" ) );
                         shouldOrMust.add( new MatchContainer( getMatch( searchAttribute ) ) );
                     }
                     break;
@@ -86,7 +87,7 @@ public class NearSearchRequest extends ASearchRequest
                     }
                     else
                     {
-                        searchAttribute.setValue(searchAttribute.getValue( ).trim().replaceAll(" +", " ").toLowerCase());
+                        searchAttribute.setValue( searchAttribute.getValue( ).trim( ).replaceAll( " +", " " ).toLowerCase( ) );
                         SpanNear spanNear = new SpanNear( );
                         String [ ] splitSearchValue = searchAttribute.getValue( ).split( " " );
                         if ( splitSearchValue.length > 1 )

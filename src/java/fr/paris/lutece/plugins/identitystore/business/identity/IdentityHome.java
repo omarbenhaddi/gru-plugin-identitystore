@@ -93,7 +93,7 @@ public final class IdentityHome
 
     /**
      * Archive identities which have been merge as secondary
-     * 
+     *
      * @param identity
      * @return
      */
@@ -147,7 +147,7 @@ public final class IdentityHome
 
     /**
      * Select All {@link Identity}
-     * 
+     *
      * @return The Identity
      */
     public static List<Identity> findAll( )
@@ -355,7 +355,7 @@ public final class IdentityHome
     /**
      * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
      * search. Otherwise performs an exact search.
-     * 
+     *
      * @param strAttributeValue
      *            The attribute value
      * @return list of Identity
@@ -368,7 +368,7 @@ public final class IdentityHome
     /**
      * Find all identities matching one of the values defined on each of the selected Attributes. One value must be found for all selected attributes. Always
      * performs an exact search.
-     * 
+     *
      * @param mapAttributes
      *            A map that associates the id of each attributes selected with the list of values
      * @return list of Identity
@@ -381,7 +381,7 @@ public final class IdentityHome
 
     /**
      * Load the data of nLimit customerIds from the nStart identity and returns them as a list If nLimit is set to -1, no limit is used
-     * 
+     *
      * @param nStart
      *            the count of customerId from where started
      * @param nLimit
@@ -417,7 +417,7 @@ public final class IdentityHome
     /**
      * Find all identities that have all attributes specified in the list in parameters.<br/>
      * Identities <b>MUST</b> have all those attributes in order to be returned.
-     * 
+     *
      * @param idAttributeList
      *            the attributes id
      * @param notMerged
@@ -433,14 +433,14 @@ public final class IdentityHome
     {
         return _dao.selectByAttributeExisting( idAttributeList, notMerged, notSuspicious, limit, _plugin );
     }
-    
+
     /**
      * add an identity change event in history table
      *
      * @param identityChange
      *            identity change event
      */
-    public static void addIdentityChangeHistory(IdentityChange identityChange )
+    public static void addIdentityChangeHistory( IdentityChange identityChange )
     {
         _dao.addChangeHistory( identityChange, _plugin );
     }

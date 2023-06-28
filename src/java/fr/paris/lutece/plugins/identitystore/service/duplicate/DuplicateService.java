@@ -41,7 +41,7 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -69,7 +69,6 @@ public class DuplicateService implements IDuplicateService
      */
     protected String _group;
 
-
     public DuplicateService( ISearchIdentityService _searchIdentityService, String _group )
     {
         this._searchIdentityService = _searchIdentityService;
@@ -92,10 +91,10 @@ public class DuplicateService implements IDuplicateService
      *
      * @param attributeValues
      *            a {@link Map} of attribute key and attribute value
-     * @return a {@link DuplicateDto} that contains the result of the search request
+     * @return a {@link DuplicateSearchResponse} that contains the result of the search request
      */
     @Override
-    public DuplicateDto findDuplicates( Map<String, String> attributeValues )
+    public DuplicateSearchResponse findDuplicates( Map<String, String> attributeValues )
     {
         final List<String> keys = AppPropertiesService.getKeys( _group );
 
@@ -113,10 +112,10 @@ public class DuplicateService implements IDuplicateService
                         .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
-                    final DuplicateDto duplicateDto = new DuplicateDto( );
-                    duplicateDto.setMessage( "Une ou plusieurs identités existent avec cette règle : " + property );
-                    duplicateDto.setIdentities( resultIdentities );
-                    return duplicateDto;
+                    final DuplicateSearchResponse response = new DuplicateSearchResponse( );
+                    response.setMessage( "Une ou plusieurs identités existent avec cette règle : " + property );
+                    response.setIdentities( resultIdentities );
+                    return response;
                 }
             }
         }
@@ -125,7 +124,7 @@ public class DuplicateService implements IDuplicateService
     }
 
     @Override
-    public DuplicateDto findDuplicates( Identity identity, int ruleId )
+    public DuplicateSearchResponse findDuplicates( Identity identity, int ruleId )
     {
 
         DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
@@ -133,76 +132,79 @@ public class DuplicateService implements IDuplicateService
         {
             final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
 
-            final List<QualifiedIdentity> rawResults = _searchIdentityService
-                    .getQualifiedIdentities(searchAttributes, duplicateRule.getNbEqualAttributes(),
-                                            duplicateRule.getNbMissingAttributes(), 0, false);
-            final List<QualifiedIdentity> rawResultsNotMerged =
-                    rawResults.stream().filter(qualifiedIdentity -> !qualifiedIdentity.isMerged()).collect(
-                            Collectors.toList());
-            final List<QualifiedIdentity> resultIdentities =
-                    rawResultsNotMerged.stream()
-                                       .filter(qualifiedIdentity -> hasMissingField(qualifiedIdentity, duplicateRule))
-                                       .collect(Collectors.toList());
+            final List<QualifiedIdentity> rawResults = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ),
+                    duplicateRule.getNbMissingAttributes( ), 0, false );
+            final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
+                    .collect( Collectors.toList( ) );
+            final List<QualifiedIdentity> resultIdentities = rawResultsNotMerged.stream( )
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).collect( Collectors.toList( ) );
 
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
             {
-                final DuplicateDto duplicateDto = new DuplicateDto( );
-                duplicateDto.setMessage(
+                final DuplicateSearchResponse response = new DuplicateSearchResponse( );
+                response.setMessage(
                         "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId( ) + " avec la règle : " + duplicateRule.getName( ) );
-                duplicateDto.setIdentities( resultIdentities );
-                return duplicateDto;
+                response.setIdentities( resultIdentities );
+                return response;
             }
         }
-        final DuplicateDto duplicateDto = new DuplicateDto( );
-        duplicateDto.setMessage(
-                "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getName( ) );
-        duplicateDto.setIdentities(Collections.emptyList());
-        return duplicateDto;
+        final DuplicateSearchResponse response = new DuplicateSearchResponse( );
+        response.setMessage( "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getName( ) );
+        response.setIdentities( Collections.emptyList( ) );
+        return response;
     }
 
-    private boolean hasMissingField(QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
+    private boolean hasMissingField( QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
     {
-        final Set<String> identityAttrKeys =
-                qualifiedIdentity.getAttributes().stream().filter(a -> StringUtils.isNotBlank(a.getValue())).map(CertifiedAttribute::getKey)
-                                 .collect(Collectors.toSet());
-        final Set<String> ruleAttrKeys =
-                duplicateRule.getCheckedAttributes().stream().map(AttributeKey::getKeyName).collect(Collectors.toSet());
-        if(duplicateRule.getNbMissingAttributes() == 0) {
-            return identityAttrKeys.containsAll(ruleAttrKeys);
-        }else{
+        final Set<String> identityAttrKeys = qualifiedIdentity.getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
+                .map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
+        final Set<String> ruleAttrKeys = duplicateRule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) );
+        if ( duplicateRule.getNbMissingAttributes( ) == 0 )
+        {
+            return identityAttrKeys.containsAll( ruleAttrKeys );
+        }
+        else
+        {
             int missingField = 0;
-            for(final String ruleAttrKey : ruleAttrKeys){
-                if(!identityAttrKeys.contains(ruleAttrKey)){
+            for ( final String ruleAttrKey : ruleAttrKeys )
+            {
+                if ( !identityAttrKeys.contains( ruleAttrKey ) )
+                {
                     missingField++;
                 }
             }
-            return missingField <= duplicateRule.getNbMissingAttributes();
+            return missingField <= duplicateRule.getNbMissingAttributes( );
         }
     }
 
-    private boolean hasMinEqualsAttribute(Identity identity, QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
+    private boolean hasMinEqualsAttribute( Identity identity, QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
     {
-       return qualifiedIdentity.getAttributes().stream().filter(att -> identity.getAttributes().get(att.getKey())!=null && identity.getAttributes().get(att.getKey()).getValue().equals(att.getValue())).count() >= duplicateRule.getNbEqualAttributes();
+        return qualifiedIdentity.getAttributes( ).stream( )
+                .filter( att -> identity.getAttributes( ).get( att.getKey( ) ) != null
+                        && identity.getAttributes( ).get( att.getKey( ) ).getValue( ).equals( att.getValue( ) ) )
+                .count( ) >= duplicateRule.getNbEqualAttributes( );
     }
 
     private List<SearchAttributeDto> mapAttributes( Identity identity, DuplicateRule duplicateRule )
     {
         List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
 
-            for ( AttributeKey key : duplicateRule.getCheckedAttributes() )
+        for ( AttributeKey key : duplicateRule.getCheckedAttributes( ) )
+        {
+            Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
+            if ( attributeKey.isPresent( ) )
             {
-                Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) )
-                        .findFirst( );
-                if ( attributeKey.isPresent( ) )
-                {
-                    SearchAttributeDto searchAttribute = new SearchAttributeDto( );
-                    searchAttribute.setKey( key.getKeyName( ) );
-                    searchAttribute.setValue( identity.getAttributes( ).get( key.getKeyName( ) ).getValue( ) );
-                    List<DuplicateRuleAttributeTreatment> priorityTreatment =  duplicateRule.getAttributeTreatments().stream()
-                            .filter(attTreamtment -> attTreamtment.getAttributes().stream().anyMatch(att -> att.getKeyName().equals(key.getKeyName()))).collect(Collectors.toList());
-                    searchAttribute.setStrict( priorityTreatment !=null && priorityTreatment.size()>0?priorityTreatment.get(0).getType( ).equals( AttributeTreatmentType.DIFFERENT ): true );
-                    searchAttributes.add( searchAttribute );
-                }
+                SearchAttributeDto searchAttribute = new SearchAttributeDto( );
+                searchAttribute.setKey( key.getKeyName( ) );
+                searchAttribute.setValue( identity.getAttributes( ).get( key.getKeyName( ) ).getValue( ) );
+                List<DuplicateRuleAttributeTreatment> priorityTreatment = duplicateRule.getAttributeTreatments( ).stream( )
+                        .filter( attTreamtment -> attTreamtment.getAttributes( ).stream( ).anyMatch( att -> att.getKeyName( ).equals( key.getKeyName( ) ) ) )
+                        .collect( Collectors.toList( ) );
+                searchAttribute.setStrict( priorityTreatment != null && priorityTreatment.size( ) > 0
+                        ? priorityTreatment.get( 0 ).getType( ).equals( AttributeTreatmentType.DIFFERENT )
+                        : true );
+                searchAttributes.add( searchAttribute );
+            }
         }
         return searchAttributes;
     }

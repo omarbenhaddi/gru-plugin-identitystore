@@ -116,7 +116,7 @@ public class IdentityChange
 
 	/**
 	 * set author
-	 * 
+	 *
 	 * @param author
 	 */
 	public void setAuthor(RequestAuthor author ) {
@@ -125,7 +125,7 @@ public class IdentityChange
 
 	/**
 	 * get change status
-	 * 
+	 *
 	 * @return the status
 	 */
 	public String getChangeStatus() {
@@ -134,7 +134,7 @@ public class IdentityChange
 
 	/**
 	 * set change status
-	 * 
+	 *
 	 * @param changeStatus
 	 */
 	public void setChangeStatus(String changeStatus) {
@@ -151,7 +151,7 @@ public class IdentityChange
 
 	/**
 	 * set change message
-	 * 
+	 *
 	 * @param changeMessage
 	 */
 	public void setChangeMessage(String changeMessage) {
@@ -160,7 +160,7 @@ public class IdentityChange
 
 	/**
 	 * get client code
-	 * 
+	 *
 	 * @return the code
 	 */
 	public String getClientCode() {
@@ -169,7 +169,7 @@ public class IdentityChange
 
 	/**
 	 * set client code
-	 * 
+	 *
 	 * @param clientCode
 	 */
 	public void setClientCode(String clientCode) {
@@ -178,7 +178,7 @@ public class IdentityChange
 
 	/**
 	 * get modification date
-	 * 
+	 *
 	 * @return  the date
 	 */
 	public Timestamp getModificationDate() {
@@ -187,7 +187,7 @@ public class IdentityChange
 
 	/**
 	 * set modification date
-	 * 
+	 *
 	 * @param modificationDate
 	 */
 	public void setModificationDate(Timestamp modificationDate) {
@@ -204,7 +204,7 @@ public class IdentityChange
 
 	/**
 	 * set customer id
-	 * 
+	 *
 	 * @param customerId
 	 */
 	public void setCustomerId(String customerId) {

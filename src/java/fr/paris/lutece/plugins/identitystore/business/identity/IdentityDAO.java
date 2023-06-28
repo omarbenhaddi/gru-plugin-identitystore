@@ -498,7 +498,7 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
         return identity;
     }
-    
+
     /**
      * return Identity change object from select query
      *
@@ -523,10 +523,10 @@ public final class IdentityDAO implements IIdentityDAO
         identityChange.setClientCode( daoUtil.getString( nIndex++ )  );
         identityChange.setCustomerId( daoUtil.getString( nIndex++ )  );
         identityChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ));
-        
+
         identityChange.setAuthor(author );
         identityChange.setIdentity(identity );
-        
+
         return identityChange;
     }
 
@@ -782,8 +782,10 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     @Override
-    public void addChangeHistory(IdentityChange identityChange, Plugin plugin) {
-        try (final DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin)) {
+    public void addChangeHistory( IdentityChange identityChange, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin ) )
+        {
             int nIndex = 1;
 
             daoUtil.setInt(nIndex++, identityChange.getChangeType().getValue());
@@ -796,7 +798,7 @@ public final class IdentityDAO implements IIdentityDAO
             daoUtil.executeUpdate();
         }
     }
-    
+
     /**
      * {@inheritDoc }
      */

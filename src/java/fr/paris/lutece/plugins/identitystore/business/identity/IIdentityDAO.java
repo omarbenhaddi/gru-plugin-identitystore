@@ -69,7 +69,7 @@ public interface IIdentityDAO
 
     /**
      * Merge identity
-     * 
+     *
      * @param identity
      * @param plugin
      */
@@ -87,7 +87,7 @@ public interface IIdentityDAO
 
     /**
      * Modify the columuns is_deleted and date_delete and connection_id to null
-     * 
+     *
      * @param nKey
      *            The id of the Identity to delete
      * @param plugin
@@ -120,7 +120,7 @@ public interface IIdentityDAO
 
     /**
      * Load the data of nLimit customerIds from the nStart identity and returns them as a list
-     * 
+     *
      * @param nStart
      *            the count of customerId from where started
      * @param nLimit
@@ -184,7 +184,7 @@ public interface IIdentityDAO
 
     /**
      * Find by a given Attribute value
-     * 
+     *
      * @param strAttributeId
      *            The value to match
      * @param strAttributeValue
@@ -198,7 +198,7 @@ public interface IIdentityDAO
     /**
      * Find by a combination of Attribute values. Search for identities that match the conditions defined for each of the selected attributes, that is on each
      * of these attributes the exact value is in a list of expected values (no wildcards).
-     * 
+     *
      * @param mapAttributes
      *            A map that associates the id of each attributes selected with the list of values
      * @param maxNbIdentityReturned
@@ -212,7 +212,7 @@ public interface IIdentityDAO
     /**
      * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
      * search. Otherwise performs an exact search.
-     * 
+     *
      * @param strAttributeValue
      *            The value to match
      * @param plugin
@@ -246,7 +246,7 @@ public interface IIdentityDAO
     /**
      * Find all identities that have all attributes specified in the list in parameters.<br/>
      * Identities <b>MUST</b> have all those attributes in order to be returned.
-     * 
+     *
      * @param idAttributeList
      *            the attributes id
      * @param notMerged
@@ -264,7 +264,7 @@ public interface IIdentityDAO
 
     /**
      * log changes
-     * 
+     *
      * @param identityChange
      * @param plugin
      */
@@ -272,11 +272,11 @@ public interface IIdentityDAO
 
     /**
      * get identity history
-     * 
+     *
      * @param strCustomerId
      * @param plugin
      * @return the list of identity changes
      */
 	List<IdentityChange> selectIdentityHistoryByCustomerId(String strCustomerId, Plugin plugin);
-    
+
 }

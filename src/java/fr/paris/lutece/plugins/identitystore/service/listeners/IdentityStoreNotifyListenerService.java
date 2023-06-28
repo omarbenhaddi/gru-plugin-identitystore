@@ -83,7 +83,7 @@ public final class IdentityStoreNotifyListenerService
 
         // init identityChangeListListeners
         _identityChangeListListeners = SpringContextService.getBeansOfType( IdentityChangeListener.class );
-        
+
         sbLog = new StringBuilder( );
         sbLog.append( "IdentityStore - loading listeners  : " );
 
@@ -93,12 +93,12 @@ public final class IdentityStoreNotifyListenerService
         }
 
         AppLogService.info( sbLog.toString( ) );
-        
+
     }
 
     /**
      * Returns the unique instance
-     * 
+     *
      * @return The instance
      */
     public static IdentityStoreNotifyListenerService instance( )
@@ -140,7 +140,7 @@ public final class IdentityStoreNotifyListenerService
 
     /**
      * create and return an AttributeChange from input params
-     * 
+     *
      * @param changeType
      * @param identity
      * @param attributeStatus
@@ -176,28 +176,18 @@ public final class IdentityStoreNotifyListenerService
 
         return attributeChange;
     }
-    
-    /**
-     * Build a full identityChange object
-     * 
-     * @param identityChangeType
-     * @param identity
-     * @param statusCode
-     * @param statusMessage
-     * @param author
-     * @param clientCode
-     * @return a full identityChange object
-     */
-    public static IdentityChange buildIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode) {
+
+    public static IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
+            RequestAuthor author, String clientCode )
+    {
 
         final IdentityChange identityChange = new IdentityChange( );
         identityChange.setChangeType( identityChangeType );
         identityChange.setChangeStatus( statusCode );
-        identityChange.setChangeMessage(statusMessage);
+        identityChange.setChangeMessage( statusMessage );
         identityChange.setAuthor( author );
-        identityChange.setIdentity( identity);
-        identityChange.setClientCode(clientCode);
-        
+        identityChange.setIdentity( identity );
+        identityChange.setClientCode( clientCode );
         return identityChange;
     }
 
