@@ -26,7 +26,7 @@ CREATE TABLE identitystore_identity
 (
     id_identity        int AUTO_INCREMENT,
     connection_id      varchar(100) NULL UNIQUE,
-    customer_id        varchar(50)  NULL UNIQUE,
+    customer_id        varchar(50)  NOT NULL UNIQUE,
     date_create        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_update_date   timestamp             DEFAULT NULL,
     is_deleted         smallint              default 0,
@@ -34,6 +34,8 @@ CREATE TABLE identitystore_identity
     is_merged          smallint              default 0,
     date_merge         timestamp    NULL,
     id_master_identity int          NULL,
+    is_mon_paris_active smallint NOT NULL DEFAULT 0,
+    expiration_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '36 MONTH',
     PRIMARY KEY (id_identity)
 );
 
@@ -54,6 +56,7 @@ CREATE TABLE identitystore_ref_attribute
     key_weight   int          NOT NULL default '0',
     certifiable  smallint              default 0,
     pivot        smallint              default 0,
+    mandatory_for_creation smallint NOT NULL DEFAULT 0,
     PRIMARY KEY (id_attribute)
 );
 
@@ -268,3 +271,51 @@ CREATE TABLE identitystore_index_action
     date_index      timestamp   NOT NULL,
     PRIMARY KEY (id_index_action)
 );
+
+
+
+DROP TABLE IF EXISTS identitystore_identity_search_rule;
+CREATE TABLE identitystore_identity_search_rule (
+    id_rule      int             AUTO_INCREMENT,
+    type         varchar(8)      NOT NULL,
+    PRIMARY KEY (id_rule)
+);
+
+DROP TABLE IF EXISTS identitystore_identity_search_rule_attribute;
+CREATE TABLE identitystore_identity_search_rule_attribute (
+    id_rule        int     NOT NULL,
+    id_attribute   int     NOT NULL
+);
+ALTER TABLE identitystore_identity_search_rule_attribute
+    ADD CONSTRAINT fk_identity_search_rule_attribute_id_rule FOREIGN KEY (id_rule) REFERENCES identitystore_identity_search_rule (id_rule) ON DELETE CASCADE;
+ALTER TABLE identitystore_identity_search_rule_attribute
+    ADD CONSTRAINT fk_identity_search_rule_attribute_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
+
+INSERT INTO identitystore_identity_search_rule (type) VALUES ('OR');
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'login' GROUP BY a.id_attribute;
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'email' GROUP BY a.id_attribute;
+
+INSERT INTO identitystore_identity_search_rule (type) VALUES ('AND');
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'family_name' GROUP BY a.id_attribute;
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'first_name' GROUP BY a.id_attribute;
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'birthdate' GROUP BY a.id_attribute;
+
+
+--
+-- Structure for table identitystore_identity_history
+--
+CREATE TABLE  identitystore_identity_history
+(
+    id_history            int AUTO_INCREMENT,
+    change_type           int not null,
+    change_status         varchar(255),
+    change_message        varchar(255),
+    author_type           varchar(255),
+    author_name           varchar(255),
+    client_code           varchar(255),
+    customer_id           varchar(50) NOT NULL,
+    modification_date     timestamp    default CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_history)
+    );
+
+CREATE INDEX identitystore_identity_history_cuid ON identitystore_identity_history (customer_id);

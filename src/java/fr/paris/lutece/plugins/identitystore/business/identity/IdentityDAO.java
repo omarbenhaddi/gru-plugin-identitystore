@@ -33,6 +33,10 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -112,6 +116,12 @@ public final class IdentityDAO implements IIdentityDAO
             + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) = ${count} LIMIT ${limit}";
     private static final String SQL_QUERY_FILTER_NOT_MERGED = "a.is_merged = 0 AND a.date_merge IS NULL";
     private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
+    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history  "
+            + "   (change_type, change_status, change_message, author_type, author_name, client_code, customer_id) "
+            + "   VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "select    "
+            + "   change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date "
+            + "   identitystore_identity_history where customer_id = ?";
 
     /**
      * Generates a new customerId key using Java UUID
@@ -488,6 +498,37 @@ public final class IdentityDAO implements IIdentityDAO
         identity.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
         return identity;
     }
+    
+    /**
+     * return Identity change object from select query
+     *
+     * @param daoUtil
+     *            daoUtil initialized with select query
+     * @return Identity change load from result
+     */
+    private IdentityChange getIdentityChangeFromQuery( DAOUtil daoUtil )
+    {
+    	Identity identity = new Identity();
+    	RequestAuthor author = new RequestAuthor();
+        IdentityChange identityChange = new IdentityChange( );
+
+        int nIndex = 1;
+
+        //  change_type, change_status, change_message, author_type, author_name, client_code, customer_id "
+        identityChange.setChangeType( IdentityChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+        identityChange.setChangeStatus( daoUtil.getString( nIndex++ )  );
+        identityChange.setChangeMessage( daoUtil.getString( nIndex++ )  );
+        author.setType( AuthorType.valueOf( daoUtil.getString( nIndex++ ) ) );
+        author.setName( daoUtil.getString( nIndex++ )  );
+        identityChange.setClientCode( daoUtil.getString( nIndex++ )  );
+        identityChange.setCustomerId( daoUtil.getString( nIndex++ )  );
+        identityChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ));
+        
+        identityChange.setAuthor(author );
+        identityChange.setIdentity(identity );
+        
+        return identityChange;
+    }
 
     /**
      * {@inheritDoc }
@@ -738,6 +779,47 @@ public final class IdentityDAO implements IIdentityDAO
             }
         }
         return listIdentities;
+    }
+
+    @Override
+    public void addChangeHistory(IdentityChange identityChange, Plugin plugin) {
+        try (final DAOUtil daoUtil = new DAOUtil(SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin)) {
+            int nIndex = 1;
+
+            daoUtil.setInt(nIndex++, identityChange.getChangeType().getValue());
+            daoUtil.setString(nIndex++, identityChange.getChangeStatus());
+            daoUtil.setString(nIndex++, identityChange.getChangeMessage());
+            daoUtil.setString(nIndex++, identityChange.getAuthor( ).getType( ).name( ) );
+            daoUtil.setString(nIndex++, identityChange.getAuthor( ).getName( ) );
+            daoUtil.setString(nIndex++, identityChange.getClientCode( ) );
+            daoUtil.setString(nIndex++, identityChange.getIdentity( ).getCustomerId( ) );
+            daoUtil.executeUpdate();
+        }
+    }
+    
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin )
+    {
+        List<IdentityChange> listIdentitieChanges = new ArrayList<>( );
+        String strSQL = SQL_QUERY_SELECT_IDENTITY_HISTORY;
+
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
+            daoUtil.setString( 1, strCustomerId );
+
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                IdentityChange identityChange = getIdentityChangeFromQuery( daoUtil );
+                listIdentitieChanges.add( identityChange );
+            }
+
+            return listIdentitieChanges;
+        }
     }
 
 }

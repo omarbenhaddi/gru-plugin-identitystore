@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import java.sql.Timestamp;
+
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 
@@ -45,6 +47,11 @@ public class IdentityChange
     private Identity _identity;
     private IdentityChangeType _identityChangeType;
     private RequestAuthor _author;
+    protected String _strChangeStatus;
+    protected String _strChangeMessage;
+    protected String _strClientCode;
+    protected String _strCustomerId;
+    protected Timestamp _modificationDate;
 
     public IdentityChange( )
     {
@@ -114,5 +121,93 @@ public class IdentityChange
 	 */
 	public void setAuthor(RequestAuthor author ) {
 		this._author = author;
+	}
+
+	/**
+	 * get change status
+	 * 
+	 * @return the status
+	 */
+	public String getChangeStatus() {
+		return _strChangeStatus;
+	}
+
+	/**
+	 * set change status
+	 * 
+	 * @param changeStatus
+	 */
+	public void setChangeStatus(String changeStatus) {
+		this._strChangeStatus = changeStatus;
+	}
+
+	/**
+	 * get change message
+	 * @return the message
+	 */
+	public String getChangeMessage() {
+		return _strChangeMessage;
+	}
+
+	/**
+	 * set change message
+	 * 
+	 * @param changeMessage
+	 */
+	public void setChangeMessage(String changeMessage) {
+		this._strChangeMessage = changeMessage;
+	}
+
+	/**
+	 * get client code
+	 * 
+	 * @return the code
+	 */
+	public String getClientCode() {
+		return _strClientCode;
+	}
+
+	/**
+	 * set client code
+	 * 
+	 * @param clientCode
+	 */
+	public void setClientCode(String clientCode) {
+		this._strClientCode = clientCode;
+	}
+
+	/**
+	 * get modification date
+	 * 
+	 * @return  the date
+	 */
+	public Timestamp getModificationDate() {
+		return _modificationDate;
+	}
+
+	/**
+	 * set modification date
+	 * 
+	 * @param modificationDate
+	 */
+	public void setModificationDate(Timestamp modificationDate) {
+		this._modificationDate = modificationDate;
+	}
+
+	/**
+	 * get customer id
+	 * @return the cuid
+	 */
+	public String getCustomerId() {
+		return _strCustomerId;
+	}
+
+	/**
+	 * set customer id
+	 * 
+	 * @param customerId
+	 */
+	public void setCustomerId(String customerId) {
+		this._strCustomerId = customerId;
 	}
 }

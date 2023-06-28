@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -261,4 +262,21 @@ public interface IIdentityDAO
     List<Identity> selectByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious, final int limit,
             final Plugin plugin );
 
+    /**
+     * log changes
+     * 
+     * @param identityChange
+     * @param plugin
+     */
+    void addChangeHistory(IdentityChange identityChange, Plugin plugin );
+
+    /**
+     * get identity history
+     * 
+     * @param strCustomerId
+     * @param plugin
+     * @return the list of identity changes
+     */
+	List<IdentityChange> selectIdentityHistoryByCustomerId(String strCustomerId, Plugin plugin);
+    
 }

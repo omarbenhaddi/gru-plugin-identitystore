@@ -69,8 +69,12 @@ CREATE TABLE identitystore_duplicate_rule (
     description             varchar,
     nb_equal_attributes     int,
     nb_missing_attributes   int,
+    priority varchar(30) NOT NULL DEFAULT 'LEVEL3',
+    active smallint NOT NULL DEFAULT 0,
+    daemon smallint NOT NULL DEFAULT 0,
     PRIMARY KEY (id_rule)
 );
+
 
 --
 -- Structure for table identitystore_duplicate_rule_checked_attributes
@@ -120,3 +124,74 @@ INSERT INTO core_admin_right (id_right,name,level_right,admin_url,description,is
 --
 DELETE FROM core_user_right WHERE id_right = 'IDENTITYSTORE_DUPLICATE_RULES_MANAGEMENT';
 INSERT INTO core_user_right (id_right,id_user) VALUES ('IDENTITYSTORE_DUPLICATE_RULES_MANAGEMENT',1);
+
+
+ALTER TABLE identitystore_identity ADD COLUMN is_mon_paris_active smallint NOT NULL DEFAULT 0;
+ALTER TABLE identitystore_identity ADD COLUMN expiration_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '36 MONTH';
+
+ALTER TABLE identitystore_ref_attribute ADD COLUMN mandatory_for_creation smallint NOT NULL DEFAULT 0;
+UPDATE identitystore_ref_attribute SET mandatory_for_creation = 1 WHERE key_name IN ('family_name', 'first_name', 'birthdate');
+
+
+
+DROP TABLE IF EXISTS identitystore_identity_search_rule_attribute;
+DROP TABLE IF EXISTS identitystore_identity_search_rule;
+
+CREATE TABLE identitystore_identity_search_rule (
+    id_rule      int             AUTO_INCREMENT,
+    type         varchar(8)      NOT NULL,
+    PRIMARY KEY (id_rule)
+);
+
+CREATE TABLE identitystore_identity_search_rule_attribute (
+    id_rule        int     NOT NULL,
+    id_attribute   int     NOT NULL
+);
+ALTER TABLE identitystore_identity_search_rule_attribute
+    ADD CONSTRAINT fk_identity_search_rule_attribute_id_rule FOREIGN KEY (id_rule) REFERENCES identitystore_identity_search_rule (id_rule) ON DELETE CASCADE;
+ALTER TABLE identitystore_identity_search_rule_attribute
+    ADD CONSTRAINT fk_identity_search_rule_attribute_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
+
+INSERT INTO identitystore_identity_search_rule (type) VALUES ('OR');
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'login' GROUP BY a.id_attribute;
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'email' GROUP BY a.id_attribute;
+
+INSERT INTO identitystore_identity_search_rule (type) VALUES ('AND');
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'family_name' GROUP BY a.id_attribute;
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'first_name' GROUP BY a.id_attribute;
+INSERT INTO identitystore_identity_search_rule_attribute (id_rule, id_attribute) SELECT MAX(r.id_rule), a.id_attribute FROM identitystore_identity_search_rule r, identitystore_ref_attribute a WHERE a.key_name = 'birthdate' GROUP BY a.id_attribute;
+
+--
+-- Data for table core_admin_right
+--
+DELETE FROM core_admin_right WHERE id_right = 'IDENTITYSTORE_IDENTITY_SEARCH_RULES_MANAGEMENT';
+INSERT INTO core_admin_right (id_right,name,level_right,admin_url,description,is_updatable,plugin_name,id_feature_group,icon_url,documentation_url, id_order ) VALUES
+    ('IDENTITYSTORE_IDENTITY_SEARCH_RULES_MANAGEMENT','identitystore.adminFeature.ManageIdentitySearchRules.name',1,'jsp/admin/plugins/identitystore/ManageIdentitySearchRules.jsp','identitystore.adminFeature.ManageIdentitySearchRules.description',0,'identitystore',NULL,NULL,NULL,4);
+
+--
+-- Data for table core_user_right
+--
+DELETE FROM core_user_right WHERE id_right = 'IDENTITYSTORE_IDENTITY_SEARCH_RULES_MANAGEMENT';
+INSERT INTO core_user_right (id_right,id_user) VALUES ('IDENTITYSTORE_IDENTITY_SEARCH_RULES_MANAGEMENT',1);
+
+
+--
+-- Structure for table identitystore_identity_history
+--
+CREATE TABLE  identitystore_identity_history
+(
+    id_history            int AUTO_INCREMENT,
+    change_type           int not null,
+    change_status         varchar(255),
+    change_message        varchar(255),
+    author_type           varchar(255),
+    author_name           varchar(255),
+    client_code           varchar(255),
+    customer_id           varchar(50) NOT NULL,
+    modification_date     timestamp    default CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_history)
+    );
+
+CREATE INDEX identitystore_identity_history_cuid ON identitystore_identity_history (customer_id);
+
+

@@ -1,5 +1,6 @@
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
 
@@ -16,7 +17,7 @@ public class IdentityHistoryListener implements IdentityChangeListener {
 	@Override
 	public void processIdentityChange(IdentityChange identityChange) 
 	{
-        // TODO : IdentityHome.log( identityChange );
+        IdentityHome.addIdentityChangeHistory( identityChange );
 	}
 
 }

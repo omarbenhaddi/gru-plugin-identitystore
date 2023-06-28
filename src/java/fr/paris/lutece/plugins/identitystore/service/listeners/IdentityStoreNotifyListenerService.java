@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
+import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
@@ -175,4 +176,29 @@ public final class IdentityStoreNotifyListenerService
 
         return attributeChange;
     }
+    
+    /**
+     * Build a full identityChange object
+     * 
+     * @param identityChangeType
+     * @param identity
+     * @param statusCode
+     * @param statusMessage
+     * @param author
+     * @param clientCode
+     * @return a full identityChange object
+     */
+    public static IdentityChange buildIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode) {
+
+        final IdentityChange identityChange = new IdentityChange( );
+        identityChange.setChangeType( identityChangeType );
+        identityChange.setChangeStatus( statusCode );
+        identityChange.setChangeMessage(statusMessage);
+        identityChange.setAuthor( author );
+        identityChange.setIdentity( identity);
+        identityChange.setClientCode(clientCode);
+        
+        return identityChange;
+    }
+
 }
