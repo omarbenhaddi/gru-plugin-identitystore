@@ -133,15 +133,17 @@ public class DuplicateService implements IDuplicateService
             final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
                     .collect( Collectors.toList( ) );
             final List<QualifiedIdentity> resultIdentities = rawResultsNotMerged.stream( )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) )
-                    .map(i -> {
-                        try {
-                            IdentityQualityService.instance().computeQuality(i);
-                        } catch (IdentityAttributeNotFoundException e) {
-                            throw new RuntimeException(e);
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( i -> {
+                        try
+                        {
+                            IdentityQualityService.instance( ).computeQuality( i );
+                        }
+                        catch( IdentityAttributeNotFoundException e )
+                        {
+                            throw new RuntimeException( e );
                         }
                         return i;
-                    }).collect(Collectors.toList());
+                    } ).collect( Collectors.toList( ) );
             if ( CollectionUtils.isNotEmpty( resultIdentities ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );

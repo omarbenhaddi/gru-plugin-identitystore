@@ -86,7 +86,7 @@ public class IdentityService
     private final AttributeCertificationDefinitionService _attributeCertificationDefinitionService = AttributeCertificationDefinitionService.instance( );
     private final IdentityStoreNotifyListenerService _identityStoreNotifyListenerService = IdentityStoreNotifyListenerService.instance( );
     private final ServiceContractService _serviceContractService = ServiceContractService.instance( );
-    private final IdentityAttributeService _identityAttributeService = IdentityAttributeService.instance();
+    private final IdentityAttributeService _identityAttributeService = IdentityAttributeService.instance( );
     private final IDuplicateService _duplicateServiceCreation = SpringContextService.getBean( "identitystore.duplicateService.creation" );
     private final IDuplicateService _duplicateServiceUpdate = SpringContextService.getBean( "identitystore.duplicateService.update" );
     private final IDuplicateService _duplicateServiceImportCertitude = SpringContextService.getBean( "identitystore.duplicateService.import.certitude" );
