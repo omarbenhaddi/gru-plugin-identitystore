@@ -80,6 +80,7 @@ public class IdentityIndexListener implements IdentityChangeListener
                     this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     break;
                 case UPDATE:
+                case CONSOLIDATED:
                     this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     break;
                 case DELETE:
