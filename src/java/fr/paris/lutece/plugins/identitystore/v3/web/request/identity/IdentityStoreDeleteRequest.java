@@ -61,7 +61,7 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
      * @param strClientAppCode
      *            the application code provided by the client
      */
-    public IdentityStoreDeleteRequest( String strCustomerId, String strClientAppCode, IdentityChangeRequest identityChangeRequest)
+    public IdentityStoreDeleteRequest( String strCustomerId, String strClientAppCode, IdentityChangeRequest identityChangeRequest )
     {
         super( strClientAppCode );
         _strCustomerId = strCustomerId;
@@ -90,11 +90,11 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
     @Override
     protected IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        
+
         IdentityChangeResponse response = new IdentityChangeResponse( );
-        
-		IdentityService.instance( ).deleteRequest(_strCustomerId, _strClientCode, _identityChangeRequest, response);
-        
-		return response;
+
+        IdentityService.instance( ).deleteRequest( _strCustomerId, _strClientCode, _identityChangeRequest, response );
+
+        return response;
     }
 }

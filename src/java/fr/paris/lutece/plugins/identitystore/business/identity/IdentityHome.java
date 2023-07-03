@@ -445,5 +445,4 @@ public final class IdentityHome
         _dao.addChangeHistory( identityChange, _plugin );
     }
 
-
 }

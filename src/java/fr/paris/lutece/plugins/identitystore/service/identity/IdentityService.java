@@ -34,8 +34,6 @@
 package fr.paris.lutece.plugins.identitystore.service.identity;
 
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
@@ -58,11 +56,10 @@ import fr.paris.lutece.plugins.identitystore.service.geocodes.GeocodesService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreDeleteRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
@@ -74,12 +71,10 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -136,7 +131,7 @@ public class IdentityService
         }
 
         if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) )
-        		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+                && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot specify a GUID when requesting for a creation" );
         }
@@ -158,14 +153,14 @@ public class IdentityService
 
         // check if can set "mon_paris_active" flag to true
         if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) )
-        		&& !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+                && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-        	throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
+            throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
         }
 
         // check if GUID is already in use
         if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) )
-        		&& IdentityHome.findByCustomerId( identityChangeRequest.getIdentity( ).getConnectionId( ) ) != null  )
+                && IdentityHome.findByCustomerId( identityChangeRequest.getIdentity( ).getConnectionId( ) ) != null )
         {
             throw new IdentityStoreException( "GUID is already in use." );
         }
@@ -342,36 +337,7 @@ public class IdentityService
 
         // => process update :
 
-        /* Récupération des attributs déja existants ou non */
-        final Map<Boolean, List<CertifiedAttribute>> sortedAttributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
-                .collect( Collectors.partitioningBy( a -> identity.getAttributes( ).containsKey( a.getKey( ) ) ) );
-        final List<CertifiedAttribute> existingWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( true ) ) ? sortedAttributes.get( true )
-                : new ArrayList<>( );
-        final List<CertifiedAttribute> newWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( false ) ) ? sortedAttributes.get( false )
-                : new ArrayList<>( );
-
-        GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
-        GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
-
-        /* Create new attributes */
-        for ( final CertifiedAttribute attributeToWrite : newWritableAttributes )
-        {
-            final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( attributeToWrite, identity, clientCode );
-            response.getAttributeStatuses( ).add( attributeStatus );
-        }
-
-        /* Update existing attributes */
-        for ( final CertifiedAttribute attributeToUpdate : existingWritableAttributes )
-        {
-            final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( attributeToUpdate, identity, clientCode );
-            response.getAttributeStatuses( ).add( attributeStatus );
-        }
-
-        if ( identityChangeRequest.getIdentity( ).getMonParisActive( ) != null )
-        {
-            identity.setMonParisActive( identityChangeRequest.getIdentity( ).getMonParisActive( ) );
-        }
-        IdentityHome.update( identity );
+        this.updateIdentity( identityChangeRequest.getIdentity( ), clientCode, response, identity );
 
         response.setCustomerId( identity.getCustomerId( ) );
         response.setConnectionId( identity.getConnectionId( ) );
@@ -430,120 +396,75 @@ public class IdentityService
     public Identity merge( final IdentityMergeRequest identityMergeRequest, final String clientCode, final IdentityMergeResponse response )
             throws IdentityStoreException
     {
-        final Identity primaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getIdentities( ).getPrimaryCuid( ) );
+        final Identity primaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getPrimaryCuid( ) );
         if ( primaryIdentity == null )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.getMessage( ).add( "No identity could be found with customer_id " + identityMergeRequest.getIdentities( ).getPrimaryCuid( ) );
-        }
-        else
-            if ( primaryIdentity.isDeleted( ) )
-            {
-                response.setStatus( IdentityMergeStatus.FAILURE );
-                response.getMessage( ).add( "Identity found with customer_id " + identityMergeRequest.getIdentities( ).getPrimaryCuid( ) + " is deleted" );
-            }
-            else
-                if ( primaryIdentity.isMerged( ) )
-                {
-                    response.setStatus( IdentityMergeStatus.FAILURE );
-                    response.getMessage( ).add( "Identity found with customer_id " + identityMergeRequest.getIdentities( ).getPrimaryCuid( ) + " is merged" );
-                }
-
-        final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getIdentities( ).getSecondaryCuid( ) );
-        if ( secondaryIdentity == null )
-        {
-            response.setStatus( IdentityMergeStatus.FAILURE );
-            response.getMessage( ).add( "No identity could be found with customer_id " + identityMergeRequest.getIdentities( ).getSecondaryCuid( ) );
-        }
-        else
-            if ( secondaryIdentity.isDeleted( ) )
-            {
-                response.setStatus( IdentityMergeStatus.FAILURE );
-                response.getMessage( ).add( "Identity found with customer_id " + identityMergeRequest.getIdentities( ).getSecondaryCuid( ) + " is deleted" );
-            }
-            else
-                if ( secondaryIdentity.isMerged( ) )
-                {
-                    response.setStatus( IdentityMergeStatus.FAILURE );
-                    response.getMessage( ).add( "Identity found with customer_id " + identityMergeRequest.getIdentities( ).getSecondaryCuid( ) + " is merged" );
-                }
-
-        /* Return a FAIL status in case of problem */
-        if ( IdentityMergeStatus.FAILURE.equals( response.getStatus( ) ) )
-        {
+            response.setMessage( "Could not find primary identity with customer_id " + identityMergeRequest.getPrimaryCuid( ) );
             return null;
         }
 
-        final List<Map.Entry<String, IdentityAttribute>> entriesToProcess = secondaryIdentity.getAttributes( ).entrySet( ).stream( )
-                .filter( e -> identityMergeRequest.getIdentities( ).getAttributeKeys( ).contains( e.getKey( ) ) ).collect( Collectors.toList( ) );
-        for ( final Map.Entry<String, IdentityAttribute> entry : entriesToProcess )
+        if ( primaryIdentity.isDeleted( ) )
         {
-            final String key = entry.getKey( );
-            final IdentityAttribute secondaryAttribute = entry.getValue( );
-            IdentityAttribute primaryAttribute = primaryIdentity.getAttributes( ).get( key );
-            if ( primaryAttribute == null )
-            { // l'attribut n'existe pas, on le crée
-                primaryAttribute = new IdentityAttribute( );
-                primaryAttribute.setIdIdentity( primaryIdentity.getId( ) );
-                primaryAttribute.setAttributeKey( secondaryAttribute.getAttributeKey( ) );
-                primaryAttribute.setValue( secondaryAttribute.getValue( ) );
-                primaryAttribute.setLastUpdateClientCode( clientCode );
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Primary identity found with customer_id " + identityMergeRequest.getPrimaryCuid( ) + " is deleted" );
+            return null;
+        }
 
-                if ( secondaryAttribute.getCertificate( ) != null )
-                {
-                    final AttributeCertificate certificate = new AttributeCertificate( );
-                    certificate.setCertificateDate( new Timestamp( secondaryAttribute.getCertificate( ).getCertificateDate( ).getTime( ) ) );
-                    certificate.setCertifierCode( secondaryAttribute.getCertificate( ).getCertifierCode( ) );
-                    certificate.setCertifierName( secondaryAttribute.getCertificate( ).getCertifierName( ) );
-                    primaryAttribute.setCertificate( AttributeCertificateHome.create( certificate ) );
-                    primaryAttribute.setIdCertificate( primaryAttribute.getCertificate( ).getId( ) );
-                }
-                IdentityAttributeHome.create( primaryAttribute );
-                primaryIdentity.getAttributes( ).put( primaryAttribute.getAttributeKey( ).getKeyName( ), primaryAttribute );
+        if ( primaryIdentity.isMerged( ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Primary identity found with customer_id " + identityMergeRequest.getPrimaryCuid( ) + " is merged" );
+            return null;
+        }
 
-                final AttributeStatus attributeStatus = new AttributeStatus( );
-                attributeStatus.setKey( primaryAttribute.getAttributeKey( ).getKeyName( ) );
-                attributeStatus.setStatus( AttributeChangeStatus.CREATED );
-                response.getAttributeStatuses( ).add( attributeStatus );
-            }
-            else
-            { // l'attribut existe, on le met à jour si le niveau de certification est plus élevé
-                final int primaryLevel = _attributeCertificationDefinitionService.getLevelAsInteger( primaryAttribute.getCertificate( ).getCertifierCode( ),
-                        primaryAttribute.getAttributeKey( ).getKeyName( ) );
-                final int secondaryLevel = _attributeCertificationDefinitionService.getLevelAsInteger( secondaryAttribute.getCertificate( ).getCertifierCode( ),
-                        secondaryAttribute.getAttributeKey( ).getKeyName( ) );
+        final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getSecondaryCuid( ) );
+        if ( secondaryIdentity == null )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Could not find secondary identity with customer_id " + identityMergeRequest.getSecondaryCuid( ) );
+            return null;
+        }
 
-                if ( secondaryLevel > primaryLevel )
-                {
-                    primaryAttribute.setValue( secondaryAttribute.getValue( ) );
-                    primaryAttribute.setLastUpdateClientCode( clientCode );
-                    if ( secondaryAttribute.getCertificate( ) != null )
-                    {
-                        final AttributeCertificate certificate = new AttributeCertificate( );
-                        certificate.setCertificateDate( new Timestamp( secondaryAttribute.getCertificate( ).getCertificateDate( ).getTime( ) ) );
-                        certificate.setCertifierCode( secondaryAttribute.getCertificate( ).getCertifierCode( ) );
-                        certificate.setCertifierName( secondaryAttribute.getCertificate( ).getCertifierName( ) );
-                        primaryAttribute.setCertificate( AttributeCertificateHome.create( certificate ) );
-                        primaryAttribute.setIdCertificate( primaryAttribute.getCertificate( ).getId( ) );
-                    }
-                    IdentityAttributeHome.update( primaryAttribute );
-                    primaryIdentity.getAttributes( ).put( primaryAttribute.getAttributeKey( ).getKeyName( ), primaryAttribute );
+        if ( secondaryIdentity.isDeleted( ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is deleted" );
+            return null;
+        }
 
-                    final AttributeStatus attributeStatus = new AttributeStatus( );
-                    attributeStatus.setKey( key );
-                    attributeStatus.setStatus( AttributeChangeStatus.UPDATED );
-                    response.getAttributeStatuses( ).add( attributeStatus );
-                }
-            }
+        if ( secondaryIdentity.isMerged( ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is merged" );
+            return null;
+        }
+
+        if ( identityMergeRequest.getIdentity( ) != null )
+        {
+            this.updateIdentity( identityMergeRequest.getIdentity( ), clientCode, response, primaryIdentity );
         }
 
         /* Tag de l'identité secondaire */
         secondaryIdentity.setMerged( true );
         secondaryIdentity.setMasterIdentityId( primaryIdentity.getId( ) );
         IdentityHome.merge( secondaryIdentity );
+        IdentityAttributeHome.removeAllAttributes( secondaryIdentity.getId( ) );
 
-        response.setStatus( IdentityMergeStatus.SUCCESS );
         response.setCustomerId( primaryIdentity.getCustomerId( ) );
+        response.setConnectionId( primaryIdentity.getConnectionId( ) );
+        response.setLastUpdateDate( primaryIdentity.getLastUpdateDate( ) );
+        boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
+                .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
+                        || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
+        response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityMergeStatus.INCOMPLETE_SUCCESS : IdentityMergeStatus.SUCCESS );
 
         /* Historique des modifications */
         response.getAttributeStatuses( ).forEach( attributeStatus -> {
@@ -553,7 +474,6 @@ public class IdentityService
         } );
 
         /* Indexation */
-
         _identityStoreNotifyListenerService
                 .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
                         response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
@@ -783,6 +703,41 @@ public class IdentityService
         return filteredIdentities;
     }
 
+    private void updateIdentity( final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity requestIdentity, final String clientCode,
+            final ChangeResponse response, final Identity identity ) throws IdentityStoreException
+    {
+        /* Récupération des attributs déja existants ou non */
+        final Map<Boolean, List<CertifiedAttribute>> sortedAttributes = requestIdentity.getAttributes( ).stream( )
+                .collect( Collectors.partitioningBy( a -> identity.getAttributes( ).containsKey( a.getKey( ) ) ) );
+        final List<CertifiedAttribute> existingWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( true ) ) ? sortedAttributes.get( true )
+                : new ArrayList<>( );
+        final List<CertifiedAttribute> newWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( false ) ) ? sortedAttributes.get( false )
+                : new ArrayList<>( );
+
+        GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
+        GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
+
+        /* Create new attributes */
+        for ( final CertifiedAttribute attributeToWrite : newWritableAttributes )
+        {
+            final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( attributeToWrite, identity, clientCode );
+            response.getAttributeStatuses( ).add( attributeStatus );
+        }
+
+        /* Update existing attributes */
+        for ( final CertifiedAttribute attributeToUpdate : existingWritableAttributes )
+        {
+            final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( attributeToUpdate, identity, clientCode );
+            response.getAttributeStatuses( ).add( attributeStatus );
+        }
+
+        if ( requestIdentity.getMonParisActive( ) != null )
+        {
+            identity.setMonParisActive( requestIdentity.getMonParisActive( ) );
+        }
+        IdentityHome.update( identity );
+    }
+
     /**
      * Gets a list of identities on which to search potential duplicates.<br/>
      * Returned identities must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.
@@ -820,13 +775,12 @@ public class IdentityService
      *
      * @param customerId
      *            the customer ID
-     * @param client_code
+     * @param clientCode
      *            the client code
      * @param identityChangeRequest
      *            the identityChangeRequest
      */
-    public void deleteRequest( final String customerId, final String clientCode,
-    		IdentityChangeRequest identityChangeRequest,
+    public void deleteRequest( final String customerId, final String clientCode, IdentityChangeRequest identityChangeRequest,
             final IdentityChangeResponse response ) throws IdentityStoreException
     {
         if ( !_serviceContractService.canDeleteIdentity( clientCode ) )
@@ -841,40 +795,38 @@ public class IdentityService
         Identity identity = IdentityHome.findByCustomerId( customerId );
         if ( identity == null )
         {
-        	response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "Identity not found." );
             return;
         }
         if ( identity.isDeleted( ) )
         {
-        	response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "Identity  allready in deleted state." );
             return;
         }
         if ( identity.isMerged( ) )
         {
-        	response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "Identity in merged state can not be deleted." );
             return;
         }
 
-        // expire identity (the  deletion is managed by the dedicated Daemon)
-	    IdentityHome.softRemove( customerId );
+        // expire identity (the deletion is managed by the dedicated Daemon)
+        IdentityHome.softRemove( customerId );
 
-	    response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
+        response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
 
-	    /* Notify listeners for indexation, history, ...  */
-	    _identityStoreNotifyListenerService.notifyListenersIdentityChange(
-          IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
-              identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
-
+        /* Notify listeners for indexation, history, ... */
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
+                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
     }
 
-    public DuplicateSearchResponse findDuplicates(Identity identity, Integer ruleId)
+    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId )
     {
         return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }

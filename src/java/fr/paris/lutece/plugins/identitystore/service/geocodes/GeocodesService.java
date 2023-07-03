@@ -37,10 +37,11 @@ import fr.paris.lutece.plugins.geocodes.business.City;
 import fr.paris.lutece.plugins.geocodes.business.Country;
 import fr.paris.lutece.plugins.geocodes.service.GeoCodesService;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -66,7 +67,7 @@ public class GeocodesService
      * @throws IdentityAttributeNotFoundException
      */
     public static void processCountryForUpdate( final Identity identity, final List<CertifiedAttribute> attrToCreate,
-            final List<CertifiedAttribute> attrToUpdate, final String clientCode, final IdentityChangeResponse response ) throws IdentityStoreException
+            final List<CertifiedAttribute> attrToUpdate, final String clientCode, final ChangeResponse response ) throws IdentityStoreException
     {
         final CertifiedAttribute countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
                 .findFirst( ).orElse( null );
@@ -395,7 +396,7 @@ public class GeocodesService
      * @throws IdentityAttributeNotFoundException
      */
     public static void processCityForUpdate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final List<CertifiedAttribute> attrToUpdate,
-            final String clientCode, final IdentityChangeResponse response ) throws IdentityStoreException
+            final String clientCode, final ChangeResponse response ) throws IdentityStoreException
     {
 
         final CertifiedAttribute cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )

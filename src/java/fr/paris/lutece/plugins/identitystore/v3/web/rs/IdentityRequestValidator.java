@@ -34,15 +34,16 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import io.jsonwebtoken.lang.Collections;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -189,11 +190,7 @@ public final class IdentityRequestValidator
             throw new IdentityStoreException( "Provided Identity Change request is null or empty" );
         }
 
-        if ( identityChange.getOrigin( ) == null || StringUtils.isEmpty( identityChange.getOrigin( ).getName( ) )
-                || identityChange.getOrigin( ).getType( ) == null )
-        {
-            throw new IdentityStoreException( "Provided Author is null or empty" );
-        }
+        this.checkOrigin( identityChange );
 
         if ( identityChange.getIdentity( ).getAttributes( ).stream( ).anyMatch( a -> !a.isCertified( ) ) )
         {
@@ -224,24 +221,27 @@ public final class IdentityRequestValidator
      */
     public void checkMergeRequest( IdentityMergeRequest identityMergeRequest ) throws IdentityStoreException
     {
-        if ( identityMergeRequest.getOrigin( ) == null || StringUtils.isEmpty( identityMergeRequest.getOrigin( ).getName( ) )
-                || identityMergeRequest.getOrigin( ).getType( ) == null )
+        this.checkOrigin( identityMergeRequest );
+
+        if ( identityMergeRequest == null )
         {
-            throw new IdentityStoreException( "Provided Author is null or empty" );
+            throw new IdentityStoreException( "Provided Identity Merge request is null" );
         }
 
-        if ( identityMergeRequest == null || identityMergeRequest.getIdentities( ) == null
-                || StringUtils.isEmpty( identityMergeRequest.getIdentities( ).getPrimaryCuid( ) )
-                || StringUtils.isEmpty( identityMergeRequest.getIdentities( ).getSecondaryCuid( ) ) )
+        if ( identityMergeRequest.getPrimaryCuid( ) == null )
         {
-            throw new IdentityStoreException( "Provided Identity Merge request is null or incomplete" );
+            throw new IdentityStoreException( "An Identity merge request must provide the CUID of the primary Identity" );
         }
 
-        // TODO : nécessité du contrôle à revalider, un rapprochement peut se faire sans récupération d'attribut
-        /*if ( CollectionUtils.isEmpty( identityMergeRequest.getIdentities( ).getAttributeKeys( ) ) )
+        if ( identityMergeRequest.getSecondaryCuid( ) == null )
         {
-            throw new IdentityStoreException( "Provided Identity Merge request must define at least one attribute key to be merged" );
-        }*/
+            throw new IdentityStoreException( "An Identity merge request must provide the CUID of the secondary Identity" );
+        }
+
+        if ( identityMergeRequest.getIdentity( ) != null && Collections.isEmpty( identityMergeRequest.getIdentity( ).getAttributes( ) ) )
+        {
+            throw new IdentityStoreException( "An Identity merge request that provides an Identity must provide at least one Attribute" );
+        }
     }
 
     public void checkServiceContract( ServiceContractDto serviceContractDto ) throws IdentityStoreException
@@ -282,14 +282,14 @@ public final class IdentityRequestValidator
             throw new IdentityStoreException( "Provided client must specify a client code" );
         }
     }
-    
+
     /**
      * check whether the parameters related to the origin are valid or not
      * 
      * @param identityChange
      * @throws AppException
      */
-    public void checkOrigin( IdentityChangeRequest identityChange ) throws IdentityStoreException
+    public void checkOrigin( ChangeRequest identityChange ) throws IdentityStoreException
     {
 
         if ( identityChange.getOrigin( ) == null || StringUtils.isEmpty( identityChange.getOrigin( ).getName( ) )
@@ -299,5 +299,5 @@ public final class IdentityRequestValidator
         }
 
     }
-    
+
 }

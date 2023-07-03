@@ -268,7 +268,7 @@ public interface IIdentityDAO
      * @param identityChange
      * @param plugin
      */
-    void addChangeHistory(IdentityChange identityChange, Plugin plugin );
+    void addChangeHistory( IdentityChange identityChange, Plugin plugin );
 
     /**
      * get identity history
@@ -277,6 +277,6 @@ public interface IIdentityDAO
      * @param plugin
      * @return the list of identity changes
      */
-	List<IdentityChange> selectIdentityHistoryByCustomerId(String strCustomerId, Plugin plugin);
+    List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin );
 
 }

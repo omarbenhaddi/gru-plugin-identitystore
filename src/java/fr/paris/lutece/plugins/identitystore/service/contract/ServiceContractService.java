@@ -178,7 +178,7 @@ public class ServiceContractService
         if ( !serviceContract.getAuthorizedMerge( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.getMessage( ).add( "The client application is not authorized to merge identities " );
+            response.setMessage( "The client application is not authorized to merge identities " );
         }
 
         return response;
@@ -323,12 +323,12 @@ public class ServiceContractService
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         return serviceContract.getAuthorizedUpdate( );
     }
-    
-	public boolean canDeleteIdentity(String clientCode)  throws ServiceContractNotFoundException
-	{
+
+    public boolean canDeleteIdentity( String clientCode ) throws ServiceContractNotFoundException
+    {
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         return serviceContract.getAuthorizedDeletion( );
-	}
+    }
 
     public int getDataRetentionPeriodInMonths( final String clientCode ) throws ServiceContractNotFoundException
     {

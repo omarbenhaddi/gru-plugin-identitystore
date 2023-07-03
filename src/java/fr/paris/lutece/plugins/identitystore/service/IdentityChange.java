@@ -108,106 +108,121 @@ public class IdentityChange
 
     /**
      * get author
+     * 
      * @return the author
      */
-	public RequestAuthor getAuthor() {
-		return _author;
-	}
+    public RequestAuthor getAuthor( )
+    {
+        return _author;
+    }
 
-	/**
-	 * set author
-	 *
-	 * @param author
-	 */
-	public void setAuthor(RequestAuthor author ) {
-		this._author = author;
-	}
+    /**
+     * set author
+     *
+     * @param author
+     */
+    public void setAuthor( RequestAuthor author )
+    {
+        this._author = author;
+    }
 
-	/**
-	 * get change status
-	 *
-	 * @return the status
-	 */
-	public String getChangeStatus() {
-		return _strChangeStatus;
-	}
+    /**
+     * get change status
+     *
+     * @return the status
+     */
+    public String getChangeStatus( )
+    {
+        return _strChangeStatus;
+    }
 
-	/**
-	 * set change status
-	 *
-	 * @param changeStatus
-	 */
-	public void setChangeStatus(String changeStatus) {
-		this._strChangeStatus = changeStatus;
-	}
+    /**
+     * set change status
+     *
+     * @param changeStatus
+     */
+    public void setChangeStatus( String changeStatus )
+    {
+        this._strChangeStatus = changeStatus;
+    }
 
-	/**
-	 * get change message
-	 * @return the message
-	 */
-	public String getChangeMessage() {
-		return _strChangeMessage;
-	}
+    /**
+     * get change message
+     * 
+     * @return the message
+     */
+    public String getChangeMessage( )
+    {
+        return _strChangeMessage;
+    }
 
-	/**
-	 * set change message
-	 *
-	 * @param changeMessage
-	 */
-	public void setChangeMessage(String changeMessage) {
-		this._strChangeMessage = changeMessage;
-	}
+    /**
+     * set change message
+     *
+     * @param changeMessage
+     */
+    public void setChangeMessage( String changeMessage )
+    {
+        this._strChangeMessage = changeMessage;
+    }
 
-	/**
-	 * get client code
-	 *
-	 * @return the code
-	 */
-	public String getClientCode() {
-		return _strClientCode;
-	}
+    /**
+     * get client code
+     *
+     * @return the code
+     */
+    public String getClientCode( )
+    {
+        return _strClientCode;
+    }
 
-	/**
-	 * set client code
-	 *
-	 * @param clientCode
-	 */
-	public void setClientCode(String clientCode) {
-		this._strClientCode = clientCode;
-	}
+    /**
+     * set client code
+     *
+     * @param clientCode
+     */
+    public void setClientCode( String clientCode )
+    {
+        this._strClientCode = clientCode;
+    }
 
-	/**
-	 * get modification date
-	 *
-	 * @return  the date
-	 */
-	public Timestamp getModificationDate() {
-		return _modificationDate;
-	}
+    /**
+     * get modification date
+     *
+     * @return the date
+     */
+    public Timestamp getModificationDate( )
+    {
+        return _modificationDate;
+    }
 
-	/**
-	 * set modification date
-	 *
-	 * @param modificationDate
-	 */
-	public void setModificationDate(Timestamp modificationDate) {
-		this._modificationDate = modificationDate;
-	}
+    /**
+     * set modification date
+     *
+     * @param modificationDate
+     */
+    public void setModificationDate( Timestamp modificationDate )
+    {
+        this._modificationDate = modificationDate;
+    }
 
-	/**
-	 * get customer id
-	 * @return the cuid
-	 */
-	public String getCustomerId() {
-		return _strCustomerId;
-	}
+    /**
+     * get customer id
+     * 
+     * @return the cuid
+     */
+    public String getCustomerId( )
+    {
+        return _strCustomerId;
+    }
 
-	/**
-	 * set customer id
-	 *
-	 * @param customerId
-	 */
-	public void setCustomerId(String customerId) {
-		this._strCustomerId = customerId;
-	}
+    /**
+     * set customer id
+     *
+     * @param customerId
+     */
+    public void setCustomerId( String customerId )
+    {
+        this._strCustomerId = customerId;
+    }
 }

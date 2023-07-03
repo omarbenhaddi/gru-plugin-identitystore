@@ -296,8 +296,7 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * Delete request for an identity from the specified CustomerId
-     * The identity will be marked as expired, for the deletion Deamon.
+     * Delete request for an identity from the specified CustomerId The identity will be marked as expired, for the deletion Deamon.
      *
      * @param strCustomerId
      * @param strClientCode
@@ -313,8 +312,8 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response deleteIdentity(
-    		@ApiParam( name = "Request body", value = "An Identity Change Request to specify the author" ) IdentityChangeRequest identityChangeRequest,
-    		@ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+            @ApiParam( name = "Request body", value = "An Identity Change Request to specify the author" ) IdentityChangeRequest identityChangeRequest,
+            @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode )
     {
         try

@@ -56,7 +56,7 @@ import java.util.List;
  */
 public final class IdentityStoreNotifyListenerService
 {
-     // singleton
+    // singleton
     private static IdentityStoreNotifyListenerService _singleton;
 
     // List
