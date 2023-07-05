@@ -46,6 +46,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttri
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -120,17 +121,18 @@ public class DuplicateService implements IDuplicateService
     }
 
     @Override
-    public DuplicateSearchResponse findDuplicates( Identity identity, int ruleId )
-    {
-
-        DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
+    public DuplicateSearchResponse findDuplicates( Identity identity, int ruleId ) throws IdentityStoreException {
+        final DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
+        if( duplicateRule == null )
+        {
+            throw new IdentityStoreException("Could not find duplicate rule with id " + ruleId);
+        }
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
             final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
-
             final List<QualifiedIdentity> rawResults = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ),
                     duplicateRule.getNbMissingAttributes( ), 0, false );
-            final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) )
+            final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals(qualifiedIdentity.getCustomerId(), identity.getCustomerId()))
                     .collect( Collectors.toList( ) );
             final List<QualifiedIdentity> resultIdentities = rawResultsNotMerged.stream( )
                     .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( i -> {
@@ -192,17 +194,17 @@ public class DuplicateService implements IDuplicateService
 
     private List<SearchAttributeDto> mapAttributes( Identity identity, DuplicateRule duplicateRule )
     {
-        List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
+        final List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
 
-        for ( AttributeKey key : duplicateRule.getCheckedAttributes( ) )
+        for ( final AttributeKey key : duplicateRule.getCheckedAttributes( ) )
         {
-            Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
+            final Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
             if ( attributeKey.isPresent( ) )
             {
-                SearchAttributeDto searchAttribute = new SearchAttributeDto( );
+                final SearchAttributeDto searchAttribute = new SearchAttributeDto( );
                 searchAttribute.setKey( key.getKeyName( ) );
                 searchAttribute.setValue( identity.getAttributes( ).get( key.getKeyName( ) ).getValue( ) );
-                List<DuplicateRuleAttributeTreatment> priorityTreatment = duplicateRule.getAttributeTreatments( ).stream( )
+                final List<DuplicateRuleAttributeTreatment> priorityTreatment = duplicateRule.getAttributeTreatments( ).stream( )
                         .filter( attTreamtment -> attTreamtment.getAttributes( ).stream( ).anyMatch( att -> att.getKeyName( ).equals( key.getKeyName( ) ) ) )
                         .collect( Collectors.toList( ) );
                 searchAttribute.setStrict( priorityTreatment != null && priorityTreatment.size( ) > 0

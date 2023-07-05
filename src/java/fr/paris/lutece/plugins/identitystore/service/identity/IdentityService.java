@@ -56,6 +56,7 @@ import fr.paris.lutece.plugins.identitystore.service.geocodes.GeocodesService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
+import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
@@ -393,6 +394,7 @@ public class IdentityService
      * @throws IdentityStoreException
      *             in case of error
      */
+    //TODO: récupérer la plus haute date d'expiration des deux identités
     public Identity merge( final IdentityMergeRequest identityMergeRequest, final String clientCode, final IdentityMergeResponse response )
             throws IdentityStoreException
     {
@@ -739,35 +741,22 @@ public class IdentityService
     }
 
     /**
-     * Gets a list of identities on which to search potential duplicates.<br/>
-     * Returned identities must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.
+     * Gets a list of customer IDs on which to search potential duplicates.<br/>
+     * Returned customer IDS belong to identities that must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.
      *
      * @param rule
      *            the rule used to get matching identities
      * @return the list of identities
      */
-    public List<QualifiedIdentity> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int limit )
+    public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize ) //TODO il faut pouvoir remonter les identités pour les règles du type: 6 attributs parmis les 7 principaux
     {
         if ( rule == null )
         {
-            return Collections.emptyList( );
+            return Batch.ofSize(new ArrayList<>(), 0);
         }
-        return _searchDbIdentityService.getQualifiedIdentitiesHavingAttributes( rule.getCheckedAttributes( ), limit, true, true );
-    }
-
-    /**
-     * Search and returns the number of potential duplicates of the identity corresponding to the provided customer ID, according the the provided rule.
-     *
-     * @param customerId
-     *            the customer ID
-     * @param rule
-     *            the duplicate rule
-     * @return number of potential duplicates found
-     */
-    public int getNumberOfPotentialDuplicates( final String customerId, final DuplicateRule rule )
-    {
-        // TODO NOT IMPLEMENTED YET
-        return 0;
+        final List<Integer> attributes = rule.getCheckedAttributes().stream().map(AttributeKey::getId).collect(Collectors.toList());
+        final List<String> customerIdsList = IdentityHome.findByAttributeExisting(attributes, rule.getNbFilledAttributes(), true, true );
+        return Batch.ofSize( customerIdsList, batchSize );
     }
 
     /**
@@ -826,8 +815,7 @@ public class IdentityService
 
     }
 
-    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId )
-    {
+    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId ) throws IdentityStoreException {
         return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }
 

@@ -34,10 +34,10 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.search;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
@@ -138,17 +138,6 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         final Response search = _identitySearcher.search( searchAttributes, max, connected );
 
         return getEntities( search );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious )
-    {
-        // FIXME NOT YET IMPLEMENTED
-        return new ArrayList<>( );
     }
 
     private QualifiedIdentity toQualifiedIdentity( final IdentityObject identityObject )

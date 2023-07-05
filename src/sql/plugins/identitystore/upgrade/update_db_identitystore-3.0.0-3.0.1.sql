@@ -67,6 +67,7 @@ CREATE TABLE identitystore_duplicate_rule (
     id_rule                 int AUTO_INCREMENT,
     name                    varchar(100) NOT NULL UNIQUE,
     description             varchar,
+    nb_filled_attributes    int,
     nb_equal_attributes     int,
     nb_missing_attributes   int,
     priority varchar(30) NOT NULL DEFAULT 'LEVEL3',

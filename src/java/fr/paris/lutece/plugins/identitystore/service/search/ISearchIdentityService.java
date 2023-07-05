@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.search;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 
@@ -54,18 +53,4 @@ public interface ISearchIdentityService
             final Integer maxMissingAttributes, final int max, final boolean connected );
 
     List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected );
-
-    /**
-     * returns a list of qualified identities having values for specified atribute keys.
-     *
-     * @param max
-     *            the maximum number of results that must be returned, if set to 0 or null, must be ignored by implementation.
-     * @param attributeKeys
-     *            the list of attribute keys
-     * @param notMerged
-     *            if the returned identities have to be not merged
-     * @return a list of identities satisfying the criterias.
-     */
-    List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious );
 }

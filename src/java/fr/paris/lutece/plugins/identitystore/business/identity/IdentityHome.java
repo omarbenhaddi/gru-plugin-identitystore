@@ -424,14 +424,13 @@ public final class IdentityHome
      *            if the returned identities have to be not merged
      * @param notSuspicious
      *            if the returned identities have to not be suspicious
-     * @param limit
-     *            number max of identities to return
-     * @return A list of matching identities
+     * @param nbFilledAttributes
+     *            minimum number of filled attributes over idAttributeList
+     * @return A list of matching customer IDs
      */
-    public static List<Identity> findByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious,
-            final int limit )
+    public static List<String> findByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged, final boolean notSuspicious)
     {
-        return _dao.selectByAttributeExisting( idAttributeList, notMerged, notSuspicious, limit, _plugin );
+        return _dao.selectByAttributeExisting( idAttributeList, nbFilledAttributes, notMerged, notSuspicious, _plugin );
     }
 
     /**

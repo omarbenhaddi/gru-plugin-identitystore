@@ -110,10 +110,10 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now( ), is_mon_paris_active = 0, expiration_date=now( ), last_update_date=now( )  WHERE customer_id = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), id_master_identity = ? WHERE id_identity = ?";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date"
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.customer_id"
             + " FROM identitystore_identity a" + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
             + " WHERE b.id_attribute IN (${id_attribute_list}) AND (${not_merged}) AND (${not_suspicious})"
-            + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) = ${count} LIMIT ${limit}";
+            + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) >= ${count}";
     private static final String SQL_QUERY_FILTER_NOT_MERGED = "a.is_merged = 0 AND a.date_merge IS NULL";
     private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history  "
@@ -755,29 +755,28 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<Identity> selectByAttributeExisting( final List<Integer> idAttributeList, final boolean notMerged, final boolean notSuspicious, final int limit,
+    public List<String> selectByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged, final boolean notSuspicious,
             final Plugin plugin )
     {
-        final List<Identity> listIdentities = new ArrayList<>( );
+        final List<String> listCuids = new ArrayList<>( );
         if ( idAttributeList == null || idAttributeList.isEmpty( ) )
         {
-            return listIdentities;
+            return listCuids;
         }
         String sql = SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING
                 .replace( "${id_attribute_list}", idAttributeList.stream( ).map( Object::toString ).collect( Collectors.joining( ", " ) ) )
                 .replace( "${not_merged}", ( notMerged ? SQL_QUERY_FILTER_NOT_MERGED : "1=1" ) )
                 .replace( "${not_suspicious}", ( notSuspicious ? SQL_QUERY_FILTER_NOT_SUSPICIOUS : "1=1" ) )
-                .replace( "${count}", String.valueOf( idAttributeList.size( ) ) ).replace( "${limit}", String.valueOf( limit ) );
+                .replace( "${count}", String.valueOf( nbFilledAttributes ) );
         try ( final DAOUtil daoUtil = new DAOUtil( sql, plugin ) )
         {
             daoUtil.executeQuery( );
             while ( daoUtil.next( ) )
             {
-                final Identity identity = getIdentityFromQuery( daoUtil );
-                listIdentities.add( identity );
+                listCuids.add( daoUtil.getString( 1 ) );
             }
         }
-        return listIdentities;
+        return listCuids;
     }
 
     @Override

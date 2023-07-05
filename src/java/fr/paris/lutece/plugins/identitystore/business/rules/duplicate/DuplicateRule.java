@@ -45,6 +45,7 @@ public class DuplicateRule implements Serializable
     private String _strName;
     private String _strDescription;
     private List<AttributeKey> _listCheckedAttributes = new ArrayList<>( );
+    private int _nNbFilledAttributes;
     private int _nNbEqualAttributes;
     private int _nNbMissingAttributes;
     private List<DuplicateRuleAttributeTreatment> _listAttributeTreatments = new ArrayList<>( );
@@ -90,6 +91,14 @@ public class DuplicateRule implements Serializable
     public void setCheckedAttributes( List<AttributeKey> _listCheckedAttributes )
     {
         this._listCheckedAttributes = _listCheckedAttributes;
+    }
+
+    public int getNbFilledAttributes() {
+        return _nNbFilledAttributes;
+    }
+
+    public void setNbFilledAttributes(int _nNbFilledAttributes) {
+        this._nNbFilledAttributes = _nNbFilledAttributes;
     }
 
     public int getNbEqualAttributes( )

@@ -31,7 +31,7 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.indexer.utils;
+package fr.paris.lutece.plugins.identitystore.utils;
 
 import java.util.AbstractList;
 import java.util.ArrayList;

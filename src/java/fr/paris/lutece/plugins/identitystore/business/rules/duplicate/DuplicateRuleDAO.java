@@ -51,12 +51,12 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
 {
     // Constants
     /** Rule */
-    private static final String SQL_QUERY_SELECT_RULE = "SELECT id_rule, name, description, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE id_rule = ? ";
-    private static final String SQL_QUERY_SELECT_RULE_BY_NAME = "SELECT id_rule, name, description, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE name = ? ";
-    private static final String SQL_QUERY_INSERT_RULE = "INSERT INTO identitystore_duplicate_rule ( name, description, nb_equal_attributes, nb_missing_attributes, priority, active, daemon ) VALUES ( ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_SELECT_RULE = "SELECT id_rule, name, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE id_rule = ? ";
+    private static final String SQL_QUERY_SELECT_RULE_BY_NAME = "SELECT id_rule, name, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE name = ? ";
+    private static final String SQL_QUERY_INSERT_RULE = "INSERT INTO identitystore_duplicate_rule ( name, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE_RULE = "DELETE FROM identitystore_duplicate_rule WHERE id_rule = ?";
-    private static final String SQL_QUERY_UPDATE_RULE = "UPDATE identitystore_duplicate_rule SET name = ?, description = ?, nb_equal_attributes = ?, nb_missing_attributes = ?, priority = ?, active = ?, daemon = ? WHERE id_rule = ? ";
-    private static final String SQL_QUERY_SELECTALL_RULE = "SELECT id_rule, name, description, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule";
+    private static final String SQL_QUERY_UPDATE_RULE = "UPDATE identitystore_duplicate_rule SET name = ?, description = ?, nb_filled_attributes = ?, nb_equal_attributes = ?, nb_missing_attributes = ?, priority = ?, active = ?, daemon = ? WHERE id_rule = ? ";
+    private static final String SQL_QUERY_SELECTALL_RULE = "SELECT id_rule, name, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule";
 
     /** Checked attributes */
     private static final String SQL_QUERY_SELECTALL_CHECKED_ATTRIBUTES_BY_RULE_ID = "SELECT ia.id_attribute, ia.name, ia.description, ia.key_name, ia.key_type, ia.key_weight, ia.certifiable, ia.pivot, ia.common_search_key FROM identitystore_duplicate_rule_checked_attributes idrca JOIN identitystore_ref_attribute ia on idrca.id_attribute = ia.id_attribute WHERE idrca.id_rule = ?";
@@ -84,6 +84,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
             int nIndex = 0;
             daoUtil.setString( ++nIndex, duplicateRule.getName( ) );
             daoUtil.setString( ++nIndex, duplicateRule.getDescription( ) );
+            daoUtil.setInt( ++nIndex, duplicateRule.getNbFilledAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbEqualAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbMissingAttributes( ) );
             daoUtil.setString( ++nIndex, duplicateRule.getPriority( ).name( ) );
@@ -201,6 +202,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
             int nIndex = 0;
             daoUtil.setString( ++nIndex, duplicateRule.getName( ) );
             daoUtil.setString( ++nIndex, duplicateRule.getDescription( ) );
+            daoUtil.setInt( ++nIndex, duplicateRule.getNbFilledAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbEqualAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbMissingAttributes( ) );
             daoUtil.setString( ++nIndex, duplicateRule.getPriority( ).name( ) );
@@ -260,6 +262,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
         duplicateRule.setId( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setName( daoUtil.getString( ++nIndex ) );
         duplicateRule.setDescription( daoUtil.getString( ++nIndex ) );
+        duplicateRule.setNbFilledAttributes( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setNbEqualAttributes( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setNbMissingAttributes( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setPriority( DuplicateRulePriority.valueOf( daoUtil.getString( ++nIndex ) ) );

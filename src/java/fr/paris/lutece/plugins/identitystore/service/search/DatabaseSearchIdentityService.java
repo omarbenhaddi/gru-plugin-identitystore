@@ -84,29 +84,6 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     }
 
     /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentitiesHavingAttributes( final List<AttributeKey> attributeKeys, final int max, final boolean notMerged,
-            final boolean notSuspicious )
-    {
-        try
-        {
-            final List<Identity> identityList = IdentityHome.findByAttributeExisting(
-                    attributeKeys.stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) ), notMerged, notSuspicious, max );
-            if ( identityList != null && !identityList.isEmpty( ) )
-            {
-                return populateWithAttributesAndConvertToDto( identityList );
-            }
-        }
-        catch( final IdentityStoreException e )
-        {
-            AppLogService.error( "An error occurred during database search: ", e );
-        }
-        return Collections.emptyList( );
-    }
-
-    /**
      * Populates identities with their attributes fetched from database, and convert them to DTO.
      * 
      * @param identityList

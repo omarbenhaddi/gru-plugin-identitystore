@@ -63,6 +63,10 @@
 			<input type="checkbox" id="cb-daemon" name="daemon" <#if duplicaterule.daemon>checked</#if> >
 		</div>
 
+		<@formGroup labelFor='nbFilledAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbFilledAttributes}' mandatory=true>
+			<@input type='text' id='nbFilledAttributes' name='nbFilledAttributes' value='${duplicaterule.nbFilledAttributes!\'\'}' tabIndex='2' />
+		</@formGroup>
+
 		<@formGroup labelFor='nbEqualAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}' mandatory=true>
 			<@input type='text' id='nbEqualAttributes' name='nbEqualAttributes' value='${duplicaterule.nbEqualAttributes!\'\'}' tabIndex='2' />
 		</@formGroup>

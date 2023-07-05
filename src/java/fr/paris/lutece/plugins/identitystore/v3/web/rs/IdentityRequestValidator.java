@@ -292,10 +292,14 @@ public final class IdentityRequestValidator
     public void checkOrigin( ChangeRequest identityChange ) throws IdentityStoreException
     {
 
-        if ( identityChange.getOrigin( ) == null || StringUtils.isEmpty( identityChange.getOrigin( ).getName( ) )
-                || identityChange.getOrigin( ).getType( ) == null )
+        if ( identityChange.getOrigin( ) == null )
         {
-            throw new IdentityStoreException( "Provided Author or Type is null or empty" );
+            throw new IdentityStoreException( "Provided Author is null" );
+        }
+
+        if ( StringUtils.isEmpty( identityChange.getOrigin( ).getName( ) ) || identityChange.getOrigin( ).getType( ) == null )
+        {
+            throw new IdentityStoreException( "Author and author type fields shall be set" );
         }
 
     }
