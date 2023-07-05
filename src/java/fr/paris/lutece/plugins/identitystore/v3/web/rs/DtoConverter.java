@@ -265,7 +265,7 @@ public final class DtoConverter
         serviceContract.setAuthorizedExport( serviceContractDto.isAuthorizedExport( ) );
         serviceContract.setAuthorizedImport( serviceContractDto.isAuthorizedImport( ) );
         serviceContract.setAuthorizedMerge( serviceContractDto.isAuthorizedMerge( ) );
-        serviceContract.setDataRetentionPeriodInMonths( serviceContract.getDataRetentionPeriodInMonths( ) );
+        serviceContract.setDataRetentionPeriodInMonths( serviceContractDto.getDataRetentionPeriodInMonths( ) );
 
         for ( final AttributeDefinitionDto attributeDefinition : serviceContractDto.getAttributeDefinitions( ) )
         {
