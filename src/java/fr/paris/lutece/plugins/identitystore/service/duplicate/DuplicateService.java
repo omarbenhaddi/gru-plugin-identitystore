@@ -122,19 +122,21 @@ public class DuplicateService implements IDuplicateService
     }
 
     @Override
-    public DuplicateSearchResponse findDuplicates( Identity identity, int ruleId ) throws IdentityStoreException {
+    public DuplicateSearchResponse findDuplicates( Identity identity, int ruleId ) throws IdentityStoreException
+    {
         final DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
-        if( duplicateRule == null )
+        if ( duplicateRule == null )
         {
-            throw new IdentityStoreException("Could not find duplicate rule with id " + ruleId);
+            throw new IdentityStoreException( "Could not find duplicate rule with id " + ruleId );
         }
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
             final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
-            final List<QualifiedIdentity> results = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ),
-                    duplicateRule.getNbMissingAttributes( ), 0, false ).stream( )
-                    .filter(qualifiedIdentity -> !SuspiciousIdentityHome.excluded(identity.getCustomerId(), qualifiedIdentity.getCustomerId()))
-                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals(qualifiedIdentity.getCustomerId(), identity.getCustomerId()))
+            final List<QualifiedIdentity> results = _searchIdentityService
+                    .getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false )
+                    .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( identity.getCustomerId( ), qualifiedIdentity.getCustomerId( ) ) )
+                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( )
+                            && !Objects.equals( qualifiedIdentity.getCustomerId( ), identity.getCustomerId( ) ) )
                     .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( i -> {
                         try
                         {
@@ -198,7 +200,8 @@ public class DuplicateService implements IDuplicateService
 
         for ( final AttributeKey key : duplicateRule.getCheckedAttributes( ) )
         {
-            final Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
+            final Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) )
+                    .findFirst( );
             if ( attributeKey.isPresent( ) )
             {
                 final SearchAttributeDto searchAttribute = new SearchAttributeDto( );

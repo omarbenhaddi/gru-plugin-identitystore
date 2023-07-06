@@ -40,6 +40,8 @@ import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,16 +53,18 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
 {
     // Constants
     private static final String SQL_QUERY_PURGE = "TRUNCATE TABLE identitystore_quality_suspicious_identity";
-    private static final String SQL_QUERY_SELECT = "SELECT id_suspicious_identity, customer_id , id_duplicate_rule FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ?";
+    private static final String SQL_QUERY_SELECT = "SELECT i.id_suspicious_identity, i.customer_id , i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_quality_suspicious_identity ( customer_id, id_duplicate_rule ) VALUES ( ?, ?) ";
+    private static final String SQL_QUERY_ADD_LOCK = "INSERT INTO identitystore_quality_suspicious_identity_lock ( customer_id, is_locked, date_lock_end, author_type, author_name ) VALUES ( ?, ?, ?, ?, ?) ";
+    private static final String SQL_QUERY_REMOVE_LOCK = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id = ? ";
     private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_cuid = ? AND second_cuid = ?) OR (first_cuid = ? AND second_cuid = ?)";
     private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_cuid,second_cuid ) VALUES ( ?, ?) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_suspicious_identity, customer_id, id_duplicate_rule, date_create FROM identitystore_quality_suspicious_identity";
+    private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id ";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_suspicious_identity FROM identitystore_quality_suspicious_identity";
-    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_suspicious_identity, customer_id, id_duplicate_rule FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity IN (  ";
-    private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT id_suspicious_identity, customer_id, id_duplicate_rule FROM identitystore_quality_suspicious_identity WHERE customer_id = ?  ";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id  WHERE id_suspicious_identity IN (  ";
+    private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id  WHERE i.customer_id = ?  ";
     private static final String SQL_QUERY_SELECT_COUNT_BY_RULE_ID = "SELECT count(id_suspicious_identity) FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
 
     /**
@@ -82,11 +86,10 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 suspiciousIdentity.setId( daoUtil.getGeneratedKeyInt( 1 ) );
             }
         }
-
     }
 
     @Override
-    public void insertExcluded(String firstCuid, String secondCuid, Plugin plugin)
+    public void insertExcluded( String firstCuid, String secondCuid, Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_EXCLUDED, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
@@ -94,7 +97,6 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             daoUtil.setString( 2, secondCuid );
             daoUtil.executeUpdate( );
         }
-
     }
 
     /**
@@ -115,7 +117,21 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 int nIndex = 1;
 
                 suspiciousIdentity.setId( daoUtil.getInt( nIndex++ ) );
-                suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex ) );
+                suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex++ ) );
+                suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
+                final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
+                if ( lock.getLockEndDate( ) != null )
+                {
+                    lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
+                    lock.setAuthorType( daoUtil.getString( nIndex++ ) );
+                    lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                }
+                else
+                {
+                    lock.setLocked( false );
+                }
+                suspiciousIdentity.setLock( lock );
             }
 
             return Optional.ofNullable( suspiciousIdentity );
@@ -139,7 +155,22 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 suspiciousIdentity = new SuspiciousIdentity( );
                 int nIndex = 1;
 
+                suspiciousIdentity.setId( daoUtil.getInt( nIndex++ ) );
                 suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex++ ) );
+                suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
+                final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
+                if ( lock.getLockEndDate( ) != null )
+                {
+                    lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
+                    lock.setAuthorType( daoUtil.getString( nIndex++ ) );
+                    lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                }
+                else
+                {
+                    lock.setLocked( false );
+                }
+                suspiciousIdentity.setLock( lock );
             }
 
             return suspiciousIdentity;
@@ -196,14 +227,25 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
 
             while ( daoUtil.next( ) )
             {
-                SuspiciousIdentity suspiciousIdentity = new SuspiciousIdentity( );
+                final SuspiciousIdentity suspiciousIdentity = new SuspiciousIdentity( );
                 int nIndex = 1;
 
                 suspiciousIdentity.setId( daoUtil.getInt( nIndex++ ) );
                 suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex++ ) );
                 suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
                 suspiciousIdentity.setCreationDate( daoUtil.getTimestamp( nIndex ) );
-
+                final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
+                if ( lock.getLockEndDate( ) != null )
+                {
+                    lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
+                    lock.setAuthorType( daoUtil.getString( nIndex++ ) );
+                    lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                }
+                else
+                {
+                    lock.setLocked( false );
+                }
                 suspiciousIdentityList.add( suspiciousIdentity );
             }
 
@@ -282,11 +324,24 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 daoUtil.executeQuery( );
                 while ( daoUtil.next( ) )
                 {
-                    SuspiciousIdentity suspiciousIdentity = new SuspiciousIdentity( );
+                    final SuspiciousIdentity suspiciousIdentity = new SuspiciousIdentity( );
                     int nIndex = 1;
 
                     suspiciousIdentity.setId( daoUtil.getInt( nIndex++ ) );
                     suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex ) );
+                    suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex ) );
+                    final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                    lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
+                    if ( lock.getLockEndDate( ) != null )
+                    {
+                        lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
+                        lock.setAuthorType( daoUtil.getString( nIndex++ ) );
+                        lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                    }
+                    else
+                    {
+                        lock.setLocked( false );
+                    }
 
                     suspiciousIdentityList.add( suspiciousIdentity );
                 }
@@ -327,21 +382,49 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     }
 
     @Override
-    public boolean checkIfExcluded(String firstCuid, String secondCuid, Plugin plugin) {
+    public boolean checkIfExcluded( String firstCuid, String secondCuid, Plugin plugin )
+    {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_CHECK_EXCLUDED, plugin ) )
         {
-            daoUtil.setString( 1, firstCuid);
-            daoUtil.setString( 2, secondCuid);
-            daoUtil.setString( 3, secondCuid);
-            daoUtil.setString( 4, firstCuid);
+            daoUtil.setString( 1, firstCuid );
+            daoUtil.setString( 2, secondCuid );
+            daoUtil.setString( 3, secondCuid );
+            daoUtil.setString( 4, firstCuid );
             daoUtil.executeQuery( );
 
             if ( daoUtil.next( ) )
             {
-                return daoUtil.getInt( 1) > 0;
+                return daoUtil.getInt( 1 ) > 0;
             }
 
             return false;
+        }
+    }
+
+    @Override
+    public boolean manageLock( String customerId, boolean lock, String authorType, String authorName, Plugin plugin )
+    {
+        if ( lock )
+        {
+            try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_ADD_LOCK, plugin ) )
+            {
+                daoUtil.setString( 1, customerId );
+                daoUtil.setBoolean( 2, lock );
+                daoUtil.setTimestamp( 3, Timestamp.from( Instant.now( ).plusSeconds( 1800 ) ) ); // TODO paramétrer la durée de vie des locks en prop
+                daoUtil.setString( 4, authorType );
+                daoUtil.setString( 5, authorName );
+                daoUtil.executeUpdate( );
+                return true;
+            }
+        }
+        else
+        {
+            try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REMOVE_LOCK, plugin ) )
+            {
+                daoUtil.setString( 1, customerId );
+                daoUtil.executeUpdate( );
+                return false;
+            }
         }
     }
 }

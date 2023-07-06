@@ -34,12 +34,16 @@
 
 package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -97,7 +101,7 @@ public final class SuspiciousIdentityHome
      */
     public static void exclude( String firstCuid, String secondCuid )
     {
-        if(!excluded(firstCuid, secondCuid))
+        if ( !excluded( firstCuid, secondCuid ) )
         {
             _dao.insertExcluded( firstCuid, secondCuid, _plugin );
         }
@@ -114,7 +118,7 @@ public final class SuspiciousIdentityHome
      */
     public static boolean excluded( String firstCuid, String secondCuid )
     {
-        return _dao.checkIfExcluded(firstCuid, secondCuid, _plugin);
+        return _dao.checkIfExcluded( firstCuid, secondCuid, _plugin );
     }
 
     /**
@@ -197,5 +201,40 @@ public final class SuspiciousIdentityHome
     public static int countSuspiciousIdentity( final int ruleId )
     {
         return _dao.countSuspiciousIdentities( ruleId, _plugin );
+    }
+
+    public static boolean manageLock( String customerId, String authorName, String authorType, boolean lock ) throws IdentityStoreException
+    {
+        final Identity identity = IdentityHome.findByCustomerId( customerId );
+        if ( identity == null )
+        {
+            throw new IdentityStoreException( "Could not find identity with customerId " + customerId );
+        }
+
+        final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( customerId );
+        if ( suspiciousIdentity == null )
+        {
+            throw new IdentityStoreException( "Could not find suspicious identity with customerId " + customerId );
+        }
+
+        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) )
+        {
+            throw new SuspiciousIdentityLockedException(
+                    "Suspicious identity with customerId " + customerId + " is locked by " + suspiciousIdentity.getLock( ).getAuthorName( ) + "." );
+        }
+
+        if ( !lock && !suspiciousIdentity.getLock( ).isLocked( ) )
+        {
+            throw new SuspiciousIdentityLockedException( "Suspicious identity with customerId " + customerId + " is already unlocked." );
+        }
+
+        if ( !lock && suspiciousIdentity.getLock( ).isLocked( ) && ( !Objects.equals( authorName, suspiciousIdentity.getLock( ).getAuthorName( ) )
+                || !Objects.equals( authorType, suspiciousIdentity.getLock( ).getAuthorType( ) ) ) )
+        {
+            throw new SuspiciousIdentityLockedException( "Suspicious identity with customerId " + customerId + " is locked by "
+                    + suspiciousIdentity.getLock( ).getAuthorName( ) + ". User" + authorName + " is not allowed to unlock." );
+        }
+
+        return _dao.manageLock( customerId, lock, authorType, authorName, _plugin );
     }
 }

@@ -259,8 +259,8 @@ public interface IIdentityDAO
      *            the plugin
      * @return A list of matching identities
      */
-    List<String> selectByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged, final boolean notSuspicious,
-            final Plugin plugin );
+    List<String> selectByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged,
+            final boolean notSuspicious, final Plugin plugin );
 
     /**
      * log changes

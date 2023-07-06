@@ -110,8 +110,8 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now( ), is_mon_paris_active = 0, expiration_date=now( ), last_update_date=now( )  WHERE customer_id = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), id_master_identity = ? WHERE id_identity = ?";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.customer_id"
-            + " FROM identitystore_identity a" + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.customer_id" + " FROM identitystore_identity a"
+            + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
             + " WHERE b.id_attribute IN (${id_attribute_list}) AND (${not_merged}) AND (${not_suspicious})"
             + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) >= ${count}";
     private static final String SQL_QUERY_FILTER_NOT_MERGED = "a.is_merged = 0 AND a.date_merge IS NULL";
@@ -755,8 +755,8 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<String> selectByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged, final boolean notSuspicious,
-            final Plugin plugin )
+    public List<String> selectByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged,
+            final boolean notSuspicious, final Plugin plugin )
     {
         final List<String> listCuids = new ArrayList<>( );
         if ( idAttributeList == null || idAttributeList.isEmpty( ) )

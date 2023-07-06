@@ -394,7 +394,7 @@ public class IdentityService
      * @throws IdentityStoreException
      *             in case of error
      */
-    //TODO: récupérer la plus haute date d'expiration des deux identités
+    // TODO: récupérer la plus haute date d'expiration des deux identités
     public Identity merge( final IdentityMergeRequest identityMergeRequest, final String clientCode, final IdentityMergeResponse response )
             throws IdentityStoreException
     {
@@ -742,20 +742,23 @@ public class IdentityService
 
     /**
      * Gets a list of customer IDs on which to search potential duplicates.<br/>
-     * Returned customer IDS belong to identities that must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.
+     * Returned customer IDS belong to identities that must have all attributes checked by the provided rule, and must also not be already merged nor be tagged
+     * as suspicious.
      *
      * @param rule
      *            the rule used to get matching identities
      * @return the list of identities
      */
-    public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize ) //TODO il faut pouvoir remonter les identités pour les règles du type: 6 attributs parmis les 7 principaux
+    public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize ) // TODO il faut pouvoir remonter les identités
+                                                                                                                  // pour les règles du type: 6 attributs parmis
+                                                                                                                  // les 7 principaux
     {
         if ( rule == null )
         {
-            return Batch.ofSize(new ArrayList<>(), 0);
+            return Batch.ofSize( new ArrayList<>( ), 0 );
         }
-        final List<Integer> attributes = rule.getCheckedAttributes().stream().map(AttributeKey::getId).collect(Collectors.toList());
-        final List<String> customerIdsList = IdentityHome.findByAttributeExisting(attributes, rule.getNbFilledAttributes(), true, true );
+        final List<Integer> attributes = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) );
+        final List<String> customerIdsList = IdentityHome.findByAttributeExisting( attributes, rule.getNbFilledAttributes( ), true, true );
         return Batch.ofSize( customerIdsList, batchSize );
     }
 
@@ -815,7 +818,8 @@ public class IdentityService
 
     }
 
-    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId ) throws IdentityStoreException {
+    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId ) throws IdentityStoreException
+    {
         return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }
 

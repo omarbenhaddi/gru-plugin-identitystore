@@ -428,7 +428,8 @@ public final class IdentityHome
      *            minimum number of filled attributes over idAttributeList
      * @return A list of matching customer IDs
      */
-    public static List<String> findByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged, final boolean notSuspicious)
+    public static List<String> findByAttributeExisting( final List<Integer> idAttributeList, final int nbFilledAttributes, final boolean notMerged,
+            final boolean notSuspicious )
     {
         return _dao.selectByAttributeExisting( idAttributeList, nbFilledAttributes, notMerged, notSuspicious, _plugin );
     }

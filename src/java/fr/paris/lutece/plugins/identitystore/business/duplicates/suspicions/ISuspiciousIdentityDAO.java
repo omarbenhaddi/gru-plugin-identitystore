@@ -78,15 +78,18 @@ public interface ISuspiciousIdentityDAO
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
-    void insertExcluded(String firstCuid, String secondCuid, Plugin plugin);
+    void insertExcluded( String firstCuid, String secondCuid, Plugin plugin );
 
     /**
      * Verify if suspicious identities are already marked as excluded
-     * @param firstCuid cuid of the firstCuid identity
-     * @param secondCuid cuid of the secondCuid identity
+     * 
+     * @param firstCuid
+     *            cuid of the firstCuid identity
+     * @param secondCuid
+     *            cuid of the secondCuid identity
      * @param plugin
      */
-    boolean checkIfExcluded(String firstCuid, String secondCuid, Plugin plugin);
+    boolean checkIfExcluded( String firstCuid, String secondCuid, Plugin plugin );
 
     /**
      * Load the data from the table
@@ -165,4 +168,6 @@ public interface ISuspiciousIdentityDAO
      * @return the count
      */
     int countSuspiciousIdentities( final int ruleId, final Plugin plugin );
+
+    boolean manageLock( String customerId, boolean lock, String authorType, String authorName, Plugin plugin );
 }

@@ -51,12 +51,11 @@ public class SuspiciousIdentity implements Serializable
     @NotEmpty( message = "#i18n{module.identitystore.quality.validation.suspiciousidentity.CustomerId.notEmpty}" )
     @Size( max = 50, message = "#i18n{module.identitystore.quality.validation.suspiciousidentity.CustomerId.size}" )
     private String _strCustomerId;
-
     private Integer _nIdDuplicateRule;
     private boolean _bIsDeleted;
     private Timestamp _dateCreationDate;
-
     private Timestamp _dateLastUpdateDate;
+    private SuspiciousIdentityLock lock;
 
     /**
      * Returns the Id
@@ -155,5 +154,15 @@ public class SuspiciousIdentity implements Serializable
     public void setDeleted( boolean bIsDeleted )
     {
         _bIsDeleted = bIsDeleted;
+    }
+
+    public SuspiciousIdentityLock getLock( )
+    {
+        return lock;
+    }
+
+    public void setLock( SuspiciousIdentityLock lock )
+    {
+        this.lock = lock;
     }
 }

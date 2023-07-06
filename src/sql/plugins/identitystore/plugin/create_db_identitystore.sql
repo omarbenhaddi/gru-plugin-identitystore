@@ -346,3 +346,15 @@ CREATE TABLE identitystore_quality_suspicious_identity_excluded (
     first_cuid varchar(50) default '' NOT NULL,
     second_cuid varchar(50) default '' NOT NULL
 );
+
+--
+-- Structure for table identitystore_quality_suspicious_identity_lock
+--
+DROP TABLE IF EXISTS identitystore_quality_suspicious_identity_lock;
+CREATE TABLE identitystore_quality_suspicious_identity_lock (
+    customer_id varchar(50) default '' NOT NULL,
+    date_lock_end timestamp,
+    is_locked smallint default 0,
+    author_type varchar(255),
+    author_name varchar(255)
+);

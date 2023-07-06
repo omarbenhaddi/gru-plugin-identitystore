@@ -93,11 +93,13 @@ public class DuplicateRule implements Serializable
         this._listCheckedAttributes = _listCheckedAttributes;
     }
 
-    public int getNbFilledAttributes() {
+    public int getNbFilledAttributes( )
+    {
         return _nNbFilledAttributes;
     }
 
-    public void setNbFilledAttributes(int _nNbFilledAttributes) {
+    public void setNbFilledAttributes( int _nNbFilledAttributes )
+    {
         this._nNbFilledAttributes = _nNbFilledAttributes;
     }
 
