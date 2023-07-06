@@ -21,6 +21,7 @@
     <bean id="identitystore.identityObjectDAO" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.business.IdentityObjectDAO" />
     <bean id="identitystore.duplicateRuleDao" class="fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleDAO" />
     <bean id="identitystore.identitySearchRuleDao" class="fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleDAO" />
+    <bean id="identitystore-quality.suspiciousIdentityDAO" class="fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityDAO" />
 
     <!-- Cache -->
     <bean id="identitystore.duplicateRulesCache"  class="fr.paris.lutece.plugins.identitystore.cache.DuplicateRulesCache"/>
