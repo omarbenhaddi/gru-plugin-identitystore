@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
@@ -130,11 +131,10 @@ public class DuplicateService implements IDuplicateService
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
             final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
-            final List<QualifiedIdentity> rawResults = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ),
-                    duplicateRule.getNbMissingAttributes( ), 0, false );
-            final List<QualifiedIdentity> rawResultsNotMerged = rawResults.stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals(qualifiedIdentity.getCustomerId(), identity.getCustomerId()))
-                    .collect( Collectors.toList( ) );
-            final List<QualifiedIdentity> resultIdentities = rawResultsNotMerged.stream( )
+            final List<QualifiedIdentity> results = _searchIdentityService.getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ),
+                    duplicateRule.getNbMissingAttributes( ), 0, false ).stream( )
+                    .filter(qualifiedIdentity -> !SuspiciousIdentityHome.excluded(identity.getCustomerId(), qualifiedIdentity.getCustomerId()))
+                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals(qualifiedIdentity.getCustomerId(), identity.getCustomerId()))
                     .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( i -> {
                         try
                         {
@@ -146,12 +146,12 @@ public class DuplicateService implements IDuplicateService
                         }
                         return i;
                     } ).collect( Collectors.toList( ) );
-            if ( CollectionUtils.isNotEmpty( resultIdentities ) )
+            if ( CollectionUtils.isNotEmpty( results ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );
                 response.setMessage(
                         "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId( ) + " avec la règle : " + duplicateRule.getName( ) );
-                response.setIdentities( resultIdentities );
+                response.setIdentities( results );
                 return response;
             }
         }

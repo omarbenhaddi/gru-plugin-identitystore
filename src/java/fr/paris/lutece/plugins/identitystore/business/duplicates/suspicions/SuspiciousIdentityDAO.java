@@ -53,7 +53,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_PURGE = "TRUNCATE TABLE identitystore_quality_suspicious_identity";
     private static final String SQL_QUERY_SELECT = "SELECT id_suspicious_identity, customer_id , id_duplicate_rule FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_quality_suspicious_identity ( customer_id, id_duplicate_rule ) VALUES ( ?, ?) ";
-    private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( id_suspicious_identity_master,id_suspicious_identity_child, id_duplicate_rule ) VALUES ( ?, ?, ?) ";
+    private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_cuid = ? AND second_cuid = ?) OR (first_cuid = ? AND second_cuid = ?)";
+    private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_cuid,second_cuid ) VALUES ( ?, ?) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_suspicious_identity, customer_id, id_duplicate_rule, date_create FROM identitystore_quality_suspicious_identity";
@@ -85,14 +86,12 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     }
 
     @Override
-    public void insertExcluded( SuspiciousIdentity suspiciousIdentityMaster, SuspiciousIdentity suspiciousIdentityChild, int ruleId, Plugin plugin )
+    public void insertExcluded(String firstCuid, String secondCuid, Plugin plugin)
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_EXCLUDED, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
-            int nIndex = 1;
-            daoUtil.setInt( nIndex++, suspiciousIdentityMaster.getId( ) );
-            daoUtil.setInt( nIndex++, suspiciousIdentityChild.getId( ) );
-            daoUtil.setInt( nIndex, ruleId );
+            daoUtil.setString( 1, firstCuid );
+            daoUtil.setString( 2, secondCuid );
             daoUtil.executeUpdate( );
         }
 
@@ -325,5 +324,24 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean checkIfExcluded(String firstCuid, String secondCuid, Plugin plugin) {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_CHECK_EXCLUDED, plugin ) )
+        {
+            daoUtil.setString( 1, firstCuid);
+            daoUtil.setString( 2, secondCuid);
+            daoUtil.setString( 3, secondCuid);
+            daoUtil.setString( 4, firstCuid);
+            daoUtil.executeQuery( );
+
+            if ( daoUtil.next( ) )
+            {
+                return daoUtil.getInt( 1) > 0;
+            }
+
+            return false;
+        }
     }
 }

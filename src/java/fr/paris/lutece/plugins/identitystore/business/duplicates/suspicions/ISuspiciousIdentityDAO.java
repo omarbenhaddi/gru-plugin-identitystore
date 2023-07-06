@@ -78,6 +78,16 @@ public interface ISuspiciousIdentityDAO
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
+    void insertExcluded(String firstCuid, String secondCuid, Plugin plugin);
+
+    /**
+     * Verify if suspicious identities are already marked as excluded
+     * @param firstCuid cuid of the firstCuid identity
+     * @param secondCuid cuid of the secondCuid identity
+     * @param plugin
+     */
+    boolean checkIfExcluded(String firstCuid, String secondCuid, Plugin plugin);
+
     /**
      * Load the data from the table
      * 
@@ -146,8 +156,6 @@ public interface ISuspiciousIdentityDAO
      * @param plugin
      */
     void purge( Plugin plugin );
-
-    void insertExcluded( SuspiciousIdentity suspiciousIdentityMaster, SuspiciousIdentity suspiciousIdentityChild, int ruleId, Plugin plugin );
 
     /**
      * Return the number of pending suspicious identities for a given rule.

@@ -89,14 +89,32 @@ public final class SuspiciousIdentityHome
     /**
      * Update of the suspiciousIdentity which is specified in parameter
      *
-     * @param suspiciousIdentity
-     *            The instance of the SuspiciousIdentity which contains the data to store
+     * @param firstCuid
+     *            The CUID of the SuspiciousIdentity which contains the data to store
+     * @param secondCuid
+     *            The CUID of the SuspiciousIdentity which contains the data to store
      * @return The instance of the suspiciousIdentity which has been updated
      */
-    public static void exclude( SuspiciousIdentity suspiciousIdentityMaster, SuspiciousIdentity suspiciousIdentityChild, int idRule )
+    public static void exclude( String firstCuid, String secondCuid )
     {
-        _dao.insertExcluded( suspiciousIdentityMaster, suspiciousIdentityChild, idRule, _plugin );
+        if(!excluded(firstCuid, secondCuid))
+        {
+            _dao.insertExcluded( firstCuid, secondCuid, _plugin );
+        }
+    }
 
+    /**
+     * Check if a couple of suspicious identities are marked as excluded
+     *
+     * @param firstCuid
+     *            The CUID of the SuspiciousIdentity which contains the data to store
+     * @param secondCuid
+     *            The CUID of the SuspiciousIdentity which contains the data to store
+     * @return true if excluded
+     */
+    public static boolean excluded( String firstCuid, String secondCuid )
+    {
+        return _dao.checkIfExcluded(firstCuid, secondCuid, _plugin);
     }
 
     /**
