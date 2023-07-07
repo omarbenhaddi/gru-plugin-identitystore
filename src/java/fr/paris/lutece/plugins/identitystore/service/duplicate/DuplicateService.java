@@ -122,7 +122,7 @@ public class DuplicateService implements IDuplicateService
     }
 
     @Override
-    public DuplicateSearchResponse findDuplicates( Identity identity, int ruleId ) throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, int ruleId ) throws IdentityStoreException
     {
         final DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
         if ( duplicateRule == null )
@@ -194,19 +194,20 @@ public class DuplicateService implements IDuplicateService
                 .count( ) >= duplicateRule.getNbEqualAttributes( );
     }
 
-    private List<SearchAttributeDto> mapAttributes( Identity identity, DuplicateRule duplicateRule )
+    private List<SearchAttributeDto> mapAttributes( QualifiedIdentity identity, DuplicateRule duplicateRule )
     {
         final List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
 
         for ( final AttributeKey key : duplicateRule.getCheckedAttributes( ) )
         {
-            final Optional<String> attributeKey = identity.getAttributes( ).keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) )
-                    .findFirst( );
+            final Map<String, String> attributeMap = identity.getAttributes( ).stream( )
+                    .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
+            final Optional<String> attributeKey = attributeMap.keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
             if ( attributeKey.isPresent( ) )
             {
                 final SearchAttributeDto searchAttribute = new SearchAttributeDto( );
                 searchAttribute.setKey( key.getKeyName( ) );
-                searchAttribute.setValue( identity.getAttributes( ).get( key.getKeyName( ) ).getValue( ) );
+                searchAttribute.setValue( attributeMap.get( key.getKeyName( ) ) );
                 final List<DuplicateRuleAttributeTreatment> priorityTreatment = duplicateRule.getAttributeTreatments( ).stream( )
                         .filter( attTreamtment -> attTreamtment.getAttributes( ).stream( ).anyMatch( att -> att.getKeyName( ).equals( key.getKeyName( ) ) ) )
                         .collect( Collectors.toList( ) );

@@ -530,6 +530,14 @@ public class IdentityService
         return null;
     }
 
+    public QualifiedIdentity getQualifiedIdentity( final String customerId ) throws IdentityStoreException
+    {
+        final Identity identity = IdentityHome.findByCustomerId( customerId );
+        final QualifiedIdentity qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
+        IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
+        return qualifiedIdentity;
+    }
+
     public void fullIndexing( )
     {
         new FullIndexTask( ).run( );
@@ -818,7 +826,7 @@ public class IdentityService
 
     }
 
-    public DuplicateSearchResponse findDuplicates( Identity identity, Integer ruleId ) throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( QualifiedIdentity identity, Integer ruleId ) throws IdentityStoreException
     {
         return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
     }
