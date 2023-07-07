@@ -86,12 +86,12 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
                 identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
                 identity.setMonParisActive( daoUtil.getBoolean( nIndex++ ) );
 
-                final AttributeObject firstAttribute = getAttributeObject( daoUtil, 5 );
+                final AttributeObject firstAttribute = getAttributeObject( daoUtil, nIndex );
                 identity.getAttributes( ).put( firstAttribute.getKey( ), firstAttribute );
 
                 while ( daoUtil.next( ) )
                 {
-                    final AttributeObject attribute = getAttributeObject( daoUtil, 5 );
+                    final AttributeObject attribute = getAttributeObject( daoUtil, nIndex );
                     identity.getAttributes( ).put( attribute.getKey( ), attribute );
                 }
 
