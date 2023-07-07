@@ -72,7 +72,7 @@ public class IdentityIndexListener implements IdentityChangeListener
             final Identity identity = identityChange.getIdentity( );
             final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( identity );
             final IdentityObject identityObject = new IdentityObject( identity.getConnectionId( ), identity.getCustomerId( ), identity.getCreationDate( ),
-                    identity.getLastUpdateDate( ), attributeObjects );
+                    identity.getLastUpdateDate( ), identity.isMonParisActive( ), attributeObjects );
 
             switch( identityChange.getChangeType( ) )
             {

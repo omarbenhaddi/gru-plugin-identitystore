@@ -148,6 +148,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         identity.setCustomerId( identityObject.getCustomerId( ) );
         identity.setCreationDate( identityObject.getCreationDate( ) );
         identity.setLastUpdateDate( identityObject.getLastUpdateDate( ) );
+        identity.setMonParisActive( identityObject.isMonParisActive( ) );
         for ( final Map.Entry<String, AttributeObject> entry : identityObject.getAttributes( ).entrySet( ) )
         {
             final String s = entry.getKey( );

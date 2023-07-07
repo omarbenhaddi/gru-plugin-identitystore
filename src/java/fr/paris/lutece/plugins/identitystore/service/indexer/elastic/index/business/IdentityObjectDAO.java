@@ -51,7 +51,7 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
             + " WHERE is_deleted = 0 AND is_merged = 0 AND exists( select id_attribute from identitystore_identity_attribute attribute "
             + " where identity.id_identity = attribute.id_identity )";
     private static final String SQL_QUERY_LOAD_IDENTITY = "SELECT "
-            + "    identity.connection_id, identity.customer_id, identity.date_create, identity.last_update_date, "
+            + "    identity.connection_id, identity.customer_id, identity.date_create, identity.last_update_date, identity.is_mon_paris_active"
             + "    attributeKey.name, attributeKey.key_name, attributeKey.key_type, attributeKey.description, attributeKey.pivot, "
             + "    attribute.attribute_value, attribute.lastupdate_client, "
             + "    certificate.certifier_code, certificate.certifier_code, certificate.certificate_date, certificate.expiration_date "
@@ -84,6 +84,7 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
                 identity.setCustomerId( daoUtil.getString( nIndex++ ) );
                 identity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
                 identity.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
+                identity.setMonParisActive( daoUtil.getBoolean( nIndex++ ) );
 
                 final AttributeObject firstAttribute = getAttributeObject( daoUtil, 5 );
                 identity.getAttributes( ).put( firstAttribute.getKey( ), firstAttribute );
