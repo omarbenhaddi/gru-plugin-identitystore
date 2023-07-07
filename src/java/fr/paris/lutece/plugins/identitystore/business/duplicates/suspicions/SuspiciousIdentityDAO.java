@@ -328,8 +328,9 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                     int nIndex = 1;
 
                     suspiciousIdentity.setId( daoUtil.getInt( nIndex++ ) );
-                    suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex ) );
-                    suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex ) );
+                    suspiciousIdentity.setCustomerId( daoUtil.getString( nIndex++ ) );
+                    suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
+                    
                     final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
                     lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
                     if ( lock.getLockEndDate( ) != null )

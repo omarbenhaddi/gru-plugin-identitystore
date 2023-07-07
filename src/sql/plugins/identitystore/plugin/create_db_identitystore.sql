@@ -320,9 +320,27 @@ CREATE TABLE  identitystore_identity_history
 
 CREATE INDEX identitystore_identity_history_cuid ON identitystore_identity_history (customer_id);
 
+
+--
+-- Structure for table identitystore_duplicate_rule
+--
+CREATE TABLE identitystore_duplicate_rule (
+    id_rule                 int AUTO_INCREMENT,
+    name                    varchar(100) NOT NULL UNIQUE,
+    description             varchar,
+    nb_filled_attributes    int,
+    nb_equal_attributes     int,
+    nb_missing_attributes   int,
+    priority varchar(30) NOT NULL DEFAULT 'LEVEL3',
+    active smallint NOT NULL DEFAULT 0,
+    daemon smallint NOT NULL DEFAULT 0,
+    PRIMARY KEY (id_rule)
+);
+
 --
 -- Structure for table identitystore_quality_suspicious_identity
 --
+
 
 DROP TABLE IF EXISTS identitystore_quality_suspicious_identity;
 CREATE TABLE identitystore_quality_suspicious_identity (
