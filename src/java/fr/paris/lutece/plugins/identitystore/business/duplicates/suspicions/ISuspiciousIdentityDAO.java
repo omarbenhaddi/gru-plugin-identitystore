@@ -170,4 +170,6 @@ public interface ISuspiciousIdentityDAO
     int countSuspiciousIdentities( final int ruleId, final Plugin plugin );
 
     boolean manageLock( String customerId, boolean lock, String authorType, String authorName, Plugin plugin );
+
+    void purgeLocks( Plugin plugin );
 }

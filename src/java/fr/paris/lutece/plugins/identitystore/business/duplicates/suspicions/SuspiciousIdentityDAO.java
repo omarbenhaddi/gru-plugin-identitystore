@@ -57,6 +57,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_quality_suspicious_identity ( customer_id, id_duplicate_rule ) VALUES ( ?, ?) ";
     private static final String SQL_QUERY_ADD_LOCK = "INSERT INTO identitystore_quality_suspicious_identity_lock ( customer_id, is_locked, date_lock_end, author_type, author_name ) VALUES ( ?, ?, ?, ?, ?) ";
     private static final String SQL_QUERY_REMOVE_LOCK = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id = ? ";
+    private static final String SQL_QUERY_PURGE_LOCKS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE date_lock_end < NOW()";
     private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_cuid = ? AND second_cuid = ?) OR (first_cuid = ? AND second_cuid = ?)";
     private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_cuid,second_cuid ) VALUES ( ?, ?) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
@@ -426,6 +427,15 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 daoUtil.executeUpdate( );
                 return false;
             }
+        }
+    }
+
+    @Override
+    public void purgeLocks( Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_PURGE_LOCKS, plugin ) )
+        {
+            daoUtil.executeUpdate( );
         }
     }
 }

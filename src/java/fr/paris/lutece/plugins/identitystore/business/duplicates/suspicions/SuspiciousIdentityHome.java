@@ -237,4 +237,9 @@ public final class SuspiciousIdentityHome
 
         return _dao.manageLock( customerId, lock, authorType, authorName, _plugin );
     }
+
+    public static void purgeLocks( )
+    {
+        _dao.purgeLocks( _plugin );
+    }
 }
