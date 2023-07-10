@@ -78,7 +78,7 @@ public interface ISuspiciousIdentityDAO
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 
-    void insertExcluded( String firstCuid, String secondCuid, Plugin plugin );
+    void insertExcluded( String firstCuid, String secondCuid, String authorType, String authorName, Plugin plugin );
 
     /**
      * Verify if suspicious identities are already marked as excluded

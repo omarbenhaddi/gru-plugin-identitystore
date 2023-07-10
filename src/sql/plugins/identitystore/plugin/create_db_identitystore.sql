@@ -157,7 +157,7 @@ CREATE TABLE identitystore_client_application
 -- Structure for table identitystore_identity_attribute_history 
 --
 
-CREATE TABLE identitystore_identity_attribute_history 
+CREATE TABLE identitystore_identity_attribute_history
 (
     id_history            int AUTO_INCREMENT,
     change_type           int          NOT NULL,
@@ -174,7 +174,7 @@ CREATE TABLE identitystore_identity_attribute_history
     modification_date     timestamp    NOT NULL default CURRENT_TIMESTAMP,
     PRIMARY KEY (id_history)
 );
-ALTER TABLE identitystore_identity_attribute_history 
+ALTER TABLE identitystore_identity_attribute_history
     ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY (id_identity) REFERENCES identitystore_identity (id_identity);
 
 --
@@ -375,4 +375,18 @@ CREATE TABLE identitystore_quality_suspicious_identity_lock (
     is_locked smallint default 0,
     author_type varchar(255),
     author_name varchar(255)
+);
+
+--
+-- Structure for table identitystore_quality_suspicious_identity
+--
+
+DROP TABLE IF EXISTS identitystore_quality_suspicious_identity_excluded;
+CREATE TABLE identitystore_quality_suspicious_identity_excluded
+(
+    first_customer_id  VARCHAR(50)  NOT NULL,
+    second_customer_id VARCHAR(50)  NOT NULL,
+    date_create        TIMESTAMP    NOT NULL,
+    author_type        VARCHAR(255) NOT NULL,
+    author_name        VARCHAR(255) NOT NULL
 );

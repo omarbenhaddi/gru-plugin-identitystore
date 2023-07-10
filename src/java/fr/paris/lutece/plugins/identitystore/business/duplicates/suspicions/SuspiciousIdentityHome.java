@@ -99,11 +99,11 @@ public final class SuspiciousIdentityHome
      *            The CUID of the SuspiciousIdentity which contains the data to store
      * @return The instance of the suspiciousIdentity which has been updated
      */
-    public static void exclude( String firstCuid, String secondCuid )
+    public static void exclude( String firstCuid, String secondCuid, String authorType, String authorName )
     {
-        if ( !excluded( firstCuid, secondCuid ) )
+        if ( !excluded( firstCuid, secondCuid ) ) // TODO handle response with author if already excluded ?
         {
-            _dao.insertExcluded( firstCuid, secondCuid, _plugin );
+            _dao.insertExcluded( firstCuid, secondCuid, authorType, authorName, _plugin );
         }
     }
 

@@ -58,8 +58,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_ADD_LOCK = "INSERT INTO identitystore_quality_suspicious_identity_lock ( customer_id, is_locked, date_lock_end, author_type, author_name ) VALUES ( ?, ?, ?, ?, ?) ";
     private static final String SQL_QUERY_REMOVE_LOCK = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id = ? ";
     private static final String SQL_QUERY_PURGE_LOCKS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE date_lock_end < NOW()";
-    private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_cuid = ? AND second_cuid = ?) OR (first_cuid = ? AND second_cuid = ?)";
-    private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_cuid,second_cuid ) VALUES ( ?, ?) ";
+    private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_customer_id = ? AND second_customer_id = ?) OR (first_customer_id = ? AND second_customer_id = ?)";
+    private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_customer_id, second_customer_id, date_create, author_type, author_name ) VALUES ( ?, ?, ?, ?, NOW())";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id ";
@@ -90,12 +90,14 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     }
 
     @Override
-    public void insertExcluded( String firstCuid, String secondCuid, Plugin plugin )
+    public void insertExcluded( String firstCuid, String secondCuid, String authorType, String authorName, Plugin plugin )
     {
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_EXCLUDED, Statement.RETURN_GENERATED_KEYS, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_EXCLUDED, plugin ) )
         {
             daoUtil.setString( 1, firstCuid );
             daoUtil.setString( 2, secondCuid );
+            daoUtil.setString( 3, authorType );
+            daoUtil.setString( 4, authorName );
             daoUtil.executeUpdate( );
         }
     }
