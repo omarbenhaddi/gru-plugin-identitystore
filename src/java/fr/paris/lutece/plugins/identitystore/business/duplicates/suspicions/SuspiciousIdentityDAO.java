@@ -59,8 +59,10 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_REMOVE_LOCK = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id = ? ";
     private static final String SQL_QUERY_PURGE_LOCKS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE date_lock_end < NOW()";
     private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_customer_id = ? AND second_customer_id = ?) OR (first_customer_id = ? AND second_customer_id = ?)";
+    private static final String SQL_QUERY_CHECK_SUSPICIOUS = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity WHERE customer_id IN (";
     private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_customer_id, second_customer_id, date_create, author_type, author_name ) VALUES ( ?, ?, ?, ?, NOW())";
-    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
+    private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
+    private static final String SQL_QUERY_DELETE_CUID = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id ";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_suspicious_identity FROM identitystore_quality_suspicious_identity";
@@ -184,9 +186,22 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public void delete( String customerId, Plugin plugin )
+    public void delete( int nId, Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nId );
+            daoUtil.executeUpdate( );
+        }
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public void delete( String customerId, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_CUID, plugin ) )
         {
             daoUtil.setString( 1, customerId );
             daoUtil.executeUpdate( );
@@ -394,6 +409,23 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             daoUtil.setString( 2, secondCuid );
             daoUtil.setString( 3, secondCuid );
             daoUtil.setString( 4, firstCuid );
+            daoUtil.executeQuery( );
+
+            if ( daoUtil.next( ) )
+            {
+                return daoUtil.getInt( 1 ) > 0;
+            }
+
+            return false;
+        }
+    }
+
+    @Override
+    public boolean checkIfContainsSuspicious( final List<String> customerIds, final Plugin plugin )
+    {
+        final String query = SQL_QUERY_CHECK_SUSPICIOUS + String.join( ",", String.format( "'%s'", customerIds ) ) + ")";
+        try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
+        {
             daoUtil.executeQuery( );
 
             if ( daoUtil.next( ) )

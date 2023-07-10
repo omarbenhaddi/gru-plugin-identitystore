@@ -68,6 +68,16 @@ public interface ISuspiciousIdentityDAO
     /**
      * Delete a record from the table
      * 
+     * @param nId
+     *            The identifier of the SuspiciousIdentity to delete
+     * @param plugin
+     *            the Plugin
+     */
+    void delete( int nId, Plugin plugin );
+
+    /**
+     * Delete a record from the table
+     *
      * @param customerId
      *            The identifier of the SuspiciousIdentity to delete
      * @param plugin
@@ -90,6 +100,15 @@ public interface ISuspiciousIdentityDAO
      * @param plugin
      */
     boolean checkIfExcluded( String firstCuid, String secondCuid, Plugin plugin );
+
+    /**
+     * Verify if at least one customer ID within a list is identified as suspicious
+     *
+     * @param customerIds
+     *            list of cuids
+     * @param plugin
+     */
+    boolean checkIfContainsSuspicious( List<String> customerIds, Plugin plugin );
 
     /**
      * Load the data from the table

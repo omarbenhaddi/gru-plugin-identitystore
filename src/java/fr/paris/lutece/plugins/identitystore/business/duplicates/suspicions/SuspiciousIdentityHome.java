@@ -41,6 +41,7 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -122,8 +123,31 @@ public final class SuspiciousIdentityHome
     }
 
     /**
+     * Verify if at least one customer ID within a list is identified as suspicious
+     *
+     * @param customerIds
+     *            The list of CUID
+     * @return true if excluded
+     */
+    public static boolean hasSuspicious( final List<String> customerIds )
+    {
+        return CollectionUtils.isNotEmpty( customerIds ) ? false : _dao.checkIfContainsSuspicious( customerIds, _plugin );
+    }
+
+    /**
      * Remove the suspiciousIdentity whose identifier is specified in parameter
      * 
+     * @param nId
+     *            The suspiciousIdentity customer Id
+     */
+    public static void remove( int nId )
+    {
+        _dao.delete( nId, _plugin );
+    }
+
+    /**
+     * Remove the suspiciousIdentity whose identifier is specified in parameter
+     *
      * @param customerId
      *            The suspiciousIdentity customer Id
      */
