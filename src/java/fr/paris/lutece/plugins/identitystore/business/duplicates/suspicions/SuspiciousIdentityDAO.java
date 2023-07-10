@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This class provides Data Access methods for SuspiciousIdentity objects
@@ -423,7 +424,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     @Override
     public boolean checkIfContainsSuspicious( final List<String> customerIds, final Plugin plugin )
     {
-        final String query = SQL_QUERY_CHECK_SUSPICIOUS + String.join( ",", String.format( "'%s'", customerIds ) ) + ")";
+        final String query = SQL_QUERY_CHECK_SUSPICIOUS
+                + String.join( ",", customerIds.stream( ).map( s -> String.format( "'%s'", s ) ).collect( Collectors.toList( ) ) ) + ")";
         try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
         {
             daoUtil.executeQuery( );

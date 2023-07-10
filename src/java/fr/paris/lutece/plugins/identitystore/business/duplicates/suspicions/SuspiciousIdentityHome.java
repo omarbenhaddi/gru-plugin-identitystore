@@ -131,7 +131,7 @@ public final class SuspiciousIdentityHome
      */
     public static boolean hasSuspicious( final List<String> customerIds )
     {
-        return CollectionUtils.isNotEmpty( customerIds ) ? false : _dao.checkIfContainsSuspicious( customerIds, _plugin );
+        return CollectionUtils.isNotEmpty( customerIds ) && _dao.checkIfContainsSuspicious( customerIds, _plugin );
     }
 
     /**
