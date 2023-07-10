@@ -124,12 +124,12 @@ public final class SuspiciousIdentityHome
     /**
      * Remove the suspiciousIdentity whose identifier is specified in parameter
      * 
-     * @param nKey
-     *            The suspiciousIdentity Id
+     * @param customerId
+     *            The suspiciousIdentity customer Id
      */
-    public static void remove( int nKey )
+    public static void remove( String customerId )
     {
-        _dao.delete( nKey, _plugin );
+        _dao.delete( customerId, _plugin );
     }
 
     /**

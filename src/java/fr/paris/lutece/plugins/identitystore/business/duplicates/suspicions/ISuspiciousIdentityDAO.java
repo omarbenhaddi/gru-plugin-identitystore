@@ -68,12 +68,12 @@ public interface ISuspiciousIdentityDAO
     /**
      * Delete a record from the table
      * 
-     * @param nKey
+     * @param customerId
      *            The identifier of the SuspiciousIdentity to delete
      * @param plugin
      *            the Plugin
      */
-    void delete( int nKey, Plugin plugin );
+    void delete( String customerId, Plugin plugin );
 
     ///////////////////////////////////////////////////////////////////////////
     // Finders
