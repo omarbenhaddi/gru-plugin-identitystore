@@ -66,11 +66,13 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_DELETE_CUID = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id ";
+    private static final String SQL_QUERY_SELECTALL_EXCLUDED = "select first_customer_id, second_customer_id, date_create, author_type, author_name from identitystore_quality_suspicious_identity_excluded";
     private static final String SQL_QUERY_SELECTALL_CUIDS = "SELECT customer_id FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_suspicious_identity FROM identitystore_quality_suspicious_identity";
     private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id  WHERE id_suspicious_identity IN (  ";
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id  WHERE i.customer_id = ?  ";
     private static final String SQL_QUERY_SELECT_COUNT_BY_RULE_ID = "SELECT count(id_suspicious_identity) FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
+    private static final String SQL_QUERY_REMOVE_EXCLUDED_IDENTITIES = "DELETE FROM identitystore_quality_suspicious_identity_excluded WHERE first_customer_id = ? AND second_customer_id = ?";
 
     /**
      * {@inheritDoc }
@@ -270,6 +272,32 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             }
 
             return suspiciousIdentityList;
+        }
+    }
+
+    @Override
+    public List<ExcludedIdentities> selectExcludedIdentitiesList( Plugin plugin )
+    {
+        final List<ExcludedIdentities> excludedIdentitiesList = new ArrayList<>( );
+
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_EXCLUDED, plugin ) )
+        {
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                final ExcludedIdentities excludedIdentities = new ExcludedIdentities( );
+                int nIndex = 1;
+
+                excludedIdentities.setFirstCustomerId( daoUtil.getString( nIndex++ ) );
+                excludedIdentities.setSecondCustomerId( daoUtil.getString( nIndex++ ) );
+                excludedIdentities.setExclusionDate( daoUtil.getTimestamp( nIndex++ ) );
+                excludedIdentities.setAuthorType( daoUtil.getString( nIndex++ ) );
+                excludedIdentities.setAuthorName( daoUtil.getString( nIndex++ ) );
+                excludedIdentitiesList.add( excludedIdentities );
+            }
+
+            return excludedIdentitiesList;
         }
     }
 
@@ -491,6 +519,17 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             }
 
             return cuids;
+        }
+    }
+
+    @Override
+    public void removeExcludedIdentities( String firstCuid, String secondCuid, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REMOVE_EXCLUDED_IDENTITIES, plugin ) )
+        {
+            daoUtil.setString( 1, firstCuid );
+            daoUtil.setString( 2, secondCuid );
+            daoUtil.executeUpdate( );
         }
     }
 }

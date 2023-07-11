@@ -181,6 +181,21 @@ public final class SuspiciousIdentityHome
     }
 
     /**
+     * Load the data of all the excluded identities objects and returns them as a list
+     *
+     * @return the list which contains the data of all the suspiciousIdentity objects
+     */
+    public static List<ExcludedIdentities> getExcludedIdentitiesList( )
+    {
+        return _dao.selectExcludedIdentitiesList( _plugin );
+    }
+
+    public static void removeExcludedIdentities( final String firstCuid, final String secondCuid )
+    {
+        _dao.removeExcludedIdentities( firstCuid, secondCuid, _plugin );
+    }
+
+    /**
      * Load the data of all the suspiciousIdentity objects and returns them as a list
      *
      * @param rule
