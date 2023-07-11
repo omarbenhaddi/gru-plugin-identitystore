@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request;
 
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
@@ -71,7 +72,7 @@ public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
     {
         final DuplicateRuleSummarySearchResponse response = new DuplicateRuleSummarySearchResponse( );
 
-        final List<DuplicateRule> rules = DuplicateRuleService.instance( ).findAll( );
+        final List<DuplicateRuleSummaryDto> rules = DuplicateRuleService.instance( ).findAllSummaries( );
         if ( CollectionUtils.isEmpty( rules ) )
         {
             response.setDuplicateRuleSummaries( Collections.emptyList( ) );
@@ -79,14 +80,6 @@ public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
         }
         else
         {
-            response.setDuplicateRuleSummaries( rules.stream( ).map( r -> {
-                final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
-                ruleDto.setId( r.getId( ) );
-                ruleDto.setName( r.getName( ) );
-                ruleDto.setDescription( r.getDescription( ) );
-                ruleDto.setDuplicateCount( 0 ); // TODO add search count by rule in DuplicateService
-                return ruleDto;
-            } ).collect( Collectors.toList( ) ) );
             response.setStatus( DuplicateRuleSummarySearchStatusType.SUCCESS );
         }
         return response;

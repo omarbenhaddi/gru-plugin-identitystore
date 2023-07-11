@@ -33,13 +33,16 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.cache.DuplicateRulesCache;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRuleSummaryDto;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DuplicateRuleService
 {
@@ -76,6 +79,19 @@ public class DuplicateRuleService
             list.add( duplicateRule );
         }
         return list;
+    }
+
+    public List<DuplicateRuleSummaryDto> findAllSummaries( ) throws DuplicateRuleNotFoundException
+    {
+        return this.findAll( ).stream( ).map( rule -> {
+            final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
+            ruleDto.setId( rule.getId( ) );
+            ruleDto.setName( rule.getName( ) );
+            ruleDto.setDescription( rule.getDescription( ) );
+            ruleDto.setPriority( rule.getPriority( ).ordinal( ) );
+            ruleDto.setDuplicateCount( SuspiciousIdentityHome.countSuspiciousIdentity( rule.getId( ) ) );
+            return ruleDto;
+        } ).collect( Collectors.toList( ) );
     }
 
     /**
