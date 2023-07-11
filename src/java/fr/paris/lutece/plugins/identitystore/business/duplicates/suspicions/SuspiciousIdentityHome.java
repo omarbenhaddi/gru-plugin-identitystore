@@ -181,6 +181,18 @@ public final class SuspiciousIdentityHome
     }
 
     /**
+     * Load the data of all the suspiciousIdentity objects and returns them as a list
+     *
+     * @param rule
+     *            id of the duplicate rule
+     * @return the list which contains the data of all the suspiciousIdentity objects
+     */
+    public static List<String> getSuspiciousIdentityCuidsList( final Integer rule )
+    {
+        return _dao.selectSuspiciousIdentityCuidsList( rule, _plugin );
+    }
+
+    /**
      * Load the id of all the suspiciousIdentity objects and returns them as a list
      * 
      * @return the list which contains the id of all the suspiciousIdentity objects

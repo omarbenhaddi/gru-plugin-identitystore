@@ -191,4 +191,6 @@ public interface ISuspiciousIdentityDAO
     boolean manageLock( String customerId, boolean lock, String authorType, String authorName, Plugin plugin );
 
     void purgeLocks( Plugin plugin );
+
+    List<String> selectSuspiciousIdentityCuidsList( Integer rule, Plugin plugin );
 }

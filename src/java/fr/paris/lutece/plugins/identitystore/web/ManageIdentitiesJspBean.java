@@ -102,7 +102,7 @@ public abstract class ManageIdentitiesJspBean extends MVCAdminJspBean
 
         final UrlItem url = new UrlItem( strManageJsp );
         final Map<String, String> queryParameters = this.getQueryParameters( request );
-        queryParameters.forEach( ( key, value ) -> url.addParameter( key, value ) );
+        queryParameters.forEach( url::addParameter );
         final String strUrl = url.getUrl( );
 
         // PAGINATOR
