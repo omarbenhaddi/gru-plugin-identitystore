@@ -72,4 +72,9 @@ public final class Batch<T> extends AbstractList<List<T>>
     {
         return (int) Math.ceil( (double) this.innerList.size( ) / (double) this.partitionSize );
     }
+
+    public int totalSize( )
+    {
+        return this.innerList.size( );
+    }
 }
