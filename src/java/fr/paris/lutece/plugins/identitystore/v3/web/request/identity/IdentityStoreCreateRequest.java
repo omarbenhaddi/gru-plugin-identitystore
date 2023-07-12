@@ -83,14 +83,18 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
 
         if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
         {
-            final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance().formatIdentityChangeRequestAttributeValues(_identityChangeRequest);
+            final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
+                    .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
 
-            IdentityAttributeValidationService.instance().validateChangeRequestAttributeValues(_identityChangeRequest, response);
-            if(!IdentityChangeStatus.FAILURE.equals( response.getStatus( ) )) {
+            IdentityAttributeValidationService.instance( ).validateChangeRequestAttributeValues( _identityChangeRequest, response );
+            if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
+            {
                 IdentityService.instance( ).create( _identityChangeRequest, _strClientCode, response );
-                if(IdentityChangeStatus.CREATE_SUCCESS.equals(response.getStatus()) || IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS.equals(response.getStatus())) {
+                if ( IdentityChangeStatus.CREATE_SUCCESS.equals( response.getStatus( ) )
+                        || IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS.equals( response.getStatus( ) ) )
+                {
                     // if request is accepted and treatment successfull, add the formatting statuses
-                    response.getAttributeStatuses().addAll(formatStatuses);
+                    response.getAttributeStatuses( ).addAll( formatStatuses );
                 }
             }
         }

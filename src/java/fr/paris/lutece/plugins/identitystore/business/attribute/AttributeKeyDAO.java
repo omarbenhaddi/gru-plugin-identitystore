@@ -138,8 +138,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
                 attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
-                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
-                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
+                attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex ) );
             }
 
             return attributeKey;
@@ -179,8 +179,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             daoUtil.setBoolean( nIndex++, attributeKey.getPivot( ) );
             daoUtil.setInt( nIndex++, attributeKey.getKeyWeight( ) );
             daoUtil.setBoolean( nIndex++, attributeKey.isMandatoryForCreation( ) );
-            daoUtil.setString(nIndex++, attributeKey.getValidationRegex());
-            daoUtil.setString(nIndex++, attributeKey.getValidationErrorMessage());
+            daoUtil.setString( nIndex++, attributeKey.getValidationRegex( ) );
+            daoUtil.setString( nIndex++, attributeKey.getValidationErrorMessage( ) );
             daoUtil.setInt( nIndex, attributeKey.getId( ) );
 
             daoUtil.executeUpdate( );
@@ -213,8 +213,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
                 attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
-                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
-                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
+                attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex ) );
 
                 attributeKeyList.add( attributeKey );
             }
@@ -271,8 +271,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
                 attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
-                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
-                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
+                attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex ) );
             }
 
             return attributeKey;
@@ -347,8 +347,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
                 attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
-                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
-                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
+                attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex ) );
 
                 attributeKeyList.add( attributeKey );
             }

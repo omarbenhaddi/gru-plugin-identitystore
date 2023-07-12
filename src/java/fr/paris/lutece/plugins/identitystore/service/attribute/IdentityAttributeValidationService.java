@@ -1,3 +1,36 @@
+/*
+ * Copyright (c) 2002-2023, City of Paris
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice
+ *     and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice
+ *     and the following disclaimer in the documentation and/or other materials
+ *     provided with the distribution.
+ *
+ *  3. Neither the name of 'Mairie de Paris' nor 'Lutece' nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * License 1.0
+ */
 package fr.paris.lutece.plugins.identitystore.service.attribute;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
@@ -21,9 +54,10 @@ import java.util.regex.Pattern;
 /**
  * Service class used to validate attribute values in requests
  */
-public class IdentityAttributeValidationService {
+public class IdentityAttributeValidationService
+{
 
-    private final IdentityAttributeValidationCache _cache = SpringContextService.getBean("identitystore.identityAttributeValidationCache");
+    private final IdentityAttributeValidationCache _cache = SpringContextService.getBean( "identitystore.identityAttributeValidationCache" );
     private static IdentityAttributeValidationService _instance;
 
     public static IdentityAttributeValidationService instance( )
@@ -39,43 +73,53 @@ public class IdentityAttributeValidationService {
     /**
      * @see IdentityAttributeValidationService#validateIdentityAttributeValues(Identity, ChangeResponse)
      */
-    public void validateMergeRequestAttributeValues(final IdentityMergeRequest request, final IdentityMergeResponse response)
-            throws IdentityAttributeNotFoundException {
-        final boolean passedValidation = this.validateIdentityAttributeValues(request.getIdentity(), response);
-        if(!passedValidation) {
-            response.setStatus(IdentityMergeStatus.FAILURE);
-            response.setMessage("Some attribute values are not passing validation. Please check in the attribute statuses for details.");
+    public void validateMergeRequestAttributeValues( final IdentityMergeRequest request, final IdentityMergeResponse response )
+            throws IdentityAttributeNotFoundException
+    {
+        final boolean passedValidation = this.validateIdentityAttributeValues( request.getIdentity( ), response );
+        if ( !passedValidation )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." );
         }
     }
 
     /**
      * @see IdentityAttributeValidationService#validateIdentityAttributeValues(Identity, ChangeResponse)
      */
-    public void validateChangeRequestAttributeValues(final IdentityChangeRequest request, final IdentityChangeResponse response)
-            throws IdentityAttributeNotFoundException {
-        final boolean passedValidation = this.validateIdentityAttributeValues(request.getIdentity(), response);
-        if(!passedValidation) {
+    public void validateChangeRequestAttributeValues( final IdentityChangeRequest request, final IdentityChangeResponse response )
+            throws IdentityAttributeNotFoundException
+    {
+        final boolean passedValidation = this.validateIdentityAttributeValues( request.getIdentity( ), response );
+        if ( !passedValidation )
+        {
             response.setStatus( IdentityChangeStatus.FAILURE );
-            response.setMessage("Some attribute values are not passing validation. Please check in the attribute statuses for details.");
+            response.setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." );
         }
     }
 
     /**
-     * Validates all attribute values stored in the provided identity, according to each attribute validation regex.
-     * Adds validation error statuses in the response in case of invalid values.
-     * @param identity the identity
-     * @param response the response
+     * Validates all attribute values stored in the provided identity, according to each attribute validation regex. Adds validation error statuses in the
+     * response in case of invalid values.
+     * 
+     * @param identity
+     *            the identity
+     * @param response
+     *            the response
      * @return true if all values are valid, false otherwise.
      */
-    private boolean validateIdentityAttributeValues(final Identity identity, final ChangeResponse response)
-            throws IdentityAttributeNotFoundException {
+    private boolean validateIdentityAttributeValues( final Identity identity, final ChangeResponse response ) throws IdentityAttributeNotFoundException
+    {
         boolean passedValidation = true;
-        for(final CertifiedAttribute attribute : identity.getAttributes()) {
-            final Pattern validationPattern = _cache.get(attribute.getKey());
-            if(validationPattern != null) {
-                if(!validationPattern.matcher(attribute.getValue()).matches()) {
+        for ( final CertifiedAttribute attribute : identity.getAttributes( ) )
+        {
+            final Pattern validationPattern = _cache.get( attribute.getKey( ) );
+            if ( validationPattern != null )
+            {
+                if ( !validationPattern.matcher( attribute.getValue( ) ).matches( ) )
+                {
                     passedValidation = false;
-                    response.getAttributeStatuses( ).add( this.buildAttributeValidationErrorStatus(attribute.getKey()));
+                    response.getAttributeStatuses( ).add( this.buildAttributeValidationErrorStatus( attribute.getKey( ) ) );
                 }
             }
         }
@@ -84,16 +128,18 @@ public class IdentityAttributeValidationService {
 
     /**
      * Builds an attribute status for invalid value.
-     * @param attrStrKey the attribute key
+     * 
+     * @param attrStrKey
+     *            the attribute key
      * @return the status
      */
-    private AttributeStatus buildAttributeValidationErrorStatus(final String attrStrKey)
-            throws IdentityAttributeNotFoundException {
-        final AttributeKey attributeKey = IdentityAttributeService.instance().getAttributeKey(attrStrKey);
+    private AttributeStatus buildAttributeValidationErrorStatus( final String attrStrKey ) throws IdentityAttributeNotFoundException
+    {
+        final AttributeKey attributeKey = IdentityAttributeService.instance( ).getAttributeKey( attrStrKey );
         final AttributeStatus attributeStatus = new AttributeStatus( );
         attributeStatus.setKey( attrStrKey );
         attributeStatus.setStatus( AttributeChangeStatus.INVALID_VALUE );
-        attributeStatus.setMessage(attributeKey.getValidationErrorMessage());
+        attributeStatus.setMessage( attributeKey.getValidationErrorMessage( ) );
 
         return attributeStatus;
     }
