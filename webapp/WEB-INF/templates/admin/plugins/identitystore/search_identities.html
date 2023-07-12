@@ -91,20 +91,20 @@
     <#if identity_list??>
     <@paginationAdmin paginator=paginator combo=1 />
     <div class="clearfix"></div>
-    <@table>
+    <@table id="search-result-table">
         <tr>
             <input type="hidden" id="id" name="id"/>
-            <th>CUID</th>
-            <th>GUID</th>
-            <th>Email</th>
-            <th>Civilité</th>
-            <th>Nom de naissance</th>
-            <th>Nom d'usage</th>
-            <th>Prénoms</th>
-            <th>Date de naissance</th>
-            <th>Ville de naissance</th>
-            <th>Pays de naissance</th>
-            <th>Téléphone</th>
+            <th onclick="sortTable(0, 'search-result-table')">CUID</th>
+            <th onclick="sortTable(1, 'search-result-table')">GUID</th>
+            <th onclick="sortTable(2, 'search-result-table')">Email</th>
+            <th onclick="sortTable(3, 'search-result-table')">Civilité</th>
+            <th onclick="sortTable(4, 'search-result-table')">Nom de naissance</th>
+            <th onclick="sortTable(5, 'search-result-table')">Nom d'usage</th>
+            <th onclick="sortTable(6, 'search-result-table')">Prénoms</th>
+            <th onclick="sortTable(7, 'search-result-table')">Date de naissance</th>
+            <th onclick="sortTable(8, 'search-result-table')">Ville de naissance</th>
+            <th onclick="sortTable(9, 'search-result-table')">Pays de naissance</th>
+            <th onclick="sortTable(10, 'search-result-table')">Téléphone</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
         <@tableHeadBodySeparator />
@@ -159,13 +159,16 @@
 
   </@boxBody>
 </@rowBox>
-
+<script src="/js/admin/plugins/identitystore/table.js"></script>
 <script>
     $('.btn-empty').click(function () {
         $('.search-field').val('');
     });
 </script>
 <style>
+    table th{
+        cursor: pointer;
+    }
     .select-gender {
         -webkit-appearance: none !important;
         background-image: none !important;
