@@ -196,3 +196,16 @@ CREATE TABLE  identitystore_identity_history
 CREATE INDEX identitystore_identity_history_cuid ON identitystore_identity_history (customer_id);
 
 
+-- add attribute validation columns
+ALTER TABLE identitystore_ref_attribute ADD COLUMN validation_regex varchar(510) DEFAULT '^[A-Za-zÀ-Üà-ü\d\s''-]+$';
+ALTER TABLE identitystore_ref_attribute ADD COLUMN validation_error_message varchar(255) DEFAULT 'uniquement caractères alphanumériques, apostrophe, espace et tirets.';
+
+-- add attribute validation data
+UPDATE identitystore_ref_attribute SET validation_regex = '^[A-Za-zÀ-Üà-ü\s''-]+$', validation_error_message = 'Uniquement caractères aplha, apostrophe, espace et tirets.' WHERE key_name IN ('family_name', 'preferred_username', 'first_name');
+UPDATE identitystore_ref_attribute SET validation_regex = '^(?:(?:31(\/)(?:0[13578]|1[02]))\1|(?:(?:29|30)(\/)(?:0[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/)02\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0[1-9]|1\d|2[0-8])(\/)(?:(?:0[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$', validation_error_message = 'Date exprimée sur 10 caractères en jj/mm/aaaa.' WHERE key_name = 'birthdate';
+UPDATE identitystore_ref_attribute SET validation_regex = '^0(6|7)\d{8}$', validation_error_message = 'uniquement numérique, numéro français sur 10 chiffres commençant par O6 ou 07.'  WHERE key_name = 'mobile_phone';
+UPDATE identitystore_ref_attribute SET validation_regex = '^0([1-5]|9)\d{8}$', validation_error_message = 'uniquement numérique, numéro français sur 10 chiffres commençant par 01 à 05 ou 09.'  WHERE key_name = 'fixed_phone';
+UPDATE identitystore_ref_attribute SET validation_regex = '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$', validation_error_message = 'format mail du type xxx@yyy.zzz'  WHERE key_name = 'email';
+UPDATE identitystore_ref_attribute SET validation_regex = '^[A-Z\d]{5}$', validation_error_message = 'Alphanumérique sur 5 caractères. Le code doit exister dans notre référentiel géocode'  WHERE key_name IN ('birthplace_code', 'birthcountry_code');
+UPDATE identitystore_ref_attribute SET validation_regex = '^[A-Z\s]+$', validation_error_message = 'uniquement caractères aplha en majuscule non accentué, et espace.'  WHERE key_name IN ('birthplace', 'birthcountry');
+UPDATE identitystore_ref_attribute SET validation_regex = '^[0-2]{1}$', validation_error_message = 'uniquement  0, 1 ou 2'  WHERE key_name = 'gender';

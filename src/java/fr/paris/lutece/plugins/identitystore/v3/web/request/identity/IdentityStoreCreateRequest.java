@@ -33,14 +33,20 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeFormatterService;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeValidationService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+
+import java.util.List;
 
 /**
  * This class represents a create request for IdentityStoreRestServive
@@ -77,7 +83,16 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
 
         if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
         {
-            IdentityService.instance( ).create( _identityChangeRequest, _strClientCode, response );
+            final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance().formatIdentityChangeRequestAttributeValues(_identityChangeRequest);
+
+            IdentityAttributeValidationService.instance().validateChangeRequestAttributeValues(_identityChangeRequest, response);
+            if(!IdentityChangeStatus.FAILURE.equals( response.getStatus( ) )) {
+                IdentityService.instance( ).create( _identityChangeRequest, _strClientCode, response );
+                if(IdentityChangeStatus.CREATE_SUCCESS.equals(response.getStatus()) || IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS.equals(response.getStatus())) {
+                    // if request is accepted and treatment successfull, add the formatting statuses
+                    response.getAttributeStatuses().addAll(formatStatuses);
+                }
+            }
         }
 
         return response;

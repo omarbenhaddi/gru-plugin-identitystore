@@ -23,4 +23,5 @@ LinksIncludeCacheService.enabled=1
 identitystore.activeServiceContractCache.enabled=1
 identitystore.qualityBaseCache.enabled=1
 identitystore.identityAttributeCache.enabled=1
+identitystore.identityAttributeValidationCache.enabled=1
 identitystore.refAttributeCertificationDefinitionCache.enabled=1

@@ -49,15 +49,15 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
 {
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute ) FROM identitystore_ref_attribute";
-    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation FROM identitystore_ref_attribute WHERE id_attribute = ?";
+    private static final String SQL_QUERY_SELECT = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message FROM identitystore_ref_attribute WHERE id_attribute = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_attribute ( id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_attribute WHERE id_attribute = ? ";
-    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_attribute SET id_attribute = ?, name = ?, key_name = ?, common_search_key = ?, description = ?, key_type = ?, certifiable = ?, pivot = ?, key_weight = ?, mandatory_for_creation = ? WHERE id_attribute = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation FROM identitystore_ref_attribute";
-    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation FROM identitystore_ref_attribute WHERE key_name = ?";
+    private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_attribute SET id_attribute = ?, name = ?, key_name = ?, common_search_key = ?, description = ?, key_type = ?, certifiable = ?, pivot = ?, key_weight = ?, mandatory_for_creation = ?, validation_regex = ?, validation_error_message = ? WHERE id_attribute = ?";
+    private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message FROM identitystore_ref_attribute";
+    private static final String SQL_QUERY_SELECT_BY_KEY = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message FROM identitystore_ref_attribute WHERE key_name = ?";
     private static final String SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED = "SELECT count(*) FROM identitystore_ref_attribute WHERE id_attribute = ? AND ( EXISTS( SELECT id_attribute FROM identitystore_service_contract_attribute_right WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_identity_attribute WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_identity_attribute_history  WHERE attribute_key IN  ( SELECT key_name FROM identitystore_ref_attribute WHERE id_attribute = ? ) ) )";
     private static final String SQL_QUERY_SELECT_LEVEL_MAX = "WITH attributes AS ( SELECT ia.key_name, ia.key_weight, max(cast(ircl.level AS NUMERIC)) as max_level FROM identitystore_ref_attribute ia JOIN identitystore_ref_certification_attribute_level iracl ON ia.id_attribute = iracl.id_attribute JOIN identitystore_ref_certification_level ircl ON iracl.id_ref_certification_level = ircl.id_ref_certification_level WHERE ia.key_weight != 0 GROUP BY ia.key_name, ia.key_weight ) SELECT SUM(attributes.max_level * attributes.key_weight) FROM attributes";
-    private static final String SQL_QUERY_SELECTALL_MANDATORY = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation FROM identitystore_ref_attribute WHERE mandatory_for_creation = 1";
+    private static final String SQL_QUERY_SELECTALL_MANDATORY = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message FROM identitystore_ref_attribute WHERE mandatory_for_creation = 1";
 
     /**
      * Generates a new primary key
@@ -137,7 +137,9 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
+                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
             }
 
             return attributeKey;
@@ -176,8 +178,10 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             daoUtil.setBoolean( nIndex++, attributeKey.getCertifiable( ) );
             daoUtil.setBoolean( nIndex++, attributeKey.getPivot( ) );
             daoUtil.setInt( nIndex++, attributeKey.getKeyWeight( ) );
-            daoUtil.setInt( nIndex++, attributeKey.getId( ) );
-            daoUtil.setBoolean( nIndex, attributeKey.isMandatoryForCreation( ) );
+            daoUtil.setBoolean( nIndex++, attributeKey.isMandatoryForCreation( ) );
+            daoUtil.setString(nIndex++, attributeKey.getValidationRegex());
+            daoUtil.setString(nIndex++, attributeKey.getValidationErrorMessage());
+            daoUtil.setInt( nIndex, attributeKey.getId( ) );
 
             daoUtil.executeUpdate( );
         }
@@ -208,7 +212,9 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
+                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
 
                 attributeKeyList.add( attributeKey );
             }
@@ -264,7 +270,9 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
+                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
             }
 
             return attributeKey;
@@ -338,7 +346,9 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
                 attributeKey.setCertifiable( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setKeyWeight( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex ) );
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setValidationRegex(daoUtil.getString(nIndex++));
+                attributeKey.setValidationErrorMessage(daoUtil.getString(nIndex));
 
                 attributeKeyList.add( attributeKey );
             }

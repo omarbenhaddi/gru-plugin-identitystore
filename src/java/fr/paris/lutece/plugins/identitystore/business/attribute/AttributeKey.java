@@ -64,6 +64,9 @@ public class AttributeKey implements Serializable
 
     private boolean _bMandatoryForCreation;
 
+    private String _strValidationRegex;
+    private String _strValidationErrorMessage;
+
     /**
      * Returns the Id
      *
@@ -260,5 +263,37 @@ public class AttributeKey implements Serializable
     public void setMandatoryForCreation( boolean _bMandatoryForCreation )
     {
         this._bMandatoryForCreation = _bMandatoryForCreation;
+    }
+
+    /**
+     * Gets the validation regex.
+     * @return the regex
+     */
+    public String getValidationRegex() {
+        return _strValidationRegex;
+    }
+
+    /**
+     * Sets the validation regex.
+     * @param _strValidationRegex the regex
+     */
+    public void setValidationRegex(String _strValidationRegex) {
+        this._strValidationRegex = _strValidationRegex;
+    }
+
+    /**
+     * Gets the validation error message to display if the attribute value doesn't match the validation regex.
+     * @return the validation error message
+     */
+    public String getValidationErrorMessage() {
+        return _strValidationErrorMessage;
+    }
+
+    /**
+     * Sets the validation error message to display if the attribute value doesn't match the validation regex.
+     * @param _strValidationErrorMessage the validation error message
+     */
+    public void setValidationErrorMessage(String _strValidationErrorMessage) {
+        this._strValidationErrorMessage = _strValidationErrorMessage;
     }
 }

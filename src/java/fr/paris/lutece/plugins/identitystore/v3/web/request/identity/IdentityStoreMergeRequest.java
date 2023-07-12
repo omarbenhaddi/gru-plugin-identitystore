@@ -33,14 +33,19 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeFormatterService;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeValidationService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+
+import java.util.List;
 
 /**
  * This class represents a create request for IdentityStoreRestServive
@@ -78,7 +83,16 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
 
         if ( !IdentityMergeStatus.FAILURE.equals( response.getStatus( ) ) )
         {
-            IdentityService.instance( ).merge( _identityMergeRequest, _strClientCode, response );
+            final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance().formatIdentityMergeRequestAttributeValues(_identityMergeRequest);
+
+            IdentityAttributeValidationService.instance().validateMergeRequestAttributeValues(_identityMergeRequest, response);
+            if ( !IdentityMergeStatus.FAILURE.equals( response.getStatus( ) ) ) {
+                IdentityService.instance().merge(_identityMergeRequest, _strClientCode, response);
+                if(IdentityMergeStatus.SUCCESS.equals(response.getStatus()) || IdentityMergeStatus.INCOMPLETE_SUCCESS.equals(response.getStatus())) {
+                    // if request is accepted and treatment successfull, add the formatting statuses
+                    response.getAttributeStatuses().addAll(formatStatuses);
+                }
+            }
         }
 
         return response;
