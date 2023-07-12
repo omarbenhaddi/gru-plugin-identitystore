@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.web;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
@@ -53,7 +54,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +70,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Templates
     private static final String TEMPLATE_SEARCH_IDENTITIES = "/admin/plugins/identitystore/search_identities.html";
     private static final String TEMPLATE_VIEW_IDENTITY = "/admin/plugins/identitystore/view_identity.html";
-    private static final String TEMPLATE_VIEW_ATTRIBUTE_HISTORY = "/admin/plugins/identitystore/view_attribute_change_history.html";
+    private static final String TEMPLATE_VIEW_IDENTITY_HISTORY = "/admin/plugins/identitystore/view_identity_change_history.html";
 
     // Parameters
     private static final String PARAMETER_ID_IDENTITY = "id";
@@ -83,7 +83,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Markers
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
-    private static final String MARK_ATTRIBUTES_CHANGE_MAP = "attributes_change_map";
+    private static final String MARK_IDENTITY_CHANGE_LIST = "identity_change_list";
+    private static final String MARK_ATTRIBUTES_CHANGE_LIST = "attributes_change_list";
     private static final String MARK_ATTRIBUTES_CURRENT_MAP = "attributes_current_map";
     private static final String MARK_CERTIFIERS_MAP = "certifiers_map";
     private static final String MARK_QUERY = "query";
@@ -99,7 +100,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Views
     private static final String VIEW_MANAGE_IDENTITIES = "manageIdentitys";
     private static final String VIEW_IDENTITY = "viewIdentity";
-    private static final String VIEW_ATTRIBUTE_HISTORY = "viewAttributeHistory";
+    private static final String VIEW_IDENTITY_HISTORY = "viewIdentityHistory";
 
     // Session variable to store working values
     private Identity _identity;
@@ -246,23 +247,23 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
      *            The HTTP request
      * @return The page
      */
-    @View( value = VIEW_ATTRIBUTE_HISTORY )
-    public String getAttributeHistoryView( HttpServletRequest request )
+    @View( value = VIEW_IDENTITY_HISTORY )
+    public String getIdentityHistoryView( HttpServletRequest request )
     {
         // here we use a LinkedHashMap to have same attributs order as in viewIdentity
-        final Map<String, List<AttributeChange>> mapAttributesChange = new LinkedHashMap<>( );
+        final List<AttributeChange> attributeChangeList = new ArrayList<>( );
+        final List<IdentityChange> identityChangeList = new ArrayList<>( );
 
         if ( _identity != null && MapUtils.isNotEmpty( _identity.getAttributes( ) ) )
         {
-            for ( String strAttributeKey : _identity.getAttributes( ).keySet( ) )
-            {
-                mapAttributesChange.put( strAttributeKey, IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ), strAttributeKey ) );
-            }
+            attributeChangeList.addAll( IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ) ) );
+            identityChangeList.addAll( IdentityHome.findHistoryByConnectionId( _identity.getCustomerId( ) ) );
         }
 
         final Map<String, Object> model = getModel( );
-        model.put( MARK_ATTRIBUTES_CHANGE_MAP, mapAttributesChange );
+        model.put( MARK_IDENTITY_CHANGE_LIST, identityChangeList );
+        model.put( MARK_ATTRIBUTES_CHANGE_LIST, attributeChangeList );
 
-        return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_ATTRIBUTE_HISTORY, model );
+        return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_IDENTITY_HISTORY, model );
     }
 }

@@ -170,6 +170,18 @@ public final class IdentityHome
     }
 
     /**
+     * Find history by connection ID
+     *
+     * @param strCustomerId
+     *            The customer ID
+     * @return The Identity
+     */
+    public static List<IdentityChange> findHistoryByConnectionId( String strCustomerId )
+    {
+        return _dao.selectIdentityHistoryByCustomerId( strCustomerId, _plugin );
+    }
+
+    /**
      * Find by connection ID
      *
      * @param strConnectionId

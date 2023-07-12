@@ -212,7 +212,7 @@ public class IdentityService
 
         /* Indexation */
         _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
-                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
+                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
         return identity;
     }
@@ -365,7 +365,7 @@ public class IdentityService
 
         /* Indexation */
         _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
-                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
+                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
         return identity;
     }
@@ -476,13 +476,12 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService
-                .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
-                        response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED,
+                secondaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
 
         _identityStoreNotifyListenerService
                 .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity,
-                        response.getStatus( ).getCode( ).toString( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
+                        response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
 
         return primaryIdentity;
     }
@@ -822,7 +821,7 @@ public class IdentityService
 
         /* Notify listeners for indexation, history, ... */
         _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
-                identity, response.getStatus( ).getCode( ).toString( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
+                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
 
     }
 

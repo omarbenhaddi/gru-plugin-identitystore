@@ -1,0 +1,166 @@
+<div class="row">
+    <@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.view_change_history.identityChangeTitle"></@boxHeader>
+    <@boxBody>
+        <table id="identity-table" class="table table-condensed table-striped">
+            <tr>
+                <th onclick="sortTable(0, 'identity-table')">#i18n{identitystore.view_change_history.customerId}</th>
+                <th onclick="sortTable(1, 'identity-table')">#i18n{identitystore.view_change_history.type}</th>
+                <th onclick="sortTable(2, 'identity-table')">#i18n{identitystore.view_change_history.status}</th>
+                <th onclick="sortTable(3, 'identity-table')">#i18n{identitystore.view_change_history.date}</th>
+                <th onclick="sortTable(4, 'identity-table')">#i18n{identitystore.view_change_history.author.type}</th>
+                <th onclick="sortTable(5, 'identity-table')">#i18n{identitystore.view_change_history.author.name}</th>
+                <th onclick="sortTable(6, 'identity-table')">#i18n{identitystore.view_change_history.client.code}</th>
+            </tr>
+            <#if identity_change_list??  && identity_change_list?has_content>
+                <tbody>
+                    <#list identity_change_list as change>
+                        <tr>
+                            <td>${change.customerId!}</td>
+                            <td>
+                                <#if change.changeType.name() == "CREATE">
+                                    <span class="badge bg-success"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "UPDATE">
+                                    <span class="badge bg-warning"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "DELETE">
+                                    <span class="badge bg-error"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "MERGE">
+                                    <span class="badge bg-primary"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "CONSOLIDATED">
+                                    <span class="badge bg-primary"> ${change.changeType.name()!} </span>
+                                <#else>
+                                    ${change.changeType.name()!}
+                                </#if>
+
+                            </td>
+                            <td>
+                                <#if change.changeStatus == "CONFLICT"
+                                    || change.changeStatus == "NOT_FOUND"
+                                    || change.changeStatus == "FAILURE">
+                                    <span class="custom-tooltip"> <i class="fa fa-times" style="color: red"> </i> ${change.changeStatus!}
+                                        <span class="custom-tooltiptext">${change.changeMessage!}</span>
+                                    </span>
+                                <#else>
+                                    <i class="fa fa-check" style="color: green"> </i> ${change.changeStatus!}
+                                </#if>
+                            </td>
+                            <td>${change.modificationDate!}</td>
+                            <td>${change.author.type.name()!}</td>
+                            <td>${change.author.name!}</td>
+                            <td>${change.clientCode!}</td>
+                        </tr>
+                    </#list>
+                </tbody>
+            </#if>
+        </table>
+    </@boxBody>
+</@rowBox>
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.view_change_history.attributeChangeTitle"></@boxHeader>
+    <@boxBody>
+        <table id="attribute-table" class="table table-condensed table-striped">
+            <tr>
+                <th onclick="sortTable(0, 'attribute-table')">#i18n{identitystore.view_change_history.attribut}</th>
+                <th onclick="sortTable(1, 'attribute-table')">#i18n{identitystore.view_change_history.type}</th>
+                <th onclick="sortTable(2, 'attribute-table')">#i18n{identitystore.view_change_history.status}</th>
+                <th onclick="sortTable(3, 'attribute-table')">#i18n{identitystore.view_change_history.date}</th>
+                <th onclick="sortTable(4, 'attribute-table')">#i18n{identitystore.view_change_history.value}</th>
+                <th onclick="sortTable(5, 'attribute-table')">#i18n{identitystore.view_change_history.certificate}</th>
+                <th onclick="sortTable(6, 'attribute-table')">#i18n{identitystore.view_change_history.certificate.date}</th>
+                <th onclick="sortTable(7, 'attribute-table')">#i18n{identitystore.view_change_history.author.type}</th>
+                <th onclick="sortTable(8, 'attribute-table')">#i18n{identitystore.view_change_history.author.name}</th>
+                <th onclick="sortTable(9, 'attribute-table')">#i18n{identitystore.view_change_history.client.code}</th>
+            </tr>
+            <#if attributes_change_list??  && attributes_change_list?has_content>
+                <tbody>
+                    <#list attributes_change_list as change>
+                        <tr>
+                            <td>${change.attributeKey}</td>
+                            <td>
+                                <#if change.changeType.name() == "CREATE">
+                                    <span class="badge bg-success"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "UPDATE">
+                                    <span class="badge bg-warning"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "DELETE">
+                                    <span class="badge bg-error"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "MERGE">
+                                    <span class="badge bg-primary"> ${change.changeType.name()!} </span>
+                                <#elseif change.changeType.name() == "CONSOLIDATED">
+                                    <span class="badge bg-primary"> ${change.changeType.name()!} </span>
+                                <#else>
+                                    ${change.changeType.name()!}
+                                </#if>
+
+                            </td>
+                            <td>
+                                <#if change.changeSatus == "created"
+                                    || change.changeSatus == "updated"
+                                    || change.changeSatus == "merged"
+                                    || change.changeSatus == "removed"
+                                    || change.changeSatus == "deleted">
+                                    <i class="fa fa-check" style="color: green"> </i> ${change.changeSatus!}
+                                <#else>
+                                    <span class="custom-tooltip"> <i class="fa fa-times" style="color: red"> </i> ${change.changeSatus!}
+                                        <span class="custom-tooltiptext">${change.changeMessage!}</span>
+                                    </span>
+                                </#if>
+                            </td>
+                            <td>${change.modificationDate!}</td>
+                            <td>${change.attributeValue!}</td>
+                            <td>${change.certificationProcessus!}</td>
+                            <td>${change.certificationDate!}</td>
+                            <td>${change.authorType.name()!}</td>
+                            <td>${change.authorName!}</td>
+                            <td>${change.clientCode!}</td>
+                        </tr>
+                    </#list>
+                </tbody>
+            </#if>
+        </table>
+    </@boxBody>
+</@rowBox>
+
+</div>
+<script src="/js/admin/plugins/identitystore/table.js"></script>
+<style>
+    table th{
+        cursor: pointer;
+    }
+    .custom-tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .custom-tooltip .custom-tooltiptext {
+        visibility: hidden;
+        width: 500px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 10% 10%;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .custom-tooltip .custom-tooltiptext::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+    }
+
+    .custom-tooltip:hover .custom-tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>

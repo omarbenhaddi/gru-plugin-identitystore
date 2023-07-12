@@ -192,7 +192,7 @@ public interface IIdentityAttributeDAO
      *            plugin
      * @return list of attribute change history for an identity attribute
      */
-    List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey, Plugin plugin );
+    List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin );
 
     /**
      * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation

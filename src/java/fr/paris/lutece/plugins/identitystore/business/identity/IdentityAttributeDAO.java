@@ -82,11 +82,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_attribute_history  "
             + "   (change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date) "
             + "   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history," + "       change_type, " + "       change_satus, "
-            + "       change_message, " + "       author_type, " + "       author_name, " + "       client_code, " + "       id_identity, "
-            + "       attribute_key, " + "       attribute_value, " + "       certification_process, " + "       certification_date, "
-            + "       modification_date " + "FROM identitystore_identity_attribute_history  " + "WHERE attribute_key = ? " + "  AND id_identity = ? "
-            + "ORDER BY modification_date DESC";
+    private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history, change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date FROM identitystore_identity_attribute_history WHERE id_identity = ? ORDER BY modification_date DESC";
     private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_identity_attribute_history  WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_identity_attribute_history  WHERE id_identity = ?";
 
@@ -674,13 +670,12 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     }
 
     @Override
-    public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey, Plugin plugin )
+    public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin )
     {
         final List<AttributeChange> listAttributeChange = new ArrayList<>( );
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ATTRIBUTE_HISTORY, plugin ) )
         {
-            daoUtil.setString( 1, strAttributeKey );
-            daoUtil.setInt( 2, nIdentityId );
+            daoUtil.setInt( 1, nIdentityId );
             daoUtil.executeQuery( );
 
             while ( daoUtil.next( ) )

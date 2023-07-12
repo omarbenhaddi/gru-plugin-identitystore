@@ -257,9 +257,9 @@ public final class IdentityAttributeHome
      *            identityId
      * @return list of attribute changes
      */
-    public static List<AttributeChange> getAttributeChangeHistory( int nIdentityId, String strAttributeKey )
+    public static List<AttributeChange> getAttributeChangeHistory( int nIdentityId )
     {
-        return _dao.getAttributeChangeHistory( nIdentityId, strAttributeKey, _plugin );
+        return _dao.getAttributeChangeHistory( nIdentityId, _plugin );
     }
 
     /**

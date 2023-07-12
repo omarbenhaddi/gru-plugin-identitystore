@@ -118,9 +118,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history  "
             + "   (change_type, change_status, change_message, author_type, author_name, client_code, customer_id) " + "   VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "select    "
-            + "   change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date "
-            + "   identitystore_identity_history where customer_id = ?";
+    private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
 
     /**
      * Generates a new customerId key using Java UUID
