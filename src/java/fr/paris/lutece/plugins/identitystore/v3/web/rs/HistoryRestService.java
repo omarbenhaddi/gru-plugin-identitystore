@@ -108,6 +108,8 @@ public class HistoryRestService
         String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         try
         {
+            IdentityRequestValidator.instance( ).checkClientApplication( strClientAppCode );
+            IdentityRequestValidator.instance( ).checkCustomerId( strCustomerId );
             final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
             if ( identity == null )
             {
