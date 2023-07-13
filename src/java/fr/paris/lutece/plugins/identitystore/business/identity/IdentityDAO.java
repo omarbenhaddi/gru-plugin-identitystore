@@ -236,7 +236,8 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     @Override
-    public void cancelMerge(Identity identity, Plugin plugin) {
+    public void cancelMerge( Identity identity, Plugin plugin )
+    {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_CANCEL_MERGE, plugin ) )
         {
             daoUtil.setInt( 1, identity.getId( ) );
@@ -513,7 +514,7 @@ public final class IdentityDAO implements IIdentityDAO
      *            daoUtil initialized with select query
      * @return Identity change load from result
      */
-    private IdentityChange getIdentityChangeFromQuery(DAOUtil daoUtil )
+    private IdentityChange getIdentityChangeFromQuery( DAOUtil daoUtil )
     {
         RequestAuthor author = new RequestAuthor( );
         IdentityChange identityChange = new IdentityChange( );

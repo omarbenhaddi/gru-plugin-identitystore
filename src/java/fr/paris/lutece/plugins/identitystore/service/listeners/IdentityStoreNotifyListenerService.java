@@ -177,8 +177,8 @@ public final class IdentityStoreNotifyListenerService
         return attributeChange;
     }
 
-    public static IdentityChange buildIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
-                                                     RequestAuthor author, String clientCode )
+    public static IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
+            RequestAuthor author, String clientCode )
     {
 
         final IdentityChange identityChange = new IdentityChange( );
@@ -186,12 +186,12 @@ public final class IdentityStoreNotifyListenerService
         identityChange.setChangeStatus( statusCode );
         identityChange.setChangeMessage( statusMessage );
         identityChange.setAuthor( author );
-        identityChange.setCustomerId( identity.getCustomerId() );
-        identityChange.setConnectionId( identity.getConnectionId() );
-        identityChange.setMonParisActive( identity.isMonParisActive() );
-        identityChange.setCreationDate( identity.getCreationDate() );
-        identityChange.setLastUpdateDate( identity.getLastUpdateDate() );
-        identityChange.setId( identity.getId() );
+        identityChange.setCustomerId( identity.getCustomerId( ) );
+        identityChange.setConnectionId( identity.getConnectionId( ) );
+        identityChange.setMonParisActive( identity.isMonParisActive( ) );
+        identityChange.setCreationDate( identity.getCreationDate( ) );
+        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
+        identityChange.setId( identity.getId( ) );
         identityChange.setClientCode( clientCode );
         return identityChange;
     }

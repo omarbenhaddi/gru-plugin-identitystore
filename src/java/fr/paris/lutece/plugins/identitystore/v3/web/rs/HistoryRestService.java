@@ -126,7 +126,7 @@ public class HistoryRestService
 
             final IdentityHistory history = new IdentityHistory( );
             history.setCustomerId( identity.getCustomerId( ) );
-            history.getIdentityChanges().addAll(identityChangeList);
+            history.getIdentityChanges( ).addAll( identityChangeList );
             attributeChangeList.stream( ).filter( ac -> readableAttributeKeys.contains( ac.getAttributeKey( ) ) )
                     .collect( Collectors.groupingBy( AttributeChange::getAttributeKey ) ).forEach( ( key, attributeChanges ) -> {
                         final AttributeHistory attributeHistory = new AttributeHistory( );

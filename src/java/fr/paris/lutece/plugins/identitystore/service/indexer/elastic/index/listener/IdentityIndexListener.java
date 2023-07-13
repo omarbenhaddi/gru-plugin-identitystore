@@ -64,13 +64,16 @@ public class IdentityIndexListener implements IdentityChangeListener
     public void processIdentityChange( IdentityChange identityChange )
     {
         final IndexIdentityChange localIdentityChange = (IndexIdentityChange) identityChange;
-        if ( localIdentityChange != null && localIdentityChange.getCustomerId( ) != null && localIdentityChange.getChangeType( ) != null && localIdentityChange.getIdentity() != null )
+        if ( localIdentityChange != null && localIdentityChange.getCustomerId( ) != null && localIdentityChange.getChangeType( ) != null
+                && localIdentityChange.getIdentity( ) != null )
         {
 
-            _logger.info( "Indexing identity change (" + localIdentityChange.getChangeType( ).name( ) + ") with customerId = " + localIdentityChange.getCustomerId( ) );
+            _logger.info( "Indexing identity change (" + localIdentityChange.getChangeType( ).name( ) + ") with customerId = "
+                    + localIdentityChange.getCustomerId( ) );
             final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( localIdentityChange );
-            final IdentityObject identityObject = new IdentityObject( localIdentityChange.getConnectionId( ), localIdentityChange.getCustomerId( ), localIdentityChange.getCreationDate( ),
-                    localIdentityChange.getLastUpdateDate( ), localIdentityChange.isMonParisActive( ), attributeObjects );
+            final IdentityObject identityObject = new IdentityObject( localIdentityChange.getConnectionId( ), localIdentityChange.getCustomerId( ),
+                    localIdentityChange.getCreationDate( ), localIdentityChange.getLastUpdateDate( ), localIdentityChange.isMonParisActive( ),
+                    attributeObjects );
 
             switch( localIdentityChange.getChangeType( ) )
             {
@@ -102,7 +105,7 @@ public class IdentityIndexListener implements IdentityChangeListener
 
     private Map<String, AttributeObject> mapToIndexObject( final IndexIdentityChange identity )
     {
-        return identity.getIdentity().getAttributes( ).values( ).stream( )
+        return identity.getIdentity( ).getAttributes( ).values( ).stream( )
                 .map( attribute -> new AttributeObject( attribute.getAttributeKey( ).getName( ), attribute.getAttributeKey( ).getKeyName( ),
                         attribute.getAttributeKey( ).getKeyType( ).getCode( ), attribute.getValue( ), attribute.getAttributeKey( ).getDescription( ),
                         attribute.getAttributeKey( ).getPivot( ), attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierCode( ) : null,
