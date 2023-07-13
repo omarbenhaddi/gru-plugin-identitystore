@@ -96,5 +96,6 @@
     <bean id="identitystore.serviceContractRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.ServiceContractRestService" />
     <bean id="identitystore.clientRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.ClientRestService" />
     <bean id="identitystore.referentielRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.ReferentielRestService" />
+    <bean id="identitystore.historyRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.HistoryRestService" />
 
 </beans>

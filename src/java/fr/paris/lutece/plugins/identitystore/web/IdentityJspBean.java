@@ -257,7 +257,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         if ( _identity != null && MapUtils.isNotEmpty( _identity.getAttributes( ) ) )
         {
             attributeChangeList.addAll( IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ) ) );
-            identityChangeList.addAll( IdentityHome.findHistoryByConnectionId( _identity.getCustomerId( ) ) );
+            identityChangeList.addAll( IdentityHome.findHistoryByCustomerId( _identity.getCustomerId( ) ) );
         }
 
         final Map<String, Object> model = getModel( );

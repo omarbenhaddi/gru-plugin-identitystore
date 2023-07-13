@@ -97,5 +97,6 @@
     <bean id="identitystore.v3.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityStoreRestService" />
     <bean id="identitystore.swaggerRest"  class="fr.paris.lutece.plugins.identitystore.v2.web.rs.swagger.SwaggerRest" />
     <bean id="identitystore.serviceContractRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.ServiceContractRestService" />
+    <bean id="identitystore.historyRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.HistoryRestService" />
 
 </beans>
