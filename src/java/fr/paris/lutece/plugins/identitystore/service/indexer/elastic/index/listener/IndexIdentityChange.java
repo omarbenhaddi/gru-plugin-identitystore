@@ -40,6 +40,28 @@ public class IndexIdentityChange extends IdentityChange
 {
     protected Identity identity;
 
+    public IndexIdentityChange( final IdentityChange identityChange, final Identity identity )
+    {
+        this.setId( identityChange.getId( ) );
+        this.setChangeMessage( identityChange.getChangeMessage( ) );
+        this.setChangeType( identityChange.getChangeType( ) );
+        this.setChangeStatus( identityChange.getChangeStatus( ) );
+        this.setAuthor( identityChange.getAuthor( ) );
+        this.setClientCode( identityChange.getClientCode( ) );
+        this.setCustomerId( identityChange.getCustomerId( ) );
+        this.setConnectionId( identity.getConnectionId( ) );
+        this.setCreationDate( identityChange.getCreationDate( ) );
+        this.setLastUpdateDate( identityChange.getLastUpdateDate( ) );
+        this.setModificationDate( identityChange.getModificationDate( ) );
+        this.setMonParisActive( identityChange.isMonParisActive( ) );
+        this.setDeleted( identityChange.isDeleted( ) );
+        this.setExpirationDate( identityChange.getExpirationDate( ) );
+        this.setMasterCustomerId( identityChange.getMasterCustomerId( ) );
+        this.setMerged( identityChange.isMerged( ) );
+        this.setMergeDate( identityChange.getMergeDate( ) );
+        this.setIdentity( identity );
+    }
+
     public Identity getIdentity( )
     {
         return identity;

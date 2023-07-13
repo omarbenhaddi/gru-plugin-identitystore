@@ -213,10 +213,9 @@ public class IdentityService
         } );
 
         /* Indexation et historique */
-        final IndexIdentityChange identityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.CREATE,
-                identity, response.getStatus().name(), response.getMessage(), identityChangeRequest.getOrigin(), clientCode);
-        identityChange.setIdentity(identity);
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
+        final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
+                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
         return identity;
     }
@@ -368,10 +367,9 @@ public class IdentityService
         } );
 
         /* Indexation et historique */
-        final IndexIdentityChange identityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.UPDATE,
-                identity, response.getStatus().name(), response.getMessage(), identityChangeRequest.getOrigin(), clientCode);
-        identityChange.setIdentity(identity);
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
+        final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
+                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
         return identity;
     }
@@ -482,15 +480,17 @@ public class IdentityService
         } );
 
         /* Indexation */
-        final IndexIdentityChange secondaryIdentityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.MERGED,
-                secondaryIdentity, response.getStatus().name(), response.getStatus().getLabel(), identityMergeRequest.getOrigin(), clientCode);
-        secondaryIdentityChange.setIdentity(secondaryIdentity);
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange(secondaryIdentityChange);
+        final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
+                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity, response.getStatus( ).name( ),
+                        response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                secondaryIdentity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
 
-        final IndexIdentityChange primaryIdentityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.CONSOLIDATED, primaryIdentity,
-                response.getStatus().name(), response.getStatus().getLabel(), identityMergeRequest.getOrigin(), clientCode);
-        primaryIdentityChange.setIdentity(primaryIdentity);
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange(primaryIdentityChange);
+        final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
+                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).name( ),
+                        response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                primaryIdentity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
 
         return primaryIdentity;
     }
@@ -829,10 +829,9 @@ public class IdentityService
         response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
 
         /* Notify listeners for indexation, history, ... */
-        final IndexIdentityChange identityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.DELETE,
-                identity, response.getStatus().name(), response.getMessage(), identityChangeRequest.getOrigin(), clientCode);
-        identityChange.getIdentity();
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
+        final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
+                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
     }
 
