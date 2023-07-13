@@ -111,15 +111,18 @@ public class IdentityAttributeValidationService
     private boolean validateIdentityAttributeValues( final Identity identity, final ChangeResponse response ) throws IdentityAttributeNotFoundException
     {
         boolean passedValidation = true;
-        for ( final CertifiedAttribute attribute : identity.getAttributes( ) )
+        if ( identity != null )
         {
-            final Pattern validationPattern = _cache.get( attribute.getKey( ) );
-            if ( validationPattern != null )
+            for ( final CertifiedAttribute attribute : identity.getAttributes( ) )
             {
-                if ( !validationPattern.matcher( attribute.getValue( ) ).matches( ) )
+                final Pattern validationPattern = _cache.get( attribute.getKey( ) );
+                if ( validationPattern != null )
                 {
-                    passedValidation = false;
-                    response.getAttributeStatuses( ).add( this.buildAttributeValidationErrorStatus( attribute.getKey( ) ) );
+                    if ( !validationPattern.matcher( attribute.getValue( ) ).matches( ) )
+                    {
+                        passedValidation = false;
+                        response.getAttributeStatuses( ).add( this.buildAttributeValidationErrorStatus( attribute.getKey( ) ) );
+                    }
                 }
             }
         }

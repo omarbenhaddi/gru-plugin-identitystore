@@ -88,9 +88,13 @@ public class IdentityAttributeFormatterService
      */
     public List<AttributeStatus> formatIdentityMergeRequestAttributeValues( final IdentityMergeRequest request )
     {
+        final List<AttributeStatus> statuses = new ArrayList<>( );
         final Identity identity = request.getIdentity( );
-        final List<AttributeStatus> statuses = this.formatIdentityAttributeValues( identity );
-        request.setIdentity( identity );
+        if ( identity != null )
+        {
+            statuses.addAll( this.formatIdentityAttributeValues( identity ) );
+            request.setIdentity( identity );
+        }
         return statuses;
     }
 
