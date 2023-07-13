@@ -45,7 +45,6 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
@@ -53,6 +52,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNot
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.IDuplicateService;
 import fr.paris.lutece.plugins.identitystore.service.geocodes.GeocodesService;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener.IndexIdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
@@ -67,6 +67,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
@@ -210,9 +212,11 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
         } );
 
-        /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
-                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
+        /* Indexation et historique */
+        final IndexIdentityChange identityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.CREATE,
+                identity, response.getStatus().name(), response.getMessage(), identityChangeRequest.getOrigin(), clientCode);
+        identityChange.setIdentity(identity);
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
 
         return identity;
     }
@@ -363,9 +367,11 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
         } );
 
-        /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
-                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
+        /* Indexation et historique */
+        final IndexIdentityChange identityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.UPDATE,
+                identity, response.getStatus().name(), response.getMessage(), identityChangeRequest.getOrigin(), clientCode);
+        identityChange.setIdentity(identity);
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
 
         return identity;
     }
@@ -476,12 +482,15 @@ public class IdentityService
         } );
 
         /* Indexation */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED,
-                secondaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
+        final IndexIdentityChange secondaryIdentityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.MERGED,
+                secondaryIdentity, response.getStatus().name(), response.getStatus().getLabel(), identityMergeRequest.getOrigin(), clientCode);
+        secondaryIdentityChange.setIdentity(secondaryIdentity);
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange(secondaryIdentityChange);
 
-        _identityStoreNotifyListenerService
-                .notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity,
-                        response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ) );
+        final IndexIdentityChange primaryIdentityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.CONSOLIDATED, primaryIdentity,
+                response.getStatus().name(), response.getStatus().getLabel(), identityMergeRequest.getOrigin(), clientCode);
+        primaryIdentityChange.setIdentity(primaryIdentity);
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange(primaryIdentityChange);
 
         return primaryIdentity;
     }
@@ -820,8 +829,10 @@ public class IdentityService
         response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
 
         /* Notify listeners for indexation, history, ... */
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
-                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ) );
+        final IndexIdentityChange identityChange = (IndexIdentityChange) IdentityStoreNotifyListenerService.buildIdentityChange(IdentityChangeType.DELETE,
+                identity, response.getStatus().name(), response.getMessage(), identityChangeRequest.getOrigin(), clientCode);
+        identityChange.getIdentity();
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange(identityChange);
 
     }
 

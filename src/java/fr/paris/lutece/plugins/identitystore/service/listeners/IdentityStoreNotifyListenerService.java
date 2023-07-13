@@ -37,13 +37,13 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertifi
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
@@ -177,8 +177,8 @@ public final class IdentityStoreNotifyListenerService
         return attributeChange;
     }
 
-    public static IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
-            RequestAuthor author, String clientCode )
+    public static IdentityChange buildIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
+                                                     RequestAuthor author, String clientCode )
     {
 
         final IdentityChange identityChange = new IdentityChange( );
@@ -186,7 +186,12 @@ public final class IdentityStoreNotifyListenerService
         identityChange.setChangeStatus( statusCode );
         identityChange.setChangeMessage( statusMessage );
         identityChange.setAuthor( author );
-        identityChange.setIdentity( identity );
+        identityChange.setCustomerId( identity.getCustomerId() );
+        identityChange.setConnectionId( identity.getConnectionId() );
+        identityChange.setMonParisActive( identity.isMonParisActive() );
+        identityChange.setCreationDate( identity.getCreationDate() );
+        identityChange.setLastUpdateDate( identity.getLastUpdateDate() );
+        identityChange.setId( identity.getId() );
         identityChange.setClientCode( clientCode );
         return identityChange;
     }

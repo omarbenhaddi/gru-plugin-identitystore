@@ -33,12 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener;
 
-import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.log4j.Logger;
 
@@ -64,17 +63,16 @@ public class IdentityIndexListener implements IdentityChangeListener
     @Override
     public void processIdentityChange( IdentityChange identityChange )
     {
-        if ( identityChange != null && identityChange.getIdentity( ) != null && identityChange.getIdentity( ).getCustomerId( ) != null
-                && identityChange.getChangeType( ) != null )
+        final IndexIdentityChange localIdentityChange = (IndexIdentityChange) identityChange;
+        if ( localIdentityChange != null && localIdentityChange.getCustomerId( ) != null && localIdentityChange.getChangeType( ) != null && localIdentityChange.getIdentity() != null )
         {
-            _logger.info( "Indexing identity change (" + identityChange.getChangeType( ).name( ) + ") with customerId = "
-                    + identityChange.getIdentity( ).getCustomerId( ) );
-            final Identity identity = identityChange.getIdentity( );
-            final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( identity );
-            final IdentityObject identityObject = new IdentityObject( identity.getConnectionId( ), identity.getCustomerId( ), identity.getCreationDate( ),
-                    identity.getLastUpdateDate( ), identity.isMonParisActive( ), attributeObjects );
 
-            switch( identityChange.getChangeType( ) )
+            _logger.info( "Indexing identity change (" + localIdentityChange.getChangeType( ).name( ) + ") with customerId = " + localIdentityChange.getCustomerId( ) );
+            final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( localIdentityChange );
+            final IdentityObject identityObject = new IdentityObject( localIdentityChange.getConnectionId( ), localIdentityChange.getCustomerId( ), localIdentityChange.getCreationDate( ),
+                    localIdentityChange.getLastUpdateDate( ), localIdentityChange.isMonParisActive( ), attributeObjects );
+
+            switch( localIdentityChange.getChangeType( ) )
             {
                 case CREATE:
                     this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
@@ -102,9 +100,9 @@ public class IdentityIndexListener implements IdentityChangeListener
         return SERVICE_NAME;
     }
 
-    private Map<String, AttributeObject> mapToIndexObject( final Identity identity )
+    private Map<String, AttributeObject> mapToIndexObject( final IndexIdentityChange identity )
     {
-        return identity.getAttributes( ).values( ).stream( )
+        return identity.getIdentity().getAttributes( ).values( ).stream( )
                 .map( attribute -> new AttributeObject( attribute.getAttributeKey( ).getName( ), attribute.getAttributeKey( ).getKeyName( ),
                         attribute.getAttributeKey( ).getKeyType( ).getCode( ), attribute.getValue( ), attribute.getAttributeKey( ).getDescription( ),
                         attribute.getAttributeKey( ).getPivot( ), attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierCode( ) : null,

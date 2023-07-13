@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -268,7 +268,7 @@ public interface IIdentityDAO
      * @param identityChange
      * @param plugin
      */
-    void addChangeHistory( IdentityChange identityChange, Plugin plugin );
+    void addChangeHistory(IdentityChange identityChange, Plugin plugin );
 
     /**
      * get identity history

@@ -38,12 +38,12 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeHistory;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -126,7 +126,7 @@ public class HistoryRestService
 
             final IdentityHistory history = new IdentityHistory( );
             history.setCustomerId( identity.getCustomerId( ) );
-            identityChangeList.forEach( ic -> history.getIdentityChanges( ).add( IdentityHistoryMapper.toJsonIdentityChange( ic ) ) );
+            history.getIdentityChanges().addAll(identityChangeList);
             attributeChangeList.stream( ).filter( ac -> readableAttributeKeys.contains( ac.getAttributeKey( ) ) )
                     .collect( Collectors.groupingBy( AttributeChange::getAttributeKey ) ).forEach( ( key, attributeChanges ) -> {
                         final AttributeHistory attributeHistory = new AttributeHistory( );

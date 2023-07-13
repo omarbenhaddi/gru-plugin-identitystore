@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.portal.service.util.LuteceService;
 
 /**

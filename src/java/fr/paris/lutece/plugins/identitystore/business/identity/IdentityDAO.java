@@ -33,10 +33,10 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -110,6 +110,7 @@ public final class IdentityDAO implements IIdentityDAO
             + " WHERE (a.id_identity = b.id_identity AND b.attribute_value = ? )" + " OR a.customer_id = ? OR a.connection_id = ?";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now( ), is_mon_paris_active = 0, expiration_date=now( ), last_update_date=now( )  WHERE customer_id = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), id_master_identity = ? WHERE id_identity = ?";
+    private static final String SQL_QUERY_CANCEL_MERGE = "UPDATE identitystore_identity SET is_merged = 0, date_merge = null, last_update_date = now(), id_master_identity = null WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.customer_id" + " FROM identitystore_identity a"
             + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
             + " WHERE b.id_attribute IN (${id_attribute_list}) AND (${not_merged}) AND (${not_suspicious})"
@@ -230,6 +231,15 @@ public final class IdentityDAO implements IIdentityDAO
         {
             daoUtil.setInt( 1, identity.getMasterIdentityId( ) );
             daoUtil.setInt( 2, identity.getId( ) );
+            daoUtil.executeUpdate( );
+        }
+    }
+
+    @Override
+    public void cancelMerge(Identity identity, Plugin plugin) {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_CANCEL_MERGE, plugin ) )
+        {
+            daoUtil.setInt( 1, identity.getId( ) );
             daoUtil.executeUpdate( );
         }
     }
@@ -503,9 +513,8 @@ public final class IdentityDAO implements IIdentityDAO
      *            daoUtil initialized with select query
      * @return Identity change load from result
      */
-    private IdentityChange getIdentityChangeFromQuery( DAOUtil daoUtil )
+    private IdentityChange getIdentityChangeFromQuery(DAOUtil daoUtil )
     {
-        Identity identity = new Identity( );
         RequestAuthor author = new RequestAuthor( );
         IdentityChange identityChange = new IdentityChange( );
 
@@ -522,7 +531,6 @@ public final class IdentityDAO implements IIdentityDAO
         identityChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ) );
 
         identityChange.setAuthor( author );
-        identityChange.setIdentity( identity );
 
         return identityChange;
     }
@@ -790,7 +798,7 @@ public final class IdentityDAO implements IIdentityDAO
             daoUtil.setString( nIndex++, identityChange.getAuthor( ).getType( ).name( ) );
             daoUtil.setString( nIndex++, identityChange.getAuthor( ).getName( ) );
             daoUtil.setString( nIndex++, identityChange.getClientCode( ) );
-            daoUtil.setString( nIndex++, identityChange.getIdentity( ).getCustomerId( ) );
+            daoUtil.setString( nIndex++, identityChange.getCustomerId( ) );
             daoUtil.executeUpdate( );
         }
     }

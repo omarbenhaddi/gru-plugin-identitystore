@@ -34,8 +34,8 @@
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
-import fr.paris.lutece.plugins.identitystore.service.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 
 public class IdentityHistoryListener implements IdentityChangeListener
 {
