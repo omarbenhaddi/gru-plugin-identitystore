@@ -76,6 +76,14 @@ public interface IIdentityDAO
     void merge( Identity identity, Plugin plugin );
 
     /**
+     * Cancel identity merge
+     *
+     * @param identity
+     * @param plugin
+     */
+    void cancelMerge( Identity identity, Plugin plugin );
+
+    /**
      * Delete a record from the table
      *
      * @param nKey
@@ -268,7 +276,7 @@ public interface IIdentityDAO
      * @param identityChange
      * @param plugin
      */
-    void addChangeHistory(IdentityChange identityChange, Plugin plugin );
+    void addChangeHistory( IdentityChange identityChange, Plugin plugin );
 
     /**
      * get identity history

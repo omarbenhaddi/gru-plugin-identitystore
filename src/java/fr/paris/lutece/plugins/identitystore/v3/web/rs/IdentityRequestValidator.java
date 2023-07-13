@@ -244,6 +244,39 @@ public final class IdentityRequestValidator
         }
     }
 
+    /**
+     * Check whether the parameters related to the identity merge request are valid or not
+     *
+     * @param identityMergeRequest
+     *            the identity merge request
+     * @throws AppException
+     *             if the parameters are not valid
+     */
+    public void checkCancelMergeRequest( final IdentityMergeRequest identityMergeRequest ) throws IdentityStoreException
+    {
+        this.checkOrigin( identityMergeRequest );
+
+        if ( identityMergeRequest == null )
+        {
+            throw new IdentityStoreException( "Provided Identity Merge request is null" );
+        }
+
+        if ( identityMergeRequest.getPrimaryCuid( ) == null )
+        {
+            throw new IdentityStoreException( "An Identity merge request must provide the CUID of the primary Identity" );
+        }
+
+        if ( identityMergeRequest.getSecondaryCuid( ) == null )
+        {
+            throw new IdentityStoreException( "An Identity merge request must provide the CUID of the secondary Identity" );
+        }
+
+        if ( identityMergeRequest.getIdentity( ) != null )
+        {
+            throw new IdentityStoreException( "A cancel identity merge request cannot provide an Identity. Only primary and secondary CUIDs are authorized." );
+        }
+    }
+
     public void checkServiceContract( ServiceContractDto serviceContractDto ) throws IdentityStoreException
     {
         if ( serviceContractDto == null )

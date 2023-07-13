@@ -104,6 +104,11 @@ public final class IdentityHome
         return identity;
     }
 
+    public static void cancelMerge( Identity identity )
+    {
+        _dao.cancelMerge( identity, _plugin );
+    }
+
     /**
      * Remove the identity whose identifier is specified in parameter
      *

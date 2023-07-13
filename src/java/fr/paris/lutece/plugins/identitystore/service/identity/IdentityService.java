@@ -495,6 +495,57 @@ public class IdentityService
         return primaryIdentity;
     }
 
+    public void cancelMerge( final IdentityMergeRequest identityMergeRequest, final String clientCode, final IdentityMergeResponse response )
+    {
+        final Identity primaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getPrimaryCuid( ) );
+        if ( primaryIdentity == null )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Could not find primary identity with customer_id " + identityMergeRequest.getPrimaryCuid( ) );
+            return;
+        }
+
+        final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getSecondaryCuid( ) );
+        if ( secondaryIdentity == null )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Could not find secondary identity with customer_id " + identityMergeRequest.getSecondaryCuid( ) );
+            return;
+        }
+
+        if ( !secondaryIdentity.isMerged( ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is not merged" );
+            return;
+        }
+
+        if ( secondaryIdentity.getMasterIdentityId( ) != primaryIdentity.getMasterIdentityId( ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( )
+                    + " is not merged to Primary identity found with customer ID " + identityMergeRequest.getPrimaryCuid( ) );
+            return;
+        }
+
+        /* Tag de l'identité secondaire */
+        IdentityHome.cancelMerge( secondaryIdentity );
+        response.setStatus( IdentityMergeStatus.SUCCESS );
+
+        /* Indexation */
+        final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
+                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity, response.getStatus( ).name( ),
+                        response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                secondaryIdentity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
+
+        final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
+                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
+                        response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                primaryIdentity );
+        _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
+    }
+
     /**
      * Imports an {@link Identity} according to the given {@link IdentityChangeRequest}
      *
