@@ -50,7 +50,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute ) FROM identitystore_ref_attribute";
     private static final String SQL_QUERY_SELECT = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message FROM identitystore_ref_attribute WHERE id_attribute = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_attribute ( id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_attribute ( id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, validation_regex, validation_error_message ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_attribute WHERE id_attribute = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_attribute SET id_attribute = ?, name = ?, key_name = ?, common_search_key = ?, description = ?, key_type = ?, certifiable = ?, pivot = ?, key_weight = ?, mandatory_for_creation = ?, validation_regex = ?, validation_error_message = ? WHERE id_attribute = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message FROM identitystore_ref_attribute";
@@ -103,7 +103,9 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             daoUtil.setInt( nIndex++, attributeKey.getKeyType( ).getId( ) );
             daoUtil.setBoolean( nIndex++, attributeKey.getCertifiable( ) );
             daoUtil.setBoolean( nIndex++, attributeKey.getPivot( ) );
-            daoUtil.setInt( nIndex, attributeKey.getKeyWeight( ) );
+            daoUtil.setInt( nIndex++, attributeKey.getKeyWeight( ) );
+            daoUtil.setString( nIndex++, attributeKey.getValidationRegex( ) );
+            daoUtil.setString( nIndex, attributeKey.getValidationErrorMessage( ) );
 
             daoUtil.executeUpdate( );
         }

@@ -139,9 +139,9 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     @View( VIEW_CREATE_ATTRIBUTEKEY )
     public String getCreateAttributeKey( HttpServletRequest request )
     {
-        _attributekey = ( _attributekey != null ) ? _attributekey : new AttributeKey( );
+        _attributekey = new AttributeKey( );
 
-        Map<String, Object> model = getModel( );
+        final Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
         model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale( ) ) );
         storeRichText( request, model );
