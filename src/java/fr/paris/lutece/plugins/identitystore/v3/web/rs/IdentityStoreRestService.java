@@ -34,7 +34,6 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
@@ -134,30 +133,6 @@ public final class IdentityStoreRestService
             final IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( identitySearchRequest, strClientAppCode );
             final IdentitySearchResponse entity = (IdentitySearchResponse) identityStoreRequest.doRequest( );
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
-    }
-
-    /**
-     * Searches Identities from a list of values for a series of attributes
-     *
-     * @param strHeaderClientAppCode
-     *            client code
-     * @return the identities
-     */
-    @POST
-    @Path( "index" )
-    @Consumes( MediaType.APPLICATION_JSON )
-    @Produces( MediaType.APPLICATION_JSON )
-    public Response fullIndex( @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
-    {
-        try
-        {
-            IdentityService.instance( ).fullIndexing( );
-            return Response.status( Response.Status.OK ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }
         catch( Exception exception )
         {

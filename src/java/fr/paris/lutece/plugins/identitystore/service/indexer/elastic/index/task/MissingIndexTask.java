@@ -59,6 +59,7 @@ public class MissingIndexTask extends Daemon
     @Override
     public void run( )
     {
+
         final StopWatch stopWatch = new StopWatch( );
         stopWatch.start( );
         final int batchSize = AppPropertiesService.getPropertyInt( "task.missingindex.batch.size", 1000 );
@@ -96,7 +97,7 @@ public class MissingIndexTask extends Daemon
 
             // Clean processed actions
             AppLogService.info( "Indexing over, clean processed actions in database " );
-            indexActions.forEach( indexAction -> IndexActionHome.delete( indexAction ) );
+            indexActions.forEach( IndexActionHome::delete );
         }
         else
         {
@@ -111,7 +112,7 @@ public class MissingIndexTask extends Daemon
         }
         else
         {
-            AppLogService.info( "Missing indexes processing failed" );
+            AppLogService.info( "No missing index to process" );
         }
     }
 }

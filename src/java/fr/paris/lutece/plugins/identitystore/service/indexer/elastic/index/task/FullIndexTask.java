@@ -39,8 +39,6 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityObjectHome;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
-import fr.paris.lutece.portal.service.daemon.Daemon;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
@@ -54,11 +52,15 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class FullIndexTask extends Daemon
+public class FullIndexTask
 {
-    private IIdentityIndexer _identityIndexer = SpringContextService.getBean( IIdentityIndexer.NAME );
+    private IIdentityIndexer _identityIndexer;
 
-    @Override
+    public FullIndexTask( IIdentityIndexer _identityIndexer )
+    {
+        this._identityIndexer = _identityIndexer;
+    }
+
     public void run( )
     {
         final StopWatch stopWatch = new StopWatch( );

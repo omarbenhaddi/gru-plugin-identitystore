@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" >
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <!-- DAO -->
     <bean id="identitystore.indexActionDAO" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.business.IndexActionDao" />
@@ -97,5 +97,14 @@
     <bean id="identitystore.clientRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.ClientRestService" />
     <bean id="identitystore.referentielRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.ReferentielRestService" />
     <bean id="identitystore.historyRest" class="fr.paris.lutece.plugins.identitystore.v3.web.rs.HistoryRestService" />
+
+    <!-- Schedule full E/S identities reindexing -->
+    <bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" >
+        <constructor-arg name="_identityIndexer" ref="identitystore.identityIndexer"/>
+    </bean>
+    <task:scheduler id="identitystore.fullIndexerScheduler" pool-size="10" />
+    <task:scheduled-tasks scheduler="identitystore.fullIndexerScheduler">
+        <task:scheduled ref="identitystore.fullIndexer" method="run" cron="${identitystore.index.full.cron}"/>
+    </task:scheduled-tasks>
 
 </beans>
