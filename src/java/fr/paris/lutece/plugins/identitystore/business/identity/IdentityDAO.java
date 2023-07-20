@@ -101,7 +101,8 @@ public final class IdentityDAO implements IIdentityDAO
             + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_ref_attribute c"
             + " WHERE a.id_identity = b.id_identity AND b.id_attribute = c.id_attribute AND (${filter})"
             + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT ${limit}";
-    private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND b.attribute_value IN (${list}))";
+    private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND LOWER(b.attribute_value) IN (${list}))";
+    private static final String SQL_QUERY_FILTER_NORMALIZED_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND TRANSLATE(REPLACE(REPLACE(LOWER(b.attribute_value), 'œ', 'oe'), 'æ', 'ae'), 'àâäéèêëîïôöùûüÿçñ', 'aaaeeeeiioouuuycn') IN (${list}))";
     private static final String SQL_QUERY_SELECT_ALL_BY_CONNECTION_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date FROM identitystore_identity WHERE connection_id ";
     private static final String SQL_QUERY_SELECT_ALL_BY_CUSTOMER_ID = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, date_create, last_update_date, date_merge, is_mon_paris_active, expiration_date  FROM identitystore_identity WHERE customer_id ";
     private static final String SQL_QUERY_SELECT_BY_ALL_ATTRIBUTES_CID_GUID_LIKE = "SELECT DISTINCT a.id_identity, a.connection_id, a.customer_id, a.is_deleted, a.is_merged, a.date_create, a.last_update_date, a.date_merge, a.is_mon_paris_active, a.expiration_date FROM identitystore_identity a,  identitystore_identity_attribute b "
@@ -613,7 +614,14 @@ public final class IdentityDAO implements IIdentityDAO
                 listIn.add( "?" );
             }
 
-            listAttributeFilter.add( SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH.replace( "${list}", String.join( ", ", listIn ) ) );
+            if ( strAttributeId.equals( "family_name" ) || strAttributeId.equals( "first_name" ) )
+            {
+                listAttributeFilter.add( SQL_QUERY_FILTER_NORMALIZED_ATTRIBUTE_FOR_API_SEARCH.replace( "${list}", String.join( ", ", listIn ) ) );
+            }
+            else
+            {
+                listAttributeFilter.add( SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH.replace( "${list}", String.join( ", ", listIn ) ) );
+            }
         }
 
         if ( listAttributeFilter.isEmpty( ) )
@@ -634,7 +642,14 @@ public final class IdentityDAO implements IIdentityDAO
 
                 for ( String strAttributeValue : mapAttributes.get( strAttributeId ) )
                 {
-                    daoUtil.setString( nIndex++, strAttributeValue );
+                    if ( strAttributeId.equals( "family_name" ) || strAttributeId.equals( "first_name" ) )
+                    {
+                        daoUtil.setString( nIndex++, normalizeValue( strAttributeValue ) );
+                    }
+                    else
+                    {
+                        daoUtil.setString( nIndex++, StringUtils.lowerCase( strAttributeValue ) );
+                    }
                 }
             }
 
@@ -650,6 +665,11 @@ public final class IdentityDAO implements IIdentityDAO
 
             return listIdentities;
         }
+    }
+
+    private String normalizeValue( final String value )
+    {
+        return StringUtils.stripAccents( value.toLowerCase( ).replace( "œ", "oe" ).replace( "æ", "ae" ) );
     }
 
     /**
