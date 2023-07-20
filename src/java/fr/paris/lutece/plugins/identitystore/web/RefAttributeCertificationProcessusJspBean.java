@@ -124,6 +124,7 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
     {
         List<RefAttributeCertificationProcessus> refAttributeCertificationProcessussList = RefAttributeCertificationProcessusHome
                 .getRefAttributeCertificationProcessussList( );
+        refAttributeCertificationProcessussList.sort( Comparator.comparing( RefAttributeCertificationProcessus::getCode ) );
 
         Map<String, Object> model = getPaginatedListModel( request, MARK_REFATTRIBUTECERTIFICATIONPROCESSUS_LIST, refAttributeCertificationProcessussList,
                 JSP_MANAGE_REFATTRIBUTECERTIFICATIONPROCESSUSS );
