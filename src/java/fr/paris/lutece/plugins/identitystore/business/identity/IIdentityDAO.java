@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -287,4 +288,12 @@ public interface IIdentityDAO
      */
     List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin );
 
+    /**
+     * get identities that have been updated during the previous `days`.
+     * 
+     * @param days
+     *            max number of days since the last update
+     * @return the list of identities
+     */
+    List<UpdatedIdentity> selectUpdated( final int days, final Plugin plugin );
 }

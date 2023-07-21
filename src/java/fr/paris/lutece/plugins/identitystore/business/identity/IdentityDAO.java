@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.business.identity;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -121,6 +122,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history  "
             + "   (change_type, change_status, change_message, author_type, author_name, client_code, customer_id) " + "   VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
+    private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days} DAY')";
 
     /**
      * Generates a new customerId key using Java UUID
@@ -846,6 +848,30 @@ public final class IdentityDAO implements IIdentityDAO
             }
 
             return listIdentitieChanges;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<UpdatedIdentity> selectUpdated( final int days, final Plugin plugin )
+    {
+        final List<UpdatedIdentity> list = new ArrayList<>( );
+        String strSQL = SQL_QUERY_SELECT_UPDATED_IDENTITIES.replace( "${days}", String.valueOf( days ) );
+
+        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        {
+            daoUtil.executeQuery( );
+            while ( daoUtil.next( ) )
+            {
+                final UpdatedIdentity updatedIdentity = new UpdatedIdentity( );
+                int nIndex = 1;
+                updatedIdentity.setCustomerId( daoUtil.getString( nIndex++ ) );
+                updatedIdentity.setModificationDate( daoUtil.getTimestamp( nIndex ) );
+                list.add( updatedIdentity );
+            }
+            return list;
         }
     }
 

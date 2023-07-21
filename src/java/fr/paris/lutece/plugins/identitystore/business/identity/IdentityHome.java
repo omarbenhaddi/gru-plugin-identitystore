@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -460,6 +461,18 @@ public final class IdentityHome
     public static void addIdentityChangeHistory( IdentityChange identityChange )
     {
         _dao.addChangeHistory( identityChange, _plugin );
+    }
+
+    /**
+     * get identities that have been updated during the previous `days`.
+     * 
+     * @param days
+     *            max number of days since the last update
+     * @return the list of identities
+     */
+    public static List<UpdatedIdentity> findUpdatedIdentities( final int days )
+    {
+        return _dao.selectUpdated( days, _plugin );
     }
 
 }

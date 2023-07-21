@@ -33,15 +33,19 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
@@ -53,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * REST service for channel resource
@@ -352,6 +357,53 @@ public final class IdentityStoreRestService
             return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
         }
         catch( Exception exception )
+        {
+            return getErrorResponse( exception );
+        }
+    }
+
+    /**
+     * Gives all modified identity CUIDs within the last given number of days
+     *
+     * @param strDays
+     *            max number of days since the last update
+     * @param strHeaderClientAppCode
+     *            client code
+     * @return the identity list
+     */
+    @GET
+    @Path( Constants.UPDATED_IDENTITIES_PATH )
+    @Produces( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Gets all modified identity CUIDs within the last given number of days", response = UpdatedIdentitySearchResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
+    } )
+    public Response getUpdatedIdentities(
+            @ApiParam( name = Constants.PARAM_DAYS, value = "max number of days since the last update" ) @QueryParam( Constants.PARAM_DAYS ) String strDays,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+    {
+        final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
+        if ( StringUtils.isBlank( strDays ) || !StringUtils.isNumeric( strDays ) )
+        {
+            return buildResponse( "You must provide the 'days' parameter in numeric format.", Response.Status.BAD_REQUEST );
+        }
+        try
+        {
+            final UpdatedIdentitySearchResponse entity = new UpdatedIdentitySearchResponse( );
+            final List<UpdatedIdentity> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
+            if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
+            {
+                entity.setStatus( UpdatedIdentitySearchStatus.NOT_FOUND );
+            }
+            else
+            {
+                entity.setStatus( UpdatedIdentitySearchStatus.SUCCESS );
+                entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
+            }
+            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        }
+        catch( final Exception exception )
         {
             return getErrorResponse( exception );
         }
