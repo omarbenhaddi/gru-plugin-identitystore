@@ -1,0 +1,11 @@
+<#macro tabs tab >
+        <@tabList>
+                <@tabLink active=( tab == "searchidentities" )
+                        title="#i18n{identitystore.manage_identities.title}"
+                        href="jsp/admin/plugins/identitystore/ManageIdentities.jsp"  />
+
+                <@tabLink active=( tab == "indexidentities" )
+                        title="#i18n{identitystore.index_identities.title}"
+                        href="jsp/admin/plugins/identitystore/IndexIdentities.jsp"  />
+        </@tabList>
+</#macro>

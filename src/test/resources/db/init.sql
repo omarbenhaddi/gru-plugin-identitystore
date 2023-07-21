@@ -2107,6 +2107,7 @@ INSERT INTO public.core_user_right (id_right, id_user) VALUES ('IDENTITYSTORE_MA
 INSERT INTO public.core_user_right (id_right, id_user) VALUES ('IDENTITYSTORE_ADMIN_MANAGEMENT', 1);
 INSERT INTO public.core_user_right (id_right, id_user) VALUES ('IDENTITYSTORE_REF_MANAGEMENT', 1);
 INSERT INTO public.core_user_right (id_right, id_user) VALUES ('VIEW_IDENTITY', 1);
+INSERT INTO public.core_user_right (id_right, id_user) VALUES ('INDEX_IDENTITY', 1);
 
 --
 -- Data for Name: core_user_role; Type: TABLE DATA; Schema: public; Owner: idstore

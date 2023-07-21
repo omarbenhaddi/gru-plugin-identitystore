@@ -56,6 +56,7 @@ public class IdentityManagementResourceIdService extends ResourceIdService
     public static final String PERMISSION_MODIFY_IDENTITY = "MODIFY_IDENTITY";
     public static final String PERMISSION_DELETE_IDENTITY = "DELETE_IDENTITY";
     public static final String PERMISSION_VIEW_IDENTITY = "VIEW_IDENTITY";
+    public static final String PERMISSION_INDEX_IDENTITY = "INDEX_IDENTITY";
     public static final String PERMISSION_ATTRIBUTS_HISTO = "ATTRIBUTS_HISTO";
     public static final String RESOURCE_TYPE = "IDENTITY";
     private static final String PROPERTY_LABEL_RESOURCE_TYPE = "identitystore.identity.resourceType";

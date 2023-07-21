@@ -39,22 +39,24 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityObjectHome;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public class FullIndexTask
+public class FullIndexTask extends AbstractIndexTask
 {
-    private IIdentityIndexer _identityIndexer;
+    private static final String TASK_REINDEX_BATCH_SIZE_PROPERTY = "task.reindex.batch.size";
+    private final IIdentityIndexer _identityIndexer;
 
     public FullIndexTask( IIdentityIndexer _identityIndexer )
     {
@@ -65,20 +67,22 @@ public class FullIndexTask
     {
         final StopWatch stopWatch = new StopWatch( );
         stopWatch.start( );
-        final int batchSize = AppPropertiesService.getPropertyInt( "task.reindex.batch.size", 1000 );
+        this.init( );
+        this.getStatus( ).log( "Starting identities full reindex at " + DateFormatUtils.format( stopWatch.getStartTime( ), "dd-MM-yyyy'T'HH:mm:ss" ) );
+        final int batchSize = AppPropertiesService.getPropertyInt( TASK_REINDEX_BATCH_SIZE_PROPERTY, 1000 );
         final List<String> customerIdsList = new ArrayList<>( );
         if ( _identityIndexer.isAlive( ) )
         {
             final String newIndex = "identities-" + UUID.randomUUID( );
-            AppLogService.info( "ES available :: indexing" );
+            this.getStatus( ).log( "ES available :: indexing" );
             try
             {
-                AppLogService.info( "Creating new index : " + newIndex );
+                this.getStatus( ).log( "Creating new index : " + newIndex );
                 this._identityIndexer.initIndex( newIndex );
 
                 if ( this._identityIndexer.indexExists( IIdentityIndexer.CURRENT_INDEX_ALIAS ) )
                 {
-                    AppLogService.info( "Set current index READ-ONLY" );
+                    this.getStatus( ).log( "Set current index READ-ONLY" );
                     this._identityIndexer.makeIndexReadOnly( IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 }
                 else
@@ -88,52 +92,56 @@ public class FullIndexTask
 
                 final List<String> eligibleCustomerIdsListForIndex = IdentityObjectHome.getEligibleCustomerIdsListForIndex( );
                 customerIdsList.addAll( eligibleCustomerIdsListForIndex );
-                AppLogService.info( "NB identies to be indexed : " + customerIdsList.size( ) );
-                AppLogService.info( "Size of indexing batches : " + batchSize );
+                this.getStatus( ).setNbTotalIdentities( customerIdsList.size( ) );
+                this.getStatus( ).log( "NB identities to be indexed : " + this.getStatus( ).getNbTotalIdentities( ) );
+                this.getStatus( ).log( "Size of indexing batches : " + batchSize );
                 final Batch<String> batch = Batch.ofSize( customerIdsList, batchSize );
-                AppLogService.info( "NB of indexing batches : " + batch.size( ) );
+                this.getStatus( ).log( "NB of indexing batches : " + batch.size( ) );
                 final AtomicInteger batchCounter = new AtomicInteger( );
                 batch.stream( ).parallel( ).forEach( customerIds -> {
-                    AppLogService.info( "Processing batch : " + batchCounter.incrementAndGet( ) );
+                    this.getStatus( ).log( "Processing batch : " + batchCounter.incrementAndGet( ) );
                     final List<BulkAction> actions = customerIds.stream( ).map( IdentityObjectHome::findByCustomerId )
                             .map( identityObject -> new BulkAction( identityObject.getCustomerId( ), identityObject, BulkActionType.INDEX ) )
                             .collect( Collectors.toList( ) );
                     _identityIndexer.bulk( actions, newIndex );
+                    this.getStatus( ).incrementCurrentNbIndexedIdentities( customerIds.size( ) );
                 } );
-                AppLogService.info( "All batches processed, now switch alias to publish new index.." );
+                this.getStatus( ).log( "All batches processed, now switch alias to publish new index.." );
                 final String oldIndex = this._identityIndexer.getIndexBehindAlias( IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 if ( !StringUtils.equals( oldIndex, newIndex ) )
                 {
-                    AppLogService.info( "Old index id: " + oldIndex );
+                    this.getStatus( ).log( "Old index id: " + oldIndex );
                     this._identityIndexer.createOrUpdateAlias( oldIndex, newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     if ( oldIndex != null )
                     {
-                        AppLogService.info( "Delete old index : " + oldIndex );
+                        this.getStatus( ).log( "Delete old index : " + oldIndex );
                         this._identityIndexer.deleteIndex( oldIndex );
                     }
                 }
             }
             catch( final ElasticClientException e )
             {
-                AppLogService.info( "Failed to reindex " + e.getMessage( ) );
+                this.getStatus( ).log( "Failed to reindex " + e.getMessage( ) );
             }
             // Index pending identities
             new MissingIndexTask( ).run( );
         }
         else
         {
-            AppLogService.info( "[ERROR] ES not available" );
+            this.getStatus( ).log( "[ERROR] ES not available" );
         }
         stopWatch.stop( );
         final String duration = DurationFormatUtils.formatDurationWords( stopWatch.getTime( ), true, true );
 
         if ( CollectionUtils.isNotEmpty( customerIdsList ) )
         {
-            AppLogService.info( "Re-indexed  " + customerIdsList.size( ) + " identities in " + duration );
+            this.getStatus( ).log( "Re-indexed  " + customerIdsList.size( ) + " identities in " + duration );
         }
         else
         {
-            AppLogService.info( "Re-indexed failed" );
+            this.getStatus( ).log( "Re-indexed failed" );
         }
+        this.close( );
     }
+
 }
