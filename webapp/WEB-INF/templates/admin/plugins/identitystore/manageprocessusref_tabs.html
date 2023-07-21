@@ -1,5 +1,9 @@
-<#macro tabs2 tab >
+<#macro tabs tab >
         <@tabList>
+                <@tabLink active=( tab == "attributekey" )
+                title="#i18n{identitystore.manage_attributekeys.pageTitle}"
+                href="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp"  />
+
                 <@tabLink active=( tab == "refattributecertificationprocessus" )
                 title="#i18n{identitystore.manage_refattributecertificationprocessuss.pageTitle}"
                 href="jsp/admin/plugins/identitystore/ManageRefAttributeCertificationProcessuss.jsp"  />

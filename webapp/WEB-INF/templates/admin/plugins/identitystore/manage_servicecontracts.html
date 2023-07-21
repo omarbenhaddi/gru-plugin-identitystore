@@ -1,7 +1,8 @@
 <#include "adminidentities_tabs.html" />
 <@tabs tab="servicecontracts" />
 
-<@box>
+<@rowBox>
+    <@boxHeader i18nTitleKey="identitystore.manage_clientapplications.title"/>
 	<@boxBody>    
     <@messages infos=infos />
     <@paginationAdmin paginator=paginator combo=1 />
@@ -62,4 +63,4 @@
     <@paginationAdmin paginator=paginator />
 
   </@boxBody>
-</@box>
+</@rowBox>
