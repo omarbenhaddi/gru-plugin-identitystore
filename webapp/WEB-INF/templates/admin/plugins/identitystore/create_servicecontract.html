@@ -13,10 +13,14 @@
 		<@fieldSet legend='Général' class="my-4">
 		<hr class="hr" />
 		<@formGroup labelFor='name' labelKey='#i18n{identitystore.modify_servicecontract.labelName}' mandatory=true>
-			<@input type='text' id='name' name='name' maxlength=50 value='${servicecontract.name!\'\'}' tabIndex='0' />
+			<#list availaible_client_applications_list?filter(app -> app.id == id_client_app) as app>
+				<@input type='text' id='name' name='name' maxlength=50 value='${servicecontract.name!app.name!\'\'}' tabIndex='0' />
+			</#list>
 		</@formGroup>
-		<@formGroup labelFor='parent_application_id' labelKey='#i18n{identitystore.modify_servicecontract.labelApplicationCode}' mandatory=true>
-			<@select id='parent_application_id' name='parent_application_id'>
+
+		<@input type="hidden" id="parent_application_id" name="parent_application_id" value="${id_client_app}"/>
+		<@formGroup labelFor='select_parent_application_id' labelKey='#i18n{identitystore.modify_servicecontract.labelApplicationCode}' mandatory=true>
+			<@select id='select_parent_application_id' name='parent_application_id' params='disabled'>
 				<#if availaible_client_applications_list?? && availaible_client_applications_list?has_content>
 					<#list availaible_client_applications_list as app>
 						<option value="${app.id!}" <#if app.id == id_client_app> selected="selected"</#if> >${app.code!} - ${app.name!}</option>
