@@ -198,9 +198,9 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     {
         List<ImmutablePair<ServiceContract, String>> listServiceContract = ServiceContractHome.getServiceContractsListByIds( listIds );
 
-        // keep original order
-        return listServiceContract.stream( ).sorted( Comparator.comparingInt( tuple -> listIds.indexOf( tuple.getLeft( ).getId( ) ) ) )
-                .collect( Collectors.toList( ) );
+        // #134 - sort by ascending application code and descending start date
+        return listServiceContract.stream( ).sorted( Comparator.comparing( ( ImmutablePair<ServiceContract, String> pair ) -> pair.getValue( ) )
+                .thenComparing( pair -> pair.getKey( ).getStartingDate( ), Comparator.reverseOrder( ) ) ).collect( Collectors.toList( ) );
     }
 
     /**
