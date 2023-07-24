@@ -97,9 +97,7 @@ public class FullIndexTask extends AbstractIndexTask
                 this.getStatus( ).log( "Size of indexing batches : " + batchSize );
                 final Batch<String> batch = Batch.ofSize( customerIdsList, batchSize );
                 this.getStatus( ).log( "NB of indexing batches : " + batch.size( ) );
-                final AtomicInteger batchCounter = new AtomicInteger( );
                 batch.stream( ).parallel( ).forEach( customerIds -> {
-                    this.getStatus( ).log( "Processing batch : " + batchCounter.incrementAndGet( ) );
                     final List<BulkAction> actions = customerIds.stream( ).map( IdentityObjectHome::findByCustomerId )
                             .map( identityObject -> new BulkAction( identityObject.getCustomerId( ), identityObject, BulkActionType.INDEX ) )
                             .collect( Collectors.toList( ) );
