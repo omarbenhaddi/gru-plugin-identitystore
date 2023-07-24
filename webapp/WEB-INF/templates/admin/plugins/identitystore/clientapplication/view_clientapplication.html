@@ -4,7 +4,7 @@
 <@rowBox>
     <@boxHeader i18nTitleKey="identitystore.view_clientapplication.pageTitle">
 	<@headerButtons>
-    <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manage_clientapplications"
+    <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manageClientApplications"
        class="btn btn-secondary" >
         #i18n{portal.util.labelBack}
     </a>
@@ -91,7 +91,7 @@
 
         <@aButton href='jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?action=confirmRemoveServiceContract&id=${servicecontract.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
 
-        <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=displayServiceContract&id=${servicecontract.id}"
+        <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=displayServiceContract&id=${servicecontract.id}&back_url=jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=displayClientApplication%26id=${clientapplication.id}"
            class="btn btn-primary" title="#i18n{identitystore.manage_servicecontracts.buttonDisplay}" >
             <i class="fa fa-eye"></i>
         </a>

@@ -81,6 +81,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     private static final String PARAMETER_ID_PARENTCLIENTAPPLICATION = "parent_application_id";
     private static final String PARAMETER_CERTICATION_LEVEL = "certification_level";
     private static final String PARAMETER_CERTICATION_PROCESSUS = "certification_processus";
+    private static final String PARAMETER_BACK_URL = "back_url";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_SERVICECONTRACTS = "identitystore.manage_servicecontracts.pageTitle";
@@ -94,6 +95,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     private static final String MARK_AVAILAIBLE_LEVELS_LIST = "availaible_certification_levels_list";
     private static final String MARK_AVAILAIBLE_CLIENT_APPLICATIONS_LIST = "availaible_client_applications_list";
     private static final String MARK_EDIT_ACTION = "edit_action";
+    private static final String MARK_BACK_URL = "back_url";
 
     private static final String JSP_MANAGE_SERVICECONTRACTS = "jsp/admin/plugins/identitystore/ManageServiceContracts.jsp";
 
@@ -168,16 +170,14 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     @View( value = VIEW_DISPLAY_SERVICECONTRACTS )
     public String getDisplayServiceContracts( HttpServletRequest request )
     {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_SERVICECONTRACT ) );
+        final int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_SERVICECONTRACT ) );
+        final String backUrl = request.getParameter( PARAMETER_BACK_URL );
         _servicecontract = null;
 
-        if ( _servicecontract == null || ( _servicecontract.getId( ) != nId ) )
-        {
-            Optional<ServiceContract> optServiceContract = ServiceContractHome.findByPrimaryKey( nId );
-            _servicecontract = optServiceContract.orElseThrow( ( ) -> new AppException( ERROR_RESOURCE_NOT_FOUND ) );
-        }
+        final Optional<ServiceContract> optServiceContract = ServiceContractHome.findByPrimaryKey( nId );
+        _servicecontract = optServiceContract.orElseThrow( ( ) -> new AppException( ERROR_RESOURCE_NOT_FOUND ) );
 
-        Map<String, Object> model = getModel( );
+        final Map<String, Object> model = getModel( );
         final ClientApplication parentApplication = ClientApplicationHome.getParentApplication( _servicecontract );
         if ( parentApplication != null )
         {
@@ -187,6 +187,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         {
             throw new AppException( ERROR_RESOURCE_NOT_FOUND );
         }
+        model.put( MARK_BACK_URL, backUrl );
         model.put( MARK_SERVICECONTRACT, _servicecontract );
         model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, ServiceContractHome.getDto( _servicecontract ) );
 

@@ -4,7 +4,7 @@
 <@rowBox>
     <@boxHeader i18nTitleKey="identitystore.view_servicecontract.pageTitle">
 	<@headerButtons>
-    <a href="jsp/admin/plugins/identitystore/ManageClientApplications.jsp?view=manage_servicecontract"
+    <a href="${back_url!''}"
        class="btn btn-secondary" >
         #i18n{portal.util.labelBack}
     </a>
@@ -212,3 +212,11 @@
     </a>
 </div>
 </@rowBox>
+<style>
+    .fa-times {
+        color: red;
+    }
+    .fa-check {
+        color: green;
+    }
+</style>

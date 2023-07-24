@@ -73,7 +73,7 @@
 
                     <@aButton href='jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?action=confirmRemoveServiceContract&id=${servicecontract.key.id}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
 
-                    <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=displayServiceContract&id=${servicecontract.key.id}"
+                    <a href="jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=displayServiceContract&id=${servicecontract.key.id}&back_url=jsp/admin/plugins/identitystore/ManageServiceContracts.jsp?view=manageServiceContracts"
                        class="btn btn-primary" title="#i18n{identitystore.manage_servicecontracts.buttonDisplay}" >
                         <i class="fa fa-eye"></i>
                     </a>
