@@ -225,11 +225,11 @@ public final class ServiceContractDAO implements IServiceContractDAO
                                 }
                             break;
                         case QUERY_PARAM_CONTRACT_NAME:
-                            sqlQuerySelectallId.append( " a.name LIKE '%" ).append( trimmedValue ).append( "%' " );
+                            sqlQuerySelectallId.append( " upper(a.name) LIKE '%" ).append( trimmedValue.toUpperCase( ) ).append( "%' " );
                             nbParamsAdded.getAndIncrement( );
                             break;
                         case QUERY_PARAM_CLIENT_CODE:
-                            sqlQuerySelectallId.append( " b.client_code LIKE '%" ).append( trimmedValue ).append( "%' " );
+                            sqlQuerySelectallId.append( " upper(b.client_code) LIKE '%" ).append( trimmedValue.toUpperCase( ) ).append( "%' " );
                             nbParamsAdded.getAndIncrement( );
                             break;
                         case QUERY_PARAM_START_DATE:
