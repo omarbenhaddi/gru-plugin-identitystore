@@ -46,6 +46,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -150,6 +151,16 @@ public final class ServiceContractHome
     public static List<Integer> getIdServiceContractsList( )
     {
         return _serviceContractDAO.selectIdServiceContractsList( _plugin );
+    }
+
+    /**
+     * Load the id of all the serviceContract objects and returns them as a list
+     *
+     * @return the list which contains the id of all the serviceContract objects
+     */
+    public static List<Integer> getFilteredIdServiceContractsList( final Map<String, String> params )
+    {
+        return _serviceContractDAO.selectFilterdIdServiceContractsList( params, _plugin );
     }
 
     /**

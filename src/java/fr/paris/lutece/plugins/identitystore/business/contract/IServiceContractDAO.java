@@ -34,11 +34,11 @@
 package fr.paris.lutece.plugins.identitystore.business.contract;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -132,4 +132,6 @@ public interface IServiceContractDAO
     List<ServiceContract> selectActiveServiceContract( String clientCode, Plugin plugin );
 
     void close( ServiceContract serviceContract, Plugin plugin );
+
+    List<Integer> selectFilterdIdServiceContractsList( final Map<String, String> params, Plugin plugin );
 }

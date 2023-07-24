@@ -41,6 +41,7 @@ import fr.paris.lutece.util.url.UrlItem;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,11 @@ public abstract class ManageServiceContractJspBean<S, T> extends MVCAdminJspBean
 
     // Parameters
     private static final String PARAMETER_PAGE_INDEX = "page_index";
+    public static final String QUERY_PARAM_ACTIVE = "active";
+    public static final String QUERY_PARAM_CONTRACT_NAME = "contract_name";
+    public static final String QUERY_PARAM_CLIENT_CODE = "client_code";
+    public static final String QUERY_PARAM_START_DATE = "start_date";
+    public static final String QUERY_PARAM_END_DATE = "end_date";
 
     // Markers
     private static final String MARK_PAGINATOR = "paginator";
@@ -85,8 +91,10 @@ public abstract class ManageServiceContractJspBean<S, T> extends MVCAdminJspBean
         _strCurrentPageIndex = AbstractPaginator.getPageIndex( request, AbstractPaginator.PARAMETER_PAGE_INDEX, _strCurrentPageIndex );
         _nItemsPerPage = AbstractPaginator.getItemsPerPage( request, AbstractPaginator.PARAMETER_ITEMS_PER_PAGE, _nItemsPerPage, nDefaultItemsPerPage );
 
-        UrlItem url = new UrlItem( strManageJsp );
-        String strUrl = url.getUrl( );
+        final UrlItem url = new UrlItem( strManageJsp );
+        final Map<String, String> queryParameters = this.getQueryParameters( request );
+        queryParameters.forEach( url::addParameter );
+        final String strUrl = url.getUrl( );
 
         // PAGINATOR
         LocalizedPaginator<S> paginator = new LocalizedPaginator<>( list, _nItemsPerPage, strUrl, PARAMETER_PAGE_INDEX, _strCurrentPageIndex, getLocale( ) );
@@ -113,5 +121,36 @@ public abstract class ManageServiceContractJspBean<S, T> extends MVCAdminJspBean
      * @param listIds
      * @return the populated list of items corresponding to the id List
      */
-    abstract List<ImmutablePair<T, String>> getItemsFromIds( List<S> listIds );
+    abstract List<ImmutablePair<T, String>> getItemsFromIds( final List<S> listIds );
+
+    protected Map<String, String> getQueryParameters( final HttpServletRequest request )
+    {
+        final Map<String, String> parameters = new HashMap<>( );
+        final String active = request.getParameter( QUERY_PARAM_ACTIVE );
+        if ( active != null )
+        {
+            parameters.put( QUERY_PARAM_ACTIVE, active );
+        }
+        final String contractName = request.getParameter( QUERY_PARAM_CONTRACT_NAME );
+        if ( contractName != null )
+        {
+            parameters.put( QUERY_PARAM_CONTRACT_NAME, contractName );
+        }
+        final String clientCode = request.getParameter( QUERY_PARAM_CLIENT_CODE );
+        if ( clientCode != null )
+        {
+            parameters.put( QUERY_PARAM_CLIENT_CODE, clientCode );
+        }
+        final String startDate = request.getParameter( QUERY_PARAM_START_DATE );
+        if ( startDate != null )
+        {
+            parameters.put( QUERY_PARAM_START_DATE, startDate );
+        }
+        final String endDate = request.getParameter( QUERY_PARAM_END_DATE );
+        if ( endDate != null )
+        {
+            parameters.put( QUERY_PARAM_END_DATE, endDate );
+        }
+        return parameters;
+    }
 }

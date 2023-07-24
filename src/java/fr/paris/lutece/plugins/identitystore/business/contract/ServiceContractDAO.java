@@ -34,15 +34,16 @@
 package fr.paris.lutece.plugins.identitystore.business.contract;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.sql.Date;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * This class provides Data Access methods for ServiceContract objects
@@ -68,6 +69,13 @@ public final class ServiceContractDAO implements IServiceContractDAO
             + " FROM identitystore_service_contract a JOIN identitystore_client_application b on a.id_client_app = b.id_client_app WHERE id_service_contract IN (  ";
     private static final String SQL_QUERY_SELECT_BETWEEN_ACTIVE_DATES = "SELECT id_service_contract, " + COLUMNS
             + " FROM identitystore_service_contract WHERE starting_date BETWEEN ? AND ? OR ending_date BETWEEN ? AND ?";
+    private static final String QUERY_SELECT_ALL_FILTERED_IDS = "SELECT id_service_contract FROM identitystore_service_contract a JOIN identitystore_client_application b on a.id_client_app = b.id_client_app ";
+
+    public static final String QUERY_PARAM_ACTIVE = "active";
+    public static final String QUERY_PARAM_CONTRACT_NAME = "contract_name";
+    public static final String QUERY_PARAM_CLIENT_CODE = "client_code";
+    public static final String QUERY_PARAM_START_DATE = "start_date";
+    public static final String QUERY_PARAM_END_DATE = "end_date";
 
     /**
      * {@inheritDoc }
@@ -178,6 +186,88 @@ public final class ServiceContractDAO implements IServiceContractDAO
 
             daoUtil.executeUpdate( );
         }
+    }
+
+    @Override
+    public List<Integer> selectFilterdIdServiceContractsList( final Map<String, String> params, final Plugin plugin )
+    {
+        final List<Integer> serviceContractList = new ArrayList<>( );
+        final StringBuilder sqlQuerySelectallId = new StringBuilder( QUERY_SELECT_ALL_FILTERED_IDS );
+        final Map<String, String> filteredParams = params.entrySet( ).stream( ).filter( entry -> StringUtils.isNotEmpty( entry.getValue( ) ) )
+                .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
+        if ( MapUtils.isNotEmpty( filteredParams ) )
+        {
+            sqlQuerySelectallId.append( " WHERE " );
+            final AtomicInteger nbParamsAdded = new AtomicInteger( );
+            filteredParams.forEach( ( key, value ) -> {
+                if ( StringUtils.isNotEmpty( value ) )
+                {
+                    final String trimmedValue = value.trim( );
+                    if ( nbParamsAdded.get( ) > 0 )
+                    {
+                        sqlQuerySelectallId.append( " AND " );
+                    }
+                    switch( key )
+                    {
+                        case QUERY_PARAM_ACTIVE:
+                            if ( StringUtils.equalsAny( trimmedValue, "0", "n" ) )
+                            {
+                                sqlQuerySelectallId.append(
+                                        " CASE WHEN a.ending_date IS NULL THEN NOW() < a.starting_date ELSE NOW() NOT BETWEEN a.starting_date AND a.ending_date END " );
+                                nbParamsAdded.getAndIncrement( );
+                            }
+                            else
+                                if ( StringUtils.equalsAny( trimmedValue, "1", "o", "y" ) )
+                                {
+                                    sqlQuerySelectallId.append(
+                                            " CASE WHEN a.ending_date IS NULL THEN NOW() >= a.starting_date ELSE NOW() BETWEEN a.starting_date AND a.ending_date END " );
+                                    nbParamsAdded.getAndIncrement( );
+                                }
+                            break;
+                        case QUERY_PARAM_CONTRACT_NAME:
+                            sqlQuerySelectallId.append( " a.name LIKE '%" ).append( trimmedValue ).append( "%' " );
+                            nbParamsAdded.getAndIncrement( );
+                            break;
+                        case QUERY_PARAM_CLIENT_CODE:
+                            sqlQuerySelectallId.append( " b.client_code LIKE '%" ).append( trimmedValue ).append( "%' " );
+                            nbParamsAdded.getAndIncrement( );
+                            break;
+                        case QUERY_PARAM_START_DATE:
+                            sqlQuerySelectallId.append( " a.starting_date::VARCHAR LIKE '%" ).append( this.formatDateFormQuery( trimmedValue ) )
+                                    .append( "%' " );
+                            nbParamsAdded.getAndIncrement( );
+                            break;
+                        case QUERY_PARAM_END_DATE:
+                            sqlQuerySelectallId.append( " a.ending_date::VARCHAR LIKE '%" ).append( this.formatDateFormQuery( trimmedValue ) ).append( "%' " );
+                            nbParamsAdded.getAndIncrement( );
+                            break;
+                        default:
+                            final int i = sqlQuerySelectallId.lastIndexOf( " AND " );
+                            sqlQuerySelectallId.delete( i, sqlQuerySelectallId.length( ) - 1 );
+                    }
+                }
+            } );
+        }
+
+        try ( final DAOUtil daoUtil = new DAOUtil( sqlQuerySelectallId.toString( ), plugin ) )
+        {
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                serviceContractList.add( daoUtil.getInt( 1 ) );
+            }
+
+            return serviceContractList;
+        }
+    }
+
+    private String formatDateFormQuery( final String query )
+    {
+        final String [ ] digits = query.replaceAll( "/", "-" ).split( "-" );
+        final List<String> digitList = Arrays.asList( digits );
+        Collections.reverse( digitList );
+        return String.join( "-", digitList );
     }
 
     /**

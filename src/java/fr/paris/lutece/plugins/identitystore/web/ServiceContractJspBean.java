@@ -141,13 +141,19 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     public String getManageServiceContracts( HttpServletRequest request )
     {
         _servicecontract = null;
+        final Map<String, String> queryParameters = this.getQueryParameters( request );
 
         if ( request.getParameter( AbstractPaginator.PARAMETER_PAGE_INDEX ) == null || _listIdServiceContracts.isEmpty( ) )
         {
-            _listIdServiceContracts = ServiceContractHome.getIdServiceContractsList( );
+            _listIdServiceContracts = ServiceContractHome.getFilteredIdServiceContractsList( queryParameters );
         }
 
-        Map<String, Object> model = getPaginatedListModel( request, MARK_SERVICECONTRACT_LIST, _listIdServiceContracts, JSP_MANAGE_SERVICECONTRACTS );
+        final Map<String, Object> model = getPaginatedListModel( request, MARK_SERVICECONTRACT_LIST, _listIdServiceContracts, JSP_MANAGE_SERVICECONTRACTS );
+        model.put( QUERY_PARAM_ACTIVE, request.getParameter( QUERY_PARAM_ACTIVE ) );
+        model.put( QUERY_PARAM_CONTRACT_NAME, request.getParameter( QUERY_PARAM_CONTRACT_NAME ) );
+        model.put( QUERY_PARAM_CLIENT_CODE, request.getParameter( QUERY_PARAM_CLIENT_CODE ) );
+        model.put( QUERY_PARAM_START_DATE, request.getParameter( QUERY_PARAM_START_DATE ) );
+        model.put( QUERY_PARAM_END_DATE, request.getParameter( QUERY_PARAM_END_DATE ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_SERVICECONTRACTS, TEMPLATE_MANAGE_SERVICECONTRACTS, model );
     }
@@ -194,9 +200,9 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
      * @return the populated list of items corresponding to the id List
      */
     @Override
-    List<ImmutablePair<ServiceContract, String>> getItemsFromIds( List<Integer> listIds )
+    List<ImmutablePair<ServiceContract, String>> getItemsFromIds( final List<Integer> listIds )
     {
-        List<ImmutablePair<ServiceContract, String>> listServiceContract = ServiceContractHome.getServiceContractsListByIds( listIds );
+        final List<ImmutablePair<ServiceContract, String>> listServiceContract = ServiceContractHome.getServiceContractsListByIds( listIds );
 
         // #134 - sort by ascending application code and descending start date
         return listServiceContract.stream( ).sorted( Comparator.comparing( ( ImmutablePair<ServiceContract, String> pair ) -> pair.getValue( ) )
