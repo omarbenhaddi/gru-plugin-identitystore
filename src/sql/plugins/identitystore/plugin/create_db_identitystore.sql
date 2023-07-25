@@ -331,7 +331,7 @@ CREATE TABLE identitystore_duplicate_rule (
     nb_filled_attributes    int,
     nb_equal_attributes     int,
     nb_missing_attributes   int,
-    priority varchar(30) NOT NULL DEFAULT 'LEVEL3',
+    priority INT NOT NULL DEFAULT 100,
     active smallint NOT NULL DEFAULT 0,
     daemon smallint NOT NULL DEFAULT 0,
     PRIMARY KEY (id_rule)

@@ -87,7 +87,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
             daoUtil.setInt( ++nIndex, duplicateRule.getNbFilledAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbEqualAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbMissingAttributes( ) );
-            daoUtil.setString( ++nIndex, duplicateRule.getPriority( ).name( ) );
+            daoUtil.setInt( ++nIndex, duplicateRule.getPriority( ) );
             daoUtil.setBoolean( ++nIndex, duplicateRule.isActive( ) );
             daoUtil.setBoolean( ++nIndex, duplicateRule.isDaemon( ) );
             daoUtil.executeUpdate( );
@@ -205,7 +205,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
             daoUtil.setInt( ++nIndex, duplicateRule.getNbFilledAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbEqualAttributes( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getNbMissingAttributes( ) );
-            daoUtil.setString( ++nIndex, duplicateRule.getPriority( ).name( ) );
+            daoUtil.setInt( ++nIndex, duplicateRule.getPriority( ) );
             daoUtil.setBoolean( ++nIndex, duplicateRule.isActive( ) );
             daoUtil.setBoolean( ++nIndex, duplicateRule.isDaemon( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getId( ) );
@@ -265,7 +265,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
         duplicateRule.setNbFilledAttributes( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setNbEqualAttributes( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setNbMissingAttributes( daoUtil.getInt( ++nIndex ) );
-        duplicateRule.setPriority( DuplicateRulePriority.valueOf( daoUtil.getString( ++nIndex ) ) );
+        duplicateRule.setPriority( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setActive( daoUtil.getBoolean( ++nIndex ) );
         duplicateRule.setDaemon( daoUtil.getBoolean( ++nIndex ) );
         duplicateRule.getCheckedAttributes( ).addAll( this.getCheckedAttributes( duplicateRule.getId( ), plugin ) );

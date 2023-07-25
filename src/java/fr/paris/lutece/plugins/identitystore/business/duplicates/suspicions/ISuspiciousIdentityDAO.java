@@ -130,7 +130,7 @@ public interface ISuspiciousIdentityDAO
      *            the Plugin
      * @return The list which contains the data of all the suspiciousIdentity objects
      */
-    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final Integer rule, final int max, Plugin plugin );
+    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final Integer rule, final int max, final Integer priority, Plugin plugin );
 
     /**
      * Load the data of all the excluded identities objects and returns them as a list

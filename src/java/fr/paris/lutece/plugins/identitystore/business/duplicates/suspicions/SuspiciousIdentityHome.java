@@ -175,9 +175,9 @@ public final class SuspiciousIdentityHome
      *            max number of suspicious identities to return
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
-    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final Integer rule, final int max )
+    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final Integer rule, final int max, final Integer priority )
     {
-        return _dao.selectSuspiciousIdentitysList( rule, max, _plugin );
+        return _dao.selectSuspiciousIdentitysList( rule, max, priority, _plugin );
     }
 
     /**

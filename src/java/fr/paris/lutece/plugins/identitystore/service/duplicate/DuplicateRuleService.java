@@ -81,14 +81,22 @@ public class DuplicateRuleService
         return list;
     }
 
-    public List<DuplicateRuleSummaryDto> findAllSummaries( ) throws DuplicateRuleNotFoundException
+    /**
+     * Find all summaries of rules having priority or higher
+     * 
+     * @param priority
+     *            the min priority
+     * @return a list of rule summaries
+     * @throws DuplicateRuleNotFoundException
+     */
+    public List<DuplicateRuleSummaryDto> findSummaries( final Integer priority ) throws DuplicateRuleNotFoundException
     {
-        return this.findAll( ).stream( ).map( rule -> {
+        return this.findAll( ).stream( ).filter( rule -> priority != null && rule.getPriority( ) <= priority ).map( rule -> {
             final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
             ruleDto.setId( rule.getId( ) );
             ruleDto.setName( rule.getName( ) );
             ruleDto.setDescription( rule.getDescription( ) );
-            ruleDto.setPriority( rule.getPriority( ).ordinal( ) );
+            ruleDto.setPriority( rule.getPriority( ) );
             ruleDto.setDuplicateCount( SuspiciousIdentityHome.countSuspiciousIdentity( rule.getId( ) ) );
             return ruleDto;
         } ).collect( Collectors.toList( ) );

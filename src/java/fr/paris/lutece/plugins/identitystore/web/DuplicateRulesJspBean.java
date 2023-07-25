@@ -39,7 +39,6 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeT
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
-import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRulePriority;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
@@ -73,7 +72,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
     private static final String PARAMETER_SELECTED_CHECKED_ATTRIBUTES = "selected_checked_attributes";
     private static final String PARAMETER_SELECTED_ATTRIBUTE_TREATMENTS_KEYS = "selected_attribute_treatment_attributes_";
     private static final String PARAMETER_SELECTED_ATTRIBUTE_TREATMENTS_TYPE = "selected_attribute_treatment_type_";
-    private static final String PARAMETER_SELECTED_PRIORITY = "selected_priority";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_DUPLICATERULES = "identitystore.manage_duplicaterules.pageTitle";
@@ -86,7 +84,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
     private static final String MARK_ACTION = "action";
     private static final String MARK_AVAILABLE_ATTRIBUTES = "available_attributes";
     private static final String MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES = "available_rule_types";
-    private static final String MARK_AVAILABLE_PRIORITIES = "available_priorities";
     private static final String MARK_SELECTED_CHECKED_ATTRIBUTES = "rule_checked_attributes";
 
     private static final String JSP_MANAGE_DUPLICATERULES = "jsp/admin/plugins/identitystore/ManageDuplicateRules.jsp";
@@ -203,7 +200,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         model.put( MARK_DUPLICATERULE, _duplicateRule );
         model.put( MARK_SELECTED_CHECKED_ATTRIBUTES, new ArrayList<>( ) );
         model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.values( ) );
-        model.put( MARK_AVAILABLE_PRIORITIES, DuplicateRulePriority.values( ) );
         model.put( MARK_ACTION, "action_createDuplicateRule" );
         model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_DUPLICATERULES ) );
@@ -223,7 +219,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
     public String doCreateDuplicateRule( HttpServletRequest request ) throws AccessDeniedException
     {
         populate( _duplicateRule, request, getLocale( ) );
-        _duplicateRule.setPriority( this.extractPriority( request ) );
         _duplicateRule.getCheckedAttributes( ).addAll( this.extractAttributeKeys( request ) );
         _duplicateRule.getAttributeTreatments( ).addAll( this.extractAttributeTreatments( request ) );
 
@@ -320,7 +315,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         model.put( MARK_SELECTED_CHECKED_ATTRIBUTES,
                 _duplicateRule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) ) );
         model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.values( ) );
-        model.put( MARK_AVAILABLE_PRIORITIES, DuplicateRulePriority.values( ) );
         model.put( MARK_ACTION, "action_modifyDuplicateRule" );
         model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_DUPLICATERULES ) );
@@ -340,7 +334,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
     public String doModifyDuplicateRule( HttpServletRequest request ) throws AccessDeniedException
     {
         populate( _duplicateRule, request, getLocale( ) );
-        _duplicateRule.setPriority( this.extractPriority( request ) );
         _duplicateRule.getCheckedAttributes( ).clear( );
         _duplicateRule.getCheckedAttributes( ).addAll( this.extractAttributeKeys( request ) );
         _duplicateRule.getAttributeTreatments( ).clear( );
@@ -372,11 +365,6 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         _duplicateRule = null;
 
         return redirectView( request, VIEW_MANAGE_DUPLICATERULES );
-    }
-
-    private DuplicateRulePriority extractPriority( final HttpServletRequest request )
-    {
-        return DuplicateRulePriority.valueOf( request.getParameter( PARAMETER_SELECTED_PRIORITY ) );
     }
 
     private List<AttributeKey> extractAttributeKeys( final HttpServletRequest request )

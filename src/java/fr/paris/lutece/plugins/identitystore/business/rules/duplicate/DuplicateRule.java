@@ -49,7 +49,7 @@ public class DuplicateRule implements Serializable
     private int _nNbEqualAttributes;
     private int _nNbMissingAttributes;
     private List<DuplicateRuleAttributeTreatment> _listAttributeTreatments = new ArrayList<>( );
-    private DuplicateRulePriority _priority;
+    private int _nPriority;
     private boolean _bActive;
     private boolean _bDaemon;
 
@@ -133,14 +133,14 @@ public class DuplicateRule implements Serializable
         this._listAttributeTreatments = _listAttributeTreatments;
     }
 
-    public DuplicateRulePriority getPriority( )
+    public int getPriority( )
     {
-        return _priority;
+        return _nPriority;
     }
 
-    public void setPriority( DuplicateRulePriority _priority )
+    public void setPriority( int _priority )
     {
-        this._priority = _priority;
+        this._nPriority = _priority;
     }
 
     public boolean isActive( )

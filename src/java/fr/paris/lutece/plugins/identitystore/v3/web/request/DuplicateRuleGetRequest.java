@@ -33,8 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request;
 
-import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
-import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRuleSummaryDto;
@@ -45,10 +43,10 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
 {
+    private Integer _nPriority;
 
     /**
      * Constructor.
@@ -56,9 +54,10 @@ public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
      * @param strClientCode
      *            the client application Code
      */
-    public DuplicateRuleGetRequest( final String strClientCode )
+    public DuplicateRuleGetRequest( final String strClientCode, final Integer _nPriority )
     {
         super( strClientCode );
+        this._nPriority = _nPriority;
     }
 
     @Override
@@ -72,7 +71,7 @@ public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
     {
         final DuplicateRuleSummarySearchResponse response = new DuplicateRuleSummarySearchResponse( );
 
-        final List<DuplicateRuleSummaryDto> rules = DuplicateRuleService.instance( ).findAllSummaries( );
+        final List<DuplicateRuleSummaryDto> rules = DuplicateRuleService.instance( ).findSummaries( _nPriority );
         if ( CollectionUtils.isEmpty( rules ) )
         {
             response.setDuplicateRuleSummaries( Collections.emptyList( ) );

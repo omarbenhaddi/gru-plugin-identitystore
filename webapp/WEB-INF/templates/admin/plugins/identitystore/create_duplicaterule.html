@@ -40,13 +40,8 @@
 			<@input type='textarea' id='description' name='description' value='${duplicaterule.description!\'\'}' tabIndex='1' />
 		</@formGroup>
 
-		<@formGroup labelFor='select-priority' labelKey='#i18n{identitystore.create_duplicaterule.labelPriority}' mandatory=true>
-			<select class="form-select" id="select-priority" name="selected_priority">
-				<#list available_priorities as priority >
-					<option value="${priority}" <#if priority == (duplicaterule.priority!'')>selected</#if> >${priority}</option>
-				</#list>
-			</select>
-			<div class="invalid-feedback">Please select a valid tag.</div>
+		<@formGroup labelFor='priority' labelKey='#i18n{identitystore.create_duplicaterule.labelPriority}' mandatory=true>
+			<@input type='text' id='priority' name='priority' value='${duplicaterule.priority!\'\'}' tabIndex='2' />
 		</@formGroup>
 
 		<div class="form-group mb-3">
@@ -64,15 +59,15 @@
 		</div>
 
 		<@formGroup labelFor='nbFilledAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbFilledAttributes}' mandatory=true>
-			<@input type='text' id='nbFilledAttributes' name='nbFilledAttributes' value='${duplicaterule.nbFilledAttributes!\'\'}' tabIndex='2' />
+			<@input type='text' id='nbFilledAttributes' name='nbFilledAttributes' value='${duplicaterule.nbFilledAttributes!\'\'}' tabIndex='3' />
 		</@formGroup>
 
 		<@formGroup labelFor='nbEqualAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}' mandatory=true>
-			<@input type='text' id='nbEqualAttributes' name='nbEqualAttributes' value='${duplicaterule.nbEqualAttributes!\'\'}' tabIndex='2' />
+			<@input type='text' id='nbEqualAttributes' name='nbEqualAttributes' value='${duplicaterule.nbEqualAttributes!\'\'}' tabIndex='4' />
 		</@formGroup>
 
 		<@formGroup labelFor='nbMissingAttributes' labelKey='#i18n{identitystore.create_duplicaterule.labelNbMissingAttributes}' mandatory=true>
-			<@input type='text' id='nbMissingAttributes' name='nbMissingAttributes' value='${duplicaterule.nbMissingAttributes!\'\'}' tabIndex='3' />
+			<@input type='text' id='nbMissingAttributes' name='nbMissingAttributes' value='${duplicaterule.nbMissingAttributes!\'\'}' tabIndex='5' />
 		</@formGroup>
 
 		<@formGroup labelFor='select-checked-attribute' labelKey='#i18n{identitystore.create_duplicaterule.labelCheckedKeys}' mandatory=true>

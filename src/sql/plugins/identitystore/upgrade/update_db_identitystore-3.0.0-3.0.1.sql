@@ -209,3 +209,10 @@ UPDATE identitystore_ref_attribute SET validation_regex = '^[\w-\.]+@([\w-]+\.)+
 UPDATE identitystore_ref_attribute SET validation_regex = '^[A-Z\d]{5}$', validation_error_message = 'Alphanumérique sur 5 caractères. Le code doit exister dans notre référentiel géocode'  WHERE key_name IN ('birthplace_code', 'birthcountry_code');
 UPDATE identitystore_ref_attribute SET validation_regex = '^[A-Z\s]+$', validation_error_message = 'uniquement caractères aplha en majuscule non accentué, et espace.'  WHERE key_name IN ('birthplace', 'birthcountry');
 UPDATE identitystore_ref_attribute SET validation_regex = '^[0-2]{1}$', validation_error_message = 'uniquement  0, 1 ou 2'  WHERE key_name = 'gender';
+
+-- identitystore_duplicate_rule #291 change priority to INT
+ALTER TABLE identitystore_duplicate_rule
+    ALTER COLUMN priority DROP DEFAULT,
+ALTER COLUMN priority TYPE INT USING CASE WHEN priority = 'LEVEL1' THEN 1 WHEN priority = 'LEVEL2' THEN 2 WHEN priority = 'LEVEL3' THEN 3 END,
+    ALTER COLUMN priority SET NOT NULL,
+    ALTER COLUMN priority SET DEFAULT 100;

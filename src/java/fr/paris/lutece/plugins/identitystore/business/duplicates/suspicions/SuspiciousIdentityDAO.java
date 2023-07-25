@@ -65,7 +65,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
     private static final String SQL_QUERY_DELETE_CUID = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id ";
+    private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule d on d.id_rule = i.id_duplicate_rule ";
     private static final String SQL_QUERY_SELECTALL_EXCLUDED = "select first_customer_id, second_customer_id, date_create, author_type, author_name from identitystore_quality_suspicious_identity_excluded";
     private static final String SQL_QUERY_SELECTALL_CUIDS = "SELECT customer_id FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_suspicious_identity FROM identitystore_quality_suspicious_identity";
@@ -233,14 +233,24 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final Integer rule, final int max, Plugin plugin )
+    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final Integer rule, final int max, final Integer priority, Plugin plugin )
     {
         final List<SuspiciousIdentity> suspiciousIdentityList = new ArrayList<>( );
         String query = SQL_QUERY_SELECTALL;
+        if ( rule != null || priority != null )
+        {
+            query += " WHERE ";
+        }
         if ( rule != null )
         {
-            query += " where id_duplicate_rule = " + rule + " ";
+            query += " id_duplicate_rule = " + rule + ( priority != null ? " AND " : " " );
         }
+
+        if ( priority != null )
+        {
+            query += " d.priority " + priority + " ";
+        }
+
         query += ( max != 0 ? " LIMIT " + max : "" );
 
         try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
