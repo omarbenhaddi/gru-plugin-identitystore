@@ -125,6 +125,7 @@ public class IdentitySearchRuleJspBean extends ManageIdentitiesJspBean
     public String getManageIdentitySearchRules( final HttpServletRequest request )
     {
         _identitySearchRule = null;
+        _listIdentitySearchRules.clear( );
 
         if ( request.getParameter( AbstractPaginator.PARAMETER_PAGE_INDEX ) == null || _listIdentitySearchRules.isEmpty( ) )
         {
