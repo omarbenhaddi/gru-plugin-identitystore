@@ -78,6 +78,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
     private static final String PARAMETER_RIGHT_READABLE = "readable";
     private static final String PARAMETER_RIGHT_WRITABLE = "writable";
     private static final String PARAMETER_ID_CLIENTAPPLICATION = "id_client_app";
+    private static final String PARAMETER_CODE_CLIENTAPPLICATION = "code_client_app";
     private static final String PARAMETER_ID_PARENTCLIENTAPPLICATION = "parent_application_id";
     private static final String PARAMETER_CERTICATION_LEVEL = "certification_level";
     private static final String PARAMETER_CERTICATION_PROCESSUS = "certification_processus";
@@ -182,6 +183,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         if ( parentApplication != null )
         {
             model.put( PARAMETER_ID_CLIENTAPPLICATION, parentApplication.getId( ) );
+            model.put( PARAMETER_CODE_CLIENTAPPLICATION, parentApplication.getClientCode( ) );
         }
         else
         {
