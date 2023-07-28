@@ -47,7 +47,7 @@ public class IdentityObject
     private Timestamp creationDate;
     private Timestamp lastUpdateDate;
     private boolean monParisActive;
-    private Map<String, AttributeObject> attributes = new HashMap( );
+    private Map<String, AttributeObject> attributes = new HashMap<>( );
 
     public IdentityObject( String connectionId, String customerId, Timestamp creationDate, Timestamp lastUpdateDate, boolean monParisActive,
             Map<String, AttributeObject> attributes )
@@ -57,6 +57,7 @@ public class IdentityObject
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
         this.attributes.putAll( attributes );
+        this.monParisActive = monParisActive;
     }
 
     public IdentityObject( )
