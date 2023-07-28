@@ -33,14 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
@@ -56,8 +53,8 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
     /**
      * Constructor of IdentityStoreDeleteRequest
      * 
-     * @param strConnectionId
-     *            the connection id of the identity
+     * @param strCustomerId
+     *            the customer id of the identity
      * @param strClientAppCode
      *            the application code provided by the client
      */

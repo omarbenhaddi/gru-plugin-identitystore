@@ -51,8 +51,10 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -356,28 +358,38 @@ public class ServiceContractService
      * @return
      */
     public ServiceContract create( final ServiceContract serviceContract, final Integer applicationId )
-            throws ServiceContractDefinitionException, RefAttributeCertificationDefinitionNotFoundException
-    {
-        final ClientApplication clientApplication = ClientApplicationHome.findByPrimaryKey( applicationId );
-        this.validateContractDefinition( serviceContract, clientApplication );
-        ServiceContractHome.create( serviceContract, applicationId );
-        if ( CollectionUtils.isNotEmpty( serviceContract.getAttributeRights( ) ) )
+            throws IdentityStoreException {
+        TransactionManager.beginTransaction( null );
+        try
         {
-            ServiceContractHome.addAttributeRights( serviceContract.getAttributeRights( ), serviceContract );
+            final ClientApplication clientApplication = ClientApplicationHome.findByPrimaryKey( applicationId );
+            this.validateContractDefinition( serviceContract, clientApplication );
+            ServiceContractHome.create( serviceContract, applicationId );
+            if ( CollectionUtils.isNotEmpty( serviceContract.getAttributeRights( ) ) )
+            {
+                ServiceContractHome.addAttributeRights( serviceContract.getAttributeRights( ), serviceContract );
+            }
+            if ( CollectionUtils.isNotEmpty( serviceContract.getAttributeRequirements( ) ) )
+            {
+                ServiceContractHome.addAttributeRequirements( serviceContract.getAttributeRequirements( ), serviceContract );
+            }
+            if ( CollectionUtils.isNotEmpty( serviceContract.getAttributeCertifications( ) ) )
+            {
+                ServiceContractHome.addAttributeCertifications( serviceContract.getAttributeCertifications( ), serviceContract );
+            }
+
+            if ( serviceContract.isActive( ) )
+            {
+                this._cache.put( clientApplication.getClientCode( ), serviceContract );
+            }
+            TransactionManager.commitTransaction( null );
         }
-        if ( CollectionUtils.isNotEmpty( serviceContract.getAttributeRequirements( ) ) )
+        catch( Exception e )
         {
-            ServiceContractHome.addAttributeRequirements( serviceContract.getAttributeRequirements( ), serviceContract );
-        }
-        if ( CollectionUtils.isNotEmpty( serviceContract.getAttributeCertifications( ) ) )
-        {
-            ServiceContractHome.addAttributeCertifications( serviceContract.getAttributeCertifications( ), serviceContract );
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
         }
 
-        if ( serviceContract.isActive( ) )
-        {
-            this._cache.put( clientApplication.getClientCode( ), serviceContract );
-        }
         return serviceContract;
     }
 
@@ -393,22 +405,32 @@ public class ServiceContractService
      * @return
      */
     public ServiceContract update( final ServiceContract serviceContract, final Integer applicationId )
-            throws ServiceContractDefinitionException, RefAttributeCertificationDefinitionNotFoundException
-    {
-        final ClientApplication clientApplication = ClientApplicationHome.findByPrimaryKey( applicationId );
-        this.validateContractDefinition( serviceContract, clientApplication );
-        ServiceContractHome.update( serviceContract, applicationId );
-        ServiceContractHome.removeAttributeRights( serviceContract );
-        ServiceContractHome.addAttributeRights( serviceContract.getAttributeRights( ), serviceContract );
-        ServiceContractHome.removeAttributeRequirements( serviceContract );
-        ServiceContractHome.addAttributeRequirements( serviceContract.getAttributeRequirements( ), serviceContract );
-        ServiceContractHome.removeAttributeCertifications( serviceContract );
-        ServiceContractHome.addAttributeCertifications( serviceContract.getAttributeCertifications( ), serviceContract );
+            throws IdentityStoreException {
 
-        if ( serviceContract.isActive( ) )
+        TransactionManager.beginTransaction( null );
+        try
         {
-            this._cache.deleteById( serviceContract.getId( ) );
-            this._cache.put( clientApplication.getClientCode( ), serviceContract );
+            final ClientApplication clientApplication = ClientApplicationHome.findByPrimaryKey( applicationId );
+            this.validateContractDefinition( serviceContract, clientApplication );
+            ServiceContractHome.update( serviceContract, applicationId );
+            ServiceContractHome.removeAttributeRights( serviceContract );
+            ServiceContractHome.addAttributeRights( serviceContract.getAttributeRights( ), serviceContract );
+            ServiceContractHome.removeAttributeRequirements( serviceContract );
+            ServiceContractHome.addAttributeRequirements( serviceContract.getAttributeRequirements( ), serviceContract );
+            ServiceContractHome.removeAttributeCertifications( serviceContract );
+            ServiceContractHome.addAttributeCertifications( serviceContract.getAttributeCertifications( ), serviceContract );
+
+            if ( serviceContract.isActive( ) )
+            {
+                this._cache.deleteById( serviceContract.getId( ) );
+                this._cache.put( clientApplication.getClientCode( ), serviceContract );
+            }
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
         }
         return serviceContract;
     }
@@ -419,9 +441,19 @@ public class ServiceContractService
      * @param serviceContract
      * @return
      */
-    public ServiceContract close( final ServiceContract serviceContract )
-    {
-        ServiceContractHome.close( serviceContract );
+    public ServiceContract close( final ServiceContract serviceContract ) throws IdentityStoreException {
+
+        TransactionManager.beginTransaction( null );
+        try
+        {
+            ServiceContractHome.close( serviceContract );
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
+        }
         return serviceContract;
     }
 
@@ -441,11 +473,20 @@ public class ServiceContractService
      *
      * @param clientApplication
      */
-    public void deleteApplication( final ClientApplication clientApplication )
-    {
-        ClientApplicationHome.removeContracts( clientApplication );
-        ClientApplicationHome.remove( clientApplication );
-        _cache.removeKey( clientApplication.getClientCode( ) );
+    public void deleteApplication( final ClientApplication clientApplication ) throws IdentityStoreException {
+        TransactionManager.beginTransaction( null );
+        try
+        {
+            ClientApplicationHome.removeContracts( clientApplication );
+            ClientApplicationHome.remove( clientApplication );
+            _cache.removeKey( clientApplication.getClientCode( ) );
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
+        }
     }
 
     /**

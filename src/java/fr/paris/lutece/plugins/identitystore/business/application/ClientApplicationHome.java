@@ -49,9 +49,9 @@ import java.util.List;
 public final class ClientApplicationHome
 {
     // Static variable pointed at the DAO instance
-    private static IClientApplicationDAO _daoClientApplication = SpringContextService.getBean( IClientApplicationDAO.BEAN_NAME );
-    private static IServiceContractDAO _daoServiceContract = SpringContextService.getBean( IServiceContractDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IClientApplicationDAO _daoClientApplication = SpringContextService.getBean( IClientApplicationDAO.BEAN_NAME );
+    private static final IServiceContractDAO _daoServiceContract = SpringContextService.getBean( IServiceContractDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated

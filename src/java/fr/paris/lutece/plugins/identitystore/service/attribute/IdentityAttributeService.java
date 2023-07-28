@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatu
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
@@ -100,22 +101,49 @@ public class IdentityAttributeService
                 .collect( Collectors.toList( ) );
     }
 
-    public void createAttributeKey( final AttributeKey attributeKey )
-    {
-        AttributeKeyHome.create( attributeKey );
-        _cache.put( attributeKey.getKeyName( ), attributeKey );
+    public void createAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException {
+        TransactionManager.beginTransaction( null );
+        try
+        {
+            AttributeKeyHome.create( attributeKey );
+            _cache.put( attributeKey.getKeyName( ), attributeKey );
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
+        }
     }
 
-    public void updateAttributeKey( final AttributeKey attributeKey )
-    {
-        AttributeKeyHome.update( attributeKey );
-        _cache.put( attributeKey.getKeyName( ), attributeKey );
+    public void updateAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException {
+        TransactionManager.beginTransaction( null );
+        try
+        {
+            AttributeKeyHome.update( attributeKey );
+            _cache.put( attributeKey.getKeyName( ), attributeKey );
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
+        }
     }
 
-    public void deleteAttributeKey( final AttributeKey attributeKey )
-    {
-        AttributeKeyHome.remove( attributeKey.getId( ) );
-        _cache.removeKey( attributeKey.getKeyName( ) );
+    public void deleteAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException {
+        TransactionManager.beginTransaction( null );
+        try
+        {
+            AttributeKeyHome.remove( attributeKey.getId( ) );
+            _cache.removeKey( attributeKey.getKeyName( ) );
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
+            throw new IdentityStoreException(e.getMessage(), e);
+        }
     }
 
     /**

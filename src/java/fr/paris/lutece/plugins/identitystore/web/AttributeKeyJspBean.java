@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -139,8 +140,6 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     @View( VIEW_CREATE_ATTRIBUTEKEY )
     public String getCreateAttributeKey( HttpServletRequest request )
     {
-        _attributekey = new AttributeKey( );
-
         final Map<String, Object> model = getModel( );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
         model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale( ) ) );
@@ -167,20 +166,25 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
 
-        String strIdKeyType = request.getParameter( PARAMETER_ID_KEY_TYPE );
-        int nKeyType = Integer.parseInt( strIdKeyType );
-        KeyType keyType = KeyType.valueOf( nKeyType );
+        final String strIdKeyType = request.getParameter( PARAMETER_ID_KEY_TYPE );
+        final int nKeyType = Integer.parseInt( strIdKeyType );
+        final KeyType keyType = KeyType.valueOf( nKeyType );
         _attributekey.setKeyType( keyType );
 
         if ( AttributeKeyHome.findByKey( _attributekey.getKeyName( ) ) != null )
         {
             addError( PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE, getLocale( ) );
-
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
 
-        IdentityAttributeService.instance( ).createAttributeKey( _attributekey );
+        try {
+            IdentityAttributeService.instance( ).createAttributeKey( _attributekey );
+        } catch (IdentityStoreException e) {
+            addError(e.getMessage());
+            return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
+        }
         addInfo( INFO_ATTRIBUTEKEY_CREATED, getLocale( ) );
+        _attributekey = null;
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
     }
@@ -226,7 +230,12 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
         }
-        IdentityAttributeService.instance( ).deleteAttributeKey( attributeKey );
+        try {
+            IdentityAttributeService.instance( ).deleteAttributeKey( attributeKey );
+        } catch (IdentityStoreException e) {
+            addError(e.getMessage());
+            return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
+        }
         addInfo( INFO_ATTRIBUTEKEY_REMOVED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
@@ -275,9 +284,14 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
             return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId( ) );
         }
 
-        IdentityAttributeService.instance( ).updateAttributeKey( _attributekey );
+        try {
+            IdentityAttributeService.instance( ).updateAttributeKey( _attributekey );
+        } catch (IdentityStoreException e) {
+            addError(e.getMessage());
+            return redirectView( request, VIEW_MODIFY_ATTRIBUTEKEY );
+        }
         addInfo( INFO_ATTRIBUTEKEY_UPDATED, getLocale( ) );
-
+        _attributekey = null;
         return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
     }
 

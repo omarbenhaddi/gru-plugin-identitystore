@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertific
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
+import fr.paris.lutece.plugins.identitystore.service.application.ClientApplicationService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
@@ -79,20 +80,7 @@ public class ClientUpdateRequest extends AbstractIdentityStoreRequest
     public ClientChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final ClientChangeResponse response = new ClientChangeResponse( );
-        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _clientApplicationDto.getClientCode( ) );
-        if ( clientApplication == null )
-        {
-            response.setStatus( ClientChangeStatusType.NOT_FOUND );
-            response.setMessage( "No client could be found with the code " + _clientApplicationDto.getClientCode( ) );
-        }
-        else
-        {
-            final ClientApplication client = DtoConverter.convertDtoToClient( _clientApplicationDto );
-            ClientApplicationHome.update( client );
-            response.setClientApplication( DtoConverter.convertClientToDto( client ) );
-            response.setStatus( ClientChangeStatusType.SUCCESS );
-        }
-
+        ClientApplicationService.instance( ).update( _clientApplicationDto, response );
         return response;
     }
 

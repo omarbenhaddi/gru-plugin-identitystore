@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.application;
 
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.service.application.ClientApplicationService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
@@ -72,20 +73,7 @@ public class ClientCreateRequest extends AbstractIdentityStoreRequest
     public ClientChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final ClientChangeResponse response = new ClientChangeResponse( );
-        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _clientApplicationDto.getClientCode( ) );
-        if ( clientApplication != null )
-        {
-            response.setStatus( ClientChangeStatusType.CONFLICT );
-            response.setMessage( "A client exists with the code " + _clientApplicationDto.getClientCode( ) );
-        }
-        else
-        {
-            final ClientApplication client = DtoConverter.convertDtoToClient( _clientApplicationDto );
-            ClientApplicationHome.create( client );
-            response.setClientApplication( DtoConverter.convertClientToDto( client ) );
-            response.setStatus( ClientChangeStatusType.SUCCESS );
-        }
-
+        ClientApplicationService.instance( ).create( _clientApplicationDto, response );
         return response;
     }
 

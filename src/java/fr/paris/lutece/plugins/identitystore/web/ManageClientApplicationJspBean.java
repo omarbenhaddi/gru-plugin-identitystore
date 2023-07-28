@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicat
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
@@ -233,7 +234,12 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
 
         ClientApplication clientApplication = ClientApplicationHome.findByPrimaryKey( nId );
-        ServiceContractService.instance( ).deleteApplication( clientApplication );
+        try {
+            ServiceContractService.instance( ).deleteApplication( clientApplication );
+        } catch (IdentityStoreException e) {
+            addError(e.getMessage());
+            return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );
+        }
         addInfo( INFO_CLIENTAPPLICATION_REMOVED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );

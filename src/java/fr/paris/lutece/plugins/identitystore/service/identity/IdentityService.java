@@ -73,6 +73,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeSt
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -178,42 +179,51 @@ public class IdentityService
         }
 
         final Identity identity = new Identity( );
-        identity.setMonParisActive(
-                identityChangeRequest.getIdentity( ).getMonParisActive( ) != null ? identityChangeRequest.getIdentity( ).getMonParisActive( ) : false );
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) )
+        TransactionManager.beginTransaction(null);
+        try
         {
-            identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+            identity.setMonParisActive(
+                    identityChangeRequest.getIdentity( ).getMonParisActive( ) != null ? identityChangeRequest.getIdentity( ).getMonParisActive( ) : false );
+            if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) )
+            {
+                identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+            }
+            IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
+
+            final List<CertifiedAttribute> attributesToCreate = identityChangeRequest.getIdentity( ).getAttributes( );
+            GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode, response );
+            GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode, response );
+
+            for ( final CertifiedAttribute certifiedAttribute : attributesToCreate )
+            {
+                // TODO vérifier que la clef d'attribut existe dans le référentiel
+                final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( certifiedAttribute, identity, clientCode );
+                response.getAttributeStatuses( ).add( attributeStatus );
+            }
+
+            response.setCustomerId( identity.getCustomerId( ) );
+            response.setCreationDate( identity.getCreationDate( ) );
+            final boolean incompleteCreation = response.getAttributeStatuses( ).stream( )
+                    .anyMatch( s -> s.getStatus( ).equals( AttributeChangeStatus.NOT_CREATED ) );
+            response.setStatus( incompleteCreation ? IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.CREATE_SUCCESS );
+
+            /* Historique des modifications */
+            response.getAttributeStatuses( ).stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).forEach( attributeStatus -> {
+                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus,
+                        identityChangeRequest.getOrigin( ), clientCode );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
+            } );
+
+            /* Indexation et historique */
+            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
+                    identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            TransactionManager.commitTransaction(null);
+        } catch (Exception e){
+            response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setMessage( e.getMessage( ) );
+            TransactionManager.rollBack(null);
         }
-        IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
-
-        final List<CertifiedAttribute> attributesToCreate = identityChangeRequest.getIdentity( ).getAttributes( );
-        GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode, response );
-        GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode, response );
-
-        for ( final CertifiedAttribute certifiedAttribute : attributesToCreate )
-        {
-            // TODO vérifier que la clef d'attribut existe dans le référentiel
-            final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( certifiedAttribute, identity, clientCode );
-            response.getAttributeStatuses( ).add( attributeStatus );
-        }
-
-        response.setCustomerId( identity.getCustomerId( ) );
-        response.setCreationDate( identity.getCreationDate( ) );
-        final boolean incompleteCreation = response.getAttributeStatuses( ).stream( )
-                .anyMatch( s -> s.getStatus( ).equals( AttributeChangeStatus.NOT_CREATED ) );
-        response.setStatus( incompleteCreation ? IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.CREATE_SUCCESS );
-
-        /* Historique des modifications */
-        response.getAttributeStatuses( ).stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).forEach( attributeStatus -> {
-            AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus,
-                    identityChangeRequest.getOrigin( ), clientCode );
-            _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-        } );
-
-        /* Indexation et historique */
-        final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
-                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
         return identity;
     }
@@ -319,55 +329,64 @@ public class IdentityService
          */
 
         // If GUID is updated, check if the new GUID does not exists in database
-        if ( _serviceContractService.canModifyConnectedIdentity( clientCode )
-                && !StringUtils.equals( identity.getConnectionId( ), identityChangeRequest.getIdentity( ).getConnectionId( ) )
-                && identityChangeRequest.getIdentity( ).getConnectionId( ) != null )
+        TransactionManager.beginTransaction(null);
+        try
         {
-            final Identity byConnectionId = IdentityHome.findByConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
-            if ( byConnectionId != null )
+            if ( _serviceContractService.canModifyConnectedIdentity( clientCode )
+                    && !StringUtils.equals( identity.getConnectionId( ), identityChangeRequest.getIdentity( ).getConnectionId( ) )
+                    && identityChangeRequest.getIdentity( ).getConnectionId( ) != null )
             {
-                response.setStatus( IdentityChangeStatus.CONFLICT );
-                response.setCustomerId( byConnectionId.getCustomerId( ) );
-                response.setMessage( "An identity already exists with the given connection ID. The customer ID of that identity is provided in the response." );
-                return null;
+                final Identity byConnectionId = IdentityHome.findByConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+                if ( byConnectionId != null )
+                {
+                    response.setStatus( IdentityChangeStatus.CONFLICT );
+                    response.setCustomerId( byConnectionId.getCustomerId( ) );
+                    response.setMessage( "An identity already exists with the given connection ID. The customer ID of that identity is provided in the response." );
+                    return null;
+                }
+                else
+                {
+                    identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+                }
             }
-            else
-            {
-                identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
-            }
+
+            // => process update :
+
+            this.updateIdentity( identityChangeRequest.getIdentity( ), clientCode, response, identity );
+
+            response.setCustomerId( identity.getCustomerId( ) );
+            response.setConnectionId( identity.getConnectionId( ) );
+            response.setCreationDate( identity.getCreationDate( ) );
+            response.setLastUpdateDate( identity.getLastUpdateDate( ) );
+            boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
+                    .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
+            response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityChangeStatus.UPDATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.UPDATE_SUCCESS );
+
+            /* Historique des modifications */
+            response.getAttributeStatuses( ).forEach( attributeStatus -> {
+                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus,
+                        identityChangeRequest.getOrigin( ), clientCode );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
+            } );
+
+            /* Indexation et historique */
+            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
+                    identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            TransactionManager.commitTransaction(null);
+        } catch (Exception e) {
+            response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setMessage( e.getMessage( ) );
+            TransactionManager.rollBack(null);
         }
-
-        // => process update :
-
-        this.updateIdentity( identityChangeRequest.getIdentity( ), clientCode, response, identity );
-
-        response.setCustomerId( identity.getCustomerId( ) );
-        response.setConnectionId( identity.getConnectionId( ) );
-        response.setCreationDate( identity.getCreationDate( ) );
-        response.setLastUpdateDate( identity.getLastUpdateDate( ) );
-        boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
-                .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
-        response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityChangeStatus.UPDATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.UPDATE_SUCCESS );
-
-        /* Historique des modifications */
-        response.getAttributeStatuses( ).forEach( attributeStatus -> {
-            AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus,
-                    identityChangeRequest.getOrigin( ), clientCode );
-            _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-        } );
-
-        /* Indexation et historique */
-        final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
-                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
 
         return identity;
     }
@@ -444,51 +463,60 @@ public class IdentityService
             return null;
         }
 
-        if ( identityMergeRequest.getIdentity( ) != null )
+        TransactionManager.beginTransaction(null);
+        try
         {
-            this.updateIdentity( identityMergeRequest.getIdentity( ), clientCode, response, primaryIdentity );
+            if ( identityMergeRequest.getIdentity( ) != null )
+            {
+                this.updateIdentity( identityMergeRequest.getIdentity( ), clientCode, response, primaryIdentity );
+            }
+
+            /* Tag de l'identité secondaire */
+            secondaryIdentity.setMerged( true );
+            secondaryIdentity.setMasterIdentityId( primaryIdentity.getId( ) );
+            IdentityHome.merge( secondaryIdentity );
+            IdentityAttributeHome.removeAllAttributes( secondaryIdentity.getId( ) );
+
+            response.setCustomerId( primaryIdentity.getCustomerId( ) );
+            response.setConnectionId( primaryIdentity.getConnectionId( ) );
+            response.setLastUpdateDate( primaryIdentity.getLastUpdateDate( ) );
+            boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
+                    .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
+                            || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
+            response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityMergeStatus.INCOMPLETE_SUCCESS : IdentityMergeStatus.SUCCESS );
+
+            /* Historique des modifications */
+            response.getAttributeStatuses( ).forEach( attributeStatus -> {
+                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.MERGE, primaryIdentity,
+                        attributeStatus, identityMergeRequest.getOrigin( ), clientCode );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
+            } );
+
+            /* Indexation */
+            final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity, response.getStatus( ).name( ),
+                            response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                    secondaryIdentity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
+
+            final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).name( ),
+                            response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                    primaryIdentity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
+            TransactionManager.commitTransaction(null);
+        } catch (Exception e){
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( e.getMessage( ) );
+            TransactionManager.rollBack(null);
         }
-
-        /* Tag de l'identité secondaire */
-        secondaryIdentity.setMerged( true );
-        secondaryIdentity.setMasterIdentityId( primaryIdentity.getId( ) );
-        IdentityHome.merge( secondaryIdentity );
-        IdentityAttributeHome.removeAllAttributes( secondaryIdentity.getId( ) );
-
-        response.setCustomerId( primaryIdentity.getCustomerId( ) );
-        response.setConnectionId( primaryIdentity.getConnectionId( ) );
-        response.setLastUpdateDate( primaryIdentity.getLastUpdateDate( ) );
-        boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
-                .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
-                        || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
-        response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityMergeStatus.INCOMPLETE_SUCCESS : IdentityMergeStatus.SUCCESS );
-
-        /* Historique des modifications */
-        response.getAttributeStatuses( ).forEach( attributeStatus -> {
-            AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.MERGE, primaryIdentity,
-                    attributeStatus, identityMergeRequest.getOrigin( ), clientCode );
-            _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-        } );
-
-        /* Indexation */
-        final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
-                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity, response.getStatus( ).name( ),
-                        response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
-                secondaryIdentity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
-
-        final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
-                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).name( ),
-                        response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
-                primaryIdentity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
 
         return primaryIdentity;
     }
@@ -526,22 +554,32 @@ public class IdentityService
             return;
         }
 
-        /* Tag de l'identité secondaire */
-        IdentityHome.cancelMerge( secondaryIdentity );
-        response.setStatus( IdentityMergeStatus.SUCCESS );
+        TransactionManager.beginTransaction(null);
+        try
+        {
+            /* Tag de l'identité secondaire */
+            IdentityHome.cancelMerge( secondaryIdentity );
+            response.setStatus( IdentityMergeStatus.SUCCESS );
 
-        /* Indexation */
-        final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
-                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity, response.getStatus( ).name( ),
-                        response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
-                secondaryIdentity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
+            /* Indexation */
+            final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity, response.getStatus( ).name( ),
+                            response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                    secondaryIdentity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
 
-        final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
-                IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
-                        response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
-                primaryIdentity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
+            final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
+                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                    primaryIdentity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
+            TransactionManager.commitTransaction(null);
+        } catch (Exception e)
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( e.getMessage( ) );
+            TransactionManager.rollBack(null);
+        }
     }
 
     /**
@@ -867,15 +905,21 @@ public class IdentityService
             return;
         }
 
-        // expire identity (the deletion is managed by the dedicated Daemon)
-        IdentityHome.softRemove( customerId );
+        TransactionManager.beginTransaction(null);
+        try {
+            // expire identity (the deletion is managed by the dedicated Daemon)
+            IdentityHome.softRemove( customerId );
 
-        response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
+            response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
 
-        /* Notify listeners for indexation, history, ... */
-        final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
-                identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
-        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            /* Notify listeners for indexation, history, ... */
+            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
+                    identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            TransactionManager.commitTransaction(null);
+        } catch (Exception e) {
+            TransactionManager.rollBack(null);
+        }
 
     }
 
