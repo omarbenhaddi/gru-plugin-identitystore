@@ -192,7 +192,7 @@ public class IdentityService
         }
 
         final Identity identity = new Identity( );
-        TransactionManager.beginTransaction(null);
+        TransactionManager.beginTransaction( null );
         try
         {
             identity.setMonParisActive(
@@ -222,20 +222,24 @@ public class IdentityService
 
             /* Historique des modifications */
             response.getAttributeStatuses( ).stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).forEach( attributeStatus -> {
-                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus,
-                        identityChangeRequest.getOrigin( ), clientCode );
+                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity,
+                        attributeStatus, identityChangeRequest.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
             } );
 
             /* Indexation et historique */
-            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE,
-                    identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+            final IndexIdentityChange identityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).name( ),
+                            response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ),
+                    identity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
-            TransactionManager.commitTransaction(null);
-        } catch (Exception e){
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
-            TransactionManager.rollBack(null);
+            TransactionManager.rollBack( null );
         }
 
         return identity;
@@ -351,7 +355,7 @@ public class IdentityService
          */
 
         // If GUID is updated, check if the new GUID does not exists in database
-        TransactionManager.beginTransaction(null);
+        TransactionManager.beginTransaction( null );
         try
         {
             if ( _serviceContractService.canModifyConnectedIdentity( clientCode )
@@ -363,7 +367,8 @@ public class IdentityService
                 {
                     response.setStatus( IdentityChangeStatus.CONFLICT );
                     response.setCustomerId( byConnectionId.getCustomerId( ) );
-                    response.setMessage( "An identity already exists with the given connection ID. The customer ID of that identity is provided in the response." );
+                    response.setMessage(
+                            "An identity already exists with the given connection ID. The customer ID of that identity is provided in the response." );
                     return null;
                 }
                 else
@@ -394,20 +399,24 @@ public class IdentityService
 
             /* Historique des modifications */
             response.getAttributeStatuses( ).forEach( attributeStatus -> {
-                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus,
-                        identityChangeRequest.getOrigin( ), clientCode );
+                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity,
+                        attributeStatus, identityChangeRequest.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
             } );
 
             /* Indexation et historique */
-            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE,
-                    identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+            final IndexIdentityChange identityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).name( ),
+                            response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ),
+                    identity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
-            TransactionManager.commitTransaction(null);
-        } catch (Exception e) {
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
-            TransactionManager.rollBack(null);
+            TransactionManager.rollBack( null );
         }
 
         return identity;
@@ -499,7 +508,7 @@ public class IdentityService
             return null;
         }
 
-        TransactionManager.beginTransaction(null);
+        TransactionManager.beginTransaction( null );
         try
         {
             if ( identityMergeRequest.getIdentity( ) != null )
@@ -547,11 +556,13 @@ public class IdentityService
                             response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
                     primaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
-            TransactionManager.commitTransaction(null);
-        } catch (Exception e){
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
-            TransactionManager.rollBack(null);
+            TransactionManager.rollBack( null );
         }
 
         return primaryIdentity;
@@ -604,7 +615,7 @@ public class IdentityService
             return;
         }
 
-        TransactionManager.beginTransaction(null);
+        TransactionManager.beginTransaction( null );
         try
         {
             /* Tag de l'identité secondaire */
@@ -613,8 +624,8 @@ public class IdentityService
 
             /* Indexation */
             final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity, response.getStatus( ).name( ),
-                            response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity,
+                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
                     secondaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
 
@@ -623,12 +634,13 @@ public class IdentityService
                             response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
                     primaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
-            TransactionManager.commitTransaction(null);
-        } catch (Exception e)
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
-            TransactionManager.rollBack(null);
+            TransactionManager.rollBack( null );
         }
     }
 
@@ -897,9 +909,7 @@ public class IdentityService
      *            the rule used to get matching identities
      * @return the list of identities
      */
-    public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize ) // TODO il faut pouvoir remonter les identités
-                                                                                                                  // pour les règles du type: 6 attributs parmis
-                                                                                                                  // les 7 principaux
+    public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize )
     {
         if ( rule == null )
         {
@@ -955,20 +965,25 @@ public class IdentityService
             return;
         }
 
-        TransactionManager.beginTransaction(null);
-        try {
+        TransactionManager.beginTransaction( null );
+        try
+        {
             // expire identity (the deletion is managed by the dedicated Daemon)
             IdentityHome.softRemove( customerId );
 
             response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
 
             /* Notify listeners for indexation, history, ... */
-            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE,
-                    identity, response.getStatus( ).name( ), response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ), identity );
+            final IndexIdentityChange identityChange = new IndexIdentityChange(
+                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).name( ),
+                            response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ),
+                    identity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
-            TransactionManager.commitTransaction(null);
-        } catch (Exception e) {
-            TransactionManager.rollBack(null);
+            TransactionManager.commitTransaction( null );
+        }
+        catch( Exception e )
+        {
+            TransactionManager.rollBack( null );
         }
 
     }

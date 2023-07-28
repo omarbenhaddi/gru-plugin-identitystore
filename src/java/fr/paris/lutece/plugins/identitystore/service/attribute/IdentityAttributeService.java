@@ -101,7 +101,8 @@ public class IdentityAttributeService
                 .collect( Collectors.toList( ) );
     }
 
-    public void createAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException {
+    public void createAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException
+    {
         TransactionManager.beginTransaction( null );
         try
         {
@@ -112,11 +113,12 @@ public class IdentityAttributeService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 
-    public void updateAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException {
+    public void updateAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException
+    {
         TransactionManager.beginTransaction( null );
         try
         {
@@ -127,11 +129,12 @@ public class IdentityAttributeService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 
-    public void deleteAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException {
+    public void deleteAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException
+    {
         TransactionManager.beginTransaction( null );
         try
         {
@@ -142,7 +145,7 @@ public class IdentityAttributeService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 

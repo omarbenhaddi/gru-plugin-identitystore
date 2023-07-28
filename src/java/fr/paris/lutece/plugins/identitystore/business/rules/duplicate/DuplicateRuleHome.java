@@ -128,9 +128,9 @@ public final class DuplicateRuleHome
      * 
      * @return The existing instances of {@link DuplicateRule}.
      */
-    public static List<String> findAllNames( )
+    public static List<String> findAllCodes( )
     {
-        return _dao.selectAllNames( _plugin );
+        return _dao.selectAllCodes( _plugin );
     }
 
     /**

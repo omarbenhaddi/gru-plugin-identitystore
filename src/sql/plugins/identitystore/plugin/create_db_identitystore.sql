@@ -326,7 +326,8 @@ CREATE INDEX identitystore_identity_history_cuid ON identitystore_identity_histo
 --
 CREATE TABLE identitystore_duplicate_rule (
     id_rule                 int AUTO_INCREMENT,
-    name                    varchar(100) NOT NULL UNIQUE,
+    code                    varchar(100) NOT NULL UNIQUE,
+    name                    varchar(100) NOT NULL,
     description             varchar,
     nb_filled_attributes    int,
     nb_equal_attributes     int,

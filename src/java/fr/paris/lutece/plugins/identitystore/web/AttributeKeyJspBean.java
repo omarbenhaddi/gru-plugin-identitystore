@@ -177,10 +177,13 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
 
-        try {
+        try
+        {
             IdentityAttributeService.instance( ).createAttributeKey( _attributekey );
-        } catch (IdentityStoreException e) {
-            addError(e.getMessage());
+        }
+        catch( IdentityStoreException e )
+        {
+            addError( e.getMessage( ) );
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
         }
         addInfo( INFO_ATTRIBUTEKEY_CREATED, getLocale( ) );
@@ -230,10 +233,13 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
         }
-        try {
+        try
+        {
             IdentityAttributeService.instance( ).deleteAttributeKey( attributeKey );
-        } catch (IdentityStoreException e) {
-            addError(e.getMessage());
+        }
+        catch( IdentityStoreException e )
+        {
+            addError( e.getMessage( ) );
             return redirectView( request, VIEW_MANAGE_ATTRIBUTEKEYS );
         }
         addInfo( INFO_ATTRIBUTEKEY_REMOVED, getLocale( ) );
@@ -284,10 +290,13 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
             return redirect( request, VIEW_MODIFY_ATTRIBUTEKEY, PARAMETER_ID_ATTRIBUTEKEY, _attributekey.getId( ) );
         }
 
-        try {
+        try
+        {
             IdentityAttributeService.instance( ).updateAttributeKey( _attributekey );
-        } catch (IdentityStoreException e) {
-            addError(e.getMessage());
+        }
+        catch( IdentityStoreException e )
+        {
+            addError( e.getMessage( ) );
             return redirectView( request, VIEW_MODIFY_ATTRIBUTEKEY );
         }
         addInfo( INFO_ATTRIBUTEKEY_UPDATED, getLocale( ) );

@@ -135,7 +135,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
             _listDuplicateRules = DuplicateRuleHome.findAll( );
             if ( _listDuplicateRules != null && !_listDuplicateRules.isEmpty( ) )
             {
-                _listDuplicateRules.sort( Comparator.comparing( DuplicateRule::getName ) );
+                _listDuplicateRules.sort( Comparator.comparing( DuplicateRule::getCode ) );
             }
         }
 

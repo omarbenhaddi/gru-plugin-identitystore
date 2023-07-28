@@ -59,27 +59,27 @@ public class DuplicateRulesCache extends AbstractCacheableService
     {
         AppLogService.info( "Init AttributeKey cache" );
         this.resetCache( );
-        DuplicateRuleHome.findAll( ).forEach( duplicateRule -> this.put( duplicateRule ) );
+        DuplicateRuleHome.findAll( ).forEach( this::put );
     }
 
     public void put( final DuplicateRule rule )
     {
-        if ( this.getKeys( ).contains( rule.getName( ) ) )
+        if ( this.getKeys( ).contains( rule.getCode( ) ) )
         {
-            this.removeKey( rule.getName( ) );
+            this.removeKey( rule.getCode( ) );
         }
-        this.putInCache( rule.getName( ), rule );
-        AppLogService.info( "Duplicate rule added to cache: " + rule.getName( ) );
+        this.putInCache( rule.getCode( ), rule );
+        AppLogService.info( "Duplicate rule added to cache: " + rule.getCode( ) );
     }
 
-    public void remove( final String ruleName )
+    public void remove( final String ruleCode )
     {
-        if ( this.getKeys( ).contains( ruleName ) )
+        if ( this.getKeys( ).contains( ruleCode ) )
         {
-            this.removeKey( ruleName );
+            this.removeKey( ruleCode );
         }
 
-        AppLogService.info( "Duplicate rule removed from cache: " + ruleName );
+        AppLogService.info( "Duplicate rule removed from cache: " + ruleCode );
     }
 
     /**
@@ -92,7 +92,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
         this.getKeys( ).forEach( key -> {
             try
             {
-                DuplicateRule duplicateRule = this.get( key );
+                final DuplicateRule duplicateRule = this.get( key );
                 if ( Objects.equals( duplicateRule.getId( ), id ) )
                 {
                     this.removeKey( key );
@@ -105,23 +105,23 @@ public class DuplicateRulesCache extends AbstractCacheableService
         } );
     }
 
-    public DuplicateRule get( final String duplicateRuleName ) throws DuplicateRuleNotFoundException
+    public DuplicateRule get( final String ruleCode ) throws DuplicateRuleNotFoundException
     {
-        DuplicateRule duplicateRule = (DuplicateRule) this.getFromCache( duplicateRuleName );
+        DuplicateRule duplicateRule = (DuplicateRule) this.getFromCache( ruleCode );
         if ( duplicateRule == null )
         {
-            duplicateRule = this.getFromDatabase( duplicateRuleName );
+            duplicateRule = this.getFromDatabase( ruleCode );
             this.put( duplicateRule );
         }
         return duplicateRule;
     }
 
-    public DuplicateRule getFromDatabase( final String duplicateRuleName ) throws DuplicateRuleNotFoundException
+    public DuplicateRule getFromDatabase( final String ruleCode ) throws DuplicateRuleNotFoundException
     {
-        final DuplicateRule duplicateRule = DuplicateRuleHome.find( duplicateRuleName );
+        final DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleCode );
         if ( duplicateRule == null )
         {
-            throw new DuplicateRuleNotFoundException( "No attribute key could be found with key " + duplicateRuleName );
+            throw new DuplicateRuleNotFoundException( "No attribute key could be found with key " + ruleCode );
         }
         return duplicateRule;
     }

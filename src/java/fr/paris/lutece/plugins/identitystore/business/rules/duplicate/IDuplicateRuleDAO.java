@@ -101,5 +101,5 @@ public interface IDuplicateRuleDAO
 
     DuplicateRule selectByName( String ruleName, Plugin plugin );
 
-    List<String> selectAllNames( Plugin plugin );
+    List<String> selectAllCodes( Plugin plugin );
 }

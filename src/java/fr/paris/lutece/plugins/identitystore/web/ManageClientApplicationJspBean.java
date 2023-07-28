@@ -234,10 +234,13 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_CLIENTAPPLICATION ) );
 
         ClientApplication clientApplication = ClientApplicationHome.findByPrimaryKey( nId );
-        try {
+        try
+        {
             ServiceContractService.instance( ).deleteApplication( clientApplication );
-        } catch (IdentityStoreException e) {
-            addError(e.getMessage());
+        }
+        catch( IdentityStoreException e )
+        {
+            addError( e.getMessage( ) );
             return redirectView( request, VIEW_MANAGE_CLIENTAPPLICATIONS );
         }
         addInfo( INFO_CLIENTAPPLICATION_REMOVED, getLocale( ) );

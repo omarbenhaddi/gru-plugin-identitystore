@@ -12,6 +12,7 @@
     <div class="clearfix"></div>
     <@table>
         <tr>
+            <th>#i18n{identitystore.manage_duplicaterules.columnCode}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnName}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnDescription}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnPriority}</th>
@@ -22,6 +23,9 @@
         <@tableHeadBodySeparator />
         <#list duplicaterule_list as duplicaterule >
         <tr>
+            <td>
+                ${duplicaterule.code}
+            </td>
             <td>
 				${duplicaterule.name}
 			</td>

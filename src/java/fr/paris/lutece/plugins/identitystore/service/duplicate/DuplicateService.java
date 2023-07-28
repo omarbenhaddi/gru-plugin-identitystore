@@ -152,13 +152,13 @@ public class DuplicateService implements IDuplicateService
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );
                 response.setMessage(
-                        "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId( ) + " avec la règle : " + duplicateRule.getName( ) );
+                        "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId( ) + " avec la règle : " + duplicateRule.getCode( ) );
                 response.setIdentities( results );
                 return response;
             }
         }
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-        response.setMessage( "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getName( ) );
+        response.setMessage( "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getCode( ) );
         response.setIdentities( Collections.emptyList( ) );
         return response;
     }

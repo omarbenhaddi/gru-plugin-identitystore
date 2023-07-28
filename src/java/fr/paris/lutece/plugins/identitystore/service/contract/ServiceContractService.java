@@ -357,8 +357,8 @@ public class ServiceContractService
      * @param applicationId
      * @return
      */
-    public ServiceContract create( final ServiceContract serviceContract, final Integer applicationId )
-            throws IdentityStoreException {
+    public ServiceContract create( final ServiceContract serviceContract, final Integer applicationId ) throws IdentityStoreException
+    {
         TransactionManager.beginTransaction( null );
         try
         {
@@ -387,7 +387,7 @@ public class ServiceContractService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
 
         return serviceContract;
@@ -404,8 +404,8 @@ public class ServiceContractService
      * @param applicationId
      * @return
      */
-    public ServiceContract update( final ServiceContract serviceContract, final Integer applicationId )
-            throws IdentityStoreException {
+    public ServiceContract update( final ServiceContract serviceContract, final Integer applicationId ) throws IdentityStoreException
+    {
 
         TransactionManager.beginTransaction( null );
         try
@@ -430,7 +430,7 @@ public class ServiceContractService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
         return serviceContract;
     }
@@ -441,7 +441,8 @@ public class ServiceContractService
      * @param serviceContract
      * @return
      */
-    public ServiceContract close( final ServiceContract serviceContract ) throws IdentityStoreException {
+    public ServiceContract close( final ServiceContract serviceContract ) throws IdentityStoreException
+    {
 
         TransactionManager.beginTransaction( null );
         try
@@ -452,7 +453,7 @@ public class ServiceContractService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
         return serviceContract;
     }
@@ -473,7 +474,8 @@ public class ServiceContractService
      *
      * @param clientApplication
      */
-    public void deleteApplication( final ClientApplication clientApplication ) throws IdentityStoreException {
+    public void deleteApplication( final ClientApplication clientApplication ) throws IdentityStoreException
+    {
         TransactionManager.beginTransaction( null );
         try
         {
@@ -485,7 +487,7 @@ public class ServiceContractService
         catch( Exception e )
         {
             TransactionManager.rollBack( null );
-            throw new IdentityStoreException(e.getMessage(), e);
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 

@@ -42,6 +42,7 @@ import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificati
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractDefinitionException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -306,7 +307,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         {
             ServiceContractService.instance( ).create( _servicecontract, selectedClientAppId );
         }
-        catch( ServiceContractDefinitionException | RefAttributeCertificationDefinitionNotFoundException e )
+        catch( Exception e )
         {
             addError( e.getMessage( ) );
             return redirect( request, VIEW_CREATE_SERVICECONTRACT, PARAMETER_ID_CLIENTAPPLICATION, selectedClientAppId );
@@ -455,7 +456,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         {
             ServiceContractService.instance( ).update( _servicecontract, Integer.parseInt( parameterValues [0] ) );
         }
-        catch( ServiceContractDefinitionException | RefAttributeCertificationDefinitionNotFoundException e )
+        catch( IdentityStoreException e )
         {
             addError( e.getMessage( ) );
             return redirect( request, VIEW_MODIFY_SERVICECONTRACT, PARAMETER_ID_SERVICECONTRACT, _servicecontract.getId( ) );

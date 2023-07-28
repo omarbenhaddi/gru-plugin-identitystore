@@ -71,11 +71,11 @@ public class DuplicateRuleService
      */
     public List<DuplicateRule> findAll( ) throws DuplicateRuleNotFoundException
     {
-        final List<String> allNames = DuplicateRuleHome.findAllNames( );
+        final List<String> allCodes = DuplicateRuleHome.findAllCodes( );
         final List<DuplicateRule> list = new ArrayList<>( );
-        for ( final String name : allNames )
+        for ( final String code : allCodes )
         {
-            DuplicateRule duplicateRule = _cache.get( name );
+            final DuplicateRule duplicateRule = _cache.get( code );
             list.add( duplicateRule );
         }
         return list;
@@ -95,6 +95,7 @@ public class DuplicateRuleService
             final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
             ruleDto.setId( rule.getId( ) );
             ruleDto.setName( rule.getName( ) );
+            ruleDto.setCode( rule.getCode( ) );
             ruleDto.setDescription( rule.getDescription( ) );
             ruleDto.setPriority( rule.getPriority( ) );
             ruleDto.setDuplicateCount( SuspiciousIdentityHome.countSuspiciousIdentity( rule.getId( ) ) );
@@ -105,12 +106,12 @@ public class DuplicateRuleService
     /**
      * Get {@link DuplicateRule} from cache by its name.
      *
-     * @param ruleName
+     * @param ruleCode
      * @return
      */
-    public DuplicateRule get( final String ruleName ) throws DuplicateRuleNotFoundException
+    public DuplicateRule get( final String ruleCode ) throws DuplicateRuleNotFoundException
     {
-        return _cache.get( ruleName );
+        return _cache.get( ruleCode );
     }
 
     /**
