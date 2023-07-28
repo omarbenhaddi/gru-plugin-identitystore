@@ -175,9 +175,9 @@ public final class SuspiciousIdentityHome
      *            max number of suspicious identities to return
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
-    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final Integer rule, final int max, final Integer priority )
+    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority )
     {
-        return _dao.selectSuspiciousIdentitysList( rule, max, priority, _plugin );
+        return _dao.selectSuspiciousIdentitysList( ruleCode, max, priority, _plugin );
     }
 
     /**
@@ -202,9 +202,9 @@ public final class SuspiciousIdentityHome
      *            id of the duplicate rule
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
-    public static List<String> getSuspiciousIdentityCuidsList( final Integer rule )
+    public static List<String> getSuspiciousIdentityCuidsList( final String ruleCode )
     {
-        return _dao.selectSuspiciousIdentityCuidsList( rule, _plugin );
+        return _dao.selectSuspiciousIdentityCuidsList( ruleCode, _plugin );
     }
 
     /**

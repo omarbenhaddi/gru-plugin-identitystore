@@ -122,12 +122,12 @@ public class DuplicateService implements IDuplicateService
     }
 
     @Override
-    public DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, int ruleId ) throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, final String ruleCode ) throws IdentityStoreException
     {
-        final DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleId );
+        final DuplicateRule duplicateRule = DuplicateRuleService.instance( ).get( ruleCode );
         if ( duplicateRule == null )
         {
-            throw new IdentityStoreException( "Could not find duplicate rule with id " + ruleId );
+            throw new IdentityStoreException( "Could not find duplicate rule with code " + ruleCode );
         }
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
@@ -137,16 +137,16 @@ public class DuplicateService implements IDuplicateService
                     .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( identity.getCustomerId( ), qualifiedIdentity.getCustomerId( ) ) )
                     .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( )
                             && !Objects.equals( qualifiedIdentity.getCustomerId( ), identity.getCustomerId( ) ) )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( i -> {
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( qualifiedIdentity -> {
                         try
                         {
-                            IdentityQualityService.instance( ).computeQuality( i );
+                            IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
                         }
                         catch( IdentityAttributeNotFoundException e )
                         {
                             throw new RuntimeException( e );
                         }
-                        return i;
+                        return qualifiedIdentity;
                     } ).collect( Collectors.toList( ) );
             if ( CollectionUtils.isNotEmpty( results ) )
             {

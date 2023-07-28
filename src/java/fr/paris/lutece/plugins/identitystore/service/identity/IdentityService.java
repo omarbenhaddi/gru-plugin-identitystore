@@ -988,9 +988,9 @@ public class IdentityService
 
     }
 
-    public DuplicateSearchResponse findDuplicates( QualifiedIdentity identity, Integer ruleId ) throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( QualifiedIdentity identity, String ruleCode ) throws IdentityStoreException
     {
-        return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleId );
+        return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleCode );
     }
 
 }

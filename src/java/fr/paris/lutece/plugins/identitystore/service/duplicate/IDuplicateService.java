@@ -44,5 +44,5 @@ public interface IDuplicateService
 
     DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues );
 
-    DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, final int ruleId ) throws IdentityStoreException;
+    DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, final String ruleCode ) throws IdentityStoreException;
 }

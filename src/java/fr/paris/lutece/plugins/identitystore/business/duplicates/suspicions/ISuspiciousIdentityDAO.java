@@ -130,7 +130,7 @@ public interface ISuspiciousIdentityDAO
      *            the Plugin
      * @return The list which contains the data of all the suspiciousIdentity objects
      */
-    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final Integer rule, final int max, final Integer priority, Plugin plugin );
+    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority, Plugin plugin );
 
     /**
      * Load the data of all the excluded identities objects and returns them as a list
@@ -201,7 +201,7 @@ public interface ISuspiciousIdentityDAO
 
     void purgeLocks( Plugin plugin );
 
-    List<String> selectSuspiciousIdentityCuidsList( Integer rule, Plugin plugin );
+    List<String> selectSuspiciousIdentityCuidsList( String ruleCode, Plugin plugin );
 
     void removeExcludedIdentities( String firstCuid, String secondCuid, Plugin plugin );
 }

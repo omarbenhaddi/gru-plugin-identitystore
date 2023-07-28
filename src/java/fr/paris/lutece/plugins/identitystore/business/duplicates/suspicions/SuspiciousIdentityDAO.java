@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -67,7 +68,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule d on d.id_rule = i.id_duplicate_rule ";
     private static final String SQL_QUERY_SELECTALL_EXCLUDED = "select first_customer_id, second_customer_id, date_create, author_type, author_name from identitystore_quality_suspicious_identity_excluded";
-    private static final String SQL_QUERY_SELECTALL_CUIDS = "SELECT customer_id FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
+    private static final String SQL_QUERY_SELECTALL_CUIDS = "SELECT customer_id FROM identitystore_quality_suspicious_identity si JOIN identitystore_duplicate_rule dr ON dr.id_rule = si.id_duplicate_rule WHERE si.id_duplicate_rule = ? ";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_suspicious_identity FROM identitystore_quality_suspicious_identity";
     private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id  WHERE id_suspicious_identity IN (  ";
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id  WHERE i.customer_id = ?  ";
@@ -233,17 +234,17 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final Integer rule, final int max, final Integer priority, Plugin plugin )
+    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority, Plugin plugin )
     {
         final List<SuspiciousIdentity> suspiciousIdentityList = new ArrayList<>( );
         String query = SQL_QUERY_SELECTALL;
-        if ( rule != null || priority != null )
+        if ( StringUtils.isNotEmpty( ruleCode ) || priority != null )
         {
             query += " WHERE ";
         }
-        if ( rule != null )
+        if ( StringUtils.isNotEmpty( ruleCode ) )
         {
-            query += " id_duplicate_rule = " + rule + ( priority != null ? " AND " : " " );
+            query += " d.code = " + ruleCode + ( priority != null ? " AND " : " " );
         }
 
         if ( priority != null )
@@ -515,11 +516,11 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     }
 
     @Override
-    public List<String> selectSuspiciousIdentityCuidsList( Integer rule, Plugin plugin )
+    public List<String> selectSuspiciousIdentityCuidsList( String ruleCode, Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUIDS, plugin ) )
         {
-            daoUtil.setInt( 1, rule );
+            daoUtil.setString( 1, ruleCode );
             daoUtil.executeQuery( );
             final List<String> cuids = new ArrayList<>( );
 
