@@ -70,14 +70,27 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class IdentityService
@@ -297,6 +310,15 @@ public class IdentityService
             return identity;
         }
 
+        // check if identity hasn't been updated between when the user retreived the identity, and this request
+        if ( !Objects.equals( identity.getLastUpdateDate( ), identityChangeRequest.getIdentity( ).getLastUpdateDate( ) ) )
+        {
+            response.setStatus( IdentityChangeStatus.CONFLICT );
+            response.setCustomerId( identity.getCustomerId( ) );
+            response.setMessage( "This identity has been updated recently, please load the latest data before updating." );
+            return identity;
+        }
+
         // if the identity is connected, check if the service contract allow the update
         // check if can update "mon_paris_active" flag
         if ( !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
@@ -441,6 +463,13 @@ public class IdentityService
             return null;
         }
 
+        if ( !Objects.equals( primaryIdentity.getLastUpdateDate( ), identityMergeRequest.getPrimaryLastUpdateDate( ) ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "The primary identity has been updated recently, please load the latest data before merging." );
+            return null;
+        }
+
         final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getSecondaryCuid( ) );
         if ( secondaryIdentity == null )
         {
@@ -460,6 +489,13 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is merged" );
+            return null;
+        }
+
+        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), identityMergeRequest.getSecondaryLastUpdateDate( ) ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "The secondary identity has been updated recently, please load the latest data before merging." );
             return null;
         }
 
@@ -531,6 +567,13 @@ public class IdentityService
             return;
         }
 
+        if ( !Objects.equals( primaryIdentity.getLastUpdateDate( ), identityMergeRequest.getPrimaryLastUpdateDate( ) ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "The primary identity has been updated recently, please load the latest data before canceling merge." );
+            return;
+        }
+
         final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getSecondaryCuid( ) );
         if ( secondaryIdentity == null )
         {
@@ -551,6 +594,13 @@ public class IdentityService
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( )
                     + " is not merged to Primary identity found with customer ID " + identityMergeRequest.getPrimaryCuid( ) );
+            return;
+        }
+
+        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), identityMergeRequest.getSecondaryLastUpdateDate( ) ) )
+        {
+            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setMessage( "The secondary identity has been updated recently, please load the latest data before canceling merge." );
             return;
         }
 

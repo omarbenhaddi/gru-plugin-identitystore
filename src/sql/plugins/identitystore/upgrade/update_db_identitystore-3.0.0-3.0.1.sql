@@ -216,3 +216,10 @@ ALTER TABLE identitystore_duplicate_rule
 ALTER COLUMN priority TYPE INT USING CASE WHEN priority = 'LEVEL1' THEN 1 WHEN priority = 'LEVEL2' THEN 2 WHEN priority = 'LEVEL3' THEN 3 END,
     ALTER COLUMN priority SET NOT NULL,
     ALTER COLUMN priority SET DEFAULT 100;
+
+
+-- identitystore_identity #223 when creating a new identity, fill last_update_date with same value as date_create
+UPDATE identitystore_identity SET last_update_date = date_create WHERE last_update_date IS NULL;
+
+ALTER TABLE identitystore_identity ALTER COLUMN last_update_date SET NOT NULL,
+                                   ALTER COLUMN last_update_date SET DEFAULT CURRENT_TIMESTAMP;

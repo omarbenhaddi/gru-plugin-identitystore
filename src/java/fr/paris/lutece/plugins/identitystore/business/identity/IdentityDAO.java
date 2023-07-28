@@ -65,7 +65,7 @@ public final class IdentityDAO implements IIdentityDAO
     // Constants
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_identity ) FROM identitystore_identity";
     private static final String SQL_QUERY_SELECT = "SELECT id_identity, connection_id, customer_id, is_mon_paris_active, expiration_date FROM identitystore_identity WHERE id_identity = ?";
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity (  connection_id, customer_id, date_create, is_mon_paris_active, expiration_date ) VALUES ( ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity (  connection_id, customer_id, date_create, last_update_date, is_mon_paris_active, expiration_date ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity WHERE id_identity = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity SET id_identity = ?, connection_id = ?, customer_id = ?, last_update_date = ?, is_mon_paris_active = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_identity, connection_id, customer_id, is_deleted, is_merged, is_mon_paris_active, expiration_date FROM identitystore_identity";
@@ -144,6 +144,7 @@ public final class IdentityDAO implements IIdentityDAO
         {
             final ZonedDateTime now = ZonedDateTime.now( ZoneId.systemDefault( ) );
             identity.setCreationDate( Timestamp.from( now.toInstant( ) ) );
+            identity.setLastUpdateDate( Timestamp.from( now.toInstant( ) ) );
             identity.setExpirationDate( Timestamp.from( now.plus( dataRetentionPeriodInMonth, ChronoUnit.MONTHS ).toInstant( ) ) );
 
             int nIndex = 1;
@@ -151,6 +152,7 @@ public final class IdentityDAO implements IIdentityDAO
             daoUtil.setString( nIndex++, identity.getConnectionId( ) );
             daoUtil.setString( nIndex++, identity.getCustomerId( ) );
             daoUtil.setTimestamp( nIndex++, identity.getCreationDate( ) );
+            daoUtil.setTimestamp( nIndex++, identity.getLastUpdateDate( ) );
             daoUtil.setBoolean( nIndex++, identity.isMonParisActive( ) );
             daoUtil.setTimestamp( nIndex, identity.getExpirationDate( ) );
 
