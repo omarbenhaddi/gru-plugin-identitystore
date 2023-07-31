@@ -91,7 +91,7 @@ public class DuplicateRuleService
      */
     public List<DuplicateRuleSummaryDto> findSummaries( final Integer priority ) throws DuplicateRuleNotFoundException
     {
-        return this.findAll( ).stream( ).filter( rule -> priority != null && rule.getPriority( ) <= priority ).map( rule -> {
+        return this.findAll( ).stream( ).filter( rule -> priority == null || rule.getPriority( ) <= priority ).map( rule -> {
             final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
             ruleDto.setId( rule.getId( ) );
             ruleDto.setName( rule.getName( ) );

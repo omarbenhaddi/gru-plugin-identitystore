@@ -79,6 +79,7 @@ public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
         }
         else
         {
+            response.setDuplicateRuleSummaries( rules );
             response.setStatus( DuplicateRuleSummarySearchStatusType.SUCCESS );
         }
         return response;
