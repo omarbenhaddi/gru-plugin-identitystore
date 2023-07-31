@@ -36,9 +36,12 @@ package fr.paris.lutece.plugins.identitystore.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.IndexStatus;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
+import fr.paris.lutece.portal.service.security.AccessLogService;
+import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -78,6 +81,9 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
     private static final String ACTION_INDEX_IDENTITIES = "indexIdentities";
     private static final String ACTION_INDEX_STATUS = "indexStatus";
 
+    // Events
+    private static final String INDEX_IDENTITY_EVENT_CODE = "INDEX_IDENTITIES";
+
     private FullIndexTask _fullIndexTask = SpringContextService.getBean( "identitystore.fullIndexer" );
     private String _strLastLogs;
 
@@ -116,6 +122,8 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
         if ( _fullIndexTask.getStatus( ) == null || !_fullIndexTask.getStatus( ).isRunning( ) )
         {
             new Thread( _fullIndexTask::run ).start( );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, INDEX_IDENTITY_EVENT_CODE, getUser( ), null,
+                    IdentityService.SPECIFIC_ORIGIN );
         }
 
         return redirectView( request, VIEW_INDEX_IDENTITIES );

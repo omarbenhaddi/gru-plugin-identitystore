@@ -102,7 +102,7 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
 
         IdentityService.instance( ).search( _strCustomerId, _strConnectionId, response, _strClientAppCode );
 
-        if ( response.getIdentities( ) != null && response.getIdentities( ).size( ) > 0 )
+        if ( response.getIdentities( ) != null && !response.getIdentities( ).isEmpty( ) )
         {
 
             final QualifiedIdentity qualifiedIdentity = response.getIdentities( ).get( 0 );

@@ -48,6 +48,7 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
+import fr.paris.lutece.plugins.identitystore.business.user.InternalUser;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
@@ -58,6 +59,7 @@ import fr.paris.lutece.plugins.identitystore.service.geocodes.GeocodesService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener.IndexIdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
+import fr.paris.lutece.plugins.identitystore.service.user.InternalUserService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
@@ -84,6 +86,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearch
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.security.AccessLogService;
+import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
@@ -94,10 +98,22 @@ import java.util.stream.Collectors;
 
 public class IdentityService
 {
+    // EVENTS FOR ACCESS LOGGING
+    public static final String CREATE_IDENTITY_EVENT_CODE = "CREATE_IDENTITY";
+    public static final String UPDATE_IDENTITY_EVENT_CODE = "UPDATE_IDENTITY";
+    public static final String GET_IDENTITY_EVENT_CODE = "GET_IDENTITY";
+    public static final String SEARCH_IDENTITY_EVENT_CODE = "SEARCH_IDENTITY";
+    public static final String DELETE_IDENTITY_EVENT_CODE = "DELETE_IDENTITY";
+    public static final String MERGE_IDENTITY_EVENT_CODE = "MERGE_IDENTITY";
+    public static final String UNMERGE_IDENTITY_EVENT_CODE = "UNMERGE_IDENTITY";
+    public static final String SPECIFIC_ORIGIN = "BO";
+
+    // SERVICES
     private final AttributeCertificationDefinitionService _attributeCertificationDefinitionService = AttributeCertificationDefinitionService.instance( );
     private final IdentityStoreNotifyListenerService _identityStoreNotifyListenerService = IdentityStoreNotifyListenerService.instance( );
     private final ServiceContractService _serviceContractService = ServiceContractService.instance( );
     private final IdentityAttributeService _identityAttributeService = IdentityAttributeService.instance( );
+    private final InternalUserService _internalUserService = InternalUserService.getInstance( );
     private final IDuplicateService _duplicateServiceCreation = SpringContextService.getBean( "identitystore.duplicateService.creation" );
     private final IDuplicateService _duplicateServiceUpdate = SpringContextService.getBean( "identitystore.duplicateService.update" );
     private final IDuplicateService _duplicateServiceImportCertitude = SpringContextService.getBean( "identitystore.duplicateService.import.certitude" );
@@ -119,7 +135,7 @@ public class IdentityService
     /**
      * Creates a new {@link Identity} according to the given {@link IdentityChangeRequest}
      *
-     * @param identityChangeRequest
+     * @param request
      *            the {@link IdentityChangeRequest} holding the parameters of the identity change request
      * @param clientCode
      *            code of the {@link ClientApplication} requesting the change
@@ -129,8 +145,7 @@ public class IdentityService
      * @throws IdentityStoreException
      *             in case of error
      */
-    public Identity create( final IdentityChangeRequest identityChangeRequest, final String clientCode, final IdentityChangeResponse response )
-            throws IdentityStoreException
+    public Identity create( final IdentityChangeRequest request, final String clientCode, final IdentityChangeResponse response ) throws IdentityStoreException
     {
         if ( !_serviceContractService.canCreateIdentity( clientCode ) )
         {
@@ -139,13 +154,12 @@ public class IdentityService
             return null;
         }
 
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getCustomerId( ) ) )
+        if ( StringUtils.isNotEmpty( request.getIdentity( ).getCustomerId( ) ) )
         {
             throw new IdentityStoreException( "You cannot specify a CUID when requesting for a creation" );
         }
 
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) )
-                && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        if ( StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot specify a GUID when requesting for a creation" );
         }
@@ -155,8 +169,8 @@ public class IdentityService
                 AttributeKeyHome.getMandatoryForCreationAttributeKeyList( ) );
         if ( CollectionUtils.isNotEmpty( mandatoryAttributes ) )
         {
-            final Set<String> providedKeySet = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
-                    .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
+            final Set<String> providedKeySet = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
+                    .map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
             if ( !providedKeySet.containsAll( mandatoryAttributes ) )
             {
                 response.setStatus( IdentityChangeStatus.FAILURE );
@@ -166,21 +180,20 @@ public class IdentityService
         }
 
         // check if can set "mon_paris_active" flag to true
-        if ( Boolean.TRUE.equals( identityChangeRequest.getIdentity( ).getMonParisActive( ) )
-                && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        if ( Boolean.TRUE.equals( request.getIdentity( ).getMonParisActive( ) ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
         }
 
         // check if GUID is already in use
-        if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) )
-                && IdentityHome.findByCustomerId( identityChangeRequest.getIdentity( ).getConnectionId( ) ) != null )
+        if ( StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) )
+                && IdentityHome.findByCustomerId( request.getIdentity( ).getConnectionId( ) ) != null )
         {
             throw new IdentityStoreException( "GUID is already in use." );
         }
 
-        final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
-                .filter( a -> StringUtils.isNotBlank( a.getValue( ) ) ).collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
+        final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
+                .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
         final DuplicateSearchResponse duplicates = _duplicateServiceCreation.findDuplicates( attributes );
         if ( duplicates != null )
         {
@@ -194,15 +207,14 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
-            identity.setMonParisActive(
-                    identityChangeRequest.getIdentity( ).getMonParisActive( ) != null ? identityChangeRequest.getIdentity( ).getMonParisActive( ) : false );
-            if ( StringUtils.isNotEmpty( identityChangeRequest.getIdentity( ).getConnectionId( ) ) )
+            identity.setMonParisActive( request.getIdentity( ).getMonParisActive( ) != null ? request.getIdentity( ).getMonParisActive( ) : false );
+            if ( StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) ) )
             {
-                identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+                identity.setConnectionId( request.getIdentity( ).getConnectionId( ) );
             }
             IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
 
-            final List<CertifiedAttribute> attributesToCreate = identityChangeRequest.getIdentity( ).getAttributes( );
+            final List<CertifiedAttribute> attributesToCreate = request.getIdentity( ).getAttributes( );
             GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode, response );
             GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode, response );
 
@@ -222,17 +234,17 @@ public class IdentityService
             /* Historique des modifications */
             response.getAttributeStatuses( ).stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).forEach( attributeStatus -> {
                 AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity,
-                        attributeStatus, identityChangeRequest.getOrigin( ), clientCode );
+                        attributeStatus, request.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
             } );
 
             /* Indexation et historique */
-            final IndexIdentityChange identityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).name( ),
-                            response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ),
-                    identity );
+            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange(
+                    IdentityChangeType.CREATE, identity, response.getStatus( ).name( ), response.getMessage( ), request.getOrigin( ), clientCode ), identity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
             TransactionManager.commitTransaction( null );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, CREATE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -273,8 +285,8 @@ public class IdentityService
      * @throws IdentityStoreException
      *             in case of error
      */
-    public Identity update( final String customerId, final IdentityChangeRequest identityChangeRequest, final String clientCode,
-            final IdentityChangeResponse response ) throws IdentityStoreException
+    public Identity update( final String customerId, final IdentityChangeRequest request, final String clientCode, final IdentityChangeResponse response )
+            throws IdentityStoreException
     {
         if ( !_serviceContractService.canUpdateIdentity( clientCode ) )
         {
@@ -297,7 +309,7 @@ public class IdentityService
         // check if identity is not merged
         if ( identity.isMerged( ) )
         {
-            final Identity masterIdentity = IdentityHome.findMasterIdentityByCustomerId( identityChangeRequest.getIdentity( ).getCustomerId( ) );
+            final Identity masterIdentity = IdentityHome.findMasterIdentityByCustomerId( request.getIdentity( ).getCustomerId( ) );
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( masterIdentity.getCustomerId( ) );
             response.setMessage( "Cannot update a merged Identity. Master identity customerId is provided in the response." );
@@ -314,7 +326,7 @@ public class IdentityService
         }
 
         // check if identity hasn't been updated between when the user retreived the identity, and this request
-        if ( !Objects.equals( identity.getLastUpdateDate( ), identityChangeRequest.getIdentity( ).getLastUpdateDate( ) ) )
+        if ( !Objects.equals( identity.getLastUpdateDate( ), request.getIdentity( ).getLastUpdateDate( ) ) )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( identity.getCustomerId( ) );
@@ -333,7 +345,7 @@ public class IdentityService
                 response.setMessage( "The client application is not authorized to update a connected identity." );
                 return null;
             }
-            if ( identityChangeRequest.getIdentity( ).getMonParisActive( ) != null )
+            if ( request.getIdentity( ).getMonParisActive( ) != null )
             {
                 response.setStatus( IdentityChangeStatus.CONFLICT );
                 response.setCustomerId( identity.getCustomerId( ) );
@@ -358,10 +370,10 @@ public class IdentityService
         try
         {
             if ( _serviceContractService.canModifyConnectedIdentity( clientCode )
-                    && !StringUtils.equals( identity.getConnectionId( ), identityChangeRequest.getIdentity( ).getConnectionId( ) )
-                    && identityChangeRequest.getIdentity( ).getConnectionId( ) != null )
+                    && !StringUtils.equals( identity.getConnectionId( ), request.getIdentity( ).getConnectionId( ) )
+                    && request.getIdentity( ).getConnectionId( ) != null )
             {
-                final Identity byConnectionId = IdentityHome.findByConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+                final Identity byConnectionId = IdentityHome.findByConnectionId( request.getIdentity( ).getConnectionId( ) );
                 if ( byConnectionId != null )
                 {
                     response.setStatus( IdentityChangeStatus.CONFLICT );
@@ -372,13 +384,13 @@ public class IdentityService
                 }
                 else
                 {
-                    identity.setConnectionId( identityChangeRequest.getIdentity( ).getConnectionId( ) );
+                    identity.setConnectionId( request.getIdentity( ).getConnectionId( ) );
                 }
             }
 
             // => process update :
 
-            this.updateIdentity( identityChangeRequest.getIdentity( ), clientCode, response, identity );
+            this.updateIdentity( request.getIdentity( ), clientCode, response, identity );
 
             response.setCustomerId( identity.getCustomerId( ) );
             response.setConnectionId( identity.getConnectionId( ) );
@@ -399,17 +411,17 @@ public class IdentityService
             /* Historique des modifications */
             response.getAttributeStatuses( ).forEach( attributeStatus -> {
                 AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity,
-                        attributeStatus, identityChangeRequest.getOrigin( ), clientCode );
+                        attributeStatus, request.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
             } );
 
             /* Indexation et historique */
-            final IndexIdentityChange identityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).name( ),
-                            response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ),
-                    identity );
+            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange(
+                    IdentityChangeType.UPDATE, identity, response.getStatus( ).name( ), response.getMessage( ), request.getOrigin( ), clientCode ), identity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
             TransactionManager.commitTransaction( null );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -435,7 +447,7 @@ public class IdentityService
      * </li>
      * </ul>
      *
-     * @param identityMergeRequest
+     * @param request
      *            the {@link IdentityMergeRequest} holding the parameters of the request
      * @param clientCode
      *            code of the {@link ClientApplication} requesting the change
@@ -446,61 +458,60 @@ public class IdentityService
      *             in case of error
      */
     // TODO: récupérer la plus haute date d'expiration des deux identités
-    public Identity merge( final IdentityMergeRequest identityMergeRequest, final String clientCode, final IdentityMergeResponse response )
-            throws IdentityStoreException
+    public Identity merge( final IdentityMergeRequest request, final String clientCode, final IdentityMergeResponse response ) throws IdentityStoreException
     {
-        final Identity primaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getPrimaryCuid( ) );
+        final Identity primaryIdentity = IdentityHome.findByCustomerId( request.getPrimaryCuid( ) );
         if ( primaryIdentity == null )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Could not find primary identity with customer_id " + identityMergeRequest.getPrimaryCuid( ) );
+            response.setMessage( "Could not find primary identity with customer_id " + request.getPrimaryCuid( ) );
             return null;
         }
 
         if ( primaryIdentity.isDeleted( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Primary identity found with customer_id " + identityMergeRequest.getPrimaryCuid( ) + " is deleted" );
+            response.setMessage( "Primary identity found with customer_id " + request.getPrimaryCuid( ) + " is deleted" );
             return null;
         }
 
         if ( primaryIdentity.isMerged( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Primary identity found with customer_id " + identityMergeRequest.getPrimaryCuid( ) + " is merged" );
+            response.setMessage( "Primary identity found with customer_id " + request.getPrimaryCuid( ) + " is merged" );
             return null;
         }
 
-        if ( !Objects.equals( primaryIdentity.getLastUpdateDate( ), identityMergeRequest.getPrimaryLastUpdateDate( ) ) )
+        if ( !Objects.equals( primaryIdentity.getLastUpdateDate( ), request.getPrimaryLastUpdateDate( ) ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The primary identity has been updated recently, please load the latest data before merging." );
             return null;
         }
 
-        final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getSecondaryCuid( ) );
+        final Identity secondaryIdentity = IdentityHome.findByCustomerId( request.getSecondaryCuid( ) );
         if ( secondaryIdentity == null )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Could not find secondary identity with customer_id " + identityMergeRequest.getSecondaryCuid( ) );
+            response.setMessage( "Could not find secondary identity with customer_id " + request.getSecondaryCuid( ) );
             return null;
         }
 
         if ( secondaryIdentity.isDeleted( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is deleted" );
+            response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( ) + " is deleted" );
             return null;
         }
 
         if ( secondaryIdentity.isMerged( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is merged" );
+            response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( ) + " is merged" );
             return null;
         }
 
-        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), identityMergeRequest.getSecondaryLastUpdateDate( ) ) )
+        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), request.getSecondaryLastUpdateDate( ) ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The secondary identity has been updated recently, please load the latest data before merging." );
@@ -510,9 +521,9 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
-            if ( identityMergeRequest.getIdentity( ) != null )
+            if ( request.getIdentity( ) != null )
             {
-                this.updateIdentity( identityMergeRequest.getIdentity( ), clientCode, response, primaryIdentity );
+                this.updateIdentity( request.getIdentity( ), clientCode, response, primaryIdentity );
             }
 
             /* Tag de l'identité secondaire */
@@ -539,23 +550,25 @@ public class IdentityService
             /* Historique des modifications */
             response.getAttributeStatuses( ).forEach( attributeStatus -> {
                 AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.MERGE, primaryIdentity,
-                        attributeStatus, identityMergeRequest.getOrigin( ), clientCode );
+                        attributeStatus, request.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
             } );
 
             /* Indexation */
             final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
                     IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity, response.getStatus( ).name( ),
-                            response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                            response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
                     secondaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
 
             final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
                     IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).name( ),
-                            response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                            response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
                     primaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
             TransactionManager.commitTransaction( null );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, MERGE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -567,47 +580,57 @@ public class IdentityService
         return primaryIdentity;
     }
 
-    public void cancelMerge( final IdentityMergeRequest identityMergeRequest, final String clientCode, final IdentityMergeResponse response )
+    /**
+     * Detach a merged {@link Identity} from its master {@link Identity}
+     * 
+     * @param request
+     *            the unmerge request
+     * @param clientCode
+     *            the client code of the calling application
+     * @param response
+     *            the status of the execution
+     */
+    public void cancelMerge( final IdentityMergeRequest request, final String clientCode, final IdentityMergeResponse response )
     {
-        final Identity primaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getPrimaryCuid( ) );
+        final Identity primaryIdentity = IdentityHome.findByCustomerId( request.getPrimaryCuid( ) );
         if ( primaryIdentity == null )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Could not find primary identity with customer_id " + identityMergeRequest.getPrimaryCuid( ) );
+            response.setMessage( "Could not find primary identity with customer_id " + request.getPrimaryCuid( ) );
             return;
         }
 
-        if ( !Objects.equals( primaryIdentity.getLastUpdateDate( ), identityMergeRequest.getPrimaryLastUpdateDate( ) ) )
+        if ( !Objects.equals( primaryIdentity.getLastUpdateDate( ), request.getPrimaryLastUpdateDate( ) ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The primary identity has been updated recently, please load the latest data before canceling merge." );
             return;
         }
 
-        final Identity secondaryIdentity = IdentityHome.findByCustomerId( identityMergeRequest.getSecondaryCuid( ) );
+        final Identity secondaryIdentity = IdentityHome.findByCustomerId( request.getSecondaryCuid( ) );
         if ( secondaryIdentity == null )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Could not find secondary identity with customer_id " + identityMergeRequest.getSecondaryCuid( ) );
+            response.setMessage( "Could not find secondary identity with customer_id " + request.getSecondaryCuid( ) );
             return;
         }
 
         if ( !secondaryIdentity.isMerged( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( ) + " is not merged" );
+            response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( ) + " is not merged" );
             return;
         }
 
         if ( secondaryIdentity.getMasterIdentityId( ) != primaryIdentity.getMasterIdentityId( ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
-            response.setMessage( "Secondary identity found with customer_id " + identityMergeRequest.getSecondaryCuid( )
-                    + " is not merged to Primary identity found with customer ID " + identityMergeRequest.getPrimaryCuid( ) );
+            response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( )
+                    + " is not merged to Primary identity found with customer ID " + request.getPrimaryCuid( ) );
             return;
         }
 
-        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), identityMergeRequest.getSecondaryLastUpdateDate( ) ) )
+        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), request.getSecondaryLastUpdateDate( ) ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The secondary identity has been updated recently, please load the latest data before canceling merge." );
@@ -624,16 +647,18 @@ public class IdentityService
             /* Indexation */
             final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
                     IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity,
-                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
                     secondaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
 
             final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
                     IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
-                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), identityMergeRequest.getOrigin( ), clientCode ),
+                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
                     primaryIdentity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
             TransactionManager.commitTransaction( null );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UNMERGE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -697,7 +722,7 @@ public class IdentityService
     /**
      * Perform an identity research over a list of attributes (key and values) specified in the {@link IdentitySearchRequest}
      *
-     * @param identitySearchRequest
+     * @param request
      *            the {@link IdentitySearchRequest} holding the parameters of the research
      * @param response
      *            the {@link IdentitySearchResponse} holding the status of the execution status and the results of the request
@@ -708,10 +733,12 @@ public class IdentityService
      * @throws IdentityAttributeNotFoundException
      *             in case of {@link AttributeKey} management error
      */
-    public void search( final IdentitySearchRequest identitySearchRequest, final IdentitySearchResponse response, final String clientCode )
+    public void search( final IdentitySearchRequest request, final IdentitySearchResponse response, final String clientCode )
             throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
-        final List<SearchAttributeDto> providedAttributes = identitySearchRequest.getSearch( ).getAttributes( );
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
+        final List<SearchAttributeDto> providedAttributes = request.getSearch( ).getAttributes( );
         final Set<String> providedKeys = providedAttributes.stream( ).map( SearchAttributeDto::getKey ).collect( Collectors.toSet( ) );
 
         boolean hasRequirements = false;
@@ -770,11 +797,11 @@ public class IdentityService
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, null, null,
-                identitySearchRequest.getMax( ), identitySearchRequest.isConnected( ) );
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, null, null, request.getMax( ),
+                request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
-            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( identitySearchRequest, clientCode, qualifiedIdentities );
+            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, qualifiedIdentities );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
@@ -804,6 +831,8 @@ public class IdentityService
     public void search( final String customerId, final String connectionId, final IdentitySearchResponse response, final String clientCode )
             throws IdentityAttributeNotFoundException, ServiceContractNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
+                customerId != null ? customerId : connectionId, SPECIFIC_ORIGIN );
         final Identity identity = StringUtils.isNotEmpty( customerId ) ? IdentityHome.findMasterIdentityByCustomerId( customerId )
                 : StringUtils.isNotEmpty( connectionId ) ? IdentityHome.findMasterIdentityByConnectionId( connectionId ) : null;
         if ( identity == null )
@@ -974,11 +1003,11 @@ public class IdentityService
      *            the customer ID
      * @param clientCode
      *            the client code
-     * @param identityChangeRequest
+     * @param request
      *            the identityChangeRequest
      */
-    public void deleteRequest( final String customerId, final String clientCode, IdentityChangeRequest identityChangeRequest,
-            final IdentityChangeResponse response ) throws IdentityStoreException
+    public void deleteRequest( final String customerId, final String clientCode, final IdentityChangeRequest request, final IdentityChangeResponse response )
+            throws IdentityStoreException
     {
         if ( !_serviceContractService.canDeleteIdentity( clientCode ) )
         {
@@ -1021,12 +1050,12 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
 
             /* Notify listeners for indexation, history, ... */
-            final IndexIdentityChange identityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).name( ),
-                            response.getMessage( ), identityChangeRequest.getOrigin( ), clientCode ),
-                    identity );
+            final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange(
+                    IdentityChangeType.DELETE, identity, response.getStatus( ).name( ), response.getMessage( ), request.getOrigin( ), clientCode ), identity );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
             TransactionManager.commitTransaction( null );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( clientCode ), customerId, SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {

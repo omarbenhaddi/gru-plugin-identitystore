@@ -77,7 +77,6 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
     // Markers
     private static final String MARK_ATTRIBUTEKEY_LIST = "attributekey_list";
-    private static final String MARK_ATTRIBUTE_APPS_RIGHT_MAP = "attribute_apps_right_map";
     private static final String MARK_ATTRIBUTEKEY = "attributekey";
     private static final String MARK_KEYTYPE_LIST = "keytype_list";
     private static final String MARK_WEBAPP_URL = "webapp_url";

@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
@@ -45,6 +46,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.portal.service.security.AccessLogService;
+import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
@@ -102,10 +105,14 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String VIEW_IDENTITY = "viewIdentity";
     private static final String VIEW_IDENTITY_HISTORY = "viewIdentityHistory";
 
+    // Events
+    private static final String DISPLAY_IDENTITY_EVENT_CODE = "DISPLAY_IDENTITY";
+    private static final String DISPLAY_IDENTITY_HISTORY_EVENT_CODE = "DISPLAY_HISTORY_IDENTITY";
+
     // Session variable to store working values
     private Identity _identity;
 
-    private ISearchIdentityService _searchIdentityService = SpringContextService.getBean( "identitystore.db.searchIdentityService" );
+    private final ISearchIdentityService _searchIdentityService = SpringContextService.getBean( "identitystore.db.searchIdentityService" );
 
     @View( value = VIEW_MANAGE_IDENTITIES, defaultView = true )
     public String getManageIdentitys( HttpServletRequest request ) throws RefAttributeCertificationDefinitionNotFoundException
@@ -192,6 +199,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             }
         }
 
+        qualifiedIdentities.forEach( qualifiedIdentity -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
+                IdentityService.SEARCH_IDENTITY_EVENT_CODE, getUser( ), queryParameters, IdentityService.SPECIFIC_ORIGIN ) );
+
         final Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, qualifiedIdentities, JSP_MANAGE_IDENTITIES );
         model.put( MARK_HAS_CREATE_ROLE,
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) );
@@ -231,8 +241,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         final String nId = request.getParameter( PARAMETER_ID_IDENTITY );
 
         _identity = IdentityHome.findByCustomerId( nId );
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_EVENT_CODE, getUser( ), _identity.getCustomerId( ),
+                IdentityService.SPECIFIC_ORIGIN );
 
-        Map<String, Object> model = getModel( );
+        final Map<String, Object> model = getModel( );
         model.put( MARK_IDENTITY, _identity );
         model.put( MARK_HAS_ATTRIBUTS_HISTO_ROLE,
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_ATTRIBUTS_HISTO, getUser( ) ) );
@@ -259,6 +271,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             attributeChangeList.addAll( IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ) ) );
             identityChangeList.addAll( IdentityHome.findHistoryByCustomerId( _identity.getCustomerId( ) ) );
         }
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_HISTORY_EVENT_CODE, getUser( ),
+                _identity.getCustomerId( ), IdentityService.SPECIFIC_ORIGIN );
 
         final Map<String, Object> model = getModel( );
         model.put( MARK_IDENTITY_CHANGE_LIST, identityChangeList );
