@@ -355,17 +355,6 @@ CREATE TABLE identitystore_quality_suspicious_identity (
     PRIMARY KEY (id_suspicious_identity)
 );
 
-
---
--- Structure for table identitystore_quality_suspicious_identity_excluded
---
-
-DROP TABLE IF EXISTS identitystore_quality_suspicious_identity_excluded;
-CREATE TABLE identitystore_quality_suspicious_identity_excluded (
-    first_cuid varchar(50) default '' NOT NULL,
-    second_cuid varchar(50) default '' NOT NULL
-);
-
 --
 -- Structure for table identitystore_quality_suspicious_identity_lock
 --
