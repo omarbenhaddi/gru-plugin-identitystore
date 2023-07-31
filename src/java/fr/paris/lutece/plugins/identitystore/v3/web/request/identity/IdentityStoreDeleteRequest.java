@@ -75,7 +75,7 @@ public class IdentityStoreDeleteRequest extends AbstractIdentityStoreRequest
     protected void validRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
-        IdentityRequestValidator.instance( ).checkOrigin( _identityChangeRequest );
+        IdentityRequestValidator.instance( ).checkOrigin( _identityChangeRequest.getOrigin( ) );
     }
 
     /**
