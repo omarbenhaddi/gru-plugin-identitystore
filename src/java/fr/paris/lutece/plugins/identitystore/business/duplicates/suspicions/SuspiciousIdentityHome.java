@@ -190,6 +190,16 @@ public final class SuspiciousIdentityHome
         return _dao.selectExcludedIdentitiesList( _plugin );
     }
 
+    /**
+     * Load the data of all the excluded identities objects and returns them as a list
+     *
+     * @return the list which contains the data of all the suspiciousIdentity objects
+     */
+    public static List<ExcludedIdentities> getExcludedIdentitiesList( final String customerId )
+    {
+        return _dao.selectExcludedIdentitiesList( customerId, _plugin );
+    }
+
     public static void removeExcludedIdentities( final String firstCuid, final String secondCuid )
     {
         _dao.removeExcludedIdentities( firstCuid, secondCuid, _plugin );
@@ -198,8 +208,8 @@ public final class SuspiciousIdentityHome
     /**
      * Load the data of all the suspiciousIdentity objects and returns them as a list
      *
-     * @param rule
-     *            id of the duplicate rule
+     * @param ruleCode
+     *            code of the duplicate rule
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
     public static List<String> getSuspiciousIdentityCuidsList( final String ruleCode )

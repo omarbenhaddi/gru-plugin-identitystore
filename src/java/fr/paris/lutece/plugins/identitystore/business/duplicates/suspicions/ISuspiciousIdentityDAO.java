@@ -204,4 +204,6 @@ public interface ISuspiciousIdentityDAO
     List<String> selectSuspiciousIdentityCuidsList( String ruleCode, Plugin plugin );
 
     void removeExcludedIdentities( String firstCuid, String secondCuid, Plugin plugin );
+
+    List<ExcludedIdentities> selectExcludedIdentitiesList( String customerId, Plugin plugin );
 }

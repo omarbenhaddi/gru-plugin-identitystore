@@ -37,6 +37,9 @@ import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicat
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.ExcludedIdentities;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentity;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
@@ -64,6 +67,9 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribu
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefintion;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
@@ -83,14 +89,7 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class IdentityService
@@ -814,7 +813,8 @@ public class IdentityService
         else
         {
             final QualifiedIdentity qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
-            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( null, clientCode, Arrays.asList( qualifiedIdentity ) );
+            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( null, clientCode,
+                    Collections.singletonList( qualifiedIdentity ) );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
@@ -827,6 +827,22 @@ public class IdentityService
         }
     }
 
+    /**
+     * Filter a list of search results over {@link ServiceContract} defined for the given clientCode. Also complete identities with additional information
+     * (quality, duplicates, ...).
+     * 
+     * @param identitySearchRequest
+     *            la requête de recherche
+     * @param clientCode
+     *            le code client du demandeur
+     * @param qualifiedIdentities
+     *            la liste de résultats à traiter
+     * @return the list of filtered and completed {@link QualifiedIdentity}
+     * @throws ServiceContractNotFoundException
+     *             in case of error
+     * @throws IdentityAttributeNotFoundException
+     *             in case of errorj
+     */
     private List<QualifiedIdentity> getFilteredQualifiedIdentities( IdentitySearchRequest identitySearchRequest, String clientCode,
             List<QualifiedIdentity> qualifiedIdentities ) throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
     {
@@ -860,6 +876,37 @@ public class IdentityService
                 qualifiedIdentity.getAttributes( ).addAll( filteredAttributeValues );
                 filteredIdentities.add( qualifiedIdentity );
             }
+
+            final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( qualifiedIdentity.getCustomerId( ) );
+            if ( suspiciousIdentity != null )
+            {
+                qualifiedIdentity.setDuplicateDefintion( new IdentityDuplicateDefintion( ) );
+                final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
+                qualifiedIdentity.getDuplicateDefintion( ).setDuplicateSuspicion( duplicateSuspicion );
+                duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
+                duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
+            }
+
+            final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( qualifiedIdentity.getCustomerId( ) );
+            if ( CollectionUtils.isNotEmpty( excludedIdentitiesList ) )
+            {
+                if ( qualifiedIdentity.getDuplicateDefintion( ) == null )
+                {
+                    qualifiedIdentity.setDuplicateDefintion( new IdentityDuplicateDefintion( ) );
+                }
+                qualifiedIdentity.getDuplicateDefintion( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
+                    final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
+                    exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
+                    exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
+                    exclusion.setAuthorType( excludedIdentities.getAuthorType( ) );
+                    final String excludedCustomerId = Objects.equals( excludedIdentities.getFirstCustomerId( ), qualifiedIdentity.getCustomerId( ) )
+                            ? excludedIdentities.getSecondCustomerId( )
+                            : excludedIdentities.getFirstCustomerId( );
+                    exclusion.setExcludedCustomerId( excludedCustomerId );
+                    return exclusion;
+                } ).collect( Collectors.toList( ) ) );
+            }
+
         }
         filteredIdentities.sort( comparator );
         return filteredIdentities;
