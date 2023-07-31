@@ -51,6 +51,7 @@ public class SuspiciousIdentity implements Serializable
     @NotEmpty( message = "#i18n{module.identitystore.quality.validation.suspiciousidentity.CustomerId.notEmpty}" )
     @Size( max = 50, message = "#i18n{module.identitystore.quality.validation.suspiciousidentity.CustomerId.size}" )
     private String _strCustomerId;
+    private String _strDuplicateRuleCode;
     private Integer _nIdDuplicateRule;
     private boolean _bIsDeleted;
     private Timestamp _dateCreationDate;
@@ -118,6 +119,27 @@ public class SuspiciousIdentity implements Serializable
     public void setIdDuplicateRule( int _nIdDuplicateRule )
     {
         this._nIdDuplicateRule = _nIdDuplicateRule;
+    }
+
+    /**
+     * Gets the duplicate rule code used to detect this suspicious identity
+     *
+     * @return the duplicate rule code
+     */
+    public String getDuplicateRuleCode( )
+    {
+        return _strDuplicateRuleCode;
+    }
+
+    /**
+     * Sets the duplicate rule code used to detect this suspicious identity
+     *
+     * @param _strDuplicateRuleCode
+     *            the duplicate rule code
+     */
+    public void setDuplicateRuleCode( String _strDuplicateRuleCode )
+    {
+        this._strDuplicateRuleCode = _strDuplicateRuleCode;
     }
 
     public Timestamp getCreationDate( )
