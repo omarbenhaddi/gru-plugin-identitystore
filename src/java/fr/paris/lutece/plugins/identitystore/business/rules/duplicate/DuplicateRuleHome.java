@@ -144,12 +144,24 @@ public final class DuplicateRuleHome
     }
 
     /**
-     * Get existing instances of {@link DuplicateRule} by its ID
+     * Get existing instances of {@link DuplicateRule} by its name
      * 
      * @return The existing instances of {@link DuplicateRule} identified by param ruleId.
      */
-    public static DuplicateRule find( String ruleName )
+    public static DuplicateRule findByName( String ruleName )
     {
         return _dao.selectByName( ruleName, _plugin );
     }
+    
+
+    /**
+     * Get existing instances of {@link DuplicateRule} by its code
+     * 
+     * @return The existing instances of {@link DuplicateRule} identified by param ruleId.
+     */
+    public static DuplicateRule findByCode( String ruleCode )
+    {
+        return _dao.selectByCode( ruleCode, _plugin );
+    }
+    
 }

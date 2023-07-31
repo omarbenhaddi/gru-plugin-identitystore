@@ -118,7 +118,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
 
     public DuplicateRule getFromDatabase( final String ruleCode ) throws DuplicateRuleNotFoundException
     {
-        final DuplicateRule duplicateRule = DuplicateRuleHome.find( ruleCode );
+        final DuplicateRule duplicateRule = DuplicateRuleHome.findByCode( ruleCode );
         if ( duplicateRule == null )
         {
             throw new DuplicateRuleNotFoundException( "No attribute key could be found with key " + ruleCode );

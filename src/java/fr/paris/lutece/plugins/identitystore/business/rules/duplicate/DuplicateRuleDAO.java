@@ -53,6 +53,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
     /** Rule */
     private static final String SQL_QUERY_SELECT_RULE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE id_rule = ? ";
     private static final String SQL_QUERY_SELECT_RULE_BY_NAME = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE name = ? ";
+    private static final String SQL_QUERY_SELECT_RULE_BY_CODE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE code = ? ";
     private static final String SQL_QUERY_INSERT_RULE = "INSERT INTO identitystore_duplicate_rule ( name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE_RULE = "DELETE FROM identitystore_duplicate_rule WHERE id_rule = ?";
     private static final String SQL_QUERY_UPDATE_RULE = "UPDATE identitystore_duplicate_rule SET name = ?,  code = ?, description = ?, nb_filled_attributes = ?, nb_equal_attributes = ?, nb_missing_attributes = ?, priority = ?, active = ?, daemon = ? WHERE id_rule = ? ";
@@ -177,6 +178,24 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
         }
     }
 
+    @Override
+    public DuplicateRule selectByCode( String ruleCode, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_RULE_BY_CODE, plugin ) )
+        {
+            daoUtil.setString( 1, ruleCode );
+            daoUtil.executeQuery( );
+            if ( daoUtil.next( ) )
+            {
+                return this.getRule( daoUtil, 0, plugin );
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+    
     @Override
     public List<String> selectAllCodes( Plugin plugin )
     {
