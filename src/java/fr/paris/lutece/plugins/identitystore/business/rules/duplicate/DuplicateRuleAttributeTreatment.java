@@ -61,9 +61,9 @@ public class DuplicateRuleAttributeTreatment implements Serializable
         return _listAttributes;
     }
 
-    public void setAttributes( List<AttributeKey> _listCheckedAttributes )
+    public void setAttributes( List<AttributeKey> _listAttributes )
     {
-        this._listAttributes = _listCheckedAttributes;
+        this._listAttributes = _listAttributes;
     }
 
     public AttributeTreatmentType getType( )

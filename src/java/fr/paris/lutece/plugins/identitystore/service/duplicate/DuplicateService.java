@@ -137,7 +137,7 @@ public class DuplicateService implements IDuplicateService
                     .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( identity.getCustomerId( ), qualifiedIdentity.getCustomerId( ) ) )
                     .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( )
                             && !Objects.equals( qualifiedIdentity.getCustomerId( ), identity.getCustomerId( ) ) )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).map( qualifiedIdentity -> {
+                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).peek( qualifiedIdentity -> {
                         try
                         {
                             IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
@@ -146,7 +146,6 @@ public class DuplicateService implements IDuplicateService
                         {
                             throw new RuntimeException( e );
                         }
-                        return qualifiedIdentity;
                     } ).collect( Collectors.toList( ) );
             if ( CollectionUtils.isNotEmpty( results ) )
             {
@@ -163,7 +162,7 @@ public class DuplicateService implements IDuplicateService
         return response;
     }
 
-    private boolean hasMissingField( QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
+    private boolean hasMissingField( final QualifiedIdentity qualifiedIdentity, final DuplicateRule duplicateRule )
     {
         final Set<String> identityAttrKeys = qualifiedIdentity.getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
                 .map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
@@ -209,11 +208,9 @@ public class DuplicateService implements IDuplicateService
                 searchAttribute.setKey( key.getKeyName( ) );
                 searchAttribute.setValue( attributeMap.get( key.getKeyName( ) ) );
                 final List<DuplicateRuleAttributeTreatment> priorityTreatment = duplicateRule.getAttributeTreatments( ).stream( )
-                        .filter( attTreamtment -> attTreamtment.getAttributes( ).stream( ).anyMatch( att -> att.getKeyName( ).equals( key.getKeyName( ) ) ) )
+                        .filter( treatment -> treatment.getAttributes( ).stream( ).anyMatch( att -> att.getKeyName( ).equals( key.getKeyName( ) ) ) )
                         .collect( Collectors.toList( ) );
-                searchAttribute.setStrict( priorityTreatment != null && priorityTreatment.size( ) > 0
-                        ? priorityTreatment.get( 0 ).getType( ).equals( AttributeTreatmentType.DIFFERENT )
-                        : true );
+                searchAttribute.setStrict( priorityTreatment.isEmpty( ) || priorityTreatment.get( 0 ).getType( ).equals( AttributeTreatmentType.DIFFERENT ) );
                 searchAttributes.add( searchAttribute );
             }
         }
