@@ -58,24 +58,6 @@
             </td>
         </tr>
         <tr>
-            <th>#i18n{identitystore.create_duplicaterule.labelNbFilledAttributes}</th>
-            <td>
-                ${duplicaterule.nbFilledAttributes}
-            </td>
-        </tr>
-        <tr>
-            <th>#i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}</th>
-            <td>
-                ${duplicaterule.nbEqualAttributes}
-            </td>
-        </tr>
-        <tr>
-            <th>#i18n{identitystore.create_duplicaterule.labelNbMissingAttributes}</th>
-            <td>
-                ${duplicaterule.nbMissingAttributes}
-            </td>
-        </tr>
-        <tr>
             <th>#i18n{identitystore.create_duplicaterule.labelCheckedKeys}</th>
             <td>
                 <#list duplicaterule.checkedAttributes as checkedAttribute>
@@ -83,13 +65,32 @@
                 </#list>
             </td>
         </tr>
+        <tr>
+            <th>&amp; #i18n{identitystore.create_duplicaterule.labelNbFilledAttributes}</th>
+            <td>
+                ${duplicaterule.nbFilledAttributes}
+            </td>
+        </tr>
+        <tr>
+            <th>&amp; #i18n{identitystore.create_duplicaterule.labelNbEqualAttributes}</th>
+            <td>
+                ${duplicaterule.nbEqualAttributes}
+            </td>
+        </tr>
+        <tr>
+            <th>&amp; #i18n{identitystore.create_duplicaterule.labelNbMissingAttributes}</th>
+            <td>
+                ${duplicaterule.nbMissingAttributes}
+            </td>
+        </tr>
+    
 		</tbody>
     </table>
     <div class="clearfix"></div>
     <table class="table table-condensed table-striped">
         <tbody>
         <tr>
-            <th style="width: 20%;" rowspan="${duplicaterule.attributeTreatments?size}">#i18n{identitystore.create_duplicaterule.labelAttributeTreatments}</th>
+            <th style="width: 20%;" rowspan="${duplicaterule.attributeTreatments?size}">&amp; #i18n{identitystore.create_duplicaterule.labelAttributeTreatments}</th>
             <#assign onemore=false />
             <#list duplicaterule.attributeTreatments as attributeTreatment>
                 <#if onemore>
@@ -99,6 +100,7 @@
                     <#assign onemore=true />
                 </#if>
                 <td style="width: 15%;">
+                        (+) 
                     ${attributeTreatment.type!''}
                 </td>
                 <td>
