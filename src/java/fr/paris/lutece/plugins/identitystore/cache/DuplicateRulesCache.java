@@ -121,7 +121,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
         final DuplicateRule duplicateRule = DuplicateRuleHome.findByCode( ruleCode );
         if ( duplicateRule == null )
         {
-            throw new DuplicateRuleNotFoundException( "No attribute key could be found with key " + ruleCode );
+            throw new DuplicateRuleNotFoundException( "No duplicate rule could be found with code " + ruleCode );
         }
         return duplicateRule;
     }
