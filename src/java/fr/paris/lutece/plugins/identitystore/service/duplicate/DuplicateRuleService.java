@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRu
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,16 +92,20 @@ public class DuplicateRuleService
      */
     public List<DuplicateRuleSummaryDto> findSummaries( final Integer priority ) throws DuplicateRuleNotFoundException
     {
-        return this.findAll( ).stream( ).filter( rule -> priority == null || rule.getPriority( ) <= priority ).map( rule -> {
-            final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
-            ruleDto.setId( rule.getId( ) );
-            ruleDto.setName( rule.getName( ) );
-            ruleDto.setCode( rule.getCode( ) );
-            ruleDto.setDescription( rule.getDescription( ) );
-            ruleDto.setPriority( rule.getPriority( ) );
-            ruleDto.setDuplicateCount( SuspiciousIdentityHome.countSuspiciousIdentity( rule.getId( ) ) );
-            return ruleDto;
-        } ).collect( Collectors.toList( ) );
+        return this.findAll( ).stream( )
+        		.filter( rule -> priority == null || rule.getPriority( ) <= priority )
+        		.map( rule -> {
+		            final DuplicateRuleSummaryDto ruleDto = new DuplicateRuleSummaryDto( );
+		            ruleDto.setId( rule.getId( ) );
+		            ruleDto.setName( rule.getName( ) );
+		            ruleDto.setCode( rule.getCode( ) );
+		            ruleDto.setDescription( rule.getDescription( ) );
+		            ruleDto.setPriority( rule.getPriority( ) );
+		            ruleDto.setDuplicateCount( SuspiciousIdentityHome.countSuspiciousIdentity( rule.getId( ) ) );
+		            return ruleDto;
+		        	} )
+        		.sorted( Comparator.comparing( rule -> rule.getPriority( ) ) )
+        		.collect( Collectors.toList( ) );
     }
 
     /**
