@@ -278,7 +278,8 @@ public final class SuspiciousIdentityHome
             throw new IdentityStoreException( "Could not find suspicious identity with customerId " + customerId );
         }
 
-        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) )
+        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) 
+        		&& !( suspiciousIdentity.getLock( ).getAuthorName( ).equals( authorName ) && suspiciousIdentity.getLock( ).getAuthorType( ).equals( authorType ) ) )
         {
             throw new SuspiciousIdentityLockedException(
                     "Suspicious identity with customerId " + customerId + " is locked by " + suspiciousIdentity.getLock( ).getAuthorName( ) + "." );
