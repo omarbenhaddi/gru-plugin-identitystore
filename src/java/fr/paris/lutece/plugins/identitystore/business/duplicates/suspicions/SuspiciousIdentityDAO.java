@@ -62,7 +62,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_PURGE_LOCKS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE date_lock_end < NOW()";
     private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_customer_id = ? AND second_customer_id = ?) OR (first_customer_id = ? AND second_customer_id = ?)";
     private static final String SQL_QUERY_CHECK_SUSPICIOUS = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity WHERE customer_id IN (";
-    private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_customer_id, second_customer_id, date_create, author_type, author_name ) VALUES ( ?, ?, ?, ?, NOW())";
+    private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_customer_id, second_customer_id, author_type, author_name, date_create ) VALUES ( ?, ?, ?, ?, NOW())";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
     private static final String SQL_QUERY_DELETE_CUID = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
