@@ -34,16 +34,19 @@
 
 package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,6 +70,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_DELETE_CUID = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, d.code, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule d on d.id_rule = i.id_duplicate_rule ";
+    private static final String SQL_JOIN_SELECTALL_ATTRIBUTE_FILTER = "LEFT JOIN identitystore_identity id ON id.customer_id = i.customer_id LEFT JOIN identitystore_identity_attribute a ON a.id_identity = id.id_identity LEFT JOIN identitystore_ref_attribute r ON r.id_attribute = a.id_attribute ";
+    private static final String SQL_GROUPBY_HAVING_SELECTALL_ATTRIBUTE_FILTER = " GROUP BY i.id_suspicious_identity, d.code, l.date_lock_end, l.is_locked, l.author_type, l.author_name HAVING COUNT(i.id_suspicious_identity) = ${filter_count}";
     private static final String SQL_QUERY_SELECTALL_EXCLUDED = "SELECT first_customer_id, second_customer_id, date_create, author_type, author_name FROM identitystore_quality_suspicious_identity_excluded";
     private static final String SQL_QUERY_SELECTALL_EXCLUDED_BY_CUSTOMER_ID = "SELECT first_customer_id, second_customer_id, date_create, author_type, author_name FROM identitystore_quality_suspicious_identity_excluded WHERE first_customer_id = ? OR second_customer_id = ? ";
     private static final String SQL_QUERY_SELECTALL_CUIDS = "SELECT customer_id FROM identitystore_quality_suspicious_identity si JOIN identitystore_duplicate_rule dr ON dr.id_rule = si.id_duplicate_rule WHERE si.id_duplicate_rule = ? ";
@@ -240,25 +245,47 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     @Override
     public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority, Plugin plugin )
     {
+        return selectSuspiciousIdentitysList( ruleCode, Collections.emptyList( ), max, priority, plugin );
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttributeDto> attributes, final int max,
+            final Integer priority, Plugin plugin )
+    {
         final List<SuspiciousIdentity> suspiciousIdentityList = new ArrayList<>( );
-        String query = SQL_QUERY_SELECTALL;
-        if ( StringUtils.isNotEmpty( ruleCode ) || priority != null )
+        final StringBuilder query = new StringBuilder( SQL_QUERY_SELECTALL );
+        if ( CollectionUtils.isNotEmpty( attributes ) )
         {
-            query += " WHERE ";
+            query.append( SQL_JOIN_SELECTALL_ATTRIBUTE_FILTER );
         }
+        query.append( " WHERE 1=1 " );
+
         if ( StringUtils.isNotEmpty( ruleCode ) )
         {
-            query += " d.code = '" + ruleCode + "'" + ( priority != null ? " AND " : " " );
+            query.append( "AND d.code = '" ).append( ruleCode ).append( "' " );
         }
 
         if ( priority != null )
         {
-            query += " d.priority = '" + priority + "' ";
+            query.append( "AND d.priority = '" ).append( priority ).append( "' " );
         }
 
-        query += ( max != 0 ? " LIMIT " + max : "" );
+        if ( CollectionUtils.isNotEmpty( attributes ) )
+        {
+            query.append( attributes.stream( ).map( attr -> "(r.key_name = '" + attr.getKey( ) + "' AND a.attribute_value = '" + attr.getValue( ) + "')" )
+                    .collect( Collectors.joining( " OR ", "AND ( ", " ) " ) ) )
+                    .append( SQL_GROUPBY_HAVING_SELECTALL_ATTRIBUTE_FILTER.replace( "${filter_count}", String.valueOf( attributes.size( ) ) ) );
+        }
 
-        try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
+        if ( max != 0 )
+        {
+            query.append( " LIMIT " ).append( max );
+        }
+
+        try ( final DAOUtil daoUtil = new DAOUtil( query.toString( ), plugin ) )
         {
             daoUtil.executeQuery( );
 

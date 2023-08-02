@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -170,7 +171,7 @@ public final class SuspiciousIdentityHome
 
     /**
      * Load the data of all the suspiciousIdentity objects and returns them as a list
-     * 
+     *
      * @param max
      *            max number of suspicious identities to return
      * @return the list which contains the data of all the suspiciousIdentity objects
@@ -178,6 +179,21 @@ public final class SuspiciousIdentityHome
     public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority )
     {
         return _dao.selectSuspiciousIdentitysList( ruleCode, max, priority, _plugin );
+    }
+
+    /**
+     * Load the data of all the suspiciousIdentity objects and returns them as a list
+     *
+     * @param attributes
+     *            attributes to filter the results on
+     * @param max
+     *            max number of suspicious identities to return
+     * @return the list which contains the data of all the suspiciousIdentity objects
+     */
+    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final List<SearchAttributeDto> attributes, final int max,
+            final Integer priority )
+    {
+        return _dao.selectSuspiciousIdentitysList( ruleCode, attributes, max, priority, _plugin );
     }
 
     /**
@@ -278,8 +294,8 @@ public final class SuspiciousIdentityHome
             throw new IdentityStoreException( "Could not find suspicious identity with customerId " + customerId );
         }
 
-        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) 
-        		&& !( suspiciousIdentity.getLock( ).getAuthorName( ).equals( authorName ) && suspiciousIdentity.getLock( ).getAuthorType( ).equals( authorType ) ) )
+        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && !( suspiciousIdentity.getLock( ).getAuthorName( ).equals( authorName )
+                && suspiciousIdentity.getLock( ).getAuthorType( ).equals( authorType ) ) )
         {
             throw new SuspiciousIdentityLockedException(
                     "Suspicious identity with customerId " + customerId + " is locked by " + suspiciousIdentity.getLock( ).getAuthorName( ) + "." );
