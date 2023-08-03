@@ -797,8 +797,8 @@ public class IdentityService
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, null, null, request.getMax( ),
-                request.isConnected( ) );
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, null, null, null,
+                request.getMax( ), request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
             final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, qualifiedIdentities );
@@ -1064,9 +1064,12 @@ public class IdentityService
 
     }
 
-    public DuplicateSearchResponse findDuplicates( QualifiedIdentity identity, String ruleCode ) throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, final String ruleCode ) throws IdentityStoreException
     {
-        return this._duplicateServiceImportSuspicion.findDuplicates( identity, ruleCode );
+        final Map<String, String> attributeMap = identity.getAttributes( ).stream( )
+                .collect( Collectors.toMap( fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute::getKey,
+                        fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute::getValue ) );
+        return this._duplicateServiceImportSuspicion.findDuplicates( attributeMap, identity.getCustomerId( ), ruleCode );
     }
 
 }

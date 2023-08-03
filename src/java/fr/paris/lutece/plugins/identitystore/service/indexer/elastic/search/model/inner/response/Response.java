@@ -49,6 +49,9 @@ public class Response
     @JsonProperty( "hits" )
     protected Result result;
 
+    @JsonProperty( "status" )
+    protected Integer status;
+
     public String getTook( )
     {
         return took;
@@ -87,5 +90,15 @@ public class Response
     public void setResult( Result result )
     {
         this.result = result;
+    }
+
+    public Integer getStatus( )
+    {
+        return status;
+    }
+
+    public void setStatus( Integer status )
+    {
+        this.status = status;
     }
 }

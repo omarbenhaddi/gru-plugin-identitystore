@@ -31,43 +31,22 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-public class DefaultSearchIdentityService implements ISearchIdentityService
+public enum MultiSearchActionType
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    INDEX( "index" ),
+    QUERY( "query" );
+
+    protected String code;
+
+    MultiSearchActionType( String code )
     {
+        this.code = code;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,
-            final List<List<SearchAttributeDto>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
+    public String getCode( )
     {
-        return new ArrayList<>( );
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttributeDto> attributes, int max, boolean connected )
-    {
-        return new ArrayList<>( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+        return code;
     }
 }

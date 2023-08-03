@@ -152,7 +152,6 @@ public final class DuplicateRuleHome
     {
         return _dao.selectByName( ruleName, _plugin );
     }
-    
 
     /**
      * Get existing instances of {@link DuplicateRule} by its code
@@ -163,5 +162,5 @@ public final class DuplicateRuleHome
     {
         return _dao.selectByCode( ruleCode, _plugin );
     }
-    
+
 }

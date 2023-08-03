@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;
@@ -57,10 +58,10 @@ public class BasicSearchRequest extends ASearchRequest
         final Bool bool = new Bool( );
         final ArrayList<AbstractContainer> must = new ArrayList<>( );
         this.getSearchAttributes( ).forEach( searchAttribute -> {
-            switch( searchAttribute.getInputKey( ) )
+            switch( searchAttribute.getKey( ) )
             {
                 case Constants.PARAM_FIRST_NAME:
-                    if ( searchAttribute.isStrict( ) )
+                    if ( AttributeTreatmentType.STRICT.equals( searchAttribute.getTreatmentType( ) ) )
                     {
                         must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
                     }

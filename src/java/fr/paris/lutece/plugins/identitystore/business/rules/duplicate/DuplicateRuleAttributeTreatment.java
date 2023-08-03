@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 
 import java.io.Serializable;
 import java.util.ArrayList;

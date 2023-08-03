@@ -37,6 +37,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.Constants;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchAction;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchActionType;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 import fr.paris.lutece.util.httpaccess.InvalidResponseStatus;
 import org.apache.commons.lang3.StringUtils;
@@ -401,6 +403,48 @@ public class ElasticClient
         catch( final HttpAccessException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
+        }
+        return strResponse;
+    }
+
+    /**
+     * perform a multi search of documents : used to perform several query with a single http call
+     *
+     * @param strIndex
+     *            the elk index name
+     * @param searchActions
+     *            the actions
+     * @return the reponse of Elk server
+     * @throws ElasticClientException
+     */
+    public String multiSearch( final String strIndex, final List<MultiSearchAction> searchActions ) throws ElasticClientException
+    {
+        String strResponse;
+        try
+        {
+            final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_MULTI_SEARCH;
+            final StringBuilder requestBuilder = new StringBuilder( );
+            for ( final MultiSearchAction action : searchActions )
+            {
+                switch( action.getType( ) )
+                {
+                    case INDEX:
+                        requestBuilder.append( "{ \"" ).append( action.getType( ).getCode( ) ).append( "\" : " ).append( action.getIndex( ) ).append( "\" }" );
+                        requestBuilder.append( "\n" );
+                        break;
+                    case QUERY:
+                        final String strJSON = _mapper.writeValueAsString( action.getQuery( ) );
+                        requestBuilder.append( "{}" ).append( "\n" ).append( strJSON ).append( "\n" );
+                        break;
+                    default:
+                        break;
+                }
+            }
+            strResponse = _connexion.POST( strURI, requestBuilder.toString( ) );
+        }
+        catch( final JsonProcessingException | HttpAccessException ex )
+        {
+            throw new ElasticClientException( "ElasticLibrary : Error processing multi search request : " + ex.getMessage( ), ex );
         }
         return strResponse;
     }

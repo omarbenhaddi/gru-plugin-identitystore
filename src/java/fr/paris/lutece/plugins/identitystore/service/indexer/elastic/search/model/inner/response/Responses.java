@@ -31,43 +31,38 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class DefaultSearchIdentityService implements ISearchIdentityService
+@JsonInclude( JsonInclude.Include.NON_NULL )
+public class Responses
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    @JsonProperty( "took" )
+    protected String took;
+    @JsonProperty( "responses" )
+    protected List<Response> responses;
+
+    public String getTook( )
     {
+        return took;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,
-            final List<List<SearchAttributeDto>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
+    public void setTook( String took )
     {
-        return new ArrayList<>( );
+        this.took = took;
     }
 
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttributeDto> attributes, int max, boolean connected )
+    public List<Response> getResponses( )
     {
-        return new ArrayList<>( );
+        return responses;
     }
 
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
+    public void setResponses( List<Response> responses )
     {
+        this.responses = responses;
     }
 }

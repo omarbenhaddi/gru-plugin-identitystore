@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.Match;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MatchPhrase;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiMatch;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public abstract class ASearchRequest
         final Match match = new Match( );
         match.setName( "attributes." + attribute.getOutputKeys( ).get( 0 ) + ".value" );
         match.setQuery( attribute.getValue( ) );
-        if ( !attribute.isStrict( ) )
+        if ( AttributeTreatmentType.APPROXIMATED.equals( attribute.getTreatmentType( ) ) )
         {
             match.setFuzziness( "1" );
         }
@@ -65,7 +66,7 @@ public abstract class ASearchRequest
         final MultiMatch match = new MultiMatch( );
         match.setFields( attribute.getOutputKeys( ).stream( ).map( outputKey -> "attributes." + outputKey + ".value" ).collect( Collectors.toList( ) ) );
         match.setQuery( attribute.getValue( ) );
-        if ( !attribute.isStrict( ) )
+        if ( AttributeTreatmentType.APPROXIMATED.equals( attribute.getTreatmentType( ) ) )
         {
             match.setFuzziness( "1" );
         }

@@ -35,11 +35,11 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
-import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
@@ -199,7 +199,8 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
 
         model.put( MARK_DUPLICATERULE, _duplicateRule );
         model.put( MARK_SELECTED_CHECKED_ATTRIBUTES, new ArrayList<>( ) );
-        model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.values( ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, Arrays.stream( AttributeTreatmentType.values( ) )
+                .filter( attributeTreatmentType -> !attributeTreatmentType.equals( AttributeTreatmentType.STRICT ) ) );
         model.put( MARK_ACTION, "action_createDuplicateRule" );
         model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_DUPLICATERULES ) );

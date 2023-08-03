@@ -33,21 +33,26 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonInclude( JsonInclude.Include.NON_NULL )
 public class Bool
 {
     @JsonProperty( "must" )
-    protected List<AbstractContainer> must = new ArrayList<>( );
+    protected List<AbstractContainer> must;
+
+    @JsonProperty( "must_not" )
+    protected List<AbstractContainer> mustNot;
 
     @JsonProperty( "should" )
-    protected List<AbstractContainer> should = new ArrayList<>( );
+    protected List<AbstractContainer> should;
 
     @JsonProperty( "minimum_should_match" )
-    protected int minimumShouldMatch;
+    protected Integer minimumShouldMatch;
 
     public List<AbstractContainer> getMust( )
     {
@@ -57,6 +62,16 @@ public class Bool
     public void setMust( List<AbstractContainer> must )
     {
         this.must = must;
+    }
+
+    public List<AbstractContainer> getMustNot( )
+    {
+        return mustNot;
+    }
+
+    public void setMustNot( List<AbstractContainer> mustNot )
+    {
+        this.mustNot = mustNot;
     }
 
     public List<AbstractContainer> getShould( )
@@ -69,12 +84,12 @@ public class Bool
         this.should = should;
     }
 
-    public int getMinimumShouldMatch( )
+    public Integer getMinimumShouldMatch( )
     {
         return minimumShouldMatch;
     }
 
-    public void setMinimumShouldMatch( int minimumShouldMatch )
+    public void setMinimumShouldMatch( Integer minimumShouldMatch )
     {
         this.minimumShouldMatch = minimumShouldMatch;
     }

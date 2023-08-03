@@ -103,5 +103,5 @@ public interface IDuplicateRuleDAO
 
     List<String> selectAllCodes( Plugin plugin );
 
-	DuplicateRule selectByCode(String ruleCode, Plugin plugin);
+    DuplicateRule selectByCode( String ruleCode, Plugin plugin );
 }

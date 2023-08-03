@@ -36,13 +36,12 @@ package fr.paris.lutece.plugins.identitystore.service.duplicate;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
-import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
@@ -92,7 +91,7 @@ public class DuplicateService implements IDuplicateService
      * @return a {@link DuplicateSearchResponse} that contains the result of the search request
      */
     @Override
-    public DuplicateSearchResponse findDuplicates( Map<String, String> attributeValues )
+    public DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues )
     {
         final List<String> keys = AppPropertiesService.getKeys( _group );
 
@@ -106,7 +105,7 @@ public class DuplicateService implements IDuplicateService
                 final String property = AppPropertiesService.getProperty( rule );
                 final List<SearchAttributeDto> searchAttributes = this.mapAttributes( property, attributeValues );
 
-                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, null, 0, false )
+                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, null, null, 0, false )
                         .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
@@ -121,8 +120,23 @@ public class DuplicateService implements IDuplicateService
         return null;
     }
 
+    /**
+     * Performs a search request on the given {@link ISearchIdentityService} applying the given {@link DuplicateRule} <br>
+     * 
+     * @see DuplicateRule DuplicateRule documentation
+     *
+     * @param attributeValues
+     *            a {@link Map} of attribute key and attribute value of the base {@link Identity}
+     * @param customerId
+     *            the customerId of the base {@link Identity}
+     * @param ruleCode
+     *            the code of the {@link DuplicateRule} to be applied
+     * @return a {@link DuplicateSearchResponse} that contains the result of the search request, with a list of {@link QualifiedIdentity} that matches the
+     *         {@link DuplicateRule} definition and the given list of attributes.
+     */
     @Override
-    public DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, final String ruleCode ) throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues, final String customerId, final String ruleCode )
+            throws IdentityStoreException
     {
         final DuplicateRule duplicateRule = DuplicateRuleService.instance( ).get( ruleCode );
         if ( duplicateRule == null )
@@ -131,12 +145,13 @@ public class DuplicateService implements IDuplicateService
         }
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
-            final List<SearchAttributeDto> searchAttributes = this.mapAttributes( identity, duplicateRule );
+            final List<SearchAttributeDto> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
+            final List<List<SearchAttributeDto>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
             final List<QualifiedIdentity> results = _searchIdentityService
-                    .getQualifiedIdentities( searchAttributes, duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false )
-                    .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( identity.getCustomerId( ), qualifiedIdentity.getCustomerId( ) ) )
-                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( )
-                            && !Objects.equals( qualifiedIdentity.getCustomerId( ), identity.getCustomerId( ) ) )
+                    .getQualifiedIdentities( searchAttributes, specialTreatmentAttributes, duplicateRule.getNbEqualAttributes( ),
+                            duplicateRule.getNbMissingAttributes( ), 0, false )
+                    .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( customerId, qualifiedIdentity.getCustomerId( ) ) )
+                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) )
                     .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).peek( qualifiedIdentity -> {
                         try
                         {
@@ -150,14 +165,13 @@ public class DuplicateService implements IDuplicateService
             if ( CollectionUtils.isNotEmpty( results ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-                response.setMessage(
-                        "Un ou plusieurs doublon existent pour l'indentité " + identity.getCustomerId( ) + " avec la règle : " + duplicateRule.getCode( ) );
+                response.setMessage( "Un ou plusieurs doublon existent pour l'indentité " + customerId + " avec la règle : " + duplicateRule.getCode( ) );
                 response.setIdentities( results );
                 return response;
             }
         }
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-        response.setMessage( "No potential duplicate found for identity " + identity.getCustomerId( ) + " with the rule : " + duplicateRule.getCode( ) );
+        response.setMessage( "No potential duplicate found for identity " + customerId + " with the rule : " + duplicateRule.getCode( ) );
         response.setIdentities( Collections.emptyList( ) );
         return response;
     }
@@ -185,36 +199,47 @@ public class DuplicateService implements IDuplicateService
         }
     }
 
-    private boolean hasMinEqualsAttribute( Identity identity, QualifiedIdentity qualifiedIdentity, DuplicateRule duplicateRule )
-    {
-        return qualifiedIdentity.getAttributes( ).stream( )
-                .filter( att -> identity.getAttributes( ).get( att.getKey( ) ) != null
-                        && identity.getAttributes( ).get( att.getKey( ) ).getValue( ).equals( att.getValue( ) ) )
-                .count( ) >= duplicateRule.getNbEqualAttributes( );
-    }
-
-    private List<SearchAttributeDto> mapAttributes( QualifiedIdentity identity, DuplicateRule duplicateRule )
+    private List<SearchAttributeDto> mapBaseAttributes( final Map<String, String> attributeValues, final DuplicateRule duplicateRule )
     {
         final List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
 
         for ( final AttributeKey key : duplicateRule.getCheckedAttributes( ) )
         {
-            final Map<String, String> attributeMap = identity.getAttributes( ).stream( )
-                    .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
-            final Optional<String> attributeKey = attributeMap.keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
+            final Optional<String> attributeKey = attributeValues.keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
             if ( attributeKey.isPresent( ) )
             {
                 final SearchAttributeDto searchAttribute = new SearchAttributeDto( );
                 searchAttribute.setKey( key.getKeyName( ) );
-                searchAttribute.setValue( attributeMap.get( key.getKeyName( ) ) );
-                final List<DuplicateRuleAttributeTreatment> priorityTreatment = duplicateRule.getAttributeTreatments( ).stream( )
-                        .filter( treatment -> treatment.getAttributes( ).stream( ).anyMatch( att -> att.getKeyName( ).equals( key.getKeyName( ) ) ) )
-                        .collect( Collectors.toList( ) );
-                searchAttribute.setStrict( priorityTreatment.isEmpty( ) || priorityTreatment.get( 0 ).getType( ).equals( AttributeTreatmentType.DIFFERENT ) );
+                searchAttribute.setValue( attributeValues.get( key.getKeyName( ) ) );
+                searchAttribute.setTreatmentType( AttributeTreatmentType.STRICT );
                 searchAttributes.add( searchAttribute );
             }
         }
         return searchAttributes;
+    }
+
+    private List<List<SearchAttributeDto>> mapSpecialTreatmentAttributes( final Map<String, String> attributeValues, final DuplicateRule duplicateRule )
+    {
+        final List<List<SearchAttributeDto>> specialAttributesTreatment = new ArrayList<>( );
+
+        for ( final DuplicateRuleAttributeTreatment attributeTreatment : duplicateRule.getAttributeTreatments( ) )
+        {
+            final List<SearchAttributeDto> searchAttributes = new ArrayList<>( );
+            for ( final AttributeKey key : attributeTreatment.getAttributes( ) )
+            {
+                final Optional<String> attributeKey = attributeValues.keySet( ).stream( ).filter( attKey -> attKey.equals( key.getKeyName( ) ) ).findFirst( );
+                if ( attributeKey.isPresent( ) )
+                {
+                    final SearchAttributeDto searchAttribute = new SearchAttributeDto( );
+                    searchAttribute.setKey( key.getKeyName( ) );
+                    searchAttribute.setValue( attributeValues.get( key.getKeyName( ) ) );
+                    searchAttribute.setTreatmentType( attributeTreatment.getType( ) != null ? attributeTreatment.getType( ) : AttributeTreatmentType.STRICT );
+                    searchAttributes.add( searchAttribute );
+                }
+            }
+            specialAttributesTreatment.add( searchAttributes );
+        }
+        return specialAttributesTreatment;
     }
 
     private List<SearchAttributeDto> mapAttributes( final String property, final Map<String, String> attributeValues )
@@ -227,7 +252,7 @@ public class DuplicateService implements IDuplicateService
             final String value = attributeValues.get( key );
             if ( StringUtils.isNotEmpty( value ) )
             {
-                attributeDtoList.add( new SearchAttributeDto( key, value, !fuzzy ) );
+                attributeDtoList.add( new SearchAttributeDto( key, value, fuzzy ? AttributeTreatmentType.APPROXIMATED : AttributeTreatmentType.STRICT ) );
             }
         } );
         return attributeDtoList;

@@ -34,11 +34,58 @@
 package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * The aim of this class is to define a rule to be applied when performing duplicate identities search.<br>
+ * It must be applied as follows. <br>
+ * <br>
+ * Eligible identities for the search:
+ * <ul>
+ * <li><strong>_listCheckedAttributes</strong> is the list of {@link AttributeKey} that are checked by the rule</li>
+ * <li><strong>_nNbFilledAttributes</strong> is the minimum number of checked attributes that must be present and valued in the Identities that are selected to
+ * execute the rule</li>
+ * </ul>
+ * The search must return the identities that match:
+ * <ul>
+ * <li><strong>_nNbEqualAttributes</strong> is the exact number of checked attributes that must be strictly equal in the result</li>
+ * <li><strong>_nNbMissingAttributes</strong> is the maximum number of checked attributes that can be absent in the result</li>
+ * <li><strong>_listAttributeTreatments</strong> defines a list of conditions (APPROXIMATED or DIFFERENT) on the checked attributes that are not strictly
+ * equal.</li>
+ * </ul>
+ * The logical rules are: <br>
+ * <ul>
+ * <li>Identities selected for the search:</li>
+ *
+ * <pre>
+ * _listCheckedAttributes && _nNbFilledAttribute
+ * </pre>
+ *
+ * <li>Result of the search:</li>
+ *
+ * <pre>
+ *      _listCheckedAttributes && _nNbEqualAttributes && _nNbMissingAttributes && (_listAttributeTreatments[0] || _listAttributeTreatments[1] || ... || _listAttributeTreatments[n])
+ * </pre>
+ * </ul>
+ * <p>
+ * E.g:
+ *
+ * <pre>
+ * | checked | filled | equal | missing | treatments                                                  | result                                                                                                                                                                  |
+ * |---------|--------|-------|---------|-------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ * | 7       | 7      | 7     | 0       | empty                                                       | Every Identity that matches exactly the given attributes                                                                                                                |
+ * | 7       | 7      | 6     | 0       | empty                                                       | Every Identity that have 6 matching attributes over the 7 required, the 7th must exist but its value is discarded                                                       |
+ * | 7       | 7      | 6     | 1       | empty                                                       | Every Identity that have 6 matching attributes over the 7 required, the 7th can be missing                                                                              |
+ * | 7       | 7      | 6     | 0       | attribute_key_a : DIFFERENT, attribute_key_b : APPROXIMATED | Every Identity that have 6 matching attributes over the 7 required, the 7th can be attribute_key_a with a different value OR attribute_key_b with an approximated value |
+ *
+ * </pre>
+ */
 public class DuplicateRule implements Serializable
 {
     private int _nId;
@@ -53,6 +100,31 @@ public class DuplicateRule implements Serializable
     private int _nPriority;
     private boolean _bActive;
     private boolean _bDaemon;
+
+    public void validate( ) throws IdentityStoreException
+    {
+        int i = this.getNbEqualAttributes( ) + this.getNbMissingAttributes( );
+        final int nbCheckedAttributes = this.getCheckedAttributes( ).size( );
+        if ( !_listAttributeTreatments.isEmpty( ) )
+        {
+            for ( final DuplicateRuleAttributeTreatment treatment : _listAttributeTreatments )
+            {
+                if ( nbCheckedAttributes != i + treatment.getAttributes( ).size( ) )
+                {
+                    throw new IdentityStoreException( this.getValidationErrorMessage( ) );
+                }
+            }
+        }
+        if ( nbCheckedAttributes == i )
+        {
+            throw new IdentityStoreException( this.getValidationErrorMessage( ) );
+        }
+    }
+
+    private String getValidationErrorMessage( )
+    {
+        return I18nService.getLocalizedString( "identitystore.message.error.duplicaterule.validation", Locale.getDefault( ) );
+    }
 
     public int getId( )
     {

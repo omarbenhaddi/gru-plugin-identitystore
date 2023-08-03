@@ -48,11 +48,9 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttri
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ElasticSearchIdentityService implements ISearchIdentityService
@@ -67,30 +65,34 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         this._identitySearcher = _identitySearcher;
     }
 
-    private List<SearchAttribute> getSearchAttributes( List<SearchAttributeDto> attributes )
+    private List<SearchAttribute> getSearchAttributes( final List<SearchAttributeDto> attributes )
     {
         final List<SearchAttribute> searchAttributes = new ArrayList<>( );
-        for ( final SearchAttributeDto dto : attributes )
+        if ( CollectionUtils.isNotEmpty( attributes ) )
         {
-            AttributeKey refKey = null;
-            try
+            for ( final SearchAttributeDto dto : attributes )
             {
-                refKey = IdentityAttributeService.instance( ).getAttributeKey( dto.getKey( ) );
-            }
-            catch( IdentityAttributeNotFoundException e )
-            {
-                // do nothing, we want to identify if the key exists
-            }
-            if ( refKey != null )
-            {
-                searchAttributes.add( new SearchAttribute( dto.getKey( ), Arrays.asList( dto.getKey( ) ), dto.getValue( ), dto.isStrict( ) ) );
-            }
-            else
-            {
-                // In this case we have a common search key in the request, so map it
-                final List<AttributeKey> commonAttributeKeys = IdentityAttributeService.instance( ).getCommonAttributeKeys( dto.getKey( ) );
-                final List<String> commonAttributeKeyNames = commonAttributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
-                searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.isStrict( ) ) );
+                AttributeKey refKey = null;
+                try
+                {
+                    refKey = IdentityAttributeService.instance( ).getAttributeKey( dto.getKey( ) );
+                }
+                catch( IdentityAttributeNotFoundException e )
+                {
+                    // do nothing, we want to identify if the key exists
+                }
+                if ( refKey != null )
+                {
+                    searchAttributes
+                            .add( new SearchAttribute( dto.getKey( ), Collections.singletonList( dto.getKey( ) ), dto.getValue( ), dto.getTreatmentType( ) ) );
+                }
+                else
+                {
+                    // In this case we have a common search key in the request, so map it
+                    final List<AttributeKey> commonAttributeKeys = IdentityAttributeService.instance( ).getCommonAttributeKeys( dto.getKey( ) );
+                    final List<String> commonAttributeKeyNames = commonAttributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
+                    searchAttributes.add( new SearchAttribute( dto.getKey( ), commonAttributeKeyNames, dto.getValue( ), dto.getTreatmentType( ) ) );
+                }
             }
         }
         return searchAttributes;
@@ -120,12 +122,15 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
      * {@inheritDoc }
      */
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final Integer minimalShouldMatch,
-            final Integer maxMissingAttributes, final int max, final boolean connected )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,
+            final List<List<SearchAttributeDto>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
+            final boolean connected )
     {
         final List<SearchAttribute> searchAttributes = this.getSearchAttributes( attributes );
+        final List<List<SearchAttribute>> specialAttributes = specialTreatmentAttributes == null ? null
+                : specialTreatmentAttributes.stream( ).map( this::getSearchAttributes ).collect( Collectors.toList( ) );
 
-        final Response search = _identitySearcher.search( searchAttributes, minimalShouldMatch, maxMissingAttributes, max, connected );
+        final Response search = _identitySearcher.multiSearch( searchAttributes, specialAttributes, nbEqualAttributes, nbMissingAttributes, max, connected );
 
         return getEntities( search );
     }

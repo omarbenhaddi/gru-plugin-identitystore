@@ -31,43 +31,38 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
-
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.portal.service.util.AppException;
+package fr.paris.lutece.plugins.identitystore.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-public class DefaultSearchIdentityService implements ISearchIdentityService
+public class Combinations
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    public static <T extends Comparable<? super T>> List<List<T>> combinations( List<T> items, int size )
     {
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,
-            final List<List<SearchAttributeDto>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
-    {
-        return new ArrayList<>( );
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttributeDto> attributes, int max, boolean connected )
-    {
-        return new ArrayList<>( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+        if ( size == 1 )
+        {
+            List<List<T>> result = new ArrayList<>( );
+            for ( T item : items )
+            {
+                result.add( Collections.singletonList( item ) );
+            }
+            return result;
+        }
+        final List<List<T>> result = new ArrayList<>( );
+        for ( int i = 0; i <= items.size( ) - size; i++ )
+        {
+            final T firstItem = items.get( i );
+            final List<List<T>> additionalItems = combinations( items.subList( i + 1, items.size( ) ), size - 1 );
+            for ( final List<T> additional : additionalItems )
+            {
+                final List<T> combination = new ArrayList<>( );
+                combination.add( firstItem );
+                combination.addAll( additional );
+                result.add( combination );
+            }
+        }
+        return result;
     }
 }

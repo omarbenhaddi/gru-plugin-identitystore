@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
@@ -195,7 +196,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
             }
         }
     }
-    
+
     @Override
     public List<String> selectAllCodes( Plugin plugin )
     {

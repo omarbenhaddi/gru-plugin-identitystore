@@ -33,31 +33,19 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+
 import java.util.List;
 
-public class SearchAttribute
+public class SearchAttribute extends SearchAttributeDto implements Comparable<SearchAttribute>
 {
-    protected String inputKey;
     protected List<String> outputKeys;
-    protected String value;
-    protected boolean strict;
 
-    public SearchAttribute( String inputKey, List<String> outputKeys, String value, boolean strict )
+    public SearchAttribute( String key, List<String> outputKeys, String value, AttributeTreatmentType treatmentType )
     {
-        this.inputKey = inputKey;
+        super( key, value, treatmentType );
         this.outputKeys = outputKeys;
-        this.value = value;
-        this.strict = strict;
-    }
-
-    public String getInputKey( )
-    {
-        return inputKey;
-    }
-
-    public void setInputKey( String inputKey )
-    {
-        this.inputKey = inputKey;
     }
 
     public List<String> getOutputKeys( )
@@ -70,23 +58,9 @@ public class SearchAttribute
         this.outputKeys = outputKeys;
     }
 
-    public String getValue( )
+    @Override
+    public int compareTo( SearchAttribute another )
     {
-        return value;
-    }
-
-    public void setValue( String value )
-    {
-        this.value = value;
-    }
-
-    public boolean isStrict( )
-    {
-        return strict;
-    }
-
-    public void setStrict( boolean strict )
-    {
-        this.strict = strict;
+        return this.getKey( ).compareTo( another.getKey( ) );
     }
 }

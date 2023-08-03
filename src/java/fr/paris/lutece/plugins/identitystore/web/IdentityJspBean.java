@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertif
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
@@ -158,39 +159,39 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             {
                 if ( StringUtils.isNotEmpty( email ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_LOGIN, email, true ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_LOGIN, email, AttributeTreatmentType.STRICT ) );
                 }
                 if ( StringUtils.isNotEmpty( gender ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_GENDER, gender, true ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_GENDER, gender, AttributeTreatmentType.STRICT ) );
                 }
                 if ( StringUtils.isNotEmpty( family_name ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_FAMILY_NAME, family_name, false ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_FAMILY_NAME, family_name, AttributeTreatmentType.APPROXIMATED ) );
                 }
                 if ( StringUtils.isNotEmpty( preferred_username ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_PREFERRED_USERNAME, preferred_username, false ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_PREFERRED_USERNAME, preferred_username, AttributeTreatmentType.APPROXIMATED ) );
                 }
                 if ( StringUtils.isNotEmpty( first_name ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_FIRST_NAME, first_name, false ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_FIRST_NAME, first_name, AttributeTreatmentType.APPROXIMATED ) );
                 }
                 if ( StringUtils.isNotEmpty( birthdate ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_BIRTH_DATE, birthdate, true ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_BIRTH_DATE, birthdate, AttributeTreatmentType.STRICT ) );
                 }
                 if ( StringUtils.isNotEmpty( birthplace ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_BIRTH_PLACE, birthplace, true ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_BIRTH_PLACE, birthplace, AttributeTreatmentType.STRICT ) );
                 }
                 if ( StringUtils.isNotEmpty( birthcountry ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_BIRTH_COUNTRY, birthcountry, true ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_BIRTH_COUNTRY, birthcountry, AttributeTreatmentType.STRICT ) );
                 }
                 if ( StringUtils.isNotEmpty( phone ) )
                 {
-                    atttributes.add( new SearchAttributeDto( Constants.PARAM_MOBILE_PHONE, phone, true ) );
+                    atttributes.add( new SearchAttributeDto( Constants.PARAM_MOBILE_PHONE, phone, AttributeTreatmentType.STRICT ) );
                 }
                 if ( CollectionUtils.isNotEmpty( atttributes ) )
                 {

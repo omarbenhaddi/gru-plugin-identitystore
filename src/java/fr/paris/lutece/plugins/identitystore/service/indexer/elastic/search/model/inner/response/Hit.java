@@ -37,6 +37,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 
+import java.util.Objects;
+
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Hit
 {
@@ -87,5 +89,20 @@ public class Hit
     public void setSource( IdentityObject source )
     {
         this.source = source;
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( o == null || getClass( ) != o.getClass( ) )
+            return false;
+        Hit hit = (Hit) o;
+        return Objects.equals( id, hit.id );
+    }
+
+    @Override
+    public int hashCode( )
+    {
+        return Objects.hash( id );
     }
 }

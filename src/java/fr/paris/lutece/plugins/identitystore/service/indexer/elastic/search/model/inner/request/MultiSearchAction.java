@@ -31,10 +31,48 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.business.rules.duplicate;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
-public enum AttributeTreatmentType
+public class MultiSearchAction
 {
-    DIFFERENT,
-    APPROXIMATED
+    protected InnerSearchRequest query;
+    protected String index;
+    protected MultiSearchActionType type;
+
+    public MultiSearchAction( InnerSearchRequest query, MultiSearchActionType type, String index )
+    {
+        this.query = query;
+        this.type = type;
+        this.index = index;
+    }
+
+    public InnerSearchRequest getQuery( )
+    {
+        return query;
+    }
+
+    public void setQuery( InnerSearchRequest query )
+    {
+        this.query = query;
+    }
+
+    public MultiSearchActionType getType( )
+    {
+        return type;
+    }
+
+    public void setType( MultiSearchActionType type )
+    {
+        this.type = type;
+    }
+
+    public String getIndex( )
+    {
+        return index;
+    }
+
+    public void setIndex( String index )
+    {
+        this.index = index;
+    }
 }
