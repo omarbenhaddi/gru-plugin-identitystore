@@ -173,27 +173,9 @@ public class ComplexSearchRequest extends ASearchRequest
             bool.setMustNot( mustNot );
         }
 
-        // if ( this.minimalShouldMatch != null )
-        // {
-        // bool.setShould( must );
-        // }
-        // else
-        // {
-        // bool.setMust( must );
-        // }
-
         query.setBool( bool );
         body.setQuery( query );
         return body;
-    }
-
-    private SpanMultiFuzzyMatch getSpanMultiFuzzyMatch( SearchAttribute searchAttribute, String value )
-    {
-        SpanMultiFuzzyMatch miltiMatch = new SpanMultiFuzzyMatch( );
-        miltiMatch.setName( "attributes." + searchAttribute.getKey( ) + ".value" );
-        miltiMatch.setFuzziness( "1" );
-        miltiMatch.setValue( value );
-        return miltiMatch;
     }
 
     public boolean isConnected( )

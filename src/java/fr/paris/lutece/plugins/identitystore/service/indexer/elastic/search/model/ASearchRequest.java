@@ -33,10 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.Match;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MatchPhrase;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiMatch;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 
 import java.util.ArrayList;
@@ -79,6 +76,15 @@ public abstract class ASearchRequest
         match.setName( "attributes." + attribute.getOutputKeys( ).get( 0 ) + ".value" );
         match.setQuery( attribute.getValue( ) );
         return match;
+    }
+
+    protected SpanMultiFuzzyMatch getSpanMultiFuzzyMatch( SearchAttribute searchAttribute, String value )
+    {
+        SpanMultiFuzzyMatch miltiMatch = new SpanMultiFuzzyMatch( );
+        miltiMatch.setName( "attributes." + searchAttribute.getKey( ) + ".value" );
+        miltiMatch.setFuzziness( "1" );
+        miltiMatch.setValue( value );
+        return miltiMatch;
     }
 
     public List<SearchAttribute> getSearchAttributes( )

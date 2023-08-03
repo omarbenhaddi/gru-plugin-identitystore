@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreat
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BasicSearchRequest extends ASearchRequest
@@ -66,9 +67,26 @@ public class BasicSearchRequest extends ASearchRequest
                         must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
                     }
                     else
-                    {
-                        must.add( new MatchContainer( getMatch( searchAttribute ) ) );
-                    }
+                        if ( AttributeTreatmentType.APPROXIMATED.equals( searchAttribute.getTreatmentType( ) ) )
+                        {
+                            searchAttribute.setValue( searchAttribute.getValue( ).trim( ).replaceAll( " +", " " ).toLowerCase( ) );
+                            final SpanNear spanNear = new SpanNear( );
+                            final String [ ] splitSearchValue = searchAttribute.getValue( ).split( " " );
+                            if ( splitSearchValue.length > 1 )
+                            {
+                                spanNear.setSlop( splitSearchValue.length - 1 );
+                                Arrays.stream( splitSearchValue ).forEach( word -> spanNear.getClauses( ).add( new SpanMultiContainer(
+                                        new SpanMulti( new SpanMultiFuzzyMatchContainer( getSpanMultiFuzzyMatch( searchAttribute, word ) ) ) ) ) );
+                                spanNear.setInOrder( true );
+                                spanNear.setBoost( 1 );
+                                must.add( new SpanNearContainer( spanNear ) );
+                            }
+                            else
+                            {
+                                must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                            }
+
+                        }
 
                 default:
                     if ( searchAttribute.getOutputKeys( ).size( ) == 1 )

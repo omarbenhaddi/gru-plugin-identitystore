@@ -38,7 +38,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClient;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ASearchRequest;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.BasicSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ComplexSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
@@ -113,7 +112,7 @@ public class IdentitySearcher implements IIdentitySearcher
     @Override
     public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected )
     {
-        final ASearchRequest request = new BasicSearchRequest( attributes, connected );
+        final ASearchRequest request = new ComplexSearchRequest( attributes, connected );
         return this.getResponse( request, max );
     }
 

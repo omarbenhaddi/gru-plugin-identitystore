@@ -797,8 +797,8 @@ public class IdentityService
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, null, null, null,
-                request.getMax( ), request.isConnected( ) );
+        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
+                request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
             final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, qualifiedIdentities );

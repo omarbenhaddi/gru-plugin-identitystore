@@ -50,7 +50,7 @@ public interface ISearchIdentityService
      * @return a list of identities satisfying the criteria of the {@link SearchAttributeDto} list
      */
     List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final List<List<SearchAttributeDto>> specialTreatmentAttributes,
-            final Integer minimalShouldMatch, final Integer maxMissingAttributes, final int max, final boolean connected );
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected );
 
     List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected );
 }
