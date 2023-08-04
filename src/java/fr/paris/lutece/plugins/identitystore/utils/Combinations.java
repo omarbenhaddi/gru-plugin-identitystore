@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,8 +44,8 @@ public class Combinations
     {
         if ( size == 1 )
         {
-            List<List<T>> result = new ArrayList<>( );
-            for ( T item : items )
+            final List<List<T>> result = new ArrayList<>( );
+            for ( final T item : items )
             {
                 result.add( Collections.singletonList( item ) );
             }

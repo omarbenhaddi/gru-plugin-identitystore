@@ -34,7 +34,6 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.*;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ import java.util.List;
 public class ComplexSearchRequest extends ASearchRequest
 {
     private boolean connected = false;
-    private Integer maxMissingAttributes;
 
     public ComplexSearchRequest( final List<SearchAttribute> attributes, final boolean connected )
     {
@@ -65,30 +63,34 @@ public class ComplexSearchRequest extends ASearchRequest
             switch( searchAttribute.getKey( ) )
             {
                 case Constants.PARAM_FAMILY_NAME:
-                    if ( AttributeTreatmentType.STRICT.equals( searchAttribute.getTreatmentType( ) ) )
+                    switch( searchAttribute.getTreatmentType( ) )
                     {
-                        must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
-                    }
-                    else
-                        if ( AttributeTreatmentType.APPROXIMATED.equals( searchAttribute.getTreatmentType( ) ) )
-                        {
-                            searchAttribute.setValue(
-                                    searchAttribute.getValue( ).trim( ).replaceAll( "(-)\\1+", "$1" ).replaceAll( " +", " " ).replaceAll( " - ", "-" ) );
+                        case STRICT:
+                            must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                            break;
+                        case APPROXIMATED:
+                            final String multipleHyphenToOne = searchAttribute.getValue( ).trim( ).replaceAll( "(-)\\1+", "$1" );
+                            final String multipleSpacesToONe = multipleHyphenToOne.replaceAll( " +", " " );
+                            final String trimmedHyphens = multipleSpacesToONe.replaceAll( " - ", "-" );
+                            searchAttribute.setValue( trimmedHyphens );
                             must.add( new MatchContainer( getMatch( searchAttribute ) ) );
-                        }
-                        else
-                        {
+                            break;
+                        case DIFFERENT:
                             mustNot.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
-                        }
+                            break;
+                        case ABSENT:
+                            mustNot.add( new ExistsContainer( getExists( searchAttribute ) ) );
+                        default:
+                            break;
+                    }
                     break;
                 case Constants.PARAM_FIRST_NAME:
-                    if ( AttributeTreatmentType.STRICT.equals( searchAttribute.getTreatmentType( ) ) )
+                    switch( searchAttribute.getTreatmentType( ) )
                     {
-                        must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
-                    }
-                    else
-                        if ( AttributeTreatmentType.APPROXIMATED.equals( searchAttribute.getTreatmentType( ) ) )
-                        {
+                        case STRICT:
+                            must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                            break;
+                        case APPROXIMATED:
                             searchAttribute.setValue( searchAttribute.getValue( ).trim( ).replaceAll( " +", " " ).toLowerCase( ) );
                             final SpanNear spanNear = new SpanNear( );
                             final String [ ] splitSearchValue = searchAttribute.getValue( ).split( " " );
@@ -105,49 +107,67 @@ public class ComplexSearchRequest extends ASearchRequest
                             {
                                 must.add( new MatchContainer( getMatch( searchAttribute ) ) );
                             }
-
-                        }
-                        else
-                        {
+                            break;
+                        case DIFFERENT:
                             mustNot.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
-                        }
+                            break;
+                        case ABSENT:
+                            mustNot.add( new ExistsContainer( getExists( searchAttribute ) ) );
+                        default:
+                            break;
+                    }
                     break;
                 case Constants.PARAM_PREFERRED_USERNAME:
-                    if ( AttributeTreatmentType.STRICT.equals( searchAttribute.getTreatmentType( ) ) )
+                    switch( searchAttribute.getTreatmentType( ) )
                     {
-                        must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
-                    }
-                    else
-                        if ( AttributeTreatmentType.APPROXIMATED.equals( searchAttribute.getTreatmentType( ) ) )
-                        {
+                        case STRICT:
+                            must.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
+                            break;
+                        case APPROXIMATED:
                             must.add( new MatchContainer( getMatch( searchAttribute ) ) );
-                        }
-                        else
-                        {
+                            break;
+                        case DIFFERENT:
                             mustNot.add( new MatchPhraseContainer( getMatchPhrase( searchAttribute ) ) );
-                        }
+                            break;
+                        case ABSENT:
+                            mustNot.add( new ExistsContainer( getExists( searchAttribute ) ) );
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     if ( searchAttribute.getOutputKeys( ).size( ) == 1 )
                     {
-                        if ( AttributeTreatmentType.DIFFERENT.equals( searchAttribute.getTreatmentType( ) ) )
+                        switch( searchAttribute.getTreatmentType( ) )
                         {
-                            mustNot.add( new MatchContainer( getMatch( searchAttribute ) ) );
-                        }
-                        else
-                        {
-                            must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                            case DIFFERENT:
+                                mustNot.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                                break;
+                            case STRICT:
+                            case APPROXIMATED:
+                                must.add( new MatchContainer( getMatch( searchAttribute ) ) );
+                                break;
+                            case ABSENT:
+                                mustNot.add( new ExistsContainer( getExists( searchAttribute ) ) );
+                            default:
+                                break;
                         }
                     }
                     else
                     {
-                        if ( AttributeTreatmentType.DIFFERENT.equals( searchAttribute.getTreatmentType( ) ) )
+                        switch( searchAttribute.getTreatmentType( ) )
                         {
-                            mustNot.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
-                        }
-                        else
-                        {
-                            must.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
+                            case DIFFERENT:
+                                mustNot.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
+                                break;
+                            case STRICT:
+                            case APPROXIMATED:
+                                must.add( new MultiMatchContainer( getMultiMatch( searchAttribute ) ) );
+                                break;
+                            case ABSENT:
+                                mustNot.add( new ExistsContainer( getExists( searchAttribute ) ) );
+                            default:
+                                break;
                         }
                     }
                     break;

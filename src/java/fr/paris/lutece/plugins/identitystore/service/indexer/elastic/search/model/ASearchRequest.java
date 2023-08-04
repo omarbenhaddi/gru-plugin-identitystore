@@ -87,6 +87,13 @@ public abstract class ASearchRequest
         return miltiMatch;
     }
 
+    protected Exists getExists( SearchAttribute searchAttribute )
+    {
+        final Exists exists = new Exists( );
+        exists.setField( "attributes." + searchAttribute.getKey( ) + ".value" );
+        return exists;
+    }
+
     public List<SearchAttribute> getSearchAttributes( )
     {
         return searchAttributes;

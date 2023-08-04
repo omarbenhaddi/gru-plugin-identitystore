@@ -48,7 +48,10 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Responses;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Result;
 import fr.paris.lutece.plugins.identitystore.utils.Combinations;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -62,10 +65,11 @@ public class IdentitySearcher implements IIdentitySearcher
 {
 
     public static final String IDENTITYSTORE_SEARCH_OFFSET = "identitystore.search.offset";
-    private static Logger logger = Logger.getLogger( IdentitySearcher.class );
-    private static String INDEX = "identities-alias";
+    private static final Logger logger = Logger.getLogger( IdentitySearcher.class );
+    private static final String INDEX = "identities-alias";
     final private static int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );
-    private ElasticClient _elasticClient;
+    private final ElasticClient _elasticClient;
+    private final ObjectMapper objectMapper = new ObjectMapper( );
 
     public IdentitySearcher( String strServerUrl, String strLogin, String strPassword )
     {
@@ -77,6 +81,23 @@ public class IdentitySearcher implements IIdentitySearcher
         this._elasticClient = new ElasticClient( strServerUrl );
     }
 
+    /**
+     * Perform a multi search by generating several requests according to parameters.
+     * 
+     * @param attributes
+     *            the complete list of {@link SearchAttribute} defined in the client request
+     * @param specialTreatmentAttributes
+     *            a list of particular treatment on given attributes over attributes param
+     * @param nbEqualAttributes
+     *            number of attributes that must be strictly equal
+     * @param nbMissingAttributes
+     *            number of attributes that can be missing
+     * @param max
+     *            maximum number of identities in the response
+     * @param connected
+     *            search for a connected {@link QualifiedIdentity} if true
+     * @return a list of {@link QualifiedIdentity} matching the requests
+     */
     @Override
     public Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
             final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected )
@@ -84,29 +105,70 @@ public class IdentitySearcher implements IIdentitySearcher
         final List<ASearchRequest> requests = new ArrayList<>( );
         /* Split attribute list into N combinations (list) of nbEqualAttributes */
         final List<List<SearchAttribute>> combinationsOfEqualAttributes = Combinations.combinations( attributes, nbEqualAttributes );
-        for ( final List<SearchAttribute> equalAttributes : combinationsOfEqualAttributes )
+        for ( final List<SearchAttribute> currentCombinationOfEqualAttributes : combinationsOfEqualAttributes )
         {
             /* if Attribute treatments are defined, generate a request for each */
             if ( !CollectionUtils.isEmpty( specialTreatmentAttributes ) )
             {
                 final List<List<SearchAttribute>> eligibleNuples = specialTreatmentAttributes.stream( )
                         .filter( nuple -> nuple.stream( ).noneMatch(
-                                nupleAttribute -> equalAttributes.stream( ).anyMatch( equal -> Objects.equals( equal.getKey( ), nupleAttribute.getKey( ) ) ) ) )
+                                nupleAttribute -> currentCombinationOfEqualAttributes.stream( ).anyMatch( equal -> Objects.equals( equal.getKey( ), nupleAttribute.getKey( ) ) ) ) )
                         .collect( Collectors.toList( ) );
                 for ( final List<SearchAttribute> eligibleNuple : eligibleNuples )
                 {
-                    requests.add( new ComplexSearchRequest( Stream.concat( equalAttributes.stream( ), eligibleNuple.stream( ) ).collect( Collectors.toList( ) ),
-                            connected ) );
+                    final List<SearchAttribute> allAttributes = Stream.concat( currentCombinationOfEqualAttributes.stream( ), eligibleNuple.stream( ) )
+                            .collect( Collectors.toList( ) );
+                    requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected, allAttributes ) );
                 }
             }
             else
             {
-                requests.add( new ComplexSearchRequest( equalAttributes, connected ) );
+                requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected, currentCombinationOfEqualAttributes ) );
             }
-            // TODO handle missing attributes
         }
-
         return this.getResponse( requests, max );
+    }
+
+    /**
+     * Handle the possibility of having missing attributes.<br>
+     * If @param nbMissingAttributes is > 0, generate all combined requests, else, generate single request.
+     * 
+     * @param baseAttributes
+     *            the complete list of {@link SearchAttribute} defined in the client request
+     * @param nbMissingAttributes
+     *            can be >= 0
+     * @param connected
+     *            search for a connected {@link QualifiedIdentity}
+     * @param workingAttributes
+     *            the current list of attributes considered for the requests
+     * @return
+     */
+    private List<ASearchRequest> generateRequestsWithOrWithoutMissingAttributes( final List<SearchAttribute> baseAttributes, final Integer nbMissingAttributes,
+            final boolean connected, final List<SearchAttribute> workingAttributes )
+    {
+        final List<ASearchRequest> requests = new ArrayList<>( );
+        if ( nbMissingAttributes != null && nbMissingAttributes > 0 )
+        {
+            final List<SearchAttribute> missingAttributes = baseAttributes.stream( )
+                    .filter( attribute -> workingAttributes.stream( ).noneMatch( a -> Objects.equals( a.getKey( ), attribute.getKey( ) ) ) )
+                    .collect( Collectors.toList( ) );
+            final List<List<SearchAttribute>> combinationsOfMissingAttributes = Combinations.combinations( missingAttributes, nbMissingAttributes );
+            for ( final List<SearchAttribute> combinationOfMissingAttributes : combinationsOfMissingAttributes )
+            {
+                final List<SearchAttribute> missingSearchAttributes = combinationOfMissingAttributes.stream( )
+                        .map( attribute -> new SearchAttribute( attribute.getKey( ), attribute.getOutputKeys( ), attribute.getValue( ),
+                                AttributeTreatmentType.ABSENT ) )
+                        .collect( Collectors.toList( ) );
+                final List<SearchAttribute> complete = Stream.concat( missingSearchAttributes.stream( ), workingAttributes.stream( ) )
+                        .collect( Collectors.toList( ) );
+                requests.add( new ComplexSearchRequest( complete, connected ) );
+            }
+        }
+        else
+        {
+            requests.add( new ComplexSearchRequest( workingAttributes, connected ) );
+        }
+        return requests;
     }
 
     @Override
@@ -125,7 +187,7 @@ public class IdentitySearcher implements IIdentitySearcher
             initialRequest.setFrom( 0 );
             initialRequest.setSize( size );
             final String response = this._elasticClient.search( INDEX, initialRequest );
-            final Response innerResponse = new ObjectMapper( ).readValue( response, Response.class );
+            final Response innerResponse = objectMapper.readValue( response, Response.class );
             int total = innerResponse.getResult( ).getTotal( ).getValue( );
             int limit = Math.min( max, total );
             if ( size < limit )
@@ -136,7 +198,7 @@ public class IdentitySearcher implements IIdentitySearcher
                     offset += size;
                     initialRequest.setFrom( offset );
                     final String subResponse = this._elasticClient.search( INDEX, initialRequest );
-                    final Response pagedResponse = new ObjectMapper( ).readValue( subResponse, Response.class );
+                    final Response pagedResponse = objectMapper.readValue( subResponse, Response.class );
                     innerResponse.getResult( ).getHits( ).addAll( pagedResponse.getResult( ).getHits( ) );
                     if ( pagedResponse.getResult( ).getMaxScore( ).compareTo( innerResponse.getResult( ).getMaxScore( ) ) > 0 )
                     {
@@ -165,7 +227,7 @@ public class IdentitySearcher implements IIdentitySearcher
                 return new MultiSearchAction( innerSearchRequest, MultiSearchActionType.QUERY, INDEX );
             } ).collect( Collectors.toList( ) );
             final String response = this._elasticClient.multiSearch( INDEX, searchActions );
-            final Responses innerResponses = new ObjectMapper( ).readValue( response, Responses.class );
+            final Responses innerResponses = objectMapper.readValue( response, Responses.class );
             final Response globalResponse = new Response( );
             globalResponse.setResult( new Result( ) );
             globalResponse.getResult( ).setHits( new ArrayList<>( ) );
@@ -184,7 +246,7 @@ public class IdentitySearcher implements IIdentitySearcher
                 int finalOffset = offset;
                 searchActions.forEach( multiSearchAction -> multiSearchAction.getQuery( ).setFrom( finalOffset ) );
                 final String pagedResponse = this._elasticClient.multiSearch( INDEX, searchActions );
-                final Responses pagedResponses = new ObjectMapper( ).readValue( pagedResponse, Responses.class );
+                final Responses pagedResponses = objectMapper.readValue( pagedResponse, Responses.class );
                 pagedResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
                         .forEach( hit -> distinctHits.putIfAbsent( hit.getSource( ).getCustomerId( ), hit ) );
                 final BigDecimal maxScore = pagedResponses.getResponses( ).stream( ).filter( r -> r.getResult( ).getMaxScore( ) != null )

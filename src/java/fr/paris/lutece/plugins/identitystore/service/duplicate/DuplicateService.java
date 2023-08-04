@@ -105,7 +105,7 @@ public class DuplicateService implements IDuplicateService
                 final String property = AppPropertiesService.getProperty( rule );
                 final List<SearchAttributeDto> searchAttributes = this.mapAttributes( property, attributeValues );
 
-                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, null, null, 0, false )
+                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, searchAttributes.size(), null, 0, false )
                         .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
@@ -233,7 +233,7 @@ public class DuplicateService implements IDuplicateService
                     final SearchAttributeDto searchAttribute = new SearchAttributeDto( );
                     searchAttribute.setKey( key.getKeyName( ) );
                     searchAttribute.setValue( attributeValues.get( key.getKeyName( ) ) );
-                    searchAttribute.setTreatmentType( attributeTreatment.getType( ) != null ? attributeTreatment.getType( ) : AttributeTreatmentType.STRICT );
+                    searchAttribute.setTreatmentType( attributeTreatment.getType( ) );
                     searchAttributes.add( searchAttribute );
                 }
             }
