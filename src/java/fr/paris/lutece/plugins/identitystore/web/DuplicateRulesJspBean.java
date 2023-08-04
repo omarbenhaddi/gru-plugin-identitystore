@@ -199,8 +199,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
 
         model.put( MARK_DUPLICATERULE, _duplicateRule );
         model.put( MARK_SELECTED_CHECKED_ATTRIBUTES, new ArrayList<>( ) );
-        model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, Arrays.stream( AttributeTreatmentType.values( ) )
-                .filter( attributeTreatmentType -> !attributeTreatmentType.equals( AttributeTreatmentType.STRICT ) ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.valuesForRules( ) );
         model.put( MARK_ACTION, "action_createDuplicateRule" );
         model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_DUPLICATERULES ) );
@@ -315,7 +314,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         model.put( MARK_DUPLICATERULE, _duplicateRule );
         model.put( MARK_SELECTED_CHECKED_ATTRIBUTES,
                 _duplicateRule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) ) );
-        model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.values( ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.valuesForRules( ) );
         model.put( MARK_ACTION, "action_modifyDuplicateRule" );
         model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_DUPLICATERULES ) );
