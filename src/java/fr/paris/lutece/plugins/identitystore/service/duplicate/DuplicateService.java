@@ -149,11 +149,8 @@ public class DuplicateService implements IDuplicateService
             final List<SearchAttributeDto> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
             final List<List<SearchAttributeDto>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
             final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, specialTreatmentAttributes,
-                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false );
-            final List<String> allCuids = qualifiedIdentities.stream( ).map( QualifiedIdentity::getCustomerId ).collect( Collectors.toList( ) );
-            final List<QualifiedIdentity> results = qualifiedIdentities.stream( )
-                    .filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ),
-                            allCuids.stream( ).filter( cuid -> !Objects.equals( cuid, qualifiedIdentity.getCustomerId( ) ) ).collect( Collectors.toList( ) ) ) )
+                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false ).stream()
+                    .filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId) )
                     .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) )
                     .peek( qualifiedIdentity -> {
                         try
@@ -165,11 +162,11 @@ public class DuplicateService implements IDuplicateService
                             throw new RuntimeException( e );
                         }
                     } ).collect( Collectors.toList( ) );
-            if ( CollectionUtils.isNotEmpty( results ) )
+            if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );
                 response.setMessage( "Un ou plusieurs doublon existent pour l'identité " + customerId + " avec la règle : " + duplicateRule.getCode( ) );
-                response.setIdentities( results );
+                response.setIdentities( qualifiedIdentities );
                 return response;
             }
         }
