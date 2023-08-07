@@ -148,12 +148,14 @@ public class DuplicateService implements IDuplicateService
         {
             final List<SearchAttributeDto> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
             final List<List<SearchAttributeDto>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
-            final List<QualifiedIdentity> results = _searchIdentityService
-                    .getQualifiedIdentities( searchAttributes, specialTreatmentAttributes, duplicateRule.getNbEqualAttributes( ),
-                            duplicateRule.getNbMissingAttributes( ), 0, false )
-                    .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( customerId, qualifiedIdentity.getCustomerId( ) ) )
+            final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, specialTreatmentAttributes,
+                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false );
+            final List<String> allCuids = qualifiedIdentities.stream( ).map( QualifiedIdentity::getCustomerId ).collect( Collectors.toList( ) );
+            final List<QualifiedIdentity> results = qualifiedIdentities.stream( )
+                    .filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ),
+                            allCuids.stream( ).filter( cuid -> !Objects.equals( cuid, qualifiedIdentity.getCustomerId( ) ) ).collect( Collectors.toList( ) ) ) )
                     .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) )
-                    .filter( qualifiedIdentity -> hasMissingField( qualifiedIdentity, duplicateRule ) ).peek( qualifiedIdentity -> {
+                    .peek( qualifiedIdentity -> {
                         try
                         {
                             IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );

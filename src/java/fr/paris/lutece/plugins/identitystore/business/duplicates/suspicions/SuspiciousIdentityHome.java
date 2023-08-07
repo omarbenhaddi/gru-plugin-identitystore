@@ -124,6 +124,20 @@ public final class SuspiciousIdentityHome
     }
 
     /**
+     * Check if a couple of suspicious identities are marked as excluded
+     *
+     * @param firstCuid
+     *            The CUID of the SuspiciousIdentity which contains the data to store
+     * @param cuids
+     *            The CUIDs of the SuspiciousIdentities which contains the data to store
+     * @return true if excluded
+     */
+    public static boolean excluded( String firstCuid, List<String> cuids )
+    {
+        return _dao.checkIfExcluded( firstCuid, cuids, _plugin );
+    }
+
+    /**
      * Verify if at least one customer ID within a list is identified as suspicious
      *
      * @param customerIds

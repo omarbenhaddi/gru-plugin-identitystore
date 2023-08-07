@@ -64,6 +64,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_REMOVE_LOCK = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id = ? ";
     private static final String SQL_QUERY_PURGE_LOCKS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE date_lock_end < NOW()";
     private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_customer_id = ? AND second_customer_id = ?) OR (first_customer_id = ? AND second_customer_id = ?)";
+    private static final String SQL_QUERY_CHECK_LIST_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_customer_id = ? AND second_customer_id IN ( ? )) OR (first_customer_id IN (?) AND second_customer_id = ?)";
     private static final String SQL_QUERY_CHECK_SUSPICIOUS = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity WHERE customer_id IN (";
     private static final String SQL_QUERY_INSERT_EXCLUDED = "INSERT INTO identitystore_quality_suspicious_identity_excluded ( first_customer_id, second_customer_id, author_type, author_name, date_create ) VALUES ( ?, ?, ?, ?, NOW())";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
@@ -510,6 +511,27 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             daoUtil.setString( 1, firstCuid );
             daoUtil.setString( 2, secondCuid );
             daoUtil.setString( 3, secondCuid );
+            daoUtil.setString( 4, firstCuid );
+            daoUtil.executeQuery( );
+
+            if ( daoUtil.next( ) )
+            {
+                return daoUtil.getInt( 1 ) > 0;
+            }
+
+            return false;
+        }
+    }
+
+    @Override
+    public boolean checkIfExcluded( String firstCuid, List<String> cuids, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_CHECK_LIST_EXCLUDED, plugin ) )
+        {
+            final String critaeria = String.join( ", ", cuids );
+            daoUtil.setString( 1, firstCuid );
+            daoUtil.setString( 2, critaeria );
+            daoUtil.setString( 3, critaeria );
             daoUtil.setString( 4, firstCuid );
             daoUtil.executeQuery( );
 

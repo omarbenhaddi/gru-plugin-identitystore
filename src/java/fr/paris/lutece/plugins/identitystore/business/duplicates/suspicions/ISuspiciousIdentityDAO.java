@@ -104,6 +104,17 @@ public interface ISuspiciousIdentityDAO
     boolean checkIfExcluded( String firstCuid, String secondCuid, Plugin plugin );
 
     /**
+     * Verify if suspicious identities are already marked as excluded
+     *
+     * @param firstCuid
+     *            cuid of the firstCuid identity
+     * @param cuids
+     *            cuids of the potential secondCuid identity
+     * @param plugin
+     */
+    boolean checkIfExcluded( String firstCuid, List<String> cuids, Plugin plugin );
+
+    /**
      * Verify if at least one customer ID within a list is identified as suspicious
      *
      * @param customerIds
@@ -222,4 +233,5 @@ public interface ISuspiciousIdentityDAO
     void removeExcludedIdentities( String firstCuid, String secondCuid, Plugin plugin );
 
     List<ExcludedIdentities> selectExcludedIdentitiesList( String customerId, Plugin plugin );
+
 }
