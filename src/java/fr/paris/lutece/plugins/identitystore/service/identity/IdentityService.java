@@ -306,6 +306,15 @@ public class IdentityService
             return null;
         }
 
+        // check if identity hasn't been updated between when the user retreived the identity, and this request
+        if ( !Objects.equals( identity.getLastUpdateDate( ), request.getIdentity( ).getLastUpdateDate( ) ) )
+        {
+            response.setStatus( IdentityChangeStatus.CONFLICT );
+            response.setCustomerId( identity.getCustomerId( ) );
+            response.setMessage( "This identity has been updated recently, please load the latest data before updating." );
+            return identity;
+        }
+
         // check if identity is not merged
         if ( identity.isMerged( ) )
         {
@@ -322,15 +331,6 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( identity.getCustomerId( ) );
             response.setMessage( "Cannot update a deleted Identity." );
-            return identity;
-        }
-
-        // check if identity hasn't been updated between when the user retreived the identity, and this request
-        if ( !Objects.equals( identity.getLastUpdateDate( ), request.getIdentity( ).getLastUpdateDate( ) ) )
-        {
-            response.setStatus( IdentityChangeStatus.CONFLICT );
-            response.setCustomerId( identity.getCustomerId( ) );
-            response.setMessage( "This identity has been updated recently, please load the latest data before updating." );
             return identity;
         }
 
