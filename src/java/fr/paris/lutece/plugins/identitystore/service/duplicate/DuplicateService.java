@@ -148,9 +148,10 @@ public class DuplicateService implements IDuplicateService
         {
             final List<SearchAttributeDto> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
             final List<List<SearchAttributeDto>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
-            final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, specialTreatmentAttributes,
-                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false ).stream()
-                    .filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId) )
+            final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService
+                    .getQualifiedIdentities( searchAttributes, specialTreatmentAttributes, duplicateRule.getNbEqualAttributes( ),
+                            duplicateRule.getNbMissingAttributes( ), 0, false )
+                    .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId ) )
                     .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) )
                     .peek( qualifiedIdentity -> {
                         try

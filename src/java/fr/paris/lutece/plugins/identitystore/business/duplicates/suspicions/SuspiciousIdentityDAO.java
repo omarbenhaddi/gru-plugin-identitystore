@@ -537,11 +537,6 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
 
         try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
         {
-
-            daoUtil.setString( 1, firstCuid );
-            daoUtil.setString( 2, critaeria );
-            daoUtil.setString( 3, critaeria );
-            daoUtil.setString( 4, firstCuid );
             daoUtil.executeQuery( );
 
             if ( daoUtil.next( ) )
