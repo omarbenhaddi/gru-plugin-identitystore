@@ -105,8 +105,9 @@ public class DuplicateService implements IDuplicateService
                 final String property = AppPropertiesService.getProperty( rule );
                 final List<SearchAttributeDto> searchAttributes = this.mapAttributes( property, attributeValues );
 
-                final List<QualifiedIdentity> resultIdentities = _searchIdentityService.getQualifiedIdentities( searchAttributes, null, searchAttributes.size(), null, 0, false )
-                        .stream( ).filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
+                final List<QualifiedIdentity> resultIdentities = _searchIdentityService
+                        .getQualifiedIdentities( searchAttributes, null, searchAttributes.size( ), null, 0, false ).stream( )
+                        .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) ).collect( Collectors.toList( ) );
                 if ( CollectionUtils.isNotEmpty( resultIdentities ) )
                 {
                     final DuplicateSearchResponse response = new DuplicateSearchResponse( );

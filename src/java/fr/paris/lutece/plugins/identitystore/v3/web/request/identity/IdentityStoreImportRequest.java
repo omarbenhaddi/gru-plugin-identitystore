@@ -64,7 +64,7 @@ public class IdentityStoreImportRequest extends AbstractIdentityStoreRequest
     protected void validRequest( ) throws IdentityStoreException
     {
         // Vérification de la consistence des paramètres
-        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest );
+        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest, false );
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 

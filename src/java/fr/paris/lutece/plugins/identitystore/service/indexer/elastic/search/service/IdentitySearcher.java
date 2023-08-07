@@ -110,9 +110,11 @@ public class IdentitySearcher implements IIdentitySearcher
             /* if Attribute treatments are defined, generate a request for each */
             if ( !CollectionUtils.isEmpty( specialTreatmentAttributes ) )
             {
-                final List<List<SearchAttribute>> eligibleNuples = specialTreatmentAttributes.stream( )
-                        .filter( nuple -> nuple.stream( ).noneMatch(
-                                nupleAttribute -> currentCombinationOfEqualAttributes.stream( ).anyMatch( equal -> Objects.equals( equal.getKey( ), nupleAttribute.getKey( ) ) ) ) )
+                final List<List<SearchAttribute>> eligibleNuples = specialTreatmentAttributes
+                        .stream( ).filter(
+                                nuple -> nuple.stream( )
+                                        .noneMatch( nupleAttribute -> currentCombinationOfEqualAttributes.stream( )
+                                                .anyMatch( equal -> Objects.equals( equal.getKey( ), nupleAttribute.getKey( ) ) ) ) )
                         .collect( Collectors.toList( ) );
                 for ( final List<SearchAttribute> eligibleNuple : eligibleNuples )
                 {
@@ -123,7 +125,8 @@ public class IdentitySearcher implements IIdentitySearcher
             }
             else
             {
-                requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected, currentCombinationOfEqualAttributes ) );
+                requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected,
+                        currentCombinationOfEqualAttributes ) );
             }
         }
         return this.getResponse( requests, max );

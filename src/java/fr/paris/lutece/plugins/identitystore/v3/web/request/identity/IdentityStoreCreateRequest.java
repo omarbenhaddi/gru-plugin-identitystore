@@ -72,7 +72,7 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest );
+        IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest, false );
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
