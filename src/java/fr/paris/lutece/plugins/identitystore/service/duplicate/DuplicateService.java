@@ -168,7 +168,7 @@ public class DuplicateService implements IDuplicateService
             if ( CollectionUtils.isNotEmpty( results ) )
             {
                 final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-                response.setMessage( "Un ou plusieurs doublon existent pour l'indentité " + customerId + " avec la règle : " + duplicateRule.getCode( ) );
+                response.setMessage( "Un ou plusieurs doublon existent pour l'identité " + customerId + " avec la règle : " + duplicateRule.getCode( ) );
                 response.setIdentities( results );
                 return response;
             }
