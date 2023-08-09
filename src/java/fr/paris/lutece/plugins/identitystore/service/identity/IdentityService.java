@@ -44,6 +44,8 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
+import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevelHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
@@ -86,11 +88,23 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class IdentityService
 {
+    // Conf
+    private static final String PIVOT_CERTIF_LEVEL_THRESHOLD = "identitystore.identity.attribute.update.pivot.certif.level.threshold";
+
     // EVENTS FOR ACCESS LOGGING
     public static final String CREATE_IDENTITY_EVENT_CODE = "CREATE_IDENTITY";
     public static final String UPDATE_IDENTITY_EVENT_CODE = "UPDATE_IDENTITY";
@@ -328,24 +342,13 @@ public class IdentityService
             return identity;
         }
 
-        // if the identity is connected, check if the service contract allow the update
-        // check if can update "mon_paris_active" flag
-        if ( !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        // check if the service contract allows the update of "mon_paris_active" flag
+        if ( request.getIdentity( ).getMonParisActive( ) != null && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-            if ( identity.isConnected( ) )
-            {
-                response.setStatus( IdentityChangeStatus.CONFLICT );
-                response.setCustomerId( identity.getCustomerId( ) );
-                response.setMessage( "The client application is not authorized to update a connected identity." );
-                return null;
-            }
-            if ( request.getIdentity( ).getMonParisActive( ) != null )
-            {
-                response.setStatus( IdentityChangeStatus.CONFLICT );
-                response.setCustomerId( identity.getCustomerId( ) );
-                response.setMessage( "The client application is not authorized to update the 'mon_paris_active' flag." );
-                return null;
-            }
+            response.setStatus( IdentityChangeStatus.CONFLICT );
+            response.setCustomerId( identity.getCustomerId( ) );
+            response.setMessage( "The client application is not authorized to update the 'mon_paris_active' flag." );
+            return null;
         }
 
         // check if update does not create duplicates
@@ -945,6 +948,12 @@ public class IdentityService
         final List<CertifiedAttribute> newWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( false ) ) ? sortedAttributes.get( false )
                 : new ArrayList<>( );
 
+        // If identity is connected and service contract doesn't allow unrestricted update, do a bunch of checks
+        if ( identity.isConnected( ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        {
+            connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes );
+        }
+
         GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
         GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
 
@@ -967,6 +976,128 @@ public class IdentityService
             identity.setMonParisActive( requestIdentity.getMonParisActive( ) );
         }
         IdentityHome.update( identity );
+    }
+
+    /**
+     * Makes a bunch of checks regarding the validity of this update request on this connected identity.
+     * <ul>
+     * <li>Authorise update on "PIVOT" attributes only</li>
+     * <li>For new attributes, certification level must be > 100 (better than self-declare)</li>
+     * <li>For existing attributes, certification level must be >= than the existing level</li>
+     * <li>If one "PIVOT" attribute is certified at a certain level N (conf) :
+     * <ul>
+     * <li>All "PIVOT" attributes must be set</li>
+     * <li>All "PIVOT" attributes must be certified with level greater or equal to N</li>
+     * </ul>
+     * </li>
+     * </ul>
+     * 
+     * @param requestIdentity
+     *            the request
+     * @param identity
+     *            the identity
+     * @param existingWritableAttributes
+     *            existing attributes in identity from request
+     * @param newWritableAttributes
+     *            new attributes from request
+     */
+    private void connectedIdentityUpdateCheck( final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity requestIdentity, final Identity identity,
+            final List<CertifiedAttribute> existingWritableAttributes, final List<CertifiedAttribute> newWritableAttributes ) throws IdentityStoreException
+    {
+        final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
+                .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
+
+        // - Authorise update on "PIVOT" attributes only
+        final boolean requestOnNonPivot = requestIdentity.getAttributes( ).stream( ).map( a -> allAttributesByKey.get( a.getKey( ) ) )
+                .anyMatch( a -> !a.getPivot( ) );
+        if ( requestOnNonPivot )
+        {
+            throw new IdentityStoreException( "Identity is connected, updating non 'pivot' attributes is forbidden." );
+        }
+
+        // - For new attributes, certification level must be > 100 (better than self-declare)
+        final boolean newAttrSelfDeclare = newWritableAttributes.stream( )
+                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificationProcess( ), a.getKey( ) ) )
+                .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) <= 100 );
+        if ( newAttrSelfDeclare )
+        {
+            throw new IdentityStoreException( "Identity is connected, adding 'pivot' attributes with self-declarative certification level is forbidden." );
+        }
+
+        // - For existing attributes, certification level must be >= than the existing level
+        final boolean lesserWantedLvl = existingWritableAttributes.stream( )
+                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificationProcess( ), a.getKey( ) ) )
+                .anyMatch( wantedCertif -> {
+                    final int wantedLvl = Integer.parseInt( wantedCertif.getRefCertificationLevel( ).getLevel( ) );
+
+                    final IdentityAttribute existingAttr = identity.getAttributes( ).get( wantedCertif.getAttributeKey( ).getKeyName( ) );
+                    final RefAttributeCertificationLevel existingCertif = RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName(
+                            existingAttr.getCertificate( ).getCertifierCode( ), existingAttr.getAttributeKey( ).getKeyName( ) );
+                    final int existingLvl = Integer.parseInt( existingCertif.getRefCertificationLevel( ).getLevel( ) );
+
+                    return wantedLvl < existingLvl;
+                } );
+        if ( lesserWantedLvl )
+        {
+            throw new IdentityStoreException( "Identity is connected, updating existing 'pivot' attributes with lesser certification level is forbidden." );
+        }
+
+        // - If one "PIVOT" attribute is certified at a certain level N (conf), all "PIVOT" attributes must be set and certified with level >= N.
+        final int threshold = AppPropertiesService.getPropertyInt( PIVOT_CERTIF_LEVEL_THRESHOLD, 400 );
+        final boolean breakingThreshold = identity.getAttributes( ).values( ).stream( ).filter( a -> a.getAttributeKey( ).getPivot( ) )
+                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificate( ).getCertifierCode( ),
+                        a.getAttributeKey( ).getKeyName( ) ) )
+                .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) >= threshold )
+                || requestIdentity.getAttributes( ).stream( )
+                        .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificationProcess( ), a.getKey( ) ) )
+                        .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) >= threshold );
+        if ( breakingThreshold )
+        {
+            // get all pivot attributes from database
+            final List<String> pivotAttributeKeys = allAttributesByKey.values( ).stream( ).filter( AttributeKey::getPivot ).map( AttributeKey::getKeyName )
+                    .collect( Collectors.toList( ) );
+
+            // if any pivot is missing from request + existing -> throw exception
+            @SuppressWarnings( "unchecked" )
+            final Collection<String> unionOfExistingAndRequestedPivotKeys = CollectionUtils.union(
+                    requestIdentity.getAttributes( ).stream( ).map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) ),
+                    identity.getAttributes( ).values( ).stream( ).map( IdentityAttribute::getAttributeKey ).filter( AttributeKey::getPivot )
+                            .map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) ) );
+            if ( !CollectionUtils.isEqualCollection( pivotAttributeKeys, unionOfExistingAndRequestedPivotKeys ) )
+            {
+                throw new IdentityStoreException(
+                        "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level " + threshold
+                                + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold + "." );
+            }
+
+            // if any has level lesser than threshold -> throw exception
+            final boolean lesserThanThreshold = pivotAttributeKeys.stream( ).map( key -> {
+                final CertifiedAttribute requested = requestIdentity.getAttributes( ).stream( ).filter( a -> a.getKey( ).equals( key ) ).findFirst( )
+                        .orElse( null );
+                final IdentityAttribute existing = identity.getAttributes( ).get( key );
+                int requestedLvl = 0;
+                int existingLvl = 0;
+                if ( requested != null )
+                {
+                    requestedLvl = Integer.parseInt( RefAttributeCertificationLevelHome
+                            .findByProcessusAndAttributeKeyName( requested.getCertificationProcess( ), key ).getRefCertificationLevel( ).getLevel( ) );
+                }
+                if ( existing != null )
+                {
+                    existingLvl = Integer.parseInt(
+                            RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( existing.getCertificate( ).getCertifierCode( ), key )
+                                    .getRefCertificationLevel( ).getLevel( ) );
+                }
+                return Math.max( requestedLvl, existingLvl );
+            } ).anyMatch( lvl -> lvl < threshold );
+
+            if ( lesserThanThreshold )
+            {
+                throw new IdentityStoreException(
+                        "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level " + threshold
+                                + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold + "." );
+            }
+        }
     }
 
     /**
@@ -1070,7 +1201,7 @@ public class IdentityService
      */
     private DuplicateSearchResponse checkDuplicates( final Map<String, String> attributes, final String ruleCodeProperty ) throws IdentityStoreException
     {
-        final List<String> ruleCodes = Arrays.asList( AppPropertiesService.getProperty( ruleCodeProperty ).split( "," ) );
+        final List<String> ruleCodes = Arrays.asList(AppPropertiesService.getProperty(ruleCodeProperty).split(","));
         final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, "", ruleCodes );
         if ( esDuplicates != null )
         {
