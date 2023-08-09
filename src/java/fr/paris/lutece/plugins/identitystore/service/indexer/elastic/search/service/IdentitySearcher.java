@@ -39,7 +39,6 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.Elas
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ASearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ComplexSearchRequest;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchAction;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchActionType;
@@ -50,8 +49,8 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.utils.Combinations;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
@@ -159,7 +158,7 @@ public class IdentitySearcher implements IIdentitySearcher
             for ( final List<SearchAttribute> combinationOfMissingAttributes : combinationsOfMissingAttributes )
             {
                 final List<SearchAttribute> missingSearchAttributes = combinationOfMissingAttributes.stream( )
-                        .map( attribute -> new SearchAttribute( attribute.getKey( ), attribute.getOutputKeys( ), attribute.getValue( ),
+                        .map( attribute -> new SearchAttribute( attribute.getKey( ), attribute.getValue( ), attribute.getOutputKeys( ),
                                 AttributeTreatmentType.ABSENT ) )
                         .collect( Collectors.toList( ) );
                 final List<SearchAttribute> complete = Stream.concat( missingSearchAttributes.stream( ), workingAttributes.stream( ) )

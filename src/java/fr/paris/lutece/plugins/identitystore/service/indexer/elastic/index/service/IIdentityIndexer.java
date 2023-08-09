@@ -41,8 +41,6 @@ import java.util.List;
 
 public interface IIdentityIndexer
 {
-    String NAME = "identitystore.identityIndexer";
-
     String CURRENT_INDEX_ALIAS = "identities-alias";
 
     /* Documents API */

@@ -33,15 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service;
 
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 
 import java.util.List;
 
 public interface IIdentitySearcher
 {
-    String NAME = "identitystore.identitySearcher";
-
     Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes,
             final Integer nbMissingAttributes, int max, boolean connected );
 

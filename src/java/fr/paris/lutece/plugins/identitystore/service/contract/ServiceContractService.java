@@ -248,10 +248,10 @@ public class ServiceContractService
         if ( identitySearchRequest.getSearch( ) != null )
         {
 
-            for ( final SearchAttributeDto searchAttributeDto : identitySearchRequest.getSearch( ).getAttributes( ) )
+            for ( final SearchAttribute searchAttribute : identitySearchRequest.getSearch( ).getAttributes( ) )
             {
                 final Optional<AttributeRight> attributeRight = serviceContract.getAttributeRights( ).stream( )
-                        .filter( a -> StringUtils.equals( a.getAttributeKey( ).getKeyName( ), searchAttributeDto.getKey( ) ) ).findFirst( );
+                        .filter( a -> StringUtils.equals( a.getAttributeKey( ).getKeyName( ), searchAttribute.getKey( ) ) ).findFirst( );
                 if ( attributeRight.isPresent( ) )
                 {
                     boolean canSearchAttribute = attributeRight.get( ).isSearchable( );
@@ -259,7 +259,7 @@ public class ServiceContractService
                     if ( !canSearchAttribute )
                     {
                         final IdentitySearchMessage alert = new IdentitySearchMessage( );
-                        alert.setAttributeName( searchAttributeDto.getKey( ) );
+                        alert.setAttributeName( searchAttribute.getKey( ) );
                         alert.setMessage( "This attribute is not searchable in service contract definition." );
                         response.getAlerts( ).add( alert );
                         response.setStatus( IdentitySearchStatusType.FAILURE );
@@ -268,7 +268,7 @@ public class ServiceContractService
                 else
                 { // if key does not exist, it can be a common key for search
                     final List<AttributeRight> commonAttributes = serviceContract.getAttributeRights( ).stream( )
-                            .filter( a -> StringUtils.equals( a.getAttributeKey( ).getCommonSearchKeyName( ), searchAttributeDto.getKey( ) ) )
+                            .filter( a -> StringUtils.equals( a.getAttributeKey( ).getCommonSearchKeyName( ), searchAttribute.getKey( ) ) )
                             .collect( Collectors.toList( ) );
                     if ( CollectionUtils.isNotEmpty( commonAttributes ) )
                     {
@@ -276,7 +276,7 @@ public class ServiceContractService
                         if ( !canSearchAttribute )
                         {
                             final IdentitySearchMessage alert = new IdentitySearchMessage( );
-                            alert.setAttributeName( searchAttributeDto.getKey( ) );
+                            alert.setAttributeName( searchAttribute.getKey( ) );
                             alert.setMessage( "This attribute group is not searchable in service contract definition." );
                             response.getAlerts( ).add( alert );
                             response.setStatus( IdentitySearchStatusType.FAILURE );
@@ -285,7 +285,7 @@ public class ServiceContractService
                     else
                     {
                         final IdentitySearchMessage alert = new IdentitySearchMessage( );
-                        alert.setAttributeName( searchAttributeDto.getKey( ) );
+                        alert.setAttributeName( searchAttribute.getKey( ) );
                         alert.setMessage( "This attribute does not exist in service contract definition." );
                         response.getAlerts( ).add( alert );
                         response.setStatus( IdentitySearchStatusType.FAILURE );

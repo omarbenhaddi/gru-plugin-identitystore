@@ -2,6 +2,13 @@
     "settings" : {
         "analysis" : {
             "analyzer" : {
+                "default" : {
+                    "type" : "keyword",
+                    "filter" : [
+                        "lowercase",
+                        "asciifolding"
+                    ]
+                },
                 "email_analyzer" : {
                     "tokenizer" : "email_tokenizer",
                     "filter" : [
@@ -55,7 +62,7 @@
             },
             "attributes.login.value" : {
                 "type" : "text",
-                "analyzer" : "email_analyzer"
+                "analyzer" : "keyword"
             },
             "attributes.birthdate.value" : {
                 "type" : "text",

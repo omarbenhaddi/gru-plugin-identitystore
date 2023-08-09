@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.search;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.util.AppException;
 
 import java.util.ArrayList;
@@ -51,15 +51,14 @@ public class DefaultSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,
-            final List<List<SearchAttributeDto>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected )
     {
         return new ArrayList<>( );
     }
 
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttributeDto> attributes, int max, boolean connected )
+    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected )
     {
         return new ArrayList<>( );
     }

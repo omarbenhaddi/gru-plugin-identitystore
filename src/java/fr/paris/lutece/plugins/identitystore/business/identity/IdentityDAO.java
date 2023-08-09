@@ -33,11 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import com.google.common.collect.Lists;
+import fr.paris.lutece.plugins.identitystore.utils.Combinations;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -588,22 +591,22 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<Identity> selectByAttributesValueForApiSearch( Map<String, List<String>> mapAttributes, int nMaxNbIdentityReturned, Plugin plugin )
+    public List<Identity> selectByAttributesValueForApiSearch( final Map<String, List<String>> mapAttributes, final int nMaxNbIdentityReturned, Plugin plugin )
     {
-        List<Identity> listIdentities = new ArrayList<>( );
+        final List<Identity> listIdentities = new ArrayList<>( );
 
-        Queue<String> queueAttributeId = new ArrayDeque<>( );
-        List<String> listAttributeFilter = new ArrayList<>( );
+        final Queue<String> queueAttributeId = new ArrayDeque<>( );
+        final List<String> listAttributeFilter = new ArrayList<>( );
 
         if ( mapAttributes == null || mapAttributes.isEmpty( ) )
         {
             return listIdentities;
         }
 
-        for ( Map.Entry<String, List<String>> entryAttribute : mapAttributes.entrySet( ) )
+        for ( final Map.Entry<String, List<String>> entryAttribute : mapAttributes.entrySet( ) )
         {
-            String strAttributeId = entryAttribute.getKey( );
-            List<String> listAttributeValues = entryAttribute.getValue( );
+            final String strAttributeId = entryAttribute.getKey( );
+            final List<String> listAttributeValues = entryAttribute.getValue( );
             if ( listAttributeValues == null || listAttributeValues.isEmpty( ) )
             {
                 continue;
@@ -611,7 +614,7 @@ public final class IdentityDAO implements IIdentityDAO
 
             queueAttributeId.add( strAttributeId );
 
-            List<String> listIn = new ArrayList<>( );
+            final List<String> listIn = new ArrayList<>( );
 
             for ( int i = 0; i < listAttributeValues.size( ); i++ )
             {

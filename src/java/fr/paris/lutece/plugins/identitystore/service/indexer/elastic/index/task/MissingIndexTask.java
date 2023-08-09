@@ -54,7 +54,7 @@ import java.util.List;
 
 public class MissingIndexTask extends Daemon
 {
-    private IIdentityIndexer _identityIndexer = SpringContextService.getBean( IIdentityIndexer.NAME );
+    private final IIdentityIndexer _identityIndexer = SpringContextService.getBean( "identitystore.elasticsearch.identityIndexer" );
 
     @Override
     public void run( )

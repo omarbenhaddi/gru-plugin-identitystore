@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mod
 
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;

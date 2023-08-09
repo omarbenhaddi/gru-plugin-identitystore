@@ -34,8 +34,7 @@
 
 package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -156,7 +155,7 @@ public interface ISuspiciousIdentityDAO
      *            the Plugin
      * @return The list which contains the data of all the suspiciousIdentity objects
      */
-    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttributeDto> attributes, final int max,
+    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final int max,
             final Integer priority, Plugin plugin );
 
     /**

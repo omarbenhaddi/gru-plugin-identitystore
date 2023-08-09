@@ -42,7 +42,7 @@ import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
@@ -125,12 +125,12 @@ public class IdentityQualityService
         qualifiedIdentity.setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
     }
 
-    public void computeMatchScore( final QualifiedIdentity qualifiedIdentity, final List<SearchAttributeDto> searchAttributes )
+    public void computeMatchScore( final QualifiedIdentity qualifiedIdentity, final List<SearchAttribute> searchAttributes )
     {
         final AtomicDouble levels = new AtomicDouble( );
         final AtomicDouble base = new AtomicDouble( );
-        final Map<SearchAttributeDto, List<AttributeKey>> attributesToProcess = new HashMap<>( );
-        for ( final SearchAttributeDto searchAttribute : searchAttributes )
+        final Map<SearchAttribute, List<AttributeKey>> attributesToProcess = new HashMap<>( );
+        for ( final SearchAttribute searchAttribute : searchAttributes )
         {
             AttributeKey refKey = null;
             try
@@ -153,7 +153,7 @@ public class IdentityQualityService
             }
         }
 
-        for ( final Map.Entry<SearchAttributeDto, List<AttributeKey>> entry : attributesToProcess.entrySet( ) )
+        for ( final Map.Entry<SearchAttribute, List<AttributeKey>> entry : attributesToProcess.entrySet( ) )
         {
             for ( final AttributeKey attributeKey : entry.getValue( ) )
             {

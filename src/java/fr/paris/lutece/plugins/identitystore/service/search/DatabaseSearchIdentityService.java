@@ -34,22 +34,18 @@
 package fr.paris.lutece.plugins.identitystore.service.search;
 
 import com.google.common.collect.Lists;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DatabaseSearchIdentityService implements ISearchIdentityService
@@ -64,16 +60,41 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     /**
      * {@inheritDoc }
      */
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected )
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected )
     {
         final Map<String, List<String>> mapAttributeValues = attributes.stream( )
-                .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
+                .collect( Collectors.toMap( SearchAttribute::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
         try
         {
             final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues, max );
             if ( listIdentity != null && !listIdentity.isEmpty( ) )
             {
-                return populateWithAttributesAndConvertToDto( listIdentity );
+                return getEntities( listIdentity );
+            }
+        }
+        catch( final IdentityStoreException e )
+        {
+            AppLogService.error( "An error occurred during database search: ", e );
+        }
+        return Collections.emptyList( );
+    }
+
+    @Override
+    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, int max, boolean connected ) throws IdentityStoreException
+    {
+        if ( CollectionUtils.isNotEmpty( specialTreatmentAttributes ) || ( nbMissingAttributes != null && nbMissingAttributes != 0 ) )
+        {
+            throw new IdentityStoreException( "Cannot perform a complex search on database" );
+        }
+        try
+        {
+            final Map<String, List<String>> mapAttributeValues = attributes.stream( )
+                    .collect( Collectors.toMap( SearchAttribute::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
+            final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues, max );
+            if ( listIdentity != null && !listIdentity.isEmpty( ) )
+            {
+                return getEntities( listIdentity );
             }
         }
         catch( final IdentityStoreException e )
@@ -91,7 +112,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
      * @return the DTO list
      * @throws IdentityStoreException
      */
-    private List<QualifiedIdentity> populateWithAttributesAndConvertToDto( final List<Identity> identityList ) throws IdentityStoreException
+    private List<QualifiedIdentity> getEntities( final List<Identity> identityList ) throws IdentityStoreException
     {
         final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( identityList.size( ) );
         final List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityListFullAttributes( identityList );
@@ -113,28 +134,5 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
             qualifiedIdentities.add( DtoConverter.convertIdentityToDto( identity ) );
         }
         return qualifiedIdentities;
-    }
-
-    @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes,
-            final List<List<SearchAttributeDto>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, int max,
-            boolean connected )
-    {
-
-        final Map<String, List<String>> mapAttributeValues = attributes.stream( )
-                .collect( Collectors.toMap( SearchAttributeDto::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
-        try
-        {
-            final List<Identity> listIdentity = IdentityHome.findByAttributesValueForApiSearch( mapAttributeValues, max );
-            if ( listIdentity != null && !listIdentity.isEmpty( ) )
-            {
-                return populateWithAttributesAndConvertToDto( listIdentity );
-            }
-        }
-        catch( final IdentityStoreException e )
-        {
-            AppLogService.error( "An error occurred during database search: ", e );
-        }
-        return Collections.emptyList( );
     }
 }

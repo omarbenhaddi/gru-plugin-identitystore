@@ -31,40 +31,32 @@
     <bean id="identitystore.identityAttributeValidationCache"  class="fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache"/>
     <bean id="identitystore.refAttributeCertificationDefinitionCache"  class="fr.paris.lutece.plugins.identitystore.cache.RefAttributeCertificationDefinitionCache"/>
 
-    <!-- Service -->
-   <!-- Service -->
-    <bean id="identitystore.identityIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityIndexer" >
+    <!-- Services -->
+    <!-- Services E/S clients -->
+    <bean id="identitystore.elasticsearch.identityIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityIndexer" >
         <constructor-arg name="strServerUrl" value="${elasticsearch.url}"/>
         <constructor-arg name="strLogin" value="${elasticsearch.user}"/>
         <constructor-arg name="strPassword" value="${elasticsearch.pwd}"/>
     </bean>
-    <bean id="identitystore.identitySearcher" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IdentitySearcher" >
+    <bean id="identitystore.elasticsearch.identitySearcher" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IdentitySearcher" >
         <constructor-arg name="strServerUrl" value="${elasticsearch.url}"/>
         <constructor-arg name="strLogin" value="${elasticsearch.user}"/>
         <constructor-arg name="strPassword" value="${elasticsearch.pwd}"/>
     </bean>
 
+    <!-- Services recherche -->
+    <bean id="identitystore.searchIdentityService.elasticsearch" class="fr.paris.lutece.plugins.identitystore.service.indexer.search.ElasticSearchIdentityService">
+        <constructor-arg name="_identitySearcher" ref="identitystore.elasticsearch.identitySearcher"/>
+    </bean>
+    <bean id="identitystore.searchIdentityService.database" class="fr.paris.lutece.plugins.identitystore.service.search.DatabaseSearchIdentityService">
+    </bean>
 
-    <bean id="identitystore.searchIdentityService" class="fr.paris.lutece.plugins.identitystore.service.indexer.search.ElasticSearchIdentityService">
-        <constructor-arg name="_identitySearcher" ref="identitystore.identitySearcher"/>
+    <!-- Services moteurs doublons -->
+    <bean id="identitystore.duplicateService.database" class="fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateService" >
+        <constructor-arg name="_searchIdentityService" ref="identitystore.searchIdentityService.database"/>
     </bean>
-    <bean id="identitystore.db.searchIdentityService" class="fr.paris.lutece.plugins.identitystore.service.search.DatabaseSearchIdentityService">
-    </bean>
-    <bean id="identitystore.duplicateService.creation" class="fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateService" >
-        <constructor-arg name="_searchIdentityService" ref="identitystore.db.searchIdentityService"/>
-        <constructor-arg name="_group" value="identitystore.identity.duplicates.creation"/>
-    </bean>
-    <bean id="identitystore.duplicateService.update" class="fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateService" >
-        <constructor-arg name="_searchIdentityService" ref="identitystore.db.searchIdentityService"/>
-        <constructor-arg name="_group" value="identitystore.identity.duplicates.update"/>
-    </bean>
-    <bean id="identitystore.duplicateService.import.certitude" class="fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateService" >
-        <constructor-arg name="_searchIdentityService" ref="identitystore.searchIdentityService"/>
-        <constructor-arg name="_group" value="identitystore.identity.duplicates.import.certitude"/>
-    </bean>
-    <bean id="identitystore.duplicateService.import.suspicion" class="fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateService" >
-        <constructor-arg name="_searchIdentityService" ref="identitystore.searchIdentityService"/>
-        <constructor-arg name="_group" value="identitystore.identity.duplicates.import.suspicion"/>
+    <bean id="identitystore.duplicateService.elasticsearch" class="fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateService" >
+        <constructor-arg name="_searchIdentityService" ref="identitystore.searchIdentityService.elasticsearch"/>
     </bean>
 
     <!-- Logging -->
@@ -72,7 +64,7 @@
     <bean id="identitystore.listener.attributeHistory" class="fr.paris.lutece.plugins.identitystore.service.listeners.AttributeHistoryListener" />
     <bean id="identitystore.listener.identityHistory" class="fr.paris.lutece.plugins.identitystore.service.listeners.IdentityHistoryListener" />
     <bean id="identitystore.listener.index" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener.IdentityIndexListener" >
-        <constructor-arg ref="identitystore.identityIndexer" name="_identityIndexer"/>
+        <constructor-arg ref="identitystore.elasticsearch.identityIndexer" name="_identityIndexer"/>
     </bean>
 
     <!-- External providers-->
@@ -100,7 +92,7 @@
 
     <!-- Schedule full E/S identities reindexing -->
     <bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" >
-        <constructor-arg name="_identityIndexer" ref="identitystore.identityIndexer"/>
+        <constructor-arg name="_identityIndexer" ref="identitystore.elasticsearch.identityIndexer"/>
     </bean>
     <task:scheduler id="identitystore.fullIndexerScheduler" pool-size="10" />
     <task:scheduled-tasks scheduler="identitystore.fullIndexerScheduler">

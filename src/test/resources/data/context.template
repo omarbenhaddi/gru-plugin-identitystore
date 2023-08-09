@@ -28,14 +28,14 @@
     <bean id="identitystore.refAttributeCertificationDefinitionCache"  class="fr.paris.lutece.plugins.identitystore.cache.RefAttributeCertificationDefinitionCache"/>
 
     <!-- Service -->
-    <bean id="identitystore.identityIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityIndexer" >
+    <bean id="identitystore.elasticsearch.identityIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityIndexer" >
         <constructor-arg name="strServerUrl" value="${es_url}"/>
     </bean>
-    <bean id="identitystore.identitySearcher" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IdentitySearcher" >
+    <bean id="identitystore.elasticsearch.identitySearcher" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IdentitySearcher" >
         <constructor-arg name="strServerUrl" value="${es_url}"/>
     </bean>
     <bean id="identitystore.searchIdentityService" class="fr.paris.lutece.plugins.identitystore.service.indexer.search.ElasticSearchIdentityService">
-        <constructor-arg name="_identityIndexer" ref="identitystore.identitySearcher"/>
+        <constructor-arg name="_identityIndexer" ref="identitystore.elasticsearch.identitySearcher"/>
     </bean>
     <bean id="identitystore.db.searchIdentityService" class="fr.paris.lutece.plugins.identitystore.service.search.DatabaseSearchIdentityService">
     </bean>
@@ -60,7 +60,7 @@
     <bean id="identitystore.listener.logging" class="fr.paris.lutece.plugins.identitystore.service.listeners.LoggingListener" />
     <bean id="identitystore.listener.databaseLogging" class="fr.paris.lutece.plugins.identitystore.service.listeners.DatabaseLoggingListener" />
     <bean id="identitystore.listener.index" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener.IdentityIndexListener" >
-        <constructor-arg ref="identitystore.identityIndexer" name="_identityIndexer"/>
+        <constructor-arg ref="" name="_identityIndexer"/>
     </bean>
 
     <!-- Listeners & External -->

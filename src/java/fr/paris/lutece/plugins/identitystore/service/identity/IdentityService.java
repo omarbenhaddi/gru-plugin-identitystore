@@ -48,9 +48,7 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
-import fr.paris.lutece.plugins.identitystore.business.user.InternalUser;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
-import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
@@ -78,17 +76,12 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchStatusType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -108,18 +101,20 @@ public class IdentityService
     public static final String UNMERGE_IDENTITY_EVENT_CODE = "UNMERGE_IDENTITY";
     public static final String SPECIFIC_ORIGIN = "BO";
 
+    // PROPERTIES
+    private static final String PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION = "identitystore.identity.duplicates.import.rules.suspicion";
+    private static final String PROPERTY_DUPLICATES_IMPORT_RULES_STRICT = "identitystore.identity.duplicates.import.rules.strict";
+    private static final String PROPERTY_DUPLICATES_CREATION_RULES = "identitystore.identity.duplicates.creation.rules";
+    private static final String PROPERTY_DUPLICATES_CHECK_DATABASE_ACTIVATED = "identitystore.identity.duplicates.check.database";
+
     // SERVICES
-    private final AttributeCertificationDefinitionService _attributeCertificationDefinitionService = AttributeCertificationDefinitionService.instance( );
     private final IdentityStoreNotifyListenerService _identityStoreNotifyListenerService = IdentityStoreNotifyListenerService.instance( );
     private final ServiceContractService _serviceContractService = ServiceContractService.instance( );
     private final IdentityAttributeService _identityAttributeService = IdentityAttributeService.instance( );
     private final InternalUserService _internalUserService = InternalUserService.getInstance( );
-    private final IDuplicateService _duplicateServiceCreation = SpringContextService.getBean( "identitystore.duplicateService.creation" );
-    private final IDuplicateService _duplicateServiceUpdate = SpringContextService.getBean( "identitystore.duplicateService.update" );
-    private final IDuplicateService _duplicateServiceImportCertitude = SpringContextService.getBean( "identitystore.duplicateService.import.certitude" );
-    private final IDuplicateService _duplicateServiceImportSuspicion = SpringContextService.getBean( "identitystore.duplicateService.import.suspicion" );
-    protected ISearchIdentityService _searchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService" );
-    protected ISearchIdentityService _searchDbIdentityService = SpringContextService.getBean( "identitystore.db.searchIdentityService" );
+    private final IDuplicateService _duplicateServiceDatabase = SpringContextService.getBean( "identitystore.duplicateService.database" );
+    private final IDuplicateService _duplicateServiceElasticSearch = SpringContextService.getBean( "identitystore.duplicateService.elasticsearch" );
+    protected ISearchIdentityService _elasticSearchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
 
     private static IdentityService _instance;
 
@@ -194,12 +189,11 @@ public class IdentityService
 
         final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
-        final DuplicateSearchResponse duplicates = _duplicateServiceCreation.findDuplicates( attributes );
-        if ( duplicates != null )
+        final DuplicateSearchResponse duplicateSearchResponse = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_CREATION_RULES );
+        if ( duplicateSearchResponse != null && CollectionUtils.isNotEmpty( duplicateSearchResponse.getIdentities( ) ) )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
-            response.setMessage( duplicates.getMessage( ) );
-            // response.setDuplicates( duplicates ); //TODO voir si on renvoie le CUID
+            response.setMessage( duplicateSearchResponse.getMessage( ) );
             return null;
         }
 
@@ -275,7 +269,7 @@ public class IdentityService
      *
      * @param customerId
      *            the id of the updated {@link Identity}
-     * @param identityChangeRequest
+     * @param request
      *            the {@link IdentityChangeRequest} holding the parameters of the identity change request
      * @param clientCode
      *            code of the {@link ClientApplication} requesting the change
@@ -687,7 +681,7 @@ public class IdentityService
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
 
-        final DuplicateSearchResponse certitudeDuplicates = _duplicateServiceImportCertitude.findDuplicates( attributes );
+        final DuplicateSearchResponse certitudeDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_STRICT );
         if ( certitudeDuplicates != null && CollectionUtils.isNotEmpty( certitudeDuplicates.getIdentities( ) ) )
         {
             if ( certitudeDuplicates.getIdentities( ).size( ) == 1 )
@@ -696,12 +690,11 @@ public class IdentityService
             }
         }
 
-        final DuplicateSearchResponse suspicionDuplicates = _duplicateServiceImportSuspicion.findDuplicates( attributes );
+        final DuplicateSearchResponse suspicionDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION );
         if ( suspicionDuplicates != null && CollectionUtils.isNotEmpty( suspicionDuplicates.getIdentities( ) ) )
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
-            // response.setDuplicates( suspicionDuplicates );
-            response.setMessage( "Found duplicates" );
+            response.setMessage( suspicionDuplicates.getMessage( ) );
         }
         else
         {
@@ -738,8 +731,8 @@ public class IdentityService
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
                 _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
-        final List<SearchAttributeDto> providedAttributes = request.getSearch( ).getAttributes( );
-        final Set<String> providedKeys = providedAttributes.stream( ).map( SearchAttributeDto::getKey ).collect( Collectors.toSet( ) );
+        final List<SearchAttribute> providedAttributes = request.getSearch( ).getAttributes( );
+        final Set<String> providedKeys = providedAttributes.stream( ).map( SearchAttribute::getKey ).collect( Collectors.toSet( ) );
 
         boolean hasRequirements = false;
         final List<IdentitySearchRule> searchRules = IdentitySearchRuleHome.findAll( );
@@ -797,7 +790,7 @@ public class IdentityService
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _searchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
+        final List<QualifiedIdentity> qualifiedIdentities = _elasticSearchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
                 request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
         {
@@ -1064,12 +1057,30 @@ public class IdentityService
 
     }
 
-    public DuplicateSearchResponse findDuplicates( final QualifiedIdentity identity, final String ruleCode ) throws IdentityStoreException
+    /**
+     * Check if duplicates exist for a set of attributes
+     * 
+     * @param attributes
+     *            the set of attributes
+     * @param ruleCodeProperty
+     *            the properties that defines the list of rules to check
+     * @return a {@link DuplicateSearchResponse} that holds the execution result
+     * @throws IdentityStoreException
+     *             in case of error
+     */
+    private DuplicateSearchResponse checkDuplicates( final Map<String, String> attributes, final String ruleCodeProperty ) throws IdentityStoreException
     {
-        final Map<String, String> attributeMap = identity.getAttributes( ).stream( )
-                .collect( Collectors.toMap( fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute::getKey,
-                        fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute::getValue ) );
-        return this._duplicateServiceImportSuspicion.findDuplicates( attributeMap, identity.getCustomerId( ), ruleCode );
+        final List<String> ruleCodes = Arrays.asList( AppPropertiesService.getProperty( ruleCodeProperty ).split( "," ) );
+        final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, "", ruleCodes );
+        if ( esDuplicates != null )
+        {
+            return esDuplicates;
+        }
+        final boolean checkDatabase = AppPropertiesService.getPropertyBoolean( PROPERTY_DUPLICATES_CHECK_DATABASE_ACTIVATED, false );
+        if ( checkDatabase )
+        {
+            return _duplicateServiceDatabase.findDuplicates( attributes, "", ruleCodes );
+        }
+        return null;
     }
-
 }

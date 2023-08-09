@@ -33,10 +33,18 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.search;
 
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface ISearchIdentityService
 {
@@ -47,10 +55,44 @@ public interface ISearchIdentityService
      *            the maximum number of results that must be returned, if set to 0 or null, must be ignored by implementation.
      * @param attributes
      *            list of values to search for some attributes with strict or fuzzy mode
-     * @return a list of identities satisfying the criteria of the {@link SearchAttributeDto} list
+     * @return a list of identities satisfying the criteria of the {@link SearchAttribute} list
      */
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final List<List<SearchAttributeDto>> specialTreatmentAttributes,
-            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected );
+    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected ) throws IdentityStoreException;
 
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttributeDto> attributes, final int max, final boolean connected );
+    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected );
+
+    default List<SearchAttribute> computeOutputKeys( final List<SearchAttribute> attributes )
+    {
+        final List<SearchAttribute> searchAttributes = new ArrayList<>( );
+        if ( CollectionUtils.isNotEmpty( attributes ) )
+        {
+            for ( final SearchAttribute dto : attributes )
+            {
+                AttributeKey refKey = null;
+                try
+                {
+                    refKey = IdentityAttributeService.instance( ).getAttributeKey( dto.getKey( ) );
+                }
+                catch( IdentityAttributeNotFoundException e )
+                {
+                    // do nothing, we want to identify if the key exists
+                }
+
+                if ( refKey != null )
+                {
+                    dto.setOutputKeys( Collections.singletonList( dto.getKey( ) ) );
+                }
+                else
+                {
+                    // In this case we have a common search key in the request, so map it
+                    final List<AttributeKey> commonAttributeKeys = IdentityAttributeService.instance( ).getCommonAttributeKeys( dto.getKey( ) );
+                    final List<String> commonAttributeKeyNames = commonAttributeKeys.stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
+                    dto.setOutputKeys( commonAttributeKeyNames );
+                }
+                searchAttributes.add( dto );
+            }
+        }
+        return searchAttributes;
+    }
 }
