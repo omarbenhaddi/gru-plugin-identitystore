@@ -190,6 +190,16 @@ public final class ServiceContractHome
     }
 
     /**
+     * Load the data of all the service contracts and returns them as a list
+     * 
+     * @return The list which contains the data of all the ServiceContract objects
+     */
+    public static List<ServiceContract> getAllServiceContractsList( )
+    {
+        return _serviceContractDAO.selectAllServiceContractsList( _plugin );
+    }
+
+    /**
      * returns rights of provided application
      *
      * @param serviceContract

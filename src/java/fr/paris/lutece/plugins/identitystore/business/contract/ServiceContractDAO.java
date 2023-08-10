@@ -54,6 +54,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
     private static final String JOINED_COLUMNS = "a.id_service_contract, a.name, a.moa_entity_name, a.moe_responsible_name, a.moa_contact_name, a.moe_entity_name, a.data_retention_period_in_months, a.service_type, a.starting_date, a.ending_date, a.authorized_creation, a.authorized_update, a.authorized_search, a.authorized_merge, a.authorized_account_update, a.authorized_deletion, a.authorized_import, a.authorized_export";
     private static final String SQL_QUERY_SELECT = "SELECT id_service_contract, " + COLUMNS
             + " FROM identitystore_service_contract WHERE id_service_contract = ?";
+    private static final String SQL_QUERY_SELECT_ALL = "SELECT id_service_contract, " + COLUMNS + " FROM identitystore_service_contract";
     private static final String SQL_QUERY_SELECT_WITH_CLIENT_APP_ID = "SELECT id_service_contract, " + COLUMNS
             + " FROM identitystore_service_contract WHERE id_client_app = ?";
     private static final String SQL_QUERY_SELECT_ACTIVE_WITH_CLIENT_APP_CODE = "SELECT " + JOINED_COLUMNS
@@ -403,6 +404,21 @@ public final class ServiceContractDAO implements IServiceContractDAO
             daoUtil.setDate( 4, endingDate );
             daoUtil.executeQuery( );
 
+            while ( daoUtil.next( ) )
+            {
+                serviceContractList.add( this.extractServiceContract( daoUtil, 1 ) );
+            }
+
+            return serviceContractList;
+        }
+    }
+
+    public List<ServiceContract> selectAllServiceContractsList( final Plugin plugin )
+    {
+        final List<ServiceContract> serviceContractList = new ArrayList<>( );
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL, plugin ) )
+        {
+            daoUtil.executeQuery( );
             while ( daoUtil.next( ) )
             {
                 serviceContractList.add( this.extractServiceContract( daoUtil, 1 ) );

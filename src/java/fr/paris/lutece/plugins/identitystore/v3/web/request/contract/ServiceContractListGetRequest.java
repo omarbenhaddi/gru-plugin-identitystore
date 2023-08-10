@@ -48,6 +48,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContr
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -72,7 +73,6 @@ public class ServiceContractListGetRequest extends AbstractIdentityStoreRequest
     @Override
     protected void validRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     /**
@@ -86,8 +86,9 @@ public class ServiceContractListGetRequest extends AbstractIdentityStoreRequest
     {
         final ServiceContractsSearchResponse response = new ServiceContractsSearchResponse( );
 
-        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strClientCode );
-        final List<ServiceContract> serviceContracts = ClientApplicationHome.selectServiceContracts( clientApplication );
+        final List<ServiceContract> serviceContracts = StringUtils.isNotEmpty( _strClientCode )
+                ? ClientApplicationHome.selectServiceContracts( ClientApplicationHome.findByCode( _strClientCode ) )
+                : ServiceContractHome.getAllServiceContractsList( );
         if ( CollectionUtils.isEmpty( serviceContracts ) )
         {
             response.setStatus( ServiceContractSearchStatusType.NOT_FOUND );

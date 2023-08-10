@@ -129,6 +129,15 @@ public interface IServiceContractDAO
      */
     List<ServiceContract> selectServiceContractBetweenDate( Plugin plugin, Date startingDate, Date endingDate );
 
+    /**
+     * Load the data of all the service contracts and returns them as a list
+     * 
+     * @param plugin
+     *            the plugin
+     * @return The list which contains the data of all ServiceContract objects
+     */
+    List<ServiceContract> selectAllServiceContractsList( Plugin plugin );
+
     List<ServiceContract> selectActiveServiceContract( String clientCode, Plugin plugin );
 
     void close( ServiceContract serviceContract, Plugin plugin );
