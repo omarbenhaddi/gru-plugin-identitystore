@@ -74,11 +74,13 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDup
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
@@ -557,17 +559,17 @@ public class IdentityService
             }
 
             /* Indexation */
-            final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity, response.getStatus( ).name( ),
-                            response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
-                    secondaryIdentity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
+            final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
+                    response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+            secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
+            secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( secondaryIdentityChange, secondaryIdentity ) );
 
-            final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).name( ),
-                            response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
-                    primaryIdentity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
+            final IdentityChange primaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED,
+                    primaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+            primaryIdentityChange.getMetadata( ).put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
+            primaryIdentityChange.getMetadata( ).put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( primaryIdentityChange, primaryIdentity ) );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, MERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -647,17 +649,15 @@ public class IdentityService
             response.setStatus( IdentityMergeStatus.SUCCESS );
 
             /* Indexation */
-            final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity,
-                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
-                    secondaryIdentity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( secondaryIdentityChange );
+            final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED,
+                    secondaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+            secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( secondaryIdentityChange, secondaryIdentity ) );
 
-            final IndexIdentityChange primaryIdentityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
-                            response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode ),
-                    primaryIdentity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( primaryIdentityChange );
+            final IdentityChange primaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED,
+                    primaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+            primaryIdentityChange.getMetadata( ).put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( primaryIdentityChange, primaryIdentity ) );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UNMERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
