@@ -58,7 +58,7 @@ public class LoggingListener implements AttributeChangeListener
         final String sbLog = "Change for identity '" + "' [ID:" + change.getIdIdentity( ) + "] " + " by " + " [ID:" + change.getAuthorName( ) + "] "
                 + " via application : '" + change.getClientCode( ) + "' on " + change.getModificationDate( ) + " Key changed : '" + change.getAttributeKey( )
                 + "' New value : '" + change.getAttributeValue( ) + "' With status : '" + change.getChangeSatus( ) + " - " + change.getChangeSatus( )
-                + "' With MetaData : '" + change.getMetaData( ) + " - " + change.getChangeMessage( ) + "'";
+                + "' With MetaData : '" + change.getMetadata( ) + " - " + change.getChangeMessage( ) + "'";
 
         _logger.info( sbLog );
     }

@@ -59,6 +59,7 @@ public class IndexIdentityChange extends IdentityChange
         this.setMasterCustomerId( identityChange.getMasterCustomerId( ) );
         this.setMerged( identityChange.isMerged( ) );
         this.setMergeDate( identityChange.getMergeDate( ) );
+        this.getMetadata( ).putAll( identityChange.getMetadata( ) );
         this.setIdentity( identity );
     }
 
