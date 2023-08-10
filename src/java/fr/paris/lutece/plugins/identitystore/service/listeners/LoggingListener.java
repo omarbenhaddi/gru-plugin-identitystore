@@ -33,10 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -48,7 +47,7 @@ public class LoggingListener implements AttributeChangeListener
     private static final String PROPERTY_LOGGER_NAME = "identitystore.changelistener.logging.loggerName";
     private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
     private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME, DEFAULT_LOGGER_NAME );
-    private static Logger _logger = Logger.getLogger( LOGGER_NAME );
+    private static final Logger _logger = Logger.getLogger( LOGGER_NAME );
 
     /**
      * {@inheritDoc }
@@ -56,14 +55,12 @@ public class LoggingListener implements AttributeChangeListener
     @Override
     public void processAttributeChange( AttributeChange change )
     {
-        StringBuilder sbLog = new StringBuilder( );
-        sbLog.append( "Change for identity '" ).append( "' [ID:" ).append( change.getIdIdentity( ) ).append( "] " ).append( " by " ).append( " [ID:" )
-                .append( change.getAuthorName( ) ).append( "] " ).append( " via application : '" ).append( change.getClientCode( ) ).append( "' on " )
-                .append( change.getModificationDate( ) ).append( " Key changed : '" ).append( change.getAttributeKey( ) ).append( "' New value : '" )
-                .append( change.getAttributeValue( ) ).append( "' With status : '" ).append( change.getChangeSatus( ) ).append( " - " )
-                .append( change.getChangeMessage( ) ).append( "'" );
+        final String sbLog = "Change for identity '" + "' [ID:" + change.getIdIdentity( ) + "] " + " by " + " [ID:" + change.getAuthorName( ) + "] "
+                + " via application : '" + change.getClientCode( ) + "' on " + change.getModificationDate( ) + " Key changed : '" + change.getAttributeKey( )
+                + "' New value : '" + change.getAttributeValue( ) + "' With status : '" + change.getChangeSatus( ) + " - " + change.getChangeSatus( )
+                + "' With MetaData : '" + change.getMetaData( ) + " - " + change.getChangeMessage( ) + "'";
 
-        _logger.info( sbLog.toString( ) );
+        _logger.info( sbLog );
     }
 
     @Override

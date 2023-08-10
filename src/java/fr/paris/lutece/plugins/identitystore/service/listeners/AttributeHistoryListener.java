@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.service.listeners;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
  * Database Logging Listener
@@ -48,7 +49,7 @@ public class AttributeHistoryListener implements AttributeChangeListener
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange( AttributeChange attributeChange )
+    public void processAttributeChange( AttributeChange attributeChange ) throws IdentityStoreException
     {
         IdentityAttributeHome.addAttributeChangeHistory( attributeChange );
     }

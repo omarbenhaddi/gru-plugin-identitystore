@@ -33,14 +33,15 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import com.google.common.collect.Lists;
-import fr.paris.lutece.plugins.identitystore.utils.Combinations;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -50,14 +51,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -122,10 +116,11 @@ public final class IdentityDAO implements IIdentityDAO
             + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) >= ${count}";
     private static final String SQL_QUERY_FILTER_NOT_MERGED = "a.is_merged = 0 AND a.date_merge IS NULL";
     private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
-    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history  "
-            + "   (change_type, change_status, change_message, author_type, author_name, client_code, customer_id) " + "   VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
+    private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history (change_type, change_status, change_message, author_type, author_name, client_code, customer_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, to_json(?::json))";
+    private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days} DAY')";
+
+    private final ObjectMapper objectMapper = new ObjectMapper( );
 
     /**
      * Generates a new customerId key using Java UUID
@@ -148,7 +143,7 @@ public final class IdentityDAO implements IIdentityDAO
             final ZonedDateTime now = ZonedDateTime.now( ZoneId.systemDefault( ) );
             identity.setCreationDate( Timestamp.from( now.toInstant( ) ) );
             identity.setLastUpdateDate( Timestamp.from( now.toInstant( ) ) );
-            identity.setExpirationDate( Timestamp.from( now.plus( dataRetentionPeriodInMonth, ChronoUnit.MONTHS ).toInstant( ) ) );
+            identity.setExpirationDate( Timestamp.from( now.plusMonths( dataRetentionPeriodInMonth ).toInstant( ) ) );
 
             int nIndex = 1;
             identity.setCustomerId( newCustomerIdKey( ) );
@@ -522,7 +517,7 @@ public final class IdentityDAO implements IIdentityDAO
      *            daoUtil initialized with select query
      * @return Identity change load from result
      */
-    private IdentityChange getIdentityChangeFromQuery( DAOUtil daoUtil )
+    private IdentityChange getIdentityChangeFromQuery( final DAOUtil daoUtil ) throws JsonProcessingException
     {
         RequestAuthor author = new RequestAuthor( );
         IdentityChange identityChange = new IdentityChange( );
@@ -538,6 +533,18 @@ public final class IdentityDAO implements IIdentityDAO
         identityChange.setClientCode( daoUtil.getString( nIndex++ ) );
         identityChange.setCustomerId( daoUtil.getString( nIndex++ ) );
         identityChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ) );
+        final String jsonMap = daoUtil.getString( nIndex );
+        if ( StringUtils.isNotEmpty( jsonMap ) )
+        {
+            final Map<String, String> mapMetaData = objectMapper.readValue( jsonMap, new TypeReference<Map<String, String>>( )
+            {
+            } );
+            identityChange.getMetadata( ).clear( );
+            if ( mapMetaData != null && !mapMetaData.isEmpty( ) )
+            {
+                identityChange.getMetadata( ).putAll( mapMetaData );
+            }
+        }
 
         identityChange.setAuthor( author );
 
@@ -814,7 +821,7 @@ public final class IdentityDAO implements IIdentityDAO
     }
 
     @Override
-    public void addChangeHistory( IdentityChange identityChange, Plugin plugin )
+    public void addChangeHistory( IdentityChange identityChange, Plugin plugin ) throws IdentityStoreException
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
@@ -827,7 +834,12 @@ public final class IdentityDAO implements IIdentityDAO
             daoUtil.setString( nIndex++, identityChange.getAuthor( ).getName( ) );
             daoUtil.setString( nIndex++, identityChange.getClientCode( ) );
             daoUtil.setString( nIndex++, identityChange.getCustomerId( ) );
+            daoUtil.setString( nIndex, objectMapper.writeValueAsString( identityChange.getMetadata( ) ) );
             daoUtil.executeUpdate( );
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 
@@ -835,12 +847,11 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin )
+    public List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin ) throws IdentityStoreException
     {
         List<IdentityChange> listIdentitieChanges = new ArrayList<>( );
-        String strSQL = SQL_QUERY_SELECT_IDENTITY_HISTORY;
 
-        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_IDENTITY_HISTORY, plugin ) )
         {
             daoUtil.setString( 1, strCustomerId );
 
@@ -848,11 +859,15 @@ public final class IdentityDAO implements IIdentityDAO
 
             while ( daoUtil.next( ) )
             {
-                IdentityChange identityChange = getIdentityChangeFromQuery( daoUtil );
+                final IdentityChange identityChange = getIdentityChangeFromQuery( daoUtil );
                 listIdentitieChanges.add( identityChange );
             }
 
             return listIdentitieChanges;
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 

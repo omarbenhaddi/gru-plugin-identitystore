@@ -229,3 +229,14 @@ DROP CONSTRAINT identitystore_duplicate_rule_name_key,
     ADD COLUMN code varchar(100) UNIQUE ;
 UPDATE identitystore_duplicate_rule SET code = name WHERE 1=1;
 
+--
+-- Structure for table identitystore_identity_history
+--
+ALTER TABLE identitystore_identity_history
+    ADD COLUMN metadata json default NULL;
+
+--
+-- Structure for table identitystore_identity_attribute_history
+--
+ALTER TABLE identitystore_identity_attribute_history
+    ADD COLUMN metadata json default NULL;

@@ -33,10 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -183,7 +185,7 @@ public final class IdentityHome
      *            The customer ID
      * @return The Identity
      */
-    public static List<IdentityChange> findHistoryByCustomerId( String strCustomerId )
+    public static List<IdentityChange> findHistoryByCustomerId( String strCustomerId ) throws IdentityStoreException
     {
         return _dao.selectIdentityHistoryByCustomerId( strCustomerId, _plugin );
     }
@@ -459,7 +461,7 @@ public final class IdentityHome
      * @param identityChange
      *            identity change event
      */
-    public static void addIdentityChangeHistory( IdentityChange identityChange )
+    public static void addIdentityChangeHistory( IdentityChange identityChange ) throws IdentityStoreException
     {
         _dao.addChangeHistory( identityChange, _plugin );
     }

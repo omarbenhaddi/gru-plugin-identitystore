@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertifi
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -243,7 +244,7 @@ public final class IdentityAttributeHome
      * @param attributeChange
      *            attribute change event
      */
-    public static void addAttributeChangeHistory( AttributeChange attributeChange )
+    public static void addAttributeChangeHistory( AttributeChange attributeChange ) throws IdentityStoreException
     {
         _dao.addAttributeChangeHistory( attributeChange, _plugin );
     }
@@ -251,13 +252,11 @@ public final class IdentityAttributeHome
     /**
      * get attribute change event in history table from the newest to the latest change
      *
-     * @param strAttributeKey
-     *            attributekey
      * @param nIdentityId
      *            identityId
      * @return list of attribute changes
      */
-    public static List<AttributeChange> getAttributeChangeHistory( int nIdentityId )
+    public static List<AttributeChange> getAttributeChangeHistory( int nIdentityId ) throws IdentityStoreException
     {
         return _dao.getAttributeChangeHistory( nIdentityId, _plugin );
     }

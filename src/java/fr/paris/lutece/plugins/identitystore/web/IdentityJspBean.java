@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
@@ -47,6 +48,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -269,8 +271,16 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         if ( _identity != null && MapUtils.isNotEmpty( _identity.getAttributes( ) ) )
         {
-            attributeChangeList.addAll( IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ) ) );
-            identityChangeList.addAll( IdentityHome.findHistoryByCustomerId( _identity.getCustomerId( ) ) );
+            try
+            {
+                attributeChangeList.addAll( IdentityAttributeHome.getAttributeChangeHistory( _identity.getId( ) ) );
+                identityChangeList.addAll( IdentityHome.findHistoryByCustomerId( _identity.getCustomerId( ) ) );
+            }
+            catch( IdentityStoreException e )
+            {
+                addError( e.getMessage( ) );
+                return getViewIdentity( request );
+            }
         }
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_HISTORY_EVENT_CODE, getUser( ),
                 _identity.getCustomerId( ), IdentityService.SPECIFIC_ORIGIN );

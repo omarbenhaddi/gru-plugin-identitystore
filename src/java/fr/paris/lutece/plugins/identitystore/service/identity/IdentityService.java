@@ -240,11 +240,14 @@ public class IdentityService
             response.setStatus( incompleteCreation ? IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.CREATE_SUCCESS );
 
             /* Historique des modifications */
-            response.getAttributeStatuses( ).stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).forEach( attributeStatus -> {
+            final List<AttributeStatus> createdAttributes = response.getAttributeStatuses( ).stream( )
+                    .filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).collect( Collectors.toList( ) );
+            for ( AttributeStatus attributeStatus : createdAttributes )
+            {
                 AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity,
                         attributeStatus, request.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-            } );
+            }
 
             /* Indexation et historique */
             final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange(
@@ -406,11 +409,12 @@ public class IdentityService
             response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityChangeStatus.UPDATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.UPDATE_SUCCESS );
 
             /* Historique des modifications */
-            response.getAttributeStatuses( ).forEach( attributeStatus -> {
-                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity,
+            for ( final AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
+            {
+                final AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity,
                         attributeStatus, request.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-            } );
+            }
 
             /* Indexation et historique */
             final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange(
@@ -545,11 +549,12 @@ public class IdentityService
             response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityMergeStatus.INCOMPLETE_SUCCESS : IdentityMergeStatus.SUCCESS );
 
             /* Historique des modifications */
-            response.getAttributeStatuses( ).forEach( attributeStatus -> {
+            for ( AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
+            {
                 AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.MERGE, primaryIdentity,
                         attributeStatus, request.getOrigin( ), clientCode );
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
-            } );
+            }
 
             /* Indexation */
             final IndexIdentityChange secondaryIdentityChange = new IndexIdentityChange(
@@ -1201,7 +1206,7 @@ public class IdentityService
      */
     private DuplicateSearchResponse checkDuplicates( final Map<String, String> attributes, final String ruleCodeProperty ) throws IdentityStoreException
     {
-        final List<String> ruleCodes = Arrays.asList(AppPropertiesService.getProperty(ruleCodeProperty).split(","));
+        final List<String> ruleCodes = Arrays.asList( AppPropertiesService.getProperty( ruleCodeProperty ).split( "," ) );
         final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, "", ruleCodes );
         if ( esDuplicates != null )
         {

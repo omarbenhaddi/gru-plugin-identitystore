@@ -33,18 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-
 import org.apache.commons.lang3.StringUtils;
 
+import javax.validation.constraints.Size;
 import java.io.Serializable;
-
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.validation.constraints.Size;
 
 /**
  * This is the business class for the object Identity

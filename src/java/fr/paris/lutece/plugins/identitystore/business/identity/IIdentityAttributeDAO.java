@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -179,7 +180,7 @@ public interface IIdentityAttributeDAO
      * @param plugin
      *            the Plugin
      */
-    void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin );
+    void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin ) throws IdentityStoreException;
 
     /**
      * return list of attribute change history for an identity attribute from the newest to the latest change
@@ -192,7 +193,7 @@ public interface IIdentityAttributeDAO
      *            plugin
      * @return list of attribute change history for an identity attribute
      */
-    List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin );
+    List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin ) throws IdentityStoreException;
 
     /**
      * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation

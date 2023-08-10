@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS identitystore_service_contract_attribute_requirement CASCAD
 DROP TABLE IF EXISTS identitystore_service_contract_attribute_right CASCADE;
 DROP TABLE IF EXISTS identitystore_service_contract CASCADE;
 DROP TABLE IF EXISTS identitystore_identity_attribute_history  CASCADE;
+DROP TABLE IF EXISTS identitystore_identity_history  CASCADE;
 DROP TABLE IF EXISTS identitystore_client_application CASCADE;
 DROP TABLE IF EXISTS identitystore_client_application_certifiers CASCADE;
 DROP TABLE IF EXISTS identitystore_identity_attribute_certificate CASCADE;
@@ -172,6 +173,7 @@ CREATE TABLE identitystore_identity_attribute_history
     certification_process varchar(255)          default null,
     certification_date    timestamp             default null,
     modification_date     timestamp    NOT NULL default CURRENT_TIMESTAMP,
+    metadata              json         DEFAULT NULL,
     PRIMARY KEY (id_history)
 );
 ALTER TABLE identitystore_identity_attribute_history
@@ -315,6 +317,7 @@ CREATE TABLE  identitystore_identity_history
     client_code           varchar(255),
     customer_id           varchar(50) NOT NULL,
     modification_date     timestamp    default CURRENT_TIMESTAMP,
+    metadata              json default NULL,
     PRIMARY KEY (id_history)
     );
 

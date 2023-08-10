@@ -33,8 +33,10 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 
@@ -97,7 +99,7 @@ public interface IIdentityDAO
     /**
      * Modify the columuns is_deleted and date_delete and connection_id to null
      *
-     * @param nKey
+     * @param strCuid
      *            The id of the Identity to delete
      * @param plugin
      *            the Plugin
@@ -277,7 +279,7 @@ public interface IIdentityDAO
      * @param identityChange
      * @param plugin
      */
-    void addChangeHistory( IdentityChange identityChange, Plugin plugin );
+    void addChangeHistory( IdentityChange identityChange, Plugin plugin ) throws IdentityStoreException;
 
     /**
      * get identity history
@@ -286,7 +288,7 @@ public interface IIdentityDAO
      * @param plugin
      * @return the list of identity changes
      */
-    List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin );
+    List<IdentityChange> selectIdentityHistoryByCustomerId( String strCustomerId, Plugin plugin ) throws IdentityStoreException;
 
     /**
      * get identities that have been updated during the previous `days`.

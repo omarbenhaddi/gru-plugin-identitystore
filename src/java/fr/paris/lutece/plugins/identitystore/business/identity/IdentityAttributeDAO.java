@@ -33,15 +33,20 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.business.attribute.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -80,11 +85,13 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_FILTER_ATTRIBUTE_KEY_NAMES = "AND b.key_name IN (${list_attribute_key_names})";
     // Historical
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_attribute_history  "
-            + "   (change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date) "
-            + "   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history, change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date FROM identitystore_identity_attribute_history WHERE id_identity = ? ORDER BY modification_date DESC";
+            + "   (change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date, metadata) "
+            + "   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_json(?::json))";
+    private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history, change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date, metadata::text FROM identitystore_identity_attribute_history WHERE id_identity = ? ORDER BY modification_date DESC";
     private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_identity_attribute_history  WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_identity_attribute_history  WHERE id_identity = ?";
+
+    private final ObjectMapper objectMapper = new ObjectMapper( );
 
     /**
      * {@inheritDoc }
@@ -646,7 +653,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     }
 
     @Override
-    public synchronized void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin )
+    public synchronized void addAttributeChangeHistory( AttributeChange attributeChange, Plugin plugin ) throws IdentityStoreException
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_HISTORY, Statement.RETURN_GENERATED_KEYS, plugin ) )
         {
@@ -664,13 +671,18 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             daoUtil.setString( nIndex++, attributeChange.getCertificationProcessus( ) );
             daoUtil.setTimestamp( nIndex++, attributeChange.getCertificationDate( ) );
             daoUtil.setTimestamp( nIndex++, attributeChange.getModificationDate( ) );
+            daoUtil.setString( nIndex, objectMapper.writeValueAsString( attributeChange.getMetadata( ) ) );
 
             daoUtil.executeUpdate( );
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 
     @Override
-    public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin )
+    public List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin ) throws IdentityStoreException
     {
         final List<AttributeChange> listAttributeChange = new ArrayList<>( );
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ATTRIBUTE_HISTORY, plugin ) )
@@ -695,10 +707,26 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 attributeChange.setCertificationProcessus( daoUtil.getString( nIndex++ ) );
                 attributeChange.setCertificationDate( daoUtil.getTimestamp( nIndex++ ) );
                 attributeChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ) );
+                final String jsonMap = daoUtil.getString( nIndex );
+                if ( StringUtils.isNotEmpty( jsonMap ) )
+                {
+                    final Map<String, String> mapMetaData = objectMapper.readValue( jsonMap, new TypeReference<Map<String, String>>( )
+                    {
+                    } );
+                    attributeChange.getMetadata( ).clear( );
+                    if ( mapMetaData != null && !mapMetaData.isEmpty( ) )
+                    {
+                        attributeChange.getMetadata( ).putAll( mapMetaData );
+                    }
+                }
                 listAttributeChange.add( attributeChange );
             }
 
             return listAttributeChange;
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 

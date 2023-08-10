@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.LuteceService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 
@@ -47,5 +48,5 @@ public interface AttributeChangeListener extends LuteceService
      * @param change
      *            The change
      */
-    void processAttributeChange( AttributeChange change );
+    void processAttributeChange( AttributeChange change ) throws IdentityStoreException;
 }

@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.LuteceService;
 
 /**
@@ -47,5 +48,5 @@ public interface IdentityChangeListener extends LuteceService
      * @param identityChange
      *            The identityChange
      */
-    void processIdentityChange( IdentityChange identityChange );
+    void processIdentityChange( IdentityChange identityChange ) throws IdentityStoreException;
 }

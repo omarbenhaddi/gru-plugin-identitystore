@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChan
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
@@ -116,7 +117,7 @@ public final class IdentityStoreNotifyListenerService
      * @param change
      *            The change
      */
-    public void notifyListenersAttributeChange( AttributeChange change )
+    public void notifyListenersAttributeChange( AttributeChange change ) throws IdentityStoreException
     {
         for ( AttributeChangeListener listener : _attributeChangelistListeners )
         {
@@ -130,7 +131,7 @@ public final class IdentityStoreNotifyListenerService
      * @param identityChange
      *            The identityChange
      */
-    public void notifyListenersIdentityChange( IdentityChange identityChange )
+    public void notifyListenersIdentityChange( IdentityChange identityChange ) throws IdentityStoreException
     {
         for ( IdentityChangeListener listener : _identityChangeListListeners )
         {

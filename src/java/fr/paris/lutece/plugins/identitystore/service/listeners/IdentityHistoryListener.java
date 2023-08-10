@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.service.listeners;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 public class IdentityHistoryListener implements IdentityChangeListener
 {
@@ -49,7 +50,7 @@ public class IdentityHistoryListener implements IdentityChangeListener
     }
 
     @Override
-    public void processIdentityChange( IdentityChange identityChange )
+    public void processIdentityChange( IdentityChange identityChange ) throws IdentityStoreException
     {
         IdentityHome.addIdentityChangeHistory( identityChange );
     }
