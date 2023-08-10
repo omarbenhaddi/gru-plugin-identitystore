@@ -51,9 +51,9 @@ public class IdentityIndexListener implements IdentityChangeListener
     private static final String PROPERTY_LOGGER_NAME = "identitystore.changelistener.logging.loggerName";
     private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
     private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME, DEFAULT_LOGGER_NAME );
-    private static Logger _logger = Logger.getLogger( LOGGER_NAME );
+    private static final Logger _logger = Logger.getLogger( LOGGER_NAME );
 
-    private IIdentityIndexer _identityIndexer;
+    private final IIdentityIndexer _identityIndexer;
 
     public IdentityIndexListener( IIdentityIndexer _identityIndexer )
     {
@@ -78,6 +78,7 @@ public class IdentityIndexListener implements IdentityChangeListener
             switch( localIdentityChange.getChangeType( ) )
             {
                 case CREATE:
+                case MERGE_CANCELLED:
                     this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     break;
                 case UPDATE:
@@ -85,6 +86,7 @@ public class IdentityIndexListener implements IdentityChangeListener
                     this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     break;
                 case DELETE:
+                case MERGED:
                     this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     break;
                 default:
