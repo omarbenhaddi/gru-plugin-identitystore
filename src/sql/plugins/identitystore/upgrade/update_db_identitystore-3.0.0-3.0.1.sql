@@ -240,3 +240,7 @@ ALTER TABLE identitystore_identity_history
 --
 ALTER TABLE identitystore_identity_attribute_history
     ADD COLUMN metadata json default NULL;
+
+
+-- identitystore_duplicate_rule #293 ajouter un champ daemon_last_exec_date
+ALTER TABLE identitystore_duplicate_rule ADD COLUMN daemon_last_exec_date TIMESTAMP DEFAULT NULL;

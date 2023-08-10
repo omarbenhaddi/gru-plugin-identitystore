@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreExceptio
 import fr.paris.lutece.portal.service.i18n.I18nService;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -100,6 +101,7 @@ public class DuplicateRule implements Serializable
     private int _nPriority;
     private boolean _bActive;
     private boolean _bDaemon;
+    private Timestamp _dateDaemonLastExecDate;
 
     public void validate( ) throws IdentityStoreException
     {
@@ -244,5 +246,15 @@ public class DuplicateRule implements Serializable
     public void setDaemon( boolean _bDaemon )
     {
         this._bDaemon = _bDaemon;
+    }
+
+    public Timestamp getDaemonLastExecDate( )
+    {
+        return _dateDaemonLastExecDate;
+    }
+
+    public void setDaemonLastExecDate( Timestamp _dateDaemonLastExecDate )
+    {
+        this._dateDaemonLastExecDate = _dateDaemonLastExecDate;
     }
 }

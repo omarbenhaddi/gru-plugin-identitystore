@@ -52,13 +52,13 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
 {
     // Constants
     /** Rule */
-    private static final String SQL_QUERY_SELECT_RULE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE id_rule = ? ";
-    private static final String SQL_QUERY_SELECT_RULE_BY_NAME = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE name = ? ";
-    private static final String SQL_QUERY_SELECT_RULE_BY_CODE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule WHERE code = ? ";
+    private static final String SQL_QUERY_SELECT_RULE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon, daemon_last_exec_date FROM identitystore_duplicate_rule WHERE id_rule = ? ";
+    private static final String SQL_QUERY_SELECT_RULE_BY_NAME = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon, daemon_last_exec_date FROM identitystore_duplicate_rule WHERE name = ? ";
+    private static final String SQL_QUERY_SELECT_RULE_BY_CODE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon, daemon_last_exec_date FROM identitystore_duplicate_rule WHERE code = ? ";
     private static final String SQL_QUERY_INSERT_RULE = "INSERT INTO identitystore_duplicate_rule ( name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE_RULE = "DELETE FROM identitystore_duplicate_rule WHERE id_rule = ?";
-    private static final String SQL_QUERY_UPDATE_RULE = "UPDATE identitystore_duplicate_rule SET name = ?,  code = ?, description = ?, nb_filled_attributes = ?, nb_equal_attributes = ?, nb_missing_attributes = ?, priority = ?, active = ?, daemon = ? WHERE id_rule = ? ";
-    private static final String SQL_QUERY_SELECTALL_RULE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon FROM identitystore_duplicate_rule";
+    private static final String SQL_QUERY_UPDATE_RULE = "UPDATE identitystore_duplicate_rule SET name = ?,  code = ?, description = ?, nb_filled_attributes = ?, nb_equal_attributes = ?, nb_missing_attributes = ?, priority = ?, active = ?, daemon = ?, daemon_last_exec_date = ? WHERE id_rule = ? ";
+    private static final String SQL_QUERY_SELECTALL_RULE = "SELECT id_rule, name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon, daemon_last_exec_date FROM identitystore_duplicate_rule";
 
     /** Checked attributes */
     private static final String SQL_QUERY_SELECTALL_CHECKED_ATTRIBUTES_BY_RULE_ID = "SELECT ia.id_attribute, ia.name, ia.description, ia.key_name, ia.key_type, ia.key_weight, ia.certifiable, ia.pivot, ia.common_search_key FROM identitystore_duplicate_rule_checked_attributes idrca JOIN identitystore_ref_attribute ia on idrca.id_attribute = ia.id_attribute WHERE idrca.id_rule = ?";
@@ -230,6 +230,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
             daoUtil.setInt( ++nIndex, duplicateRule.getPriority( ) );
             daoUtil.setBoolean( ++nIndex, duplicateRule.isActive( ) );
             daoUtil.setBoolean( ++nIndex, duplicateRule.isDaemon( ) );
+            daoUtil.setTimestamp( ++nIndex, duplicateRule.getDaemonLastExecDate( ) );
             daoUtil.setInt( ++nIndex, duplicateRule.getId( ) );
             daoUtil.executeUpdate( );
             this.deleteCheckedAttributes( duplicateRule.getId( ), plugin );
@@ -291,6 +292,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
         duplicateRule.setPriority( daoUtil.getInt( ++nIndex ) );
         duplicateRule.setActive( daoUtil.getBoolean( ++nIndex ) );
         duplicateRule.setDaemon( daoUtil.getBoolean( ++nIndex ) );
+        duplicateRule.setDaemonLastExecDate( daoUtil.getTimestamp( ++nIndex ) );
         duplicateRule.getCheckedAttributes( ).addAll( this.getCheckedAttributes( duplicateRule.getId( ), plugin ) );
         duplicateRule.getAttributeTreatments( ).addAll( this.getAttributeTreatments( duplicateRule.getId( ), plugin ) );
         return duplicateRule;

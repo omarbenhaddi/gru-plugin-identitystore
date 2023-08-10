@@ -99,9 +99,10 @@ public class DuplicateRuleService
             ruleDto.setCode( rule.getCode( ) );
             ruleDto.setDescription( rule.getDescription( ) );
             ruleDto.setPriority( rule.getPriority( ) );
+            ruleDto.setDaemonLastExecDate( rule.getDaemonLastExecDate( ) );
             ruleDto.setDuplicateCount( SuspiciousIdentityHome.countSuspiciousIdentity( rule.getId( ) ) );
             return ruleDto;
-        } ).sorted( Comparator.comparing( rule -> rule.getPriority( ) ) ).collect( Collectors.toList( ) );
+        } ).sorted( Comparator.comparing( DuplicateRuleSummaryDto::getPriority ) ).collect( Collectors.toList( ) );
     }
 
     /**
