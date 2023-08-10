@@ -63,39 +63,41 @@ public class IdentityIndexListener implements IdentityChangeListener
     @Override
     public void processIdentityChange( IdentityChange identityChange )
     {
-        final IndexIdentityChange localIdentityChange = (IndexIdentityChange) identityChange;
-        if ( localIdentityChange != null && localIdentityChange.getCustomerId( ) != null && localIdentityChange.getChangeType( ) != null
-                && localIdentityChange.getIdentity( ) != null )
+        if ( identityChange instanceof IndexIdentityChange )
         {
-
-            _logger.info( "Indexing identity change (" + localIdentityChange.getChangeType( ).name( ) + ") with customerId = "
-                    + localIdentityChange.getCustomerId( ) );
-            final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( localIdentityChange );
-            final IdentityObject identityObject = new IdentityObject( localIdentityChange.getConnectionId( ), localIdentityChange.getCustomerId( ),
-                    localIdentityChange.getCreationDate( ), localIdentityChange.getLastUpdateDate( ), localIdentityChange.isMonParisActive( ),
-                    attributeObjects );
-
-            switch( localIdentityChange.getChangeType( ) )
+            final IndexIdentityChange localIdentityChange = (IndexIdentityChange) identityChange;
+            if ( localIdentityChange.getCustomerId( ) != null && localIdentityChange.getChangeType( ) != null && localIdentityChange.getIdentity( ) != null )
             {
-                case CREATE:
-                case MERGE_CANCELLED:
-                    this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
-                    break;
-                case UPDATE:
-                case CONSOLIDATED:
-                    this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
-                    break;
-                case DELETE:
-                case MERGED:
-                    this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
-                    break;
-                default:
-                    break;
+
+                _logger.info( "Indexing identity change (" + localIdentityChange.getChangeType( ).name( ) + ") with customerId = "
+                        + localIdentityChange.getCustomerId( ) );
+                final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( localIdentityChange );
+                final IdentityObject identityObject = new IdentityObject( localIdentityChange.getConnectionId( ), localIdentityChange.getCustomerId( ),
+                        localIdentityChange.getCreationDate( ), localIdentityChange.getLastUpdateDate( ), localIdentityChange.isMonParisActive( ),
+                        attributeObjects );
+
+                switch( localIdentityChange.getChangeType( ) )
+                {
+                    case CREATE:
+                    case MERGE_CANCELLED:
+                        this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                        break;
+                    case UPDATE:
+                    case CONSOLIDATED:
+                        this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                        break;
+                    case DELETE:
+                    case MERGED:
+                        this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
-        else
-        {
-            _logger.error( "An error occurred during Identity change indexation" );
+            else
+            {
+                _logger.error( "An error occurred during Identity change indexation" );
+            }
         }
     }
 
