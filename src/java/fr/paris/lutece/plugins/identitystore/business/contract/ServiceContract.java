@@ -93,6 +93,8 @@ public class ServiceContract implements Serializable
 
     private boolean _bAuthorizedSearch;
 
+    private boolean _bAuthorizedDecertification;
+
     private int _nDataRetentionPeriodInMonths;
 
     private List<AttributeRight> _listAttributeRights = new ArrayList<>( );
@@ -396,6 +398,16 @@ public class ServiceContract implements Serializable
     public void setAuthorizedExport( boolean bAuthorizedExport )
     {
         _bAuthorizedExport = bAuthorizedExport;
+    }
+
+    public boolean getAuthorizedDecertification( )
+    {
+        return _bAuthorizedDecertification;
+    }
+
+    public void setAuthorizedDecertification( boolean _bAuthorizedDecertification )
+    {
+        this._bAuthorizedDecertification = _bAuthorizedDecertification;
     }
 
     public int getDataRetentionPeriodInMonths( )

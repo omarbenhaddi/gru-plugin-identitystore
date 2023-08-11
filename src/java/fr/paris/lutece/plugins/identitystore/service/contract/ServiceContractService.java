@@ -326,6 +326,12 @@ public class ServiceContractService
         return serviceContract.getAuthorizedUpdate( );
     }
 
+    public boolean canUncertifyIdentity( final String clientCode ) throws ServiceContractNotFoundException
+    {
+        final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
+        return serviceContract.getAuthorizedDecertification( );
+    }
+
     public boolean canDeleteIdentity( String clientCode ) throws ServiceContractNotFoundException
     {
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );

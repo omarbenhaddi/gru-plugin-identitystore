@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
+import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
@@ -50,10 +51,13 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatu
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,6 +65,8 @@ import java.util.stream.Collectors;
 
 public class IdentityAttributeService
 {
+    private static final String UNCERTIFY_PROCESSUS = "identitystore.identity.uncertify.processus";
+
     private final IdentityAttributeCache _cache = SpringContextService.getBean( "identitystore.identityAttributeCache" );
     private final AttributeCertificationDefinitionService _attributeCertificationDefinitionService = AttributeCertificationDefinitionService.instance( );
     private final ServiceContractService _serviceContractService = ServiceContractService.instance( );
@@ -275,5 +281,46 @@ public class IdentityAttributeService
         attributeStatus.setKey( attributeToUpdate.getKey( ) );
         attributeStatus.setStatus( AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL );
         return attributeStatus;
+    }
+
+    /**
+     * Dé-certification d'un attribut.<br/>
+     * Une identité ne pouvant pas posséder d'attributs non-certifiés, une dé-certification implique la certification de l'attribut avec le processus défini par
+     * la property : <code>identitystore.identity.uncertify.processus</code> (par défaut : "dec", qui correspond au niveau le plus faible de certification
+     * (auto-déclaratif))
+     *
+     * @param attribute
+     *            l'attribut à dé-certifier
+     * @return le status
+     */
+    public AttributeStatus uncertifyAttribute( final IdentityAttribute attribute ) throws IdentityStoreException
+    {
+        final AttributeStatus status = new AttributeStatus( );
+        status.setKey( attribute.getAttributeKey( ).getKeyName( ) );
+
+        final String processus = AppPropertiesService.getProperty( UNCERTIFY_PROCESSUS, "dec" );
+        if ( StringUtils.isBlank( processus ) )
+        {
+            throw new IdentityStoreException( "No uncertification processus specified in property : " + UNCERTIFY_PROCESSUS );
+        }
+
+        final RefAttributeCertificationLevel certif = _attributeCertificationDefinitionService.get( processus, attribute.getAttributeKey( ).getKeyName( ) );
+        if ( certif == null )
+        {
+            throw new IdentityStoreException( "No uncertification processus found in database for [code=" + processus + "][attributeKey="
+                    + attribute.getAttributeKey( ).getKeyName( ) + "]" );
+        }
+
+        final AttributeCertificate certificate = new AttributeCertificate( );
+        certificate.setCertificateDate( Timestamp.from( ZonedDateTime.now( ZoneId.systemDefault( ) ).toInstant( ) ) );
+        certificate.setCertifierCode( certif.getRefAttributeCertificationProcessus( ).getCode( ) );
+
+        attribute.setCertificate( AttributeCertificateHome.create( certificate ) ); // TODO supprime-t-on l'ancien certificat ?
+        attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
+
+        IdentityAttributeHome.update( attribute );
+
+        status.setStatus( AttributeChangeStatus.UNCERTIFIED );
+        return status;
     }
 }

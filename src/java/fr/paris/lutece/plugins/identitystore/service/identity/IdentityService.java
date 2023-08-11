@@ -1219,4 +1219,46 @@ public class IdentityService
         }
         return null;
     }
+
+    /**
+     * Dé-certification d'une identité.
+     *
+     * @param strCustomerId
+     *            customer ID
+     * @return the response
+     * @see IdentityAttributeService#uncertifyAttribute
+     */
+    public IdentityChangeResponse uncertifyIdentity( final String strCustomerId ) throws IdentityStoreException
+    {
+        final IdentityChangeResponse response = new IdentityChangeResponse( );
+
+        final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
+        if ( identity == null )
+        {
+            response.setStatus( IdentityChangeStatus.NOT_FOUND );
+            response.setMessage( "No identity found" );
+            return response;
+        }
+
+        TransactionManager.beginTransaction( null );
+        try
+        {
+            for ( final IdentityAttribute attribute : identity.getAttributes( ).values( ) )
+            {
+                final AttributeStatus status = _identityAttributeService.uncertifyAttribute( attribute );
+                response.getAttributeStatuses( ).add( status );
+            }
+            TransactionManager.commitTransaction( null );
+            response.setStatus( IdentityChangeStatus.UNCERTIFY_SUCCESS );
+        }
+        catch( final Exception e )
+        {
+            response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setMessage( e.getMessage( ) );
+            TransactionManager.rollBack( null );
+        }
+
+        return response;
+    }
+
 }

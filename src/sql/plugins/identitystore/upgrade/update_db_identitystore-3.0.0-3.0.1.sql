@@ -244,3 +244,8 @@ ALTER TABLE identitystore_identity_attribute_history
 
 -- identitystore_duplicate_rule #293 ajouter un champ daemon_last_exec_date
 ALTER TABLE identitystore_duplicate_rule ADD COLUMN daemon_last_exec_date TIMESTAMP DEFAULT NULL;
+
+
+-- identitystore_service_contract #127 decertification d'une identité
+ALTER TABLE identitystore_service_contract ADD COLUMN authorized_decertification SMALLINT NOT NULL DEFAULT 0;
+COMMENT ON COLUMN identitystore_service_contract.authorized_decertification IS 'Permet de définir si l''application pourra réaliser des décertifications d''identités.  Il faut interdire les décertifications d''identités si cette case n''est pas cochée.';

@@ -410,6 +410,39 @@ public final class IdentityStoreRestService
     }
 
     /**
+     * uncertify identity method
+     *
+     * @param clientCode
+     *            the header client app code
+     * @return http 200 if update is ok with ResponseDto
+     */
+    @PUT
+    @Path( Constants.UNCERTIFY_ATTRIBUTES_PATH + "/" + "{" + Constants.PARAM_ID_CUSTOMER + "}" )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "uncertifies all attributes of an existing Identity", notes = "The uncertify process is NOT conditioned by the service contract definition associated to the client application code. All attributes of the identity will be uncertified, regardless of the service contract.", response = IdentityChangeResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND ),
+            @ApiResponse( code = 409, message = "Conflict" )
+    } )
+    public Response uncertifyIdentity(
+            @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+    {
+        try
+        {
+            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+            final IdentityStoreUncertifyRequest identityStoreUncertifyRequest = new IdentityStoreUncertifyRequest( trustedClientCode, strCustomerId );
+            final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreUncertifyRequest.doRequest( );
+            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        }
+        catch( final Exception exception )
+        {
+            return getErrorResponse( exception );
+        }
+    }
+
+    /**
      * build error response from exception
      *
      * @param exception
