@@ -36,11 +36,13 @@ package fr.paris.lutece.plugins.identitystore.web;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
-import fr.paris.lutece.plugins.identitystore.business.contract.*;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessusHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevelHome;
-import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractDefinitionException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
@@ -57,7 +59,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -136,7 +145,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
 
     /**
      * Build the Manage View
-     * 
+     *
      * @param request
      *            The HTTP request
      * @return The page
@@ -164,7 +173,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
 
     /**
      * Build the Manage View
-     * 
+     *
      * @param request
      *            The HTTP request
      * @return The page
@@ -190,16 +199,20 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         {
             throw new AppException( ERROR_RESOURCE_NOT_FOUND );
         }
+
+        final List<ServiceContractAttributeDefinitionDto> attributeRequirementList = ServiceContractHome.getDto( _servicecontract );
+        sortAttributeRequirementList( attributeRequirementList );
+
         model.put( MARK_BACK_URL, backUrl );
         model.put( MARK_SERVICECONTRACT, _servicecontract );
-        model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, ServiceContractHome.getDto( _servicecontract ) );
+        model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, attributeRequirementList );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_SERVICECONTRACTS, TEMPLATE_DISPLAY_SERVICECONTRACTS, model );
     }
 
     /**
      * Get Items from Ids list
-     * 
+     *
      * @param listIds
      * @return the populated list of items corresponding to the id List
      */
@@ -241,9 +254,12 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             model.put( PARAMETER_ID_CLIENTAPPLICATION, nIdClientApp );
         }
 
+        final List<ServiceContractAttributeDefinitionDto> attributeRequirementList = ServiceContractHome.getDto( _servicecontract );
+        sortAttributeRequirementList( attributeRequirementList );
+
         model.put( MARK_SERVICECONTRACT, _servicecontract );
         model.put( MARK_EDIT_ACTION, "action_createServiceContract" );
-        model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, ServiceContractHome.getDto( _servicecontract ) );
+        model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, attributeRequirementList );
         model.put( MARK_AVAILAIBLE_LEVELS_LIST, ServiceContractHome.selectCertificationLevels( ) );
         model.put( MARK_AVAILAIBLE_CLIENT_APPLICATIONS_LIST, ClientApplicationHome.selectApplicationList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_SERVICECONTRACT ) );
@@ -386,9 +402,12 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             throw new AppException( ERROR_RESOURCE_NOT_FOUND );
         }
 
+        final List<ServiceContractAttributeDefinitionDto> attributeRequirementList = ServiceContractHome.getDto( _servicecontract );
+        sortAttributeRequirementList( attributeRequirementList );
+
         model.put( MARK_SERVICECONTRACT, _servicecontract );
         model.put( MARK_EDIT_ACTION, "action_modifyServiceContract" );
-        model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, ServiceContractHome.getDto( _servicecontract ) );
+        model.put( MARK_ATTRIBUTE_REQUIREMENTS_LIST, attributeRequirementList );
         model.put( MARK_AVAILAIBLE_LEVELS_LIST, ServiceContractHome.selectCertificationLevels( ) );
         model.put( MARK_AVAILAIBLE_CLIENT_APPLICATIONS_LIST, ClientApplicationHome.selectApplicationList( ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_SERVICECONTRACT ) );
@@ -616,5 +635,25 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
         }
 
         return true;
+    }
+
+    private void sortAttributeRequirementList( final List<ServiceContractAttributeDefinitionDto> attributeRequirementList )
+    {
+        if ( attributeRequirementList != null )
+        {
+            attributeRequirementList.sort( ( o1, o2 ) -> {
+                final boolean p1 = o1.getAttributeKey( ).getPivot( );
+                final boolean p2 = o2.getAttributeKey( ).getPivot( );
+                if ( p1 != p2 )
+                {
+                    return Boolean.compare( p2, p1 );
+                }
+                return Integer.compare( o1.getAttributeKey( ).getId( ), o2.getAttributeKey( ).getId( ) );
+            } );
+            attributeRequirementList.forEach( a -> {
+                a.getCompatibleProcessus( ).sort( Comparator.comparing( p -> p.getLevel( ).getRefCertificationLevel( ).getLevel( ) ) );
+                a.getRefAttributeCertificationProcessus( ).sort( Comparator.comparingInt( p -> a.getCompatibleProcessus( ).indexOf( p ) ) );
+            } );
+        }
     }
 }

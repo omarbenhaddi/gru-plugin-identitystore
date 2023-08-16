@@ -127,7 +127,7 @@
 				<#if attribute.compatibleProcessus?? && attribute.compatibleProcessus?has_content>
 					<#list attribute.compatibleProcessus as processus>
 						<@formGroup labelFor='${attribute.attributeKey.id!}-${processus.label!}'>
-							<@checkBox id="${attribute.attributeKey.id!}-${processus.label!}" name="certification_processus" labelKey="${processus.label!}" value="${attribute.attributeKey.id!},${processus.id!}" checked=attribute.refAttributeCertificationProcessus?seq_contains(processus)  params='data-attribute=${attribute.attributeKey.id!}'/>
+							<@checkBox id="${attribute.attributeKey.id!}-${processus.label!}" name="certification_processus" labelKey="${processus.level.refCertificationLevel.level!} - ${processus.label!}" value="${attribute.attributeKey.id!},${processus.id!}" checked=attribute.refAttributeCertificationProcessus?seq_contains(processus)  params='data-attribute=${attribute.attributeKey.id!}'/>
 						</@formGroup>
 					</#list>
 				<#else>

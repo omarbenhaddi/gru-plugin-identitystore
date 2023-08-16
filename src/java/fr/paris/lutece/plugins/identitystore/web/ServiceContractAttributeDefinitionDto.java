@@ -56,7 +56,7 @@ public class ServiceContractAttributeDefinitionDto
     public String getDisplayProcessus( )
     {
         return this.getRefAttributeCertificationProcessus( ).stream( ).map( RefAttributeCertificationProcessus::getLabel )
-                .collect( Collectors.joining( ", " ) );
+                .collect( Collectors.joining( "<br/>" ) );
     }
 
     public ServiceContract getServiceContract( )

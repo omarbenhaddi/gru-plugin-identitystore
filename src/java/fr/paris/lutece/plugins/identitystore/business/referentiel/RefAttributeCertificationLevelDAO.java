@@ -342,6 +342,7 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
                 refAttributeCertificationLevel.setAttributeKey( attributeKey );
                 refAttributeCertificationLevel.setRefCertificationLevel( refCertificationLevel );
                 refAttributeCertificationLevel.setRefAttributeCertificationProcessus( processus );
+                processus.setLevel( refAttributeCertificationLevel );
 
                 refAttributeCertificationLevelList.add( refAttributeCertificationLevel );
             }
