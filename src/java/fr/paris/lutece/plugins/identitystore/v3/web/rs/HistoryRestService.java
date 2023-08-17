@@ -39,16 +39,18 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.plugins.identitystore.service.application.ClientNotFoundException;
+import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeHistory;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -67,22 +69,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtServiceContractNotFoundExceptionMapper.ERROR_NO_SERVICE_CONTRACT_FOUND;
+import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtIdentityNotFoundExceptionMapper.ERROR_NO_IDENTITY_FOUND;
+import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper.ERROR_DURING_TREATMENT;
+
 @Path( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.VERSION_PATH_V3 + Constants.HISTORY_PATH )
 @Api( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.VERSION_PATH_V3 + Constants.HISTORY_PATH )
 public class HistoryRestService
 {
-
-    private static final String ERROR_NO_IDENTITY_FOUND = "No identity found";
-    private static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found";
-    private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
-
-    /**
-     * Default constructor.
-     */
-    public HistoryRestService( )
-    {
-    }
-
     /**
      * Gives the identity history (identity+attributes) from a customerID
      *
@@ -104,63 +98,39 @@ public class HistoryRestService
     public Response getHistory(
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the requested identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            throws IdentityStoreException
     {
         String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
-        try
+        IdentityRequestValidator.instance( ).checkClientApplication( strClientAppCode );
+        IdentityRequestValidator.instance( ).checkCustomerId( strCustomerId );
+        final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
+        if ( identity == null )
         {
-            IdentityRequestValidator.instance( ).checkClientApplication( strClientAppCode );
-            IdentityRequestValidator.instance( ).checkCustomerId( strCustomerId );
-            final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
-            if ( identity == null )
-            {
-                return buildResponse( ERROR_NO_IDENTITY_FOUND, Response.Status.NOT_FOUND );
-            }
-            final ServiceContract serviceContract = ServiceContractService.instance( ).getActiveServiceContract( strClientAppCode );
-            if ( serviceContract == null )
-            {
-                return buildResponse( ERROR_NO_SERVICE_CONTRACT_FOUND, Response.Status.NOT_FOUND );
-            }
-            final Set<String> readableAttributeKeys = serviceContract.getAttributeRights( ).stream( ).filter( AttributeRight::isReadable )
-                    .map( ar -> ar.getAttributeKey( ).getKeyName( ) ).collect( Collectors.toSet( ) );
-
-            final List<IdentityChange> identityChangeList = IdentityHome.findHistoryByCustomerId( strCustomerId );
-            final List<AttributeChange> attributeChangeList = IdentityAttributeHome.getAttributeChangeHistory( identity.getId( ) );
-
-            final IdentityHistory history = new IdentityHistory( );
-            history.setCustomerId( identity.getCustomerId( ) );
-            history.getIdentityChanges( ).addAll( identityChangeList );
-            attributeChangeList.stream( ).filter( ac -> readableAttributeKeys.contains( ac.getAttributeKey( ) ) )
-                    .collect( Collectors.groupingBy( AttributeChange::getAttributeKey ) ).forEach( ( key, attributeChanges ) -> {
-                        final AttributeHistory attributeHistory = new AttributeHistory( );
-                        attributeHistory.setAttributeKey( key );
-                        attributeHistory.setAttributeChanges( attributeChanges );
-                        history.getAttributeHistories( ).add( attributeHistory );
-                    } );
-
-            return Response.status( Response.Status.OK ).entity( history ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+            throw new IdentityNotFoundException( "CustomerId = " + strCustomerId );
         }
-        catch( final Exception e )
+        final ServiceContract serviceContract = ServiceContractService.instance( ).getActiveServiceContract( strClientAppCode );
+        if ( serviceContract == null )
         {
-            AppLogService.error( "Error while fetching identity history.", e );
-            return buildResponse( ERROR_DURING_TREATMENT + " : " + e.getMessage( ), Response.Status.BAD_REQUEST );
+            throw new ServiceContractNotFoundException( "Client App Code = " + strClientAppCode );
         }
-    }
+        final Set<String> readableAttributeKeys = serviceContract.getAttributeRights( ).stream( ).filter( AttributeRight::isReadable )
+                .map( ar -> ar.getAttributeKey( ).getKeyName( ) ).collect( Collectors.toSet( ) );
 
-    /**
-     * Builds a {@code Response} object from the specified message and status
-     *
-     * @param strMessage
-     *            the message
-     * @param status
-     *            the status
-     * @return the {@code Response} object
-     */
-    private Response buildResponse( final String strMessage, final Response.StatusType status )
-    {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( status.toString( ) );
-        response.setMessage( strMessage );
-        return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
+        final List<IdentityChange> identityChangeList = IdentityHome.findHistoryByCustomerId( strCustomerId );
+        final List<AttributeChange> attributeChangeList = IdentityAttributeHome.getAttributeChangeHistory( identity.getId( ) );
+
+        final IdentityHistory history = new IdentityHistory( );
+        history.setCustomerId( identity.getCustomerId( ) );
+        history.getIdentityChanges( ).addAll( identityChangeList );
+        attributeChangeList.stream( ).filter( ac -> readableAttributeKeys.contains( ac.getAttributeKey( ) ) )
+                .collect( Collectors.groupingBy( AttributeChange::getAttributeKey ) ).forEach( ( key, attributeChanges ) -> {
+                    final AttributeHistory attributeHistory = new AttributeHistory( );
+                    attributeHistory.setAttributeKey( key );
+                    attributeHistory.setAttributeChanges( attributeChanges );
+                    history.getAttributeHistories( ).add( attributeHistory );
+                } );
+
+        return Response.status( Response.Status.OK ).entity( history ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
 }

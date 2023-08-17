@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContr
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractsSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import io.swagger.annotations.*;
@@ -52,6 +53,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtServiceContractNotFoundExceptionMapper.ERROR_NO_SERVICE_CONTRACT_FOUND;
+import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper.ERROR_DURING_TREATMENT;
+
 /**
  * ServiceContractRest
  */
@@ -59,9 +63,6 @@ import javax.ws.rs.core.Response;
 @Api( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.VERSION_PATH_V3 )
 public class ServiceContractRestService
 {
-    private static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found";
-    private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
-
     /**
      * Get ServiceContract List
      *
@@ -76,22 +77,16 @@ public class ServiceContractRestService
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Service contract Found" ),
             @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),
-            @ApiResponse( code = 404, message = "No service contract found" )
+            @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getServiceContractList(
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ServiceContractListGetRequest request = new ServiceContractListGetRequest( trustedClientCode );
-            final ServiceContractsSearchResponse entity = (ServiceContractsSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ServiceContractListGetRequest request = new ServiceContractListGetRequest( trustedClientCode );
+        final ServiceContractsSearchResponse entity = (ServiceContractsSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -108,22 +103,16 @@ public class ServiceContractRestService
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Service contract Found" ),
             @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),
-            @ApiResponse( code = 404, message = "No service contract found" )
+            @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getActiveServiceContract(
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ActiveServiceContractGetRequest request = new ActiveServiceContractGetRequest( trustedClientCode );
-            final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ActiveServiceContractGetRequest request = new ActiveServiceContractGetRequest( trustedClientCode );
+        final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -142,23 +131,17 @@ public class ServiceContractRestService
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Service contract Found" ),
             @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),
-            @ApiResponse( code = 404, message = "No service contract found" )
+            @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getServiceContract(
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
             @ApiParam( name = Constants.PARAM_ID_SERVICE_CONTRACT, value = "ID of the searched contract" ) @PathParam( Constants.PARAM_ID_SERVICE_CONTRACT ) Integer serviceContractId )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ServiceContractGetRequest request = new ServiceContractGetRequest( trustedClientCode, serviceContractId );
-            final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ServiceContractGetRequest request = new ServiceContractGetRequest( trustedClientCode, serviceContractId );
+        final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -181,18 +164,12 @@ public class ServiceContractRestService
     } )
     public Response createServiceContract( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ServiceContractDto serviceContract,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ServiceContractCreateRequest identityStoreRequest = new ServiceContractCreateRequest( serviceContract, trustedClientCode );
-            final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ServiceContractCreateRequest identityStoreRequest = new ServiceContractCreateRequest( serviceContract, trustedClientCode );
+        final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -213,23 +190,18 @@ public class ServiceContractRestService
     @ApiOperation( value = "Update an existing Service Contract", response = ServiceContractChangeResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
-            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" ),
+            @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response updateServiceContract( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ServiceContractDto serviceContract,
             @ApiParam( name = Constants.PARAM_ID_SERVICE_CONTRACT, value = "ID of the updated contract" ) @PathParam( Constants.PARAM_ID_SERVICE_CONTRACT ) Integer serviceContractId,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ServiceContractUpdateRequest identityStoreRequest = new ServiceContractUpdateRequest( serviceContract, trustedClientCode, serviceContractId );
-            final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ServiceContractUpdateRequest identityStoreRequest = new ServiceContractUpdateRequest( serviceContract, trustedClientCode, serviceContractId );
+        final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -250,69 +222,19 @@ public class ServiceContractRestService
     @ApiOperation( value = "Patches the end date of the service contract", response = ServiceContractChangeResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
-            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" ),
+            @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response closeServiceContract( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ServiceContractDto serviceContract,
             @ApiParam( name = Constants.PARAM_ID_SERVICE_CONTRACT, value = "ID of the updated contract" ) @PathParam( Constants.PARAM_ID_SERVICE_CONTRACT ) Integer serviceContractId,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ServiceContractPutEndDateRequest identityStoreRequest = new ServiceContractPutEndDateRequest( serviceContract, trustedClientCode,
-                    serviceContractId );
-            final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ServiceContractPutEndDateRequest identityStoreRequest = new ServiceContractPutEndDateRequest( serviceContract, trustedClientCode,
+                serviceContractId );
+        final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
-    /**
-     * build error response from exception
-     *
-     * @param exception
-     *            the exception
-     * @return ResponseDto from exception
-     */
-    private Response getErrorResponse( Exception exception )
-    {
-        // For security purpose, send a generic message
-        String strMessage;
-        Response.StatusType status;
-
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + exception, exception );
-
-        if ( exception instanceof ServiceContractNotFoundException )
-        {
-            strMessage = ERROR_NO_SERVICE_CONTRACT_FOUND;
-            status = Response.Status.NOT_FOUND;
-        }
-        else
-        {
-            strMessage = ERROR_DURING_TREATMENT + " : " + exception.getMessage( );
-            status = Response.Status.BAD_REQUEST;
-        }
-
-        return buildResponse( strMessage, status );
-    }
-
-    /**
-     * Builds a {@code Response} object from the specified message and status
-     *
-     * @param strMessage
-     *            the message
-     * @param status
-     *            the status
-     * @return the {@code Response} object
-     */
-    private Response buildResponse( String strMessage, Response.StatusType status )
-    {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( status.toString( ) );
-        response.setMessage( strMessage );
-        return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
-    }
 }

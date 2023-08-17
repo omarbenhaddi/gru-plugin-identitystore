@@ -33,15 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.service.application.ClientNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.LevelListGetRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.ProcessusListGetRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ProcessusSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -53,6 +51,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtServiceContractNotFoundExceptionMapper.ERROR_NO_SERVICE_CONTRACT_FOUND;
+import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper.ERROR_DURING_TREATMENT;
+
 /**
  * ReferentialRestService
  */
@@ -60,9 +61,6 @@ import javax.ws.rs.core.Response;
 @Api( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.VERSION_PATH_V3 + Constants.REFERENTIAL_PATH )
 public class ReferentielRestService
 {
-    private static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found";
-    private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
-
     /**
      * Get Processus
      *
@@ -74,20 +72,13 @@ public class ReferentielRestService
     @ApiOperation( value = "Get all processus existing in the identity store referential", response = ProcessusSearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
-            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = "No service contract found" )
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response getAllProcessus( )
+    public Response getAllProcessus( ) throws IdentityStoreException
     {
-        try
-        {
-            final ProcessusListGetRequest request = new ProcessusListGetRequest( null );
-            final ProcessusSearchResponse entity = (ProcessusSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final ProcessusListGetRequest request = new ProcessusListGetRequest( null );
+        final ProcessusSearchResponse entity = (ProcessusSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -101,65 +92,13 @@ public class ReferentielRestService
     @ApiOperation( value = "Get the active service contract associated to the given application client code", response = LevelSearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
-            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = "No service contract found" )
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response getAllLevels( )
+    public Response getAllLevels( ) throws IdentityStoreException
     {
-        try
-        {
-            final LevelListGetRequest request = new LevelListGetRequest( null );
-            final LevelSearchResponse entity = (LevelSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final LevelListGetRequest request = new LevelListGetRequest( null );
+        final LevelSearchResponse entity = (LevelSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
-    /**
-     * build error response from exception
-     *
-     * @param exception
-     *            the exception
-     * @return ResponseDto from exception
-     */
-    private Response getErrorResponse( Exception exception )
-    {
-        // For security purpose, send a generic message
-        String strMessage;
-        Response.StatusType status;
-
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + exception, exception );
-
-        if ( exception instanceof ClientNotFoundException )
-        {
-            strMessage = ERROR_NO_SERVICE_CONTRACT_FOUND;
-            status = Response.Status.NOT_FOUND;
-        }
-        else
-        {
-            strMessage = ERROR_DURING_TREATMENT + " : " + exception.getMessage( );
-            status = Response.Status.BAD_REQUEST;
-        }
-
-        return buildResponse( strMessage, status );
-    }
-
-    /**
-     * Builds a {@code Response} object from the specified message and status
-     *
-     * @param strMessage
-     *            the message
-     * @param status
-     *            the status
-     * @return the {@code Response} object
-     */
-    private Response buildResponse( String strMessage, Response.StatusType status )
-    {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( status.toString( ) );
-        response.setMessage( strMessage );
-        return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
-    }
 }

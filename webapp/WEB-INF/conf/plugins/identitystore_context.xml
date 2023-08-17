@@ -81,6 +81,10 @@
 
     <!-- REST -->
     <bean id="identitystore.customObjectMapper"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.CustomMapper" />
+    <bean id="identitystore.uncaughtExceptionMapper"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtExceptionMapper" />
+    <bean id="identitystore.uncaughtIdentityNotFoundExceptionMapper"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtIdentityNotFoundExceptionMapper" />
+    <bean id="identitystore.uncaughtServiceContractNotFoundExceptionMapper"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtServiceContractNotFoundExceptionMapper" />
+
     <bean id="identitystore.v1.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v1.web.rs.IdentityStoreRestService" />
     <bean id="identitystore.v2.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityStoreRestService" />
     <bean id="identitystore.v3.identityStoreRestService"  class="fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityStoreRestService" />

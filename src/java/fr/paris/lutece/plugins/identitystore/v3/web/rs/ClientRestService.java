@@ -34,26 +34,37 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.service.application.ClientNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.application.ClientCreateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.application.ClientGetRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.application.ClientUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.application.ClientsGetRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientsSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import fr.paris.lutece.portal.service.util.AppLogService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtServiceContractNotFoundExceptionMapper.ERROR_NO_SERVICE_CONTRACT_FOUND;
+import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper.ERROR_DURING_TREATMENT;
 
 /**
  * ClientRest
@@ -62,9 +73,6 @@ import javax.ws.rs.core.Response;
 @Api( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.VERSION_PATH_V3 )
 public class ClientRestService
 {
-    private static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found";
-    private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
-
     /**
      * Get Clients
      *
@@ -78,21 +86,15 @@ public class ClientRestService
     @ApiOperation( value = "Get the active service contract associated to the given application client code", response = ClientSearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
-            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = "No service contract found" )
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getClients(
             @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_APPLICATION_CODE ) String applicationCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final ClientsGetRequest request = new ClientsGetRequest( null, applicationCode );
-            final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final ClientsGetRequest request = new ClientsGetRequest( null, applicationCode );
+        final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -112,18 +114,12 @@ public class ClientRestService
     } )
     public Response getClient(
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final String trustedCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-            final ClientGetRequest request = new ClientGetRequest( trustedCode );
-            final ClientSearchResponse entity = (ClientSearchResponse) request.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final String trustedCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ClientGetRequest request = new ClientGetRequest( trustedCode );
+        final ClientSearchResponse entity = (ClientSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -145,17 +141,11 @@ public class ClientRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response createClient( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ClientApplicationDto clientDto )
+            throws IdentityStoreException
     {
-        try
-        {
-            final ClientCreateRequest identityStoreRequest = new ClientCreateRequest( clientDto, null );
-            final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
+        final ClientCreateRequest identityStoreRequest = new ClientCreateRequest( clientDto, null );
+        final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -180,62 +170,10 @@ public class ClientRestService
     } )
     public Response updateClient( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ClientApplicationDto clientDto,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            throws IdentityStoreException
     {
-        try
-        {
-            final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, clientCode );
-            final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
-            return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-        }
-        catch( Exception exception )
-        {
-            return getErrorResponse( exception );
-        }
-    }
-
-    /**
-     * build error response from exception
-     *
-     * @param exception
-     *            the exception
-     * @return ResponseDto from exception
-     */
-    private Response getErrorResponse( Exception exception )
-    {
-        // For security purpose, send a generic message
-        String strMessage;
-        Response.StatusType status;
-
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + exception, exception );
-
-        if ( exception instanceof ClientNotFoundException )
-        {
-            strMessage = ERROR_NO_SERVICE_CONTRACT_FOUND;
-            status = Response.Status.NOT_FOUND;
-        }
-        else
-        {
-            strMessage = ERROR_DURING_TREATMENT + " : " + exception.getMessage( );
-            status = Response.Status.BAD_REQUEST;
-        }
-
-        return buildResponse( strMessage, status );
-    }
-
-    /**
-     * Builds a {@code Response} object from the specified message and status
-     *
-     * @param strMessage
-     *            the message
-     * @param status
-     *            the status
-     * @return the {@code Response} object
-     */
-    private Response buildResponse( String strMessage, Response.StatusType status )
-    {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( status.toString( ) );
-        response.setMessage( strMessage );
-        return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
+        final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, clientCode );
+        final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
+        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 }
