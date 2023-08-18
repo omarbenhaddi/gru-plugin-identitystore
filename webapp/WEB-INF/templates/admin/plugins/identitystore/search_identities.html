@@ -138,10 +138,10 @@
                 <#list identity.attributes?filter(a -> a.key == "birthdate") as attr>${attr.value} </#list>
             </td>
             <td>
-                <#list identity.attributes?filter(a -> a.key == "insee_birthplace_label") as attr>${attr.value} </#list>
+                <#list identity.attributes?filter(a -> a.key == "birthplace") as attr>${attr.value} </#list>
             </td>
             <td>
-                <#list identity.attributes?filter(a -> a.key == "insee_birthcountry_label") as attr>${attr.value} </#list>
+                <#list identity.attributes?filter(a -> a.key == "birthcountry") as attr>${attr.value} </#list>
             </td>
             <td>
                 <#list identity.attributes?filter(a -> a.key == "mobile_phone") as attr>${attr.value} </#list>
