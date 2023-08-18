@@ -8,7 +8,33 @@
     </@headerButtons>
     </@boxHeader>
     <@boxBody>
-<h1> <i class="fa fa-user"> </i> ${identity.firstName} ${identity.familyName}</h1>
+<h1> <i class="fa fa-user"> </i> ${identity.firstName} ${identity.familyName} <#if identity_is_suspicious = true><span class="badge bg-primary">Doublon potentiel</span></#if></h1>
+
+<ul>
+    <li>Customer ID : ${identity.customerId!}</li>
+    <li>Connection ID : ${identity.connectionId!}</li>
+    <li>Date de création : ${identity.creationDate?string["dd/MM/yyyy HH:mm"]!}</li>
+    <li>Date de dernière modification : ${identity.lastUpdateDate?string["dd/MM/yyyy HH:mm"]!}</li>
+    <li>Date d'expiration : ${identity.expirationDate?string["dd/MM/yyyy"]!}</li>
+    <#if identity.deleted = true>
+        <li>Supprimé : <i class="fas fa-check" aria-hidden="true"></i></li>
+        <li>Date de suppression : ${identity.deleteDate?string["dd/MM/yyyy HH:mm"]!}</li>
+    <#else>
+        <li>Supprimé : <i class="fas fa-times" aria-hidden="true"></i></li>
+    </#if>
+    <#if identity.merged = true>
+        <li>Rapproché : <i class="fas fa-check" aria-hidden="true"></i></li>
+        <li>Date de rapprochement : ${identity.mergeDate?string["dd/MM/yyyy HH:mm"]!}</li>
+        <li>Identité maîtresse : ${identity.masterCustomerId!}</li>
+    <#else>
+        <li>Rapproché : <i class="fas fa-times" aria-hidden="true"></i></li>
+    </#if>
+    <#if identity.monParisActive = true>
+        <li>Mon Paris actif : <i class="fas fa-check" aria-hidden="true"></i></li>
+    <#else>
+        <li>Mon Paris actif : <i class="fas fa-times" aria-hidden="true"></i></li>
+    </#if>
+</ul>
 
 
     <table class="table table-condensed table-striped">

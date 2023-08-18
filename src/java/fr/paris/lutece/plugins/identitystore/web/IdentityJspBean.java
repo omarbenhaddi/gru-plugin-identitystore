@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
@@ -60,6 +61,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -89,6 +91,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Markers
     private static final String MARK_IDENTITY_LIST = "identity_list";
     private static final String MARK_IDENTITY = "identity";
+    private static final String MARK_IDENTITY_IS_SUSPICIOUS = "identity_is_suspicious";
     private static final String MARK_IDENTITY_CHANGE_LIST = "identity_change_list";
     private static final String MARK_ATTRIBUTES_CHANGE_LIST = "attributes_change_list";
     private static final String MARK_ATTRIBUTES_CURRENT_MAP = "attributes_current_map";
@@ -249,6 +252,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
         final Map<String, Object> model = getModel( );
         model.put( MARK_IDENTITY, _identity );
+        model.put( MARK_IDENTITY_IS_SUSPICIOUS, SuspiciousIdentityHome.hasSuspicious( Collections.singletonList( _identity.getCustomerId( ) ) ) );
         model.put( MARK_HAS_ATTRIBUTS_HISTO_ROLE,
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_ATTRIBUTS_HISTO, getUser( ) ) );
 

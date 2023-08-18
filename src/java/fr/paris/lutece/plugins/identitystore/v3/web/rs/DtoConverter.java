@@ -39,8 +39,10 @@ import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertific
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevel;
@@ -64,6 +66,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,10 +98,18 @@ public final class DtoConverter
         qualifiedIdentity.setConnectionId( identity.getConnectionId( ) );
         qualifiedIdentity.setCustomerId( identity.getCustomerId( ) );
         qualifiedIdentity.setMerged( identity.isMerged( ) );
+        qualifiedIdentity.setMergeDate( identity.getMergeDate( ) );
+        if ( identity.getMasterIdentityId( ) != null )
+        {
+            qualifiedIdentity.setMasterCustomerId( IdentityHome.findByPrimaryKey( identity.getMasterIdentityId( ) ).getCustomerId( ) );
+        }
         qualifiedIdentity.setLastUpdateDate( identity.getLastUpdateDate( ) );
         qualifiedIdentity.setCreationDate( identity.getCreationDate( ) );
         qualifiedIdentity.setMonParisActive( identity.isMonParisActive( ) );
         qualifiedIdentity.setExpirationDate( identity.getExpirationDate( ) );
+        qualifiedIdentity.setDeleted( identity.isDeleted( ) );
+        qualifiedIdentity.setDeleteDate( identity.getDeleteDate( ) );
+        qualifiedIdentity.setSuspicious( SuspiciousIdentityHome.hasSuspicious( Collections.singletonList( identity.getCustomerId( ) ) ) );
 
         if ( MapUtils.isNotEmpty( identity.getAttributes( ) ) )
         {

@@ -626,7 +626,7 @@ public class IdentityService
             return;
         }
 
-        if ( secondaryIdentity.getMasterIdentityId( ) != primaryIdentity.getMasterIdentityId( ) )
+        if ( !Objects.equals( secondaryIdentity.getMasterIdentityId( ), primaryIdentity.getMasterIdentityId( ) ) )
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( )

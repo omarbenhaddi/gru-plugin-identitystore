@@ -62,9 +62,10 @@ public class Identity implements Serializable
     private Timestamp _dateLastUpdateDate;
     private boolean _bIsMerged;
     private Timestamp _dateMergeDate;
-    private int _nMasterIdentityId;
+    private Integer _nMasterIdentityId;
     private boolean _bIsMonParisActive;
     private Timestamp _dateExpirationDate;
+    private Timestamp _dateDeleteDate;
 
     /**
      * Returns the Id
@@ -242,12 +243,12 @@ public class Identity implements Serializable
         this._dateMergeDate = mergeDate;
     }
 
-    public int getMasterIdentityId( )
+    public Integer getMasterIdentityId( )
     {
         return _nMasterIdentityId;
     }
 
-    public void setMasterIdentityId( int _nMasterIdentityId )
+    public void setMasterIdentityId( Integer _nMasterIdentityId )
     {
         this._nMasterIdentityId = _nMasterIdentityId;
     }
@@ -280,5 +281,15 @@ public class Identity implements Serializable
     public void setExpirationDate( Timestamp _dateExpirationDate )
     {
         this._dateExpirationDate = _dateExpirationDate;
+    }
+
+    public Timestamp getDeleteDate( )
+    {
+        return _dateDeleteDate;
+    }
+
+    public void setDeleteDate( Timestamp _dateDeleteDate )
+    {
+        this._dateDeleteDate = _dateDeleteDate;
     }
 }
