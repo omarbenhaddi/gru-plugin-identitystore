@@ -44,10 +44,12 @@ import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class provides the user interface to manage ClientApplication management features ( manage, create, modify, remove )
@@ -62,6 +64,11 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     private static final String TEMPLATE_DISPLAY_CLIENTAPPLICATION = "/admin/plugins/identitystore/clientapplication/view_clientapplication.html";
     private static final String TEMPLATE_CREATE_CLIENTAPPLICATION = "/admin/plugins/identitystore/clientapplication/create_clientapplication.html";
     private static final String TEMPLATE_MODIFY_CLIENTAPPLICATION = "/admin/plugins/identitystore/clientapplication/modify_clientapplication.html";
+
+    // Query param
+    private static final String QUERY_PARAM_CLIENT_APPLICATION_NAME = "client_application_name";
+    private static final String QUERY_PARAM_APPLICATION_CODE = "application_code";
+    private static final String QUERY_PARAM_CLIENT_CODE = "client_code";
 
     // Parameters
     private static final String PARAMETER_ID_CLIENTAPPLICATION = "id";
@@ -127,8 +134,29 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
     {
         _clientApplication = null;
 
-        List<ClientApplication> listClientApplications = ClientApplicationHome.selectApplicationList( );
+        final String name = request.getParameter( QUERY_PARAM_CLIENT_APPLICATION_NAME );
+        final String appCode = request.getParameter( QUERY_PARAM_APPLICATION_CODE );
+        final String clientCode = request.getParameter( QUERY_PARAM_CLIENT_CODE );
+
+        final List<ClientApplication> listClientApplications = ClientApplicationHome.selectApplicationList( ).stream( )
+                .filter( ca -> StringUtils.isBlank( name ) || ( ca.getName( ) != null && ca.getName( ).toLowerCase( ).contains( name ) ) )
+                .filter( ca -> StringUtils.isBlank( appCode )
+                        || ( ca.getApplicationCode( ) != null && ca.getApplicationCode( ).toLowerCase( ).contains( appCode ) ) )
+                .filter( ca -> StringUtils.isBlank( clientCode )
+                        || ( ca.getClientCode( ) != null && ca.getClientCode( ).toLowerCase( ).contains( clientCode ) ) )
+                .sorted( ( a, b ) -> {
+                    final int compare = StringUtils.compare( a.getApplicationCode( ), b.getApplicationCode( ), false );
+                    if ( compare == 0 )
+                    {
+                        return StringUtils.compare( a.getClientCode( ), b.getClientCode( ), false );
+                    }
+                    return compare;
+                } ).collect( Collectors.toList( ) );
+
         Map<String, Object> model = getPaginatedListModel( request, MARK_CLIENTAPPLICATION_LIST, listClientApplications, JSP_MANAGE_CLIENTAPPLICATIONS );
+        model.put( QUERY_PARAM_CLIENT_APPLICATION_NAME, name );
+        model.put( QUERY_PARAM_CLIENT_CODE, clientCode );
+        model.put( QUERY_PARAM_APPLICATION_CODE, appCode );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_CLIENTAPPLICATIONS, TEMPLATE_MANAGE_CLIENTAPPLICATION, model );
     }

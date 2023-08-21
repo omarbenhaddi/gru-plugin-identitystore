@@ -14,13 +14,30 @@
     <@messages infos=infos />
     <@paginationAdmin paginator=paginator combo=1 />
     <div class="clearfix"></div>
-    
+    <form id="search-client-application-form" class="form-inline" action="jsp/admin/plugins/identitystore/ManageClientApplications.jsp">
     <@table>
         <tr>
             <th>#i18n{identitystore.manage_clientapplications.columnName}</th>
             <th>#i18n{identitystore.manage_clientapplications.columnClientCode}</th>
             <th>#i18n{identitystore.manage_clientapplications.columnApplicationCode}</th>
             <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <tr class="table-sort-inputs">
+            <th><input class="form-control search-field" type="text" value="${client_application_name!''}" name="client_application_name" placeholder="Recherche par #i18n{identitystore.manage_clientapplications.columnName}.."></th>
+            <th><input class="form-control search-field" type="text" value="${client_code!''}" name="client_code" placeholder="Recherche par #i18n{identitystore.manage_clientapplications.columnClientCode}.."></th>
+            <th><input class="form-control search-field" type="text" value="${application_code!''}" name="application_code" placeholder="Recherche par #i18n{identitystore.manage_clientapplications.columnApplicationCode}.."></th>
+            <th>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="fa fa-search"></span>
+                    </button>
+                </span>
+                <span >
+                    <button type="submit" class="btn btn-primary btn-empty" title="#i18n{identitystore.manage_identities.emptyFields}">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </span>
+            </th>
         </tr>
         <@tableHeadBodySeparator />
             <#list clientapplication_list as clientapplication >
@@ -57,9 +74,14 @@
         </tr>
         </#list>
     </@table>
-
+    </form>
     <@paginationAdmin paginator=paginator />
 
   </@boxBody>
 </@rowBox>
 
+<script>
+    $('.btn-empty').click(function () {
+        $('.search-field').val('');
+    });
+</script>
