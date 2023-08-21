@@ -187,13 +187,22 @@ public interface IIdentityAttributeDAO
      * 
      * @param nIdentityId
      *            identityId
-     * @param strAttributeKey
-     *            attributeKey
      * @param plugin
      *            plugin
      * @return list of attribute change history for an identity attribute
      */
     List<AttributeChange> getAttributeChangeHistory( int nIdentityId, Plugin plugin ) throws IdentityStoreException;
+
+    /**
+     * return list of attribute change history for an identity attribute from the newest to the latest change
+     *
+     * @param customerId
+     *            customerId
+     * @param plugin
+     *            plugin
+     * @return list of attribute change history for an identity attribute
+     */
+    List<AttributeChange> getAttributeChangeHistory( String customerId, Plugin plugin ) throws IdentityStoreException;
 
     /**
      * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation

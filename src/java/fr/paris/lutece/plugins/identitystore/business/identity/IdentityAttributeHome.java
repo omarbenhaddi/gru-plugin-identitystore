@@ -262,6 +262,18 @@ public final class IdentityAttributeHome
     }
 
     /**
+     * get attribute change event in history table from the newest to the latest change
+     *
+     * @param customerId
+     *            customerId
+     * @return list of attribute changes
+     */
+    public static List<AttributeChange> getAttributeChangeHistory( String customerId ) throws IdentityStoreException
+    {
+        return _dao.getAttributeChangeHistory( customerId, _plugin );
+    }
+
+    /**
      * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation
      * 
      * @param strConnectionId

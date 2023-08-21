@@ -122,6 +122,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history (change_type, change_status, change_message, author_type, author_name, client_code, customer_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, to_json(?::json))";
     private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
+    private static final String SQL_QUERY_SEARCH_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE ${client_code} AND ${customer_id} AND ${author_name} AND ${change_type} AND ${modification_date} AND ${metadata} ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days} DAY')";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
@@ -885,7 +886,7 @@ public final class IdentityDAO implements IIdentityDAO
     public List<UpdatedIdentity> selectUpdated( final int days, final Plugin plugin )
     {
         final List<UpdatedIdentity> list = new ArrayList<>( );
-        String strSQL = SQL_QUERY_SELECT_UPDATED_IDENTITIES.replace( "${days}", String.valueOf( days ) );
+        final String strSQL = SQL_QUERY_SELECT_UPDATED_IDENTITIES.replace( "${days}", String.valueOf( days ) );
 
         try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
         {
@@ -900,6 +901,42 @@ public final class IdentityDAO implements IIdentityDAO
             }
             return list;
         }
+    }
+
+    @Override
+    public List<IdentityChange> selectIdentityHistoryBySearchParameters( String customerId, String clientCode, String authorName, IdentityChangeType changeType,
+            Map<String, String> metadata, Integer nbDaysFrom, Plugin plugin ) throws IdentityStoreException
+    {
+        final List<IdentityChange> identityChanges = new ArrayList<>( );
+        // ${client_code} AND ${customer_id} AND ${author_name} AND ${change_type} AND ${modification_date} AND ${metadata}
+        final String sql = SQL_QUERY_SEARCH_IDENTITY_HISTORY
+                .replace( "${client_code}", ( StringUtils.isNotEmpty( clientCode ) ? "client_code = '" + clientCode + "'" : "1=1" ) )
+                .replace( "${customer_id}", ( StringUtils.isNotEmpty( customerId ) ? "customer_id = '" + customerId + "'" : "1=1" ) )
+                .replace( "${author_name}", ( StringUtils.isNotEmpty( authorName ) ? "author_name = '" + authorName + "'" : "1=1" ) )
+                .replace( "${change_type}", ( changeType != null ? "change_type = " + changeType.getValue( ) : "1=1" ) )
+                .replace( "${modification_date}",
+                        ( nbDaysFrom != null && nbDaysFrom != 0 ? "modification_date > now() - interval '" + nbDaysFrom + "' day" : "1=1" ) )
+                .replace( "${metadata}", ( metadata != null && !metadata.isEmpty( ) ? this.computeMetadaQuery( metadata ) : "1=1" ) );
+        try ( final DAOUtil daoUtil = new DAOUtil( sql, plugin ) )
+        {
+            daoUtil.executeQuery( );
+            while ( daoUtil.next( ) )
+            {
+                final IdentityChange identityChange = getIdentityChangeFromQuery( daoUtil );
+                identityChanges.add( identityChange );
+            }
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
+        }
+        return identityChanges;
+    }
+
+    private String computeMetadaQuery( Map<String, String> metadata )
+    {
+        return metadata.entrySet( ).stream( ).map( entry -> "metadata ->> '" + entry.getKey( ) + "' = '" + entry.getValue( ) + "'" )
+                .collect( Collectors.joining( " AND " ) );
     }
 
 }

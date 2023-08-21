@@ -33,21 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
-import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
-import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
-import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeHistory;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.history.IdentityStoreHistoryGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.history.IdentityStoreHistorySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import io.swagger.annotations.*;
@@ -56,9 +49,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtIdentityNotFoundExceptionMapper.ERROR_NO_IDENTITY_FOUND;
 import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtServiceContractNotFoundExceptionMapper.ERROR_NO_SERVICE_CONTRACT_FOUND;
@@ -91,37 +81,37 @@ public class HistoryRestService
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
             throws IdentityStoreException
     {
-        String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
-        IdentityRequestValidator.instance( ).checkClientApplication( strClientAppCode );
-        IdentityRequestValidator.instance( ).checkCustomerId( strCustomerId );
-        final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
-        if ( identity == null )
-        {
-            throw new IdentityNotFoundException( "CustomerId = " + strCustomerId );
-        }
-        final ServiceContract serviceContract = ServiceContractService.instance( ).getActiveServiceContract( strClientAppCode );
-        if ( serviceContract == null )
-        {
-            throw new ServiceContractNotFoundException( "Client App Code = " + strClientAppCode );
-        }
-        final Set<String> readableAttributeKeys = serviceContract.getAttributeRights( ).stream( ).filter( AttributeRight::isReadable )
-                .map( ar -> ar.getAttributeKey( ).getKeyName( ) ).collect( Collectors.toSet( ) );
+        final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
+        final IdentityStoreHistoryGetRequest request = new IdentityStoreHistoryGetRequest( strClientAppCode, strCustomerId );
+        return Response.status( Response.Status.OK ).entity( request.doRequest( ) ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+    }
 
-        final List<IdentityChange> identityChangeList = IdentityHome.findHistoryByCustomerId( strCustomerId );
-        final List<AttributeChange> attributeChangeList = IdentityAttributeHome.getAttributeChangeHistory( identity.getId( ) );
-
-        final IdentityHistory history = new IdentityHistory( );
-        history.setCustomerId( identity.getCustomerId( ) );
-        history.getIdentityChanges( ).addAll( identityChangeList );
-        attributeChangeList.stream( ).filter( ac -> readableAttributeKeys.contains( ac.getAttributeKey( ) ) )
-                .collect( Collectors.groupingBy( AttributeChange::getAttributeKey ) ).forEach( ( key, attributeChanges ) -> {
-                    final AttributeHistory attributeHistory = new AttributeHistory( );
-                    attributeHistory.setAttributeKey( key );
-                    attributeHistory.setAttributeChanges( attributeChanges );
-                    history.getAttributeHistories( ).add( attributeHistory );
-                } );
-
-        return Response.status( Response.Status.OK ).entity( history ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+    /**
+     * Gives the identity history (identity+attributes) from a search request
+     *
+     * @param request
+     *            request
+     * @param strHeaderClientAppCode
+     *            client code
+     * @return the history
+     */
+    @POST
+    @Path( Constants.SEARCH_HISTORY_PATH )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Get an identity history by search request", response = IdentityHistorySearchResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 200, message = "Identity history Found" ),
+            @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),
+            @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
+    } )
+    public Response searchHistory( @ApiParam( name = "Request body", value = "An Identity History search Request" ) IdentityHistorySearchRequest request,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            throws IdentityStoreException
+    {
+        final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
+        final IdentityStoreHistorySearchRequest searchRequest = new IdentityStoreHistorySearchRequest( strClientAppCode, request );
+        final IdentityHistorySearchResponse response = (IdentityHistorySearchResponse) searchRequest.doRequest( );
+        return Response.status( response.getStatus( ).getCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
 }

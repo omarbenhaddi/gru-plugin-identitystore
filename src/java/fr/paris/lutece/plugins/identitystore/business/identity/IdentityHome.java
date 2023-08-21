@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.business.identity;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -186,6 +187,19 @@ public final class IdentityHome
     public static List<IdentityChange> findHistoryByCustomerId( String strCustomerId ) throws IdentityStoreException
     {
         return _dao.selectIdentityHistoryByCustomerId( strCustomerId, _plugin );
+    }
+
+    /**
+     * Find history by customer search parameters
+     *
+     * @param strCustomerId
+     *            The customer ID
+     * @return The Identity
+     */
+    public static List<IdentityChange> findHistoryBySearchParameters( String strCustomerId, String clientCode, String authorName, IdentityChangeType changeType,
+            Map<String, String> metadata, Integer nbDaysFrom ) throws IdentityStoreException
+    {
+        return _dao.selectIdentityHistoryBySearchParameters( strCustomerId, clientCode, authorName, changeType, metadata, nbDaysFrom, _plugin );
     }
 
     /**

@@ -83,6 +83,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             + "   (change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date, metadata) "
             + "   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_json(?::json))";
     private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history, change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date, metadata::text FROM identitystore_identity_attribute_history WHERE id_identity = ? ORDER BY modification_date DESC";
+    private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY_BY_CUSTOMER_ID = "SELECT a.id_history, a.change_type, a.change_satus, a.change_message, a.author_type, a.author_name, a.client_code, a.id_identity, a.attribute_key, a.attribute_value, a.certification_process, a.certification_date, a.modification_date, a.metadata::text FROM identitystore_identity_attribute_history a JOIN identitystore_identity i ON a.id_identity = i.id_identity WHERE i.customer_id = ? ORDER BY a.modification_date DESC";
     private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_identity_attribute_history  WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_identity_attribute_history  WHERE id_identity = ?";
 
@@ -687,34 +688,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
             while ( daoUtil.next( ) )
             {
-                AttributeChange attributeChange = new AttributeChange( );
-                int nIndex = 1;
-                attributeChange.setId( daoUtil.getInt( nIndex++ ) );
-                attributeChange.setChangeType( AttributeChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-                attributeChange.setChangeSatus( daoUtil.getString( nIndex++ ) );
-                attributeChange.setChangeMessage( daoUtil.getString( nIndex++ ) );
-                attributeChange.setAuthorType( AuthorType.valueOf( daoUtil.getString( nIndex++ ) ) );
-                attributeChange.setAuthorName( daoUtil.getString( nIndex++ ) );
-                attributeChange.setClientCode( daoUtil.getString( nIndex++ ) );
-                attributeChange.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-                attributeChange.setAttributeKey( daoUtil.getString( nIndex++ ) );
-                attributeChange.setAttributeValue( daoUtil.getString( nIndex++ ) );
-                attributeChange.setCertificationProcessus( daoUtil.getString( nIndex++ ) );
-                attributeChange.setCertificationDate( daoUtil.getTimestamp( nIndex++ ) );
-                attributeChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ) );
-                final String jsonMap = daoUtil.getString( nIndex );
-                if ( StringUtils.isNotEmpty( jsonMap ) )
-                {
-                    final Map<String, String> mapMetaData = objectMapper.readValue( jsonMap, new TypeReference<Map<String, String>>( )
-                    {
-                    } );
-                    attributeChange.getMetadata( ).clear( );
-                    if ( mapMetaData != null && !mapMetaData.isEmpty( ) )
-                    {
-                        attributeChange.getMetadata( ).putAll( mapMetaData );
-                    }
-                }
-                listAttributeChange.add( attributeChange );
+                listAttributeChange.add( this.getAttributeChange( daoUtil ) );
             }
 
             return listAttributeChange;
@@ -723,6 +697,60 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         {
             throw new IdentityStoreException( e.getMessage( ), e );
         }
+    }
+
+    @Override
+    public List<AttributeChange> getAttributeChangeHistory( String customerId, Plugin plugin ) throws IdentityStoreException
+    {
+        final List<AttributeChange> listAttributeChange = new ArrayList<>( );
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ATTRIBUTE_HISTORY_BY_CUSTOMER_ID, plugin ) )
+        {
+            daoUtil.setString( 1, customerId );
+            daoUtil.executeQuery( );
+
+            while ( daoUtil.next( ) )
+            {
+                listAttributeChange.add( this.getAttributeChange( daoUtil ) );
+            }
+
+            return listAttributeChange;
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
+        }
+    }
+
+    public AttributeChange getAttributeChange( final DAOUtil daoUtil ) throws JsonProcessingException
+    {
+        final AttributeChange attributeChange = new AttributeChange( );
+        int nIndex = 1;
+        attributeChange.setId( daoUtil.getInt( nIndex++ ) );
+        attributeChange.setChangeType( AttributeChangeType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+        attributeChange.setChangeSatus( daoUtil.getString( nIndex++ ) );
+        attributeChange.setChangeMessage( daoUtil.getString( nIndex++ ) );
+        attributeChange.setAuthorType( AuthorType.valueOf( daoUtil.getString( nIndex++ ) ) );
+        attributeChange.setAuthorName( daoUtil.getString( nIndex++ ) );
+        attributeChange.setClientCode( daoUtil.getString( nIndex++ ) );
+        attributeChange.setIdIdentity( daoUtil.getInt( nIndex++ ) );
+        attributeChange.setAttributeKey( daoUtil.getString( nIndex++ ) );
+        attributeChange.setAttributeValue( daoUtil.getString( nIndex++ ) );
+        attributeChange.setCertificationProcessus( daoUtil.getString( nIndex++ ) );
+        attributeChange.setCertificationDate( daoUtil.getTimestamp( nIndex++ ) );
+        attributeChange.setModificationDate( daoUtil.getTimestamp( nIndex++ ) );
+        final String jsonMap = daoUtil.getString( nIndex );
+        if ( StringUtils.isNotEmpty( jsonMap ) )
+        {
+            final Map<String, String> mapMetaData = objectMapper.readValue( jsonMap, new TypeReference<Map<String, String>>( )
+            {
+            } );
+            attributeChange.getMetadata( ).clear( );
+            if ( mapMetaData != null && !mapMetaData.isEmpty( ) )
+            {
+                attributeChange.getMetadata( ).putAll( mapMetaData );
+            }
+        }
+        return attributeChange;
     }
 
     /**

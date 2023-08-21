@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.business.identity;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -297,4 +298,25 @@ public interface IIdentityDAO
      * @return the list of identities
      */
     List<UpdatedIdentity> selectUpdated( final int days, final Plugin plugin );
+
+    /**
+     * Search for history entries that matches the following parameters
+     * 
+     * @param strCustomerId
+     *            customer id of the identity
+     * @param clientCode
+     *            client code that modified the identity
+     * @param authorName
+     *            name of the author that modified the identity
+     * @param changeType
+     *            the type of identity change
+     * @param metadata
+     *            metadata of the identity change
+     * @param nbDaysFrom
+     *            number of day from the current date
+     * @param plugin
+     * @return
+     */
+    List<IdentityChange> selectIdentityHistoryBySearchParameters( String strCustomerId, String clientCode, String authorName, IdentityChangeType changeType,
+            Map<String, String> metadata, Integer nbDaysFrom, Plugin plugin ) throws IdentityStoreException;
 }
