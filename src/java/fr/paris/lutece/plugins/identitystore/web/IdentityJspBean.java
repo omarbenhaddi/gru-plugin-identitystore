@@ -63,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class provides the user interface to manage Identity features ( manage, create, modify, remove )
@@ -114,10 +115,15 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String DISPLAY_IDENTITY_EVENT_CODE = "DISPLAY_IDENTITY";
     private static final String DISPLAY_IDENTITY_HISTORY_EVENT_CODE = "DISPLAY_HISTORY_IDENTITY";
 
+    // Datasource
+    private static final String DATASOURCE_DB = "db";
+    private static final String DATASOURCE_ES = "es";
+
     // Session variable to store working values
     private Identity _identity;
 
-    private final ISearchIdentityService _searchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService.database" );
+    private final ISearchIdentityService _searchIdentityServiceDB = SpringContextService.getBean( "identitystore.searchIdentityService.database" );
+    private final ISearchIdentityService _searchIdentityServiceES = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
 
     @View( value = VIEW_MANAGE_IDENTITIES, defaultView = true )
     public String getManageIdentitys( HttpServletRequest request ) throws RefAttributeCertificationDefinitionNotFoundException
@@ -138,6 +144,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         final String birthplace = queryParameters.get( QUERY_PARAM_INSEE_BIRTHPLACE_LABEL );
         final String birthcountry = queryParameters.get( QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL );
         final String phone = queryParameters.get( QUERY_PARAM_PHONE );
+        final String datasource = Optional.ofNullable( queryParameters.get( QUERY_PARAM_DATASOURCE ) ).orElse( DATASOURCE_DB );
 
         if ( StringUtils.isNotEmpty( cuid ) )
         {
@@ -199,7 +206,15 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 }
                 if ( CollectionUtils.isNotEmpty( atttributes ) )
                 {
-                    qualifiedIdentities.addAll( _searchIdentityService.getQualifiedIdentities( atttributes, 0, false ) );
+                    if ( datasource.equals( DATASOURCE_DB ) )
+                    {
+                        qualifiedIdentities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ) );
+                    }
+                    else
+                        if ( datasource.equals( DATASOURCE_ES ) )
+                        {
+                            qualifiedIdentities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ) );
+                        }
                 }
             }
         }
@@ -228,6 +243,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         model.put( QUERY_PARAM_PHONE, phone );
         model.put( QUERY_PARAM_BIRTHDATE, birthdate );
         model.put( QUERY_PARAM_GENDER, gender );
+        model.put( QUERY_PARAM_DATASOURCE, datasource );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_IDENTITIES, TEMPLATE_SEARCH_IDENTITIES, model );
     }

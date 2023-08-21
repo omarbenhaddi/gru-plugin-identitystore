@@ -1,5 +1,5 @@
 <#include "manageidentities_tabs.html" />
-<@tabs tab="searchidentities" />
+<@tabs tab="searchidentities-${datasource}" />
 <@rowBox>
     <@boxHeader i18nTitleKey="identitystore.manage_identities.title">
         <#if createIdentityRole>
@@ -21,6 +21,7 @@
         </a>
     </div>
     <form class="form-inline" action="jsp/admin/plugins/identitystore/ManageIdentities.jsp">
+        <input type="hidden" name="datasource" value="${datasource}">
         <div class="input-group">
             <@table>
             <tr>

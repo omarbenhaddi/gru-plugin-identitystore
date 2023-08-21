@@ -74,6 +74,7 @@ public abstract class ManageIdentitiesJspBean extends MVCAdminJspBean
     public static final String QUERY_PARAM_INSEE_BIRTHPLACE_LABEL = "insee_birthplace_label";
     public static final String QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL = "insee_birthcountry_label";
     public static final String QUERY_PARAM_PHONE = "phone";
+    public static final String QUERY_PARAM_DATASOURCE = "datasource";
 
     // Variables
     private int _nDefaultItemsPerPage;
@@ -173,6 +174,11 @@ public abstract class ManageIdentitiesJspBean extends MVCAdminJspBean
         if ( phone != null )
         {
             parameters.put( QUERY_PARAM_PHONE, phone );
+        }
+        final String datasource = request.getParameter( QUERY_PARAM_DATASOURCE );
+        if ( datasource != null )
+        {
+            parameters.put( QUERY_PARAM_DATASOURCE, datasource );
         }
         return parameters;
     }
