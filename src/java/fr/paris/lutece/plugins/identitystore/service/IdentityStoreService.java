@@ -101,24 +101,24 @@ public final class IdentityStoreService
         {
             case JWT:
             {
-                if ( !StringUtils.isEmpty( strHeaderClientCode ) )
+                if ( StringUtils.isNotBlank( strHeaderClientCode ) )
                 {
                     String strJwtClaimAppCode = AppPropertiesService.getProperty( IdentityConstants.PROPERTY_JWT_CLAIM_APP_CODE );
-                    return JWTUtil.getPayloadValue( strHeaderClientCode, strJwtClaimAppCode );
+                    return JWTUtil.getPayloadValue( strHeaderClientCode.trim( ), strJwtClaimAppCode );
                 }
                 break;
             }
             case NONE:
             {
-                if ( !StringUtils.isEmpty( strHeaderClientCode ) )
+                if ( StringUtils.isNotBlank( strHeaderClientCode ) )
                 {
-                    return strHeaderClientCode;
+                    return strHeaderClientCode.trim( );
                 }
                 else
                 {
-                    if ( !StringUtils.isEmpty( strParamClientCode ) )
+                    if ( StringUtils.isNotBlank( strParamClientCode ) )
                     {
-                        return strParamClientCode;
+                        return strParamClientCode.trim( );
                     }
                 }
             }
