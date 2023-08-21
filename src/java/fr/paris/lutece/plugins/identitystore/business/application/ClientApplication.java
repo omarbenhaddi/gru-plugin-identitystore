@@ -34,15 +34,13 @@
 package fr.paris.lutece.plugins.identitystore.business.application;
 
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import javax.validation.constraints.NotEmpty;
-
 import fr.paris.lutece.plugins.identitystore.v2.business.IClientApplication;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.validation.constraints.Size;
 
 /**
  *

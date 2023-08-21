@@ -33,22 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.application;
 
-import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
-import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
-import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
-import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.service.application.ClientApplicationService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-
-import java.util.Optional;
 
 /**
  * This class represents a create request for IdentityStoreRestServive

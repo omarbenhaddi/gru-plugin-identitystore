@@ -33,13 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.contract;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class provides rights Access methods for Attribute objects

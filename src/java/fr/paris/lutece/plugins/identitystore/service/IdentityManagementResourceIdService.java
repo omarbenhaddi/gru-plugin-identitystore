@@ -33,18 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
-import java.util.Locale;
-
-import org.apache.commons.lang3.StringUtils;
-
 import fr.paris.lutece.portal.business.rbac.RBAC;
 import fr.paris.lutece.portal.business.user.AdminUser;
-import fr.paris.lutece.portal.service.rbac.Permission;
-import fr.paris.lutece.portal.service.rbac.RBACService;
-import fr.paris.lutece.portal.service.rbac.ResourceIdService;
-import fr.paris.lutece.portal.service.rbac.ResourceType;
-import fr.paris.lutece.portal.service.rbac.ResourceTypeManager;
+import fr.paris.lutece.portal.service.rbac.*;
 import fr.paris.lutece.util.ReferenceList;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Locale;
 
 /**
  *

@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;

@@ -40,7 +40,6 @@ import fr.paris.lutece.plugins.identitystore.web.ServiceContractAttributeDefinit
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.util.ReferenceList;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.sql.Date;

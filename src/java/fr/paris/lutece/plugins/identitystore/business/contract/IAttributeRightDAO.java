@@ -33,10 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.contract;
 
-import java.util.List;
-import java.util.Map;
-
 import fr.paris.lutece.portal.service.plugin.Plugin;
+
+import java.util.List;
 
 /**
  * IAttributeRightDAO Interface

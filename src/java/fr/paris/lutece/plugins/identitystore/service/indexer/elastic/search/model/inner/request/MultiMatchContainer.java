@@ -34,8 +34,6 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomSerializer;
 
 public class MultiMatchContainer extends AbstractContainer
 {

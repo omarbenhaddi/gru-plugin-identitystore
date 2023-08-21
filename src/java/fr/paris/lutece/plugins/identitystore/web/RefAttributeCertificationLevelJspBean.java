@@ -33,26 +33,22 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
+import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
+import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevelHome;
+import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
-import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
-import fr.paris.lutece.util.url.UrlItem;
 import fr.paris.lutece.util.html.AbstractPaginator;
+import fr.paris.lutece.util.url.UrlItem;
 
-import java.util.Comparator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevelHome;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class provides the user interface to manage RefAttributeCertificationLevel features ( manage, create, modify, remove )

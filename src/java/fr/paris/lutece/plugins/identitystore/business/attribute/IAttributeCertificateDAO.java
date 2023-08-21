@@ -33,10 +33,10 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.attribute;
 
-import java.util.List;
-
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
+
+import java.util.List;
 
 /**
  * IAttributeCertificateDAO Interface

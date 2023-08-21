@@ -40,7 +40,6 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class provides instances management methods (create, find, ...) for AttributeKey objects

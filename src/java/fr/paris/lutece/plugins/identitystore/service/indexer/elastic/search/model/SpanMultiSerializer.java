@@ -36,8 +36,6 @@ package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mod
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.AbstractMatch;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.SpanMulti;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.SpanMultiFuzzyMatch;
 
 import java.io.IOException;

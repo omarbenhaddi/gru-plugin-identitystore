@@ -38,12 +38,10 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeStatusDto;
 import fr.paris.lutece.portal.business.file.File;
 
-import java.io.Serializable;
-
-import java.sql.Timestamp;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * This is the business class for the object IdentityAttribute

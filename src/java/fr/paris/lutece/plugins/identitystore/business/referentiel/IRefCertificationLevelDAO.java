@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.business.referentiel;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
+
 import java.util.List;
 
 /**

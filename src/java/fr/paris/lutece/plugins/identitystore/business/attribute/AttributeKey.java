@@ -34,10 +34,8 @@
 package fr.paris.lutece.plugins.identitystore.business.attribute;
 
 import javax.validation.constraints.NotEmpty;
-
-import java.io.Serializable;
-
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 /**
  * This is the business class for the object AttributeKey

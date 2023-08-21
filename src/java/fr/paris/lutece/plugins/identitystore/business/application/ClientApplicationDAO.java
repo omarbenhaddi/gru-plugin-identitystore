@@ -33,14 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.application;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 
-import javax.ws.rs.client.Client;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class provides Data Access methods for ClientApplication objects

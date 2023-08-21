@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
