@@ -912,7 +912,7 @@ public final class IdentityDAO implements IIdentityDAO
         final String sql = SQL_QUERY_SEARCH_IDENTITY_HISTORY
                 .replace( "${client_code}", ( StringUtils.isNotEmpty( clientCode ) ? "client_code = '" + clientCode + "'" : "1=1" ) )
                 .replace( "${customer_id}", ( StringUtils.isNotEmpty( customerId ) ? "customer_id = '" + customerId + "'" : "1=1" ) )
-                .replace( "${author_name}", ( StringUtils.isNotEmpty( authorName ) ? "author_name = '" + authorName + "'" : "1=1" ) )
+                .replace( "${author_name}", ( StringUtils.isNotEmpty( authorName ) ? "lower(author_name) = '" + authorName.toLowerCase( ) + "'" : "1=1" ) )
                 .replace( "${change_type}", ( changeType != null ? "change_type = " + changeType.getValue( ) : "1=1" ) )
                 .replace( "${modification_date}",
                         ( nbDaysFrom != null && nbDaysFrom != 0 ? "modification_date > now() - interval '" + nbDaysFrom + "' day" : "1=1" ) )
