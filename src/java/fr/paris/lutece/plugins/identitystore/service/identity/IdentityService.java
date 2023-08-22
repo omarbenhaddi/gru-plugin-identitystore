@@ -551,13 +551,13 @@ public class IdentityService
 
             /* Indexation */
             final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
-                    response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+                    response.getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
             secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
             secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( secondaryIdentityChange, secondaryIdentity ) );
 
             final IdentityChange primaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED,
-                    primaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+                    primaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
             primaryIdentityChange.getMetadata( ).put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
             primaryIdentityChange.getMetadata( ).put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( primaryIdentityChange, primaryIdentity ) );
@@ -641,12 +641,12 @@ public class IdentityService
 
             /* Indexation */
             final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED,
-                    secondaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+                    secondaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
             secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( secondaryIdentityChange, secondaryIdentity ) );
 
             final IdentityChange primaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED,
-                    primaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getLabel( ), request.getOrigin( ), clientCode );
+                    primaryIdentity, response.getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
             primaryIdentityChange.getMetadata( ).put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( primaryIdentityChange, primaryIdentity ) );
             TransactionManager.commitTransaction( null );
