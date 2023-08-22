@@ -123,7 +123,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history (change_type, change_status, change_message, author_type, author_name, client_code, customer_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, to_json(?::json))";
     private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SEARCH_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE ${client_code} AND ${customer_id} AND ${author_name} AND ${change_type} AND ${modification_date} AND ${metadata} ORDER BY modification_date DESC";
-    private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days} DAY')";
+    private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days}' DAY)";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
 

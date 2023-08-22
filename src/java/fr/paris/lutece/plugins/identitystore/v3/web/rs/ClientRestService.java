@@ -67,7 +67,7 @@ public class ClientRestService
      * Get Clients
      *
      * @param applicationCode
-     *            client code
+     *            application code
      * @return the Client
      */
     @Path( Constants.CLIENTS_PATH + "/{" + Constants.PARAM_APPLICATION_CODE + "}" )
@@ -97,7 +97,7 @@ public class ClientRestService
     @Path( Constants.CLIENT_PATH + "/{" + Constants.PARAM_CLIENT_CODE + "}" )
     @GET
     @Produces( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Get the active service contract associated to the given application client code", response = ClientSearchResponse.class )
+    @ApiOperation( value = "Get a client by its client code", response = ClientSearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = "No service contract found" )
