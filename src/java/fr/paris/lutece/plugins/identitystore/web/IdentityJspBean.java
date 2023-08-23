@@ -208,12 +208,12 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 {
                     if ( datasource.equals( DATASOURCE_DB ) )
                     {
-                        qualifiedIdentities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ) );
+                        qualifiedIdentities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
                     }
                     else
                         if ( datasource.equals( DATASOURCE_ES ) )
                         {
-                            qualifiedIdentities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ) );
+                            qualifiedIdentities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
                         }
                 }
             }

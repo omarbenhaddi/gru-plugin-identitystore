@@ -192,6 +192,7 @@ public final class SuspiciousIdentityHome
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
     public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority )
+            throws IdentityStoreException
     {
         return _dao.selectSuspiciousIdentitysList( ruleCode, max, priority, _plugin );
     }
@@ -206,7 +207,7 @@ public final class SuspiciousIdentityHome
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
     public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final int max,
-            final Integer priority )
+            final Integer priority ) throws IdentityStoreException
     {
         return _dao.selectSuspiciousIdentitysList( ruleCode, attributes, max, priority, _plugin );
     }

@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.serv
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
@@ -67,8 +68,9 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
      * {@inheritDoc }
      */
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
-            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected )
+    public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes,
+            final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
+            final boolean connected )
     {
         final List<SearchAttribute> searchAttributes = this.computeOutputKeys( attributes );
         final List<List<SearchAttribute>> specialAttributes = specialTreatmentAttributes == null ? null
@@ -76,17 +78,17 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
 
         final Response search = _identitySearcher.multiSearch( searchAttributes, specialAttributes, nbEqualAttributes, nbMissingAttributes, max, connected );
 
-        return getEntities( search );
+        return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
     @Override
-    public List<QualifiedIdentity> getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected )
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected )
     {
         final List<SearchAttribute> searchAttributes = this.computeOutputKeys( attributes );
 
         final Response search = _identitySearcher.search( searchAttributes, max, connected );
 
-        return getEntities( search );
+        return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
     private List<QualifiedIdentity> getEntities( Response search )

@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,10 +58,10 @@ public interface ISearchIdentityService
      *            list of values to search for some attributes with strict or fuzzy mode
      * @return a list of identities satisfying the criteria of the {@link SearchAttribute} list
      */
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
+    QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
             final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected ) throws IdentityStoreException;
 
-    List<QualifiedIdentity> getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected );
+    QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected );
 
     default List<SearchAttribute> computeOutputKeys( final List<SearchAttribute> attributes )
     {

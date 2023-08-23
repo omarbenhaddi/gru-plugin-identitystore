@@ -47,54 +47,6 @@ public abstract class ASearchRequest
 
     public abstract InnerSearchRequest body( );
 
-    protected Match getMatch( final SearchAttribute attribute )
-    {
-        final Match match = new Match( );
-        match.setName( "attributes." + attribute.getOutputKeys( ).get( 0 ) + ".value" );
-        match.setQuery( attribute.getValue( ) );
-        if ( AttributeTreatmentType.APPROXIMATED.equals( attribute.getTreatmentType( ) ) )
-        {
-            match.setFuzziness( "1" );
-        }
-        return match;
-    }
-
-    protected MultiMatch getMultiMatch( final SearchAttribute attribute )
-    {
-        final MultiMatch match = new MultiMatch( );
-        match.setFields( attribute.getOutputKeys( ).stream( ).map( outputKey -> "attributes." + outputKey + ".value" ).collect( Collectors.toList( ) ) );
-        match.setQuery( attribute.getValue( ) );
-        if ( AttributeTreatmentType.APPROXIMATED.equals( attribute.getTreatmentType( ) ) )
-        {
-            match.setFuzziness( "1" );
-        }
-        return match;
-    }
-
-    protected MatchPhrase getMatchPhrase( final SearchAttribute attribute )
-    {
-        final MatchPhrase match = new MatchPhrase( );
-        match.setName( "attributes." + attribute.getOutputKeys( ).get( 0 ) + ".value" );
-        match.setQuery( attribute.getValue( ) );
-        return match;
-    }
-
-    protected SpanMultiFuzzyMatch getSpanMultiFuzzyMatch( SearchAttribute searchAttribute, String value )
-    {
-        SpanMultiFuzzyMatch miltiMatch = new SpanMultiFuzzyMatch( );
-        miltiMatch.setName( "attributes." + searchAttribute.getKey( ) + ".value" );
-        miltiMatch.setFuzziness( "1" );
-        miltiMatch.setValue( value );
-        return miltiMatch;
-    }
-
-    protected Exists getExists( SearchAttribute searchAttribute )
-    {
-        final Exists exists = new Exists( );
-        exists.setField( "attributes." + searchAttribute.getKey( ) + ".value" );
-        return exists;
-    }
-
     public List<SearchAttribute> getSearchAttributes( )
     {
         return searchAttributes;

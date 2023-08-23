@@ -36,19 +36,20 @@ package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mod
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@JsonInclude( JsonInclude.Include.NON_NULL )
+@JsonInclude( JsonInclude.Include.NON_EMPTY )
 public class Bool
 {
     @JsonProperty( "must" )
-    protected List<AbstractContainer> must;
+    protected List<AbstractContainer> must = new ArrayList<>( );
 
     @JsonProperty( "must_not" )
-    protected List<AbstractContainer> mustNot;
+    protected List<AbstractContainer> mustNot = new ArrayList<>( );
 
     @JsonProperty( "should" )
-    protected List<AbstractContainer> should;
+    protected List<AbstractContainer> should = new ArrayList<>( );
 
     @JsonProperty( "minimum_should_match" )
     protected Integer minimumShouldMatch;

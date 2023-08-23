@@ -33,8 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Response
@@ -51,6 +55,9 @@ public class Response
 
     @JsonProperty( "status" )
     protected Integer status;
+
+    @JsonIgnore
+    protected Map<String, String> metadata = new HashMap<>( );
 
     public String getTook( )
     {
@@ -100,5 +107,15 @@ public class Response
     public void setStatus( Integer status )
     {
         this.status = status;
+    }
+
+    public Map<String, String> getMetadata( )
+    {
+        return metadata;
+    }
+
+    public void setMetadata( Map<String, String> metadata )
+    {
+        this.metadata = metadata;
     }
 }

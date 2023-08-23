@@ -34,8 +34,12 @@
 
 package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
@@ -45,10 +49,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,7 +71,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ";
     private static final String SQL_QUERY_DELETE_CUID = "DELETE FROM identitystore_quality_suspicious_identity WHERE customer_id = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_quality_suspicious_identity SET customer_id = ? WHERE id_suspicious_identity = ?";
-    private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, d.code, i.date_create, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule d on d.id_rule = i.id_duplicate_rule ";
+    private static final String SQL_QUERY_SELECTALL = "SELECT i.id_suspicious_identity, i.customer_id, i.id_duplicate_rule, d.code, i.date_create, h.metadata, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule d on d.id_rule = i.id_duplicate_rule LEFT JOIN identitystore_identity_history h on i.customer_id = h.customer_id AND i.date_create = h.modification_date ";
     private static final String SQL_JOIN_SELECTALL_ATTRIBUTE_FILTER = "LEFT JOIN identitystore_identity id ON id.customer_id = i.customer_id LEFT JOIN identitystore_identity_attribute a ON a.id_identity = id.id_identity LEFT JOIN identitystore_ref_attribute r ON r.id_attribute = a.id_attribute ";
     private static final String SQL_GROUPBY_HAVING_SELECTALL_ATTRIBUTE_FILTER = " GROUP BY i.id_suspicious_identity, d.code, l.date_lock_end, l.is_locked, l.author_type, l.author_name HAVING COUNT(i.id_suspicious_identity) = ${filter_count}";
     private static final String SQL_QUERY_SELECTALL_EXCLUDED = "SELECT first_customer_id, second_customer_id, date_create, author_type, author_name FROM identitystore_quality_suspicious_identity_excluded";
@@ -81,6 +82,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT i.id_suspicious_identity, i.customer_id, i.date_create, i.id_duplicate_rule, r.code, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule r ON r.id_rule = i.id_duplicate_rule WHERE i.customer_id = ? ";
     private static final String SQL_QUERY_SELECT_COUNT_BY_RULE_ID = "SELECT count(id_suspicious_identity) FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
     private static final String SQL_QUERY_REMOVE_EXCLUDED_IDENTITIES = "DELETE FROM identitystore_quality_suspicious_identity_excluded WHERE first_customer_id = ? AND second_customer_id = ?";
+
+    private final ObjectMapper objectMapper = new ObjectMapper( );
 
     /**
      * {@inheritDoc }
@@ -245,6 +248,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
      */
     @Override
     public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final int max, final Integer priority, Plugin plugin )
+            throws IdentityStoreException
     {
         return selectSuspiciousIdentitysList( ruleCode, Collections.emptyList( ), max, priority, plugin );
     }
@@ -254,7 +258,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
      */
     @Override
     public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final int max,
-            final Integer priority, Plugin plugin )
+            final Integer priority, Plugin plugin ) throws IdentityStoreException
     {
         final List<SuspiciousIdentity> suspiciousIdentityList = new ArrayList<>( );
         final StringBuilder query = new StringBuilder( SQL_QUERY_SELECTALL );
@@ -300,6 +304,18 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
                 suspiciousIdentity.setDuplicateRuleCode( daoUtil.getString( nIndex++ ) );
                 suspiciousIdentity.setCreationDate( daoUtil.getTimestamp( nIndex++ ) );
+                final String jsonMap = daoUtil.getString( nIndex++ );
+                if ( StringUtils.isNotEmpty( jsonMap ) )
+                {
+                    final Map<String, String> mapMetaData = objectMapper.readValue( jsonMap, new TypeReference<Map<String, String>>( )
+                    {
+                    } );
+                    suspiciousIdentity.getMetadata( ).clear( );
+                    if ( mapMetaData != null && !mapMetaData.isEmpty( ) )
+                    {
+                        suspiciousIdentity.getMetadata( ).putAll( mapMetaData );
+                    }
+                }
                 final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
                 lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
                 if ( lock.getLockEndDate( ) != null )
@@ -316,6 +332,10 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             }
 
             return suspiciousIdentityList;
+        }
+        catch( JsonProcessingException e )
+        {
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
     }
 

@@ -47,12 +47,14 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Responses;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Result;
 import fr.paris.lutece.plugins.identitystore.utils.Combinations;
+import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -233,6 +235,7 @@ public class IdentitySearcher implements IIdentitySearcher
             final Response globalResponse = new Response( );
             globalResponse.setResult( new Result( ) );
             globalResponse.getResult( ).setHits( new ArrayList<>( ) );
+            this.computeResponseMetadata( globalResponse, innerResponses, searchActions );
 
             final Map<String, Hit> hits = innerResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
                     .collect( Collectors.toMap( hit -> hit.getSource( ).getCustomerId( ), hit -> hit ) );
@@ -255,6 +258,7 @@ public class IdentitySearcher implements IIdentitySearcher
                         .map( r -> r.getResult( ).getMaxScore( ) ).max( Comparator.comparingDouble( BigDecimal::doubleValue ) )
                         .orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute max score" ) );
                 globalResponse.getResult( ).setMaxScore( maxScore );
+                this.computeResponseMetadata( globalResponse, pagedResponses, searchActions );
             }
             globalResponse.getResult( ).getHits( ).addAll( distinctHits.values( ) );
             return globalResponse;
@@ -264,6 +268,28 @@ public class IdentitySearcher implements IIdentitySearcher
             logger.error( "Failed to multi search", e );
         }
         return null;
+    }
+
+    /**
+     * Compute metada of global response to give information about what kind of requests had a match.
+     * 
+     * @param globalResponse
+     *            the global {@link Response} that holds the entire multi search matches
+     * @param innerResponses
+     *            the multi search {@link Responses} in the same order as {@link MultiSearchAction} (ES gives responses in the same order as bulk requests)
+     * @param searchActions
+     *            the {@link MultiSearchAction} requests that we want to determine if they have matches or not
+     */
+    private void computeResponseMetadata( final Response globalResponse, final Responses innerResponses, final List<MultiSearchAction> searchActions )
+    {
+        for ( int index = 0; index < searchActions.size( ); index++ )
+        {
+            final Response response = innerResponses.getResponses( ).get( index );
+            if ( response.getResult( ) != null && !response.getResult( ).getHits( ).isEmpty( ) )
+            {
+                Maps.mergeStringMap( globalResponse.getMetadata( ), searchActions.get( index ).getQuery( ).getMetadata( ) );
+            }
+        }
     }
 
 }

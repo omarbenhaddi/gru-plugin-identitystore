@@ -41,9 +41,10 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
+import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -83,7 +84,7 @@ public class DuplicateService implements IDuplicateService
             throws IdentityStoreException
     {
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-        final Map<String, List<QualifiedIdentity>> qualifiedIdentities = new HashMap<>( );
+        final List<String> matchingRuleCodes = new ArrayList<>( );
         if ( CollectionUtils.isNotEmpty( ruleCodes ) )
         {
             for ( final String ruleCode : ruleCodes )
@@ -93,18 +94,20 @@ public class DuplicateService implements IDuplicateService
                 {
                     throw new IdentityStoreException( "Could not find duplicate rule with code " + ruleCode );
                 }
-                qualifiedIdentities.put( ruleCode, this.findDuplicates( attributeValues, customerId, duplicateRule ) );
+                final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
+                if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
+                {
+                    matchingRuleCodes.add( ruleCode );
+                    response.getIdentities( ).addAll( identitySearchResult.getQualifiedIdentities( ) );
+                    Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
+                }
             }
         }
 
-        final List<QualifiedIdentity> allResults = qualifiedIdentities.values( ).stream( ).flatMap( List::stream ).collect( Collectors.toList( ) );
-        if ( CollectionUtils.isNotEmpty( allResults ) )
+        if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
         {
-            final String matchingRules = qualifiedIdentities.keySet( ).stream( ).filter( s -> CollectionUtils.isNotEmpty( qualifiedIdentities.get( s ) ) )
-                    .collect( Collectors.joining( "," ) );
-            response.setMessage( "Potential duplicate(s) found with rule(s) : " + matchingRules );
+            response.setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) );
             response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND );
-            response.setIdentities( allResults );
         }
         else
         {
@@ -116,30 +119,31 @@ public class DuplicateService implements IDuplicateService
         return response;
     }
 
-    private List<QualifiedIdentity> findDuplicates( final Map<String, String> attributeValues, final String customerId, final DuplicateRule duplicateRule )
-            throws IdentityStoreException
+    private QualifiedIdentitySearchResult findDuplicates( final Map<String, String> attributeValues, final String customerId,
+            final DuplicateRule duplicateRule ) throws IdentityStoreException
     {
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
         {
             final List<SearchAttribute> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
             final List<List<SearchAttribute>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
-            return _searchIdentityService
-                    .getQualifiedIdentities( searchAttributes, specialTreatmentAttributes, duplicateRule.getNbEqualAttributes( ),
-                            duplicateRule.getNbMissingAttributes( ), 0, false )
-                    .stream( ).filter( qualifiedIdentity -> !SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId ) )
-                    .filter( qualifiedIdentity -> !qualifiedIdentity.isMerged( ) && !Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) )
-                    .peek( qualifiedIdentity -> {
-                        try
-                        {
-                            IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
-                        }
-                        catch( IdentityAttributeNotFoundException e )
-                        {
-                            throw new RuntimeException( e );
-                        }
-                    } ).collect( Collectors.toList( ) );
+            final QualifiedIdentitySearchResult result = _searchIdentityService.getQualifiedIdentities( searchAttributes, specialTreatmentAttributes,
+                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false );
+            result.getQualifiedIdentities( ).removeIf( qualifiedIdentity -> SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId ) );
+            result.getQualifiedIdentities( )
+                    .removeIf( qualifiedIdentity -> qualifiedIdentity.isMerged( ) || Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) );
+            result.getQualifiedIdentities( ).forEach( qualifiedIdentity -> {
+                try
+                {
+                    IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
+                }
+                catch( IdentityAttributeNotFoundException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            } );
+            return result;
         }
-        return new ArrayList<>( );
+        return new QualifiedIdentitySearchResult( );
     }
 
     private List<SearchAttribute> mapBaseAttributes( final Map<String, String> attributeValues, final DuplicateRule duplicateRule )

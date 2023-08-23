@@ -33,10 +33,18 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import org.apache.commons.lang3.StringUtils;
 
-@JsonInclude( JsonInclude.Include.NON_NULL )
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@JsonInclude( JsonInclude.Include.NON_EMPTY )
 public class InnerSearchRequest
 {
     protected Integer from;
@@ -45,6 +53,17 @@ public class InnerSearchRequest
 
     @JsonProperty( "query" )
     protected Query query;
+
+    public InnerSearchRequest( )
+    {
+        final Query query = new Query( );
+        this.setQuery( query );
+        final Bool bool = new Bool( );
+        query.setBool( bool );
+    }
+
+    @JsonIgnore
+    protected Map<String, String> metadata = new HashMap<>( );
 
     public Integer getFrom( )
     {
@@ -76,4 +95,106 @@ public class InnerSearchRequest
         this.query = query;
     }
 
+    public Map<String, String> getMetadata( )
+    {
+        return metadata;
+    }
+
+    public void setMetadata( Map<String, String> metadata )
+    {
+        this.metadata = metadata;
+    }
+
+    public void addMatch( final SearchAttribute attribute, final boolean must )
+    {
+        final Match match = new Match( );
+        final String attributeKey = attribute.getOutputKeys( ).get( 0 );
+        match.setName( "attributes." + attributeKey + ".value" );
+        match.setQuery( attribute.getValue( ) );
+        if ( AttributeTreatmentType.APPROXIMATED.equals( attribute.getTreatmentType( ) ) )
+        {
+            match.setFuzziness( "1" );
+        }
+        this.addMetadata( attribute.getTreatmentType( ).name( ), Collections.singletonList( attributeKey ) );
+        this.addContainer( new MatchContainer( match ), must );
+    }
+
+    public void addMultiMatch( final SearchAttribute attribute, final boolean must )
+    {
+        final MultiMatch match = new MultiMatch( );
+        match.setFields( attribute.getOutputKeys( ).stream( ).map( outputKey -> "attributes." + outputKey + ".value" ).collect( Collectors.toList( ) ) );
+        match.setQuery( attribute.getValue( ) );
+        if ( AttributeTreatmentType.APPROXIMATED.equals( attribute.getTreatmentType( ) ) )
+        {
+            match.setFuzziness( "1" );
+        }
+        this.addMetadata( attribute.getTreatmentType( ).name( ), attribute.getOutputKeys( ) );
+        this.addContainer( new MultiMatchContainer( match ), must );
+    }
+
+    public void addMatchPhrase( final SearchAttribute attribute, final boolean must )
+    {
+        final MatchPhrase match = new MatchPhrase( );
+        final String attributeKey = attribute.getOutputKeys( ).get( 0 );
+        match.setName( "attributes." + attributeKey + ".value" );
+        match.setQuery( attribute.getValue( ) );
+        this.addMetadata( attribute.getTreatmentType( ).name( ), Collections.singletonList( attributeKey ) );
+        this.addContainer( new MatchPhraseContainer( match ), must );
+    }
+
+    public void addSpanNear( final SearchAttribute attribute, final boolean must )
+    {
+        final SpanNear spanNear = new SpanNear( );
+        final String [ ] splitSearchValue = attribute.getValue( ).split( " " );
+        spanNear.setSlop( splitSearchValue.length - 1 );
+        Arrays.stream( splitSearchValue ).forEach( word -> spanNear.getClauses( )
+                .add( new SpanMultiContainer( new SpanMulti( new SpanMultiFuzzyMatchContainer( this.createSpanMultiFuzzyMatch( attribute, word ) ) ) ) ) );
+        spanNear.setInOrder( true );
+        spanNear.setBoost( 1 );
+        this.addMetadata( attribute.getTreatmentType( ).name( ), Collections.singletonList( attribute.getKey( ) ) );
+        this.addContainer( new SpanNearContainer( spanNear ), must );
+    }
+
+    private SpanMultiFuzzyMatch createSpanMultiFuzzyMatch( SearchAttribute attribute, String value )
+    {
+        final SpanMultiFuzzyMatch multiMatch = new SpanMultiFuzzyMatch( );
+        multiMatch.setName( "attributes." + attribute.getKey( ) + ".value" );
+        multiMatch.setFuzziness( "1" );
+        multiMatch.setValue( value );
+        return multiMatch;
+    }
+
+    public void addExists( final SearchAttribute attribute, final boolean must )
+    {
+        final Exists exists = new Exists( );
+        exists.setField( "attributes." + attribute.getKey( ) + ".value" );
+        this.addMetadata( attribute.getTreatmentType( ).name( ), Collections.singletonList( attribute.getKey( ) ) );
+        this.addContainer( new ExistsContainer( exists ), must );
+    }
+
+    private void addContainer( final AbstractContainer container, final boolean must )
+    {
+        if ( must )
+        {
+            query.getBool( ).getMust( ).add( container );
+        }
+        else
+        {
+            query.getBool( ).getMustNot( ).add( container );
+        }
+    }
+
+    private void addMetadata( final String key, final List<String> newValues )
+    {
+        final String value = metadata.get( key );
+        if ( StringUtils.isEmpty( value ) )
+        {
+            metadata.put( key, String.join( ",", newValues ) );
+        }
+        else
+        {
+            final List<String> existingValues = Arrays.asList( value.split( "," ) );
+            metadata.put( key, Stream.concat( existingValues.stream( ), newValues.stream( ) ).distinct( ).collect( Collectors.joining( "," ) ) );
+        }
+    }
 }

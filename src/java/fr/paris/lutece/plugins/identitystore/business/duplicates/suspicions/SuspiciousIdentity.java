@@ -37,6 +37,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the business class for the object SuspiciousIdentity
@@ -57,6 +59,7 @@ public class SuspiciousIdentity implements Serializable
     private Timestamp _dateCreationDate;
     private Timestamp _dateLastUpdateDate;
     private SuspiciousIdentityLock lock;
+    protected Map<String, String> metadata = new HashMap<>( );
 
     /**
      * Returns the Id
@@ -186,5 +189,15 @@ public class SuspiciousIdentity implements Serializable
     public void setLock( SuspiciousIdentityLock lock )
     {
         this.lock = lock;
+    }
+
+    public Map<String, String> getMetadata( )
+    {
+        return metadata;
+    }
+
+    public void setMetadata( Map<String, String> metadata )
+    {
+        this.metadata = metadata;
     }
 }

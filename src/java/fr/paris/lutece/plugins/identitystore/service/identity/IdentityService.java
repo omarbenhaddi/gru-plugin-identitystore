@@ -823,11 +823,11 @@ public class IdentityService
             return;
         }
 
-        final List<QualifiedIdentity> qualifiedIdentities = _elasticSearchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
+        final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
                 request.isConnected( ) );
-        if ( CollectionUtils.isNotEmpty( qualifiedIdentities ) )
+        if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
         {
-            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, qualifiedIdentities );
+            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, result.getQualifiedIdentities( ) );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {

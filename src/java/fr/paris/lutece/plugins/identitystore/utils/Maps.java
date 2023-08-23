@@ -31,43 +31,32 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.utils;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
-import fr.paris.lutece.portal.service.util.AppException;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class DefaultSearchIdentityService implements ISearchIdentityService
+public class Maps
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    public static void mergeStringMap( final Map<String, String> destination, final Map<String, String> source )
     {
-    }
-
-    @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes,
-            final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
-    {
-        return new QualifiedIdentitySearchResult( );
-    }
-
-    @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected )
-    {
-        return new QualifiedIdentitySearchResult( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+        source.forEach( ( key, newValue ) -> {
+            final String existingValue = destination.get( key );
+            if ( StringUtils.isEmpty( existingValue ) )
+            {
+                destination.put( key, newValue );
+            }
+            else
+            {
+                final List<String> existingValues = Arrays.asList( existingValue.split( "," ) );
+                final List<String> newValues = Arrays.asList( newValue.split( "," ) );
+                destination.put( key, Stream.concat( newValues.stream( ), existingValues.stream( ) ).distinct( ).collect( Collectors.joining( "," ) ) );
+            }
+        } );
     }
 }
