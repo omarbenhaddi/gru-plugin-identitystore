@@ -36,17 +36,27 @@ package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.history.IdentityStoreHistoryGetRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.history.IdentityStoreHistorySearchRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistoryGetResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -70,7 +80,7 @@ public class HistoryRestService
     @GET
     @Path( "{" + Constants.PARAM_ID_CUSTOMER + "}" )
     @Produces( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Get an identity history by its customer ID (CUID)", response = IdentityHistory.class )
+    @ApiOperation( value = "Get an identity history by its customer ID (CUID)", response = IdentityHistoryGetResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity history Found" ),
             @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),

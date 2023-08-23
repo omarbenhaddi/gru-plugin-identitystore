@@ -33,7 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
 
@@ -46,7 +47,7 @@ import static javax.ws.rs.core.Response.Status;
  * Exception mapper designed to intercept uncaught {@link IdentityNotFoundException}.<br/>
  */
 @Provider
-public class UncaughtIdentityNotFoundExceptionMapper extends GenericUncaughtExceptionMapper<IdentityNotFoundException, ResponseDto>
+public class UncaughtIdentityNotFoundExceptionMapper extends GenericUncaughtExceptionMapper<IdentityNotFoundException, ErrorResponse>
 {
     public static final String ERROR_NO_IDENTITY_FOUND = "No identity found.";
 
@@ -57,10 +58,10 @@ public class UncaughtIdentityNotFoundExceptionMapper extends GenericUncaughtExce
     }
 
     @Override
-    protected ResponseDto buildEntity( final IdentityNotFoundException e )
+    protected ErrorResponse buildEntity( final IdentityNotFoundException e )
     {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( getStatus( ).toString( ) );
+        final ErrorResponse response = new ErrorResponse( );
+        response.setStatus( ErrorStatusType.valueOf( getStatus( ).name( ) ) );
         response.setMessage( ERROR_NO_IDENTITY_FOUND + " :: " + e.getMessage( ) );
         return response;
     }

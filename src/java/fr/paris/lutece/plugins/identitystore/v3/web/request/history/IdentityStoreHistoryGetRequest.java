@@ -36,7 +36,9 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.history;
 import fr.paris.lutece.plugins.identitystore.service.history.IdentityHistoryService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.HistorySearchStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistoryGetResponse;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 public class IdentityStoreHistoryGetRequest extends AbstractIdentityStoreRequest
@@ -58,8 +60,21 @@ public class IdentityStoreHistoryGetRequest extends AbstractIdentityStoreRequest
     }
 
     @Override
-    protected IdentityHistory doSpecificRequest( ) throws IdentityStoreException
+    protected IdentityHistoryGetResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        return IdentityHistoryService.instance( ).get( _strCustomerId, _strClientCode );
+        final IdentityHistoryGetResponse response = new IdentityHistoryGetResponse( );
+
+        final IdentityHistory identityHistory = IdentityHistoryService.instance( ).get( _strCustomerId, _strClientCode );
+        if ( identityHistory != null )
+        {
+            response.setHistory( identityHistory );
+            response.setStatus( HistorySearchStatusType.SUCCESS );
+        }
+        else
+        {
+            response.setStatus( HistorySearchStatusType.NOT_FOUND );
+        }
+
+        return response;
     }
 }

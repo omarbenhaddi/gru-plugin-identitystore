@@ -35,11 +35,20 @@ package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.*;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreCancelMergeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreCreateRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreDeleteRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreImportRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreMergeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreSearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUncertifyRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
@@ -50,10 +59,23 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -336,7 +358,7 @@ public final class IdentityStoreRestService
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         if ( StringUtils.isBlank( strDays ) || !StringUtils.isNumeric( strDays ) )
         {
-            return buildResponse( "You must provide the 'days' parameter in numeric format.", Response.Status.BAD_REQUEST );
+            return buildErrorResponse( "You must provide the 'days' parameter in numeric format.", Response.Status.BAD_REQUEST );
         }
         final UpdatedIdentitySearchResponse entity = new UpdatedIdentitySearchResponse( );
         final List<UpdatedIdentity> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
@@ -388,10 +410,10 @@ public final class IdentityStoreRestService
      *            the status
      * @return the {@code Response} object
      */
-    private Response buildResponse( String strMessage, Response.StatusType status )
+    private Response buildErrorResponse( String strMessage, Response.Status status )
     {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( status.toString( ) );
+        final ErrorResponse response = new ErrorResponse( );
+        response.setStatus( ErrorStatusType.valueOf( status.name( ) ) );
         response.setMessage( strMessage );
         return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
     }

@@ -33,7 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
 
 import javax.ws.rs.core.MediaType;
@@ -46,7 +47,7 @@ import static javax.ws.rs.core.Response.Status;
  * It will only be triggered if no better suitable mappers are available for the fired exception.
  */
 @Provider
-public class UncaughtExceptionMapper extends GenericUncaughtExceptionMapper<Exception, ResponseDto>
+public class UncaughtExceptionMapper extends GenericUncaughtExceptionMapper<Exception, ErrorResponse>
 {
     @Override
     protected Status getStatus( )
@@ -55,10 +56,10 @@ public class UncaughtExceptionMapper extends GenericUncaughtExceptionMapper<Exce
     }
 
     @Override
-    protected ResponseDto buildEntity( final Exception e )
+    protected ErrorResponse buildEntity( final Exception e )
     {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( getStatus( ).toString( ) );
+        final ErrorResponse response = new ErrorResponse( );
+        response.setStatus( ErrorStatusType.valueOf( getStatus( ).name( ) ) );
         response.setMessage( ERROR_DURING_TREATMENT + " :: " + e.getMessage( ) );
         return response;
     }

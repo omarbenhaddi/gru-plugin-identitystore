@@ -34,7 +34,8 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.ResponseDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
 
 import javax.ws.rs.core.MediaType;
@@ -46,7 +47,7 @@ import static javax.ws.rs.core.Response.Status;
  * Exception mapper designed to intercept uncaught {@link ServiceContractNotFoundException}.<br/>
  */
 @Provider
-public class UncaughtServiceContractNotFoundExceptionMapper extends GenericUncaughtExceptionMapper<ServiceContractNotFoundException, ResponseDto>
+public class UncaughtServiceContractNotFoundExceptionMapper extends GenericUncaughtExceptionMapper<ServiceContractNotFoundException, ErrorResponse>
 {
     public static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found";
 
@@ -57,10 +58,10 @@ public class UncaughtServiceContractNotFoundExceptionMapper extends GenericUncau
     }
 
     @Override
-    protected ResponseDto buildEntity( final ServiceContractNotFoundException e )
+    protected ErrorResponse buildEntity( final ServiceContractNotFoundException e )
     {
-        final ResponseDto response = new ResponseDto( );
-        response.setStatus( getStatus( ).toString( ) );
+        final ErrorResponse response = new ErrorResponse( );
+        response.setStatus( ErrorStatusType.valueOf( getStatus( ).name( ) ) );
         response.setMessage( ERROR_NO_SERVICE_CONTRACT_FOUND + " :: " + e.getMessage( ) );
         return response;
     }
