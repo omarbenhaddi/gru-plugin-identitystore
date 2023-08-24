@@ -37,6 +37,7 @@ package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -299,13 +300,13 @@ public final class SuspiciousIdentityHome
         final Identity identity = IdentityHome.findByCustomerId( customerId );
         if ( identity == null )
         {
-            throw new IdentityStoreException( "Could not find identity with customerId " + customerId );
+            throw new IdentityNotFoundException( "Could not find identity with customerId " + customerId );
         }
 
         final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( customerId );
         if ( suspiciousIdentity == null )
         {
-            throw new IdentityStoreException( "Could not find suspicious identity with customerId " + customerId );
+            throw new IdentityNotFoundException( "Could not find suspicious identity with customerId " + customerId );
         }
 
         if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && !( suspiciousIdentity.getLock( ).getAuthorName( ).equals( authorName )
