@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 
@@ -85,6 +86,7 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
         if ( activeServiceContract == null )
         {
             response.setStatus( ServiceContractSearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND );
             return response;
         }
 
@@ -100,6 +102,7 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
 
         response.setServiceContract( DtoConverter.convertContractToDto( activeServiceContract ) );
         response.setStatus( ServiceContractSearchStatusType.SUCCESS );
+        response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
         return response;
     }

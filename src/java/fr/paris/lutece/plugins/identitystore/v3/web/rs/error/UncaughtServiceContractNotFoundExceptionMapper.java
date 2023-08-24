@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
 
 import javax.ws.rs.core.MediaType;
@@ -49,7 +50,7 @@ import static javax.ws.rs.core.Response.Status;
 @Provider
 public class UncaughtServiceContractNotFoundExceptionMapper extends GenericUncaughtExceptionMapper<ServiceContractNotFoundException, ErrorResponse>
 {
-    public static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found";
+    public static final String ERROR_NO_SERVICE_CONTRACT_FOUND = "No service contract found.";
 
     @Override
     protected Status getStatus( )
@@ -63,6 +64,7 @@ public class UncaughtServiceContractNotFoundExceptionMapper extends GenericUncau
         final ErrorResponse response = new ErrorResponse( );
         response.setStatus( ErrorStatusType.valueOf( getStatus( ).name( ) ) );
         response.setMessage( ERROR_NO_SERVICE_CONTRACT_FOUND + " :: " + e.getMessage( ) );
+        response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND );
         return response;
     }
 

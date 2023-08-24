@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
 
@@ -63,6 +64,7 @@ public class UncaughtIdentityNotFoundExceptionMapper extends GenericUncaughtExce
         final ErrorResponse response = new ErrorResponse( );
         response.setStatus( ErrorStatusType.valueOf( getStatus( ).name( ) ) );
         response.setMessage( ERROR_NO_IDENTITY_FOUND + " :: " + e.getMessage( ) );
+        response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
         return response;
     }
 

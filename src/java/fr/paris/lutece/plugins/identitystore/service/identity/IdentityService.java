@@ -153,6 +153,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( "The client application is not authorized to create an identity." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_CREATE_UNAUTHORIZED );
             return null;
         }
 
@@ -177,6 +178,7 @@ public class IdentityService
             {
                 response.setStatus( IdentityChangeStatus.FAILURE );
                 response.setMessage( "All mandatory attributes must be provided : " + mandatoryAttributes );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_MISSING_MANDATORY_ATTRIBUTES );
                 return null;
             }
         }
@@ -201,6 +203,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setMessage( duplicateSearchResponse.getMessage( ) );
+            response.setI18nMessageKey( duplicateSearchResponse.getI18nMessageKey( ) );
             return null;
         }
 
@@ -231,6 +234,7 @@ public class IdentityService
             final boolean incompleteCreation = response.getAttributeStatuses( ).stream( )
                     .anyMatch( s -> s.getStatus( ).equals( AttributeChangeStatus.NOT_CREATED ) );
             response.setStatus( incompleteCreation ? IdentityChangeStatus.CREATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.CREATE_SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
             /* Historique des modifications */
             final List<AttributeStatus> createdAttributes = response.getAttributeStatuses( ).stream( )
@@ -254,6 +258,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
             TransactionManager.rollBack( null );
         }
 
@@ -297,6 +302,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "The client application is not authorized to update an identity." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_UPDATE_UNAUTHORIZED );
             return null;
         }
 
@@ -307,6 +313,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.NOT_FOUND );
             response.setMessage( "No matching identity could be found" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_MATCHING_IDENTITY );
             return null;
         }
 
@@ -316,6 +323,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( identity.getCustomerId( ) );
             response.setMessage( "This identity has been updated recently, please load the latest data before updating." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_UPDATE_CONFLICT );
             return identity;
         }
 
@@ -326,6 +334,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( masterIdentity.getCustomerId( ) );
             response.setMessage( "Cannot update a merged Identity. Master identity customerId is provided in the response." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_UPDATE_ON_MERGED_IDENTITY );
             return identity;
         }
 
@@ -335,6 +344,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( identity.getCustomerId( ) );
             response.setMessage( "Cannot update a deleted Identity." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_UPDATE_ON_DELETED_IDENTITY );
             return identity;
         }
 
@@ -344,6 +354,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setCustomerId( identity.getCustomerId( ) );
             response.setMessage( "The client application is not authorized to update the 'mon_paris_active' flag." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_MON_PARIS_ACTIVE_UPDATE );
             return null;
         }
 
@@ -373,6 +384,7 @@ public class IdentityService
                     response.setCustomerId( byConnectionId.getCustomerId( ) );
                     response.setMessage(
                             "An identity already exists with the given connection ID. The customer ID of that identity is provided in the response." );
+                    response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_CONFLICT_CONNECTION_ID );
                     return null;
                 }
                 else
@@ -400,6 +412,7 @@ public class IdentityService
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
             response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityChangeStatus.UPDATE_INCOMPLETE_SUCCESS : IdentityChangeStatus.UPDATE_SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
             /* Historique des modifications */
             for ( final AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
@@ -421,6 +434,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
             TransactionManager.rollBack( null );
         }
 
@@ -459,6 +473,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Could not find primary identity with customer_id " + request.getPrimaryCuid( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_PRIMARY_IDENTITY_NOT_FOUND );
             return null;
         }
 
@@ -466,6 +481,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Primary identity found with customer_id " + request.getPrimaryCuid( ) + " is deleted" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_PRIMARY_IDENTITY_DELETED );
             return null;
         }
 
@@ -473,6 +489,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Primary identity found with customer_id " + request.getPrimaryCuid( ) + " is merged" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_PRIMARY_IDENTITY_MERGED );
             return null;
         }
 
@@ -480,6 +497,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The primary identity has been updated recently, please load the latest data before merging." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_PRIMARY_IDENTITY_UPDATE_CONFLICT );
             return null;
         }
 
@@ -488,6 +506,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Could not find secondary identity with customer_id " + request.getSecondaryCuid( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_NOT_FOUND );
             return null;
         }
 
@@ -495,6 +514,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( ) + " is deleted" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_DELETED );
             return null;
         }
 
@@ -502,6 +522,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( ) + " is merged" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_MERGED );
             return null;
         }
 
@@ -509,6 +530,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The secondary identity has been updated recently, please load the latest data before merging." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_UPDATE_CONFLICT );
             return null;
         }
 
@@ -540,6 +562,7 @@ public class IdentityService
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
             response.setStatus( notAllAttributesCreatedOrUpdated ? IdentityMergeStatus.INCOMPLETE_SUCCESS : IdentityMergeStatus.SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
             /* Historique des modifications */
             for ( AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
@@ -569,6 +592,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_UPDATE_CONFLICT );
             TransactionManager.rollBack( null );
         }
 
@@ -592,6 +616,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Could not find primary identity with customer_id " + request.getPrimaryCuid( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_PRIMARY_IDENTITY_NOT_FOUND );
             return;
         }
 
@@ -599,6 +624,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The primary identity has been updated recently, please load the latest data before canceling merge." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_PRIMARY_IDENTITY_UPDATE_CONFLICT );
             return;
         }
 
@@ -607,6 +633,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Could not find secondary identity with customer_id " + request.getSecondaryCuid( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_NOT_FOUND );
             return;
         }
 
@@ -614,6 +641,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( ) + " is not merged" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_NOT_MERGED );
             return;
         }
 
@@ -622,6 +650,7 @@ public class IdentityService
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Secondary identity found with customer_id " + request.getSecondaryCuid( )
                     + " is not merged to Primary identity found with customer ID " + request.getPrimaryCuid( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITIES_NOT_MERGED_TOGETHER );
             return;
         }
 
@@ -629,6 +658,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The secondary identity has been updated recently, please load the latest data before canceling merge." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_UPDATE_CONFLICT );
             return;
         }
 
@@ -638,6 +668,7 @@ public class IdentityService
             /* Tag de l'identité secondaire */
             IdentityHome.cancelMerge( secondaryIdentity );
             response.setStatus( IdentityMergeStatus.SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
             /* Indexation */
             final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED,
@@ -657,6 +688,7 @@ public class IdentityService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
             TransactionManager.rollBack( null );
         }
     }
@@ -694,6 +726,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.CONFLICT );
             response.setMessage( suspicionDuplicates.getMessage( ) );
+            response.setI18nMessageKey( suspicionDuplicates.getI18nMessageKey( ) );
         }
         else
         {
@@ -786,6 +819,7 @@ public class IdentityService
             alert.setMessage( "Please provide those required attributes to be able to search identities." );
             response.getAlerts( ).add( alert );
             response.setStatus( IdentitySearchStatusType.FAILURE );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_MISSING_MANDATORY_ATTRIBUTES );
             return;
         }
 
@@ -798,15 +832,18 @@ public class IdentityService
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
                 response.setStatus( IdentitySearchStatusType.SUCCESS );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
             else
             {
                 response.setStatus( IdentitySearchStatusType.NOT_FOUND );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
             }
         }
         else
         {
             response.setStatus( IdentitySearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
         }
     }
 
@@ -830,6 +867,7 @@ public class IdentityService
         if ( identity == null )
         {
             response.setStatus( IdentitySearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
         }
         else
         {
@@ -840,10 +878,12 @@ public class IdentityService
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
                 response.setStatus( IdentitySearchStatusType.SUCCESS );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
             else
             {
                 response.setStatus( IdentitySearchStatusType.NOT_FOUND );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
             }
         }
     }
@@ -1134,6 +1174,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "The client application is not authorized to request the deletion of an identity." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DELETE_UNAUTHORIZED );
             return;
         }
 
@@ -1144,6 +1185,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "Identity not found." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_NOT_FOUND );
             return;
         }
         if ( identity.isDeleted( ) )
@@ -1151,6 +1193,8 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "Identity  allready in deleted state." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALREADY_DELETED );
+
             return;
         }
         if ( identity.isMerged( ) )
@@ -1158,6 +1202,7 @@ public class IdentityService
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setCustomerId( customerId );
             response.setMessage( "Identity in merged state can not be deleted." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_DELETE_ON_MERGED_IDENTITY );
             return;
         }
 
@@ -1168,6 +1213,7 @@ public class IdentityService
             IdentityHome.softRemove( customerId );
 
             response.setStatus( IdentityChangeStatus.DELETE_SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
             /* Notify listeners for indexation, history, ... */
             final IndexIdentityChange identityChange = new IndexIdentityChange( IdentityStoreNotifyListenerService.buildIdentityChange(
@@ -1228,6 +1274,7 @@ public class IdentityService
         {
             response.setStatus( IdentityChangeStatus.NOT_FOUND );
             response.setMessage( "No identity found" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_NOT_FOUND );
             return response;
         }
 
@@ -1241,11 +1288,13 @@ public class IdentityService
             }
             TransactionManager.commitTransaction( null );
             response.setStatus( IdentityChangeStatus.UNCERTIFY_SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
         catch( final Exception e )
         {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
             TransactionManager.rollBack( null );
         }
 

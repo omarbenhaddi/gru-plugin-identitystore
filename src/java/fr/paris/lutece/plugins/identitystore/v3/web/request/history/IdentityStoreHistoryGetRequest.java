@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.HistorySearchStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistoryGetResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 public class IdentityStoreHistoryGetRequest extends AbstractIdentityStoreRequest
@@ -69,10 +70,12 @@ public class IdentityStoreHistoryGetRequest extends AbstractIdentityStoreRequest
         {
             response.setHistory( identityHistory );
             response.setStatus( HistorySearchStatusType.SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
         else
         {
             response.setStatus( HistorySearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_HISTORY_FOUND );
         }
 
         return response;

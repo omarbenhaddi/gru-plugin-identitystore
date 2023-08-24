@@ -40,6 +40,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientSearchStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientsSearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
@@ -89,6 +90,7 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
         if ( clientApplications == null || CollectionUtils.isEmpty( clientApplications ) )
         {
             response.setStatus( ClientSearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_CLIENT_FOUND );
         }
         else
         {
@@ -97,6 +99,7 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
                 response.getClientApplications( ).add( DtoConverter.convertClientToDto( clientApplication ) );
             }
             response.setStatus( ClientSearchStatusType.SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
 
         return response;

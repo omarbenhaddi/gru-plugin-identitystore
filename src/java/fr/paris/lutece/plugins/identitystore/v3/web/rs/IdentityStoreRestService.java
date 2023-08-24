@@ -358,17 +358,20 @@ public final class IdentityStoreRestService
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         if ( StringUtils.isBlank( strDays ) || !StringUtils.isNumeric( strDays ) )
         {
-            return buildErrorResponse( "You must provide the 'days' parameter in numeric format.", Response.Status.BAD_REQUEST );
+            return buildErrorResponse( "You must provide the 'days' parameter in numeric format.", Constants.PROPERTY_REST_ERROR_DAYS_NUMERIC_FORMAT,
+                    Response.Status.BAD_REQUEST );
         }
         final UpdatedIdentitySearchResponse entity = new UpdatedIdentitySearchResponse( );
         final List<UpdatedIdentity> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
             entity.setStatus( UpdatedIdentitySearchStatus.NOT_FOUND );
+            entity.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND );
         }
         else
         {
             entity.setStatus( UpdatedIdentitySearchStatus.SUCCESS );
+            entity.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
         }
         return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
@@ -410,11 +413,12 @@ public final class IdentityStoreRestService
      *            the status
      * @return the {@code Response} object
      */
-    private Response buildErrorResponse( String strMessage, Response.Status status )
+    private Response buildErrorResponse( final String strMessage, final String i18nMessageKey, final Response.Status status )
     {
         final ErrorResponse response = new ErrorResponse( );
         response.setStatus( ErrorStatusType.valueOf( status.name( ) ) );
         response.setMessage( strMessage );
+        response.setI18nMessageKey( i18nMessageKey );
         return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
     }
 }

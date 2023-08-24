@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStor
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
@@ -67,6 +68,7 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
             final IdentityChangeResponse response = new IdentityChangeResponse( );
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( "Unauthorized operation." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_UNAUTHORIZED_OPERATION );
             return response;
         }
         return IdentityService.instance( ).uncertifyIdentity( _strCustomerId );

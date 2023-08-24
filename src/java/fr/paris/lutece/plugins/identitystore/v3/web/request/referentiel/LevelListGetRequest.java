@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStor
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ReferentielSearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
@@ -85,11 +86,13 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
         if ( refCertificationLevelsList == null || CollectionUtils.isEmpty( refCertificationLevelsList ) )
         {
             response.setStatus( ReferentielSearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_LEVEL_FOUND );
         }
         else
         {
             response.setLevels( DtoConverter.convertRefLevelsToListDto( refCertificationLevelsList ) );
             response.setStatus( ReferentielSearchStatusType.SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
 
         return response;

@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 import java.util.Optional;
@@ -90,6 +91,7 @@ public class ServiceContractPutEndDateRequest extends AbstractIdentityStoreReque
         {
             response.setStatus( ServiceContractChangeStatusType.FAILURE );
             response.setMessage( "No application could be found with code " + _strClientCode );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND );
         }
         else
         {
@@ -98,12 +100,14 @@ public class ServiceContractPutEndDateRequest extends AbstractIdentityStoreReque
             {
                 response.setStatus( ServiceContractChangeStatusType.FAILURE );
                 response.setMessage( "No service contract could be found with code " + _serviceContractId );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_NOT_FOUND );
             }
             else
             {
                 _serviceContractDto.setId( _serviceContractId );
                 ServiceContractService.instance( ).close( DtoConverter.convertDtoToContract( _serviceContractDto ) );
                 response.setStatus( ServiceContractChangeStatusType.SUCCESS );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
         }
 

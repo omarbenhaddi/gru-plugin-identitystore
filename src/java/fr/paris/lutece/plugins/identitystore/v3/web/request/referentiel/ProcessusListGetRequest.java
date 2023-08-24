@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationProcessusDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ProcessusSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ReferentielSearchStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
@@ -88,6 +89,7 @@ public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
         if ( refAttributeCertificationProcessussList == null || CollectionUtils.isEmpty( refAttributeCertificationProcessussList ) )
         {
             response.setStatus( ReferentielSearchStatusType.NOT_FOUND );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_PROCESSUS_FOUND );
         }
         else
         {
@@ -101,6 +103,7 @@ public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
 
             response.setProcessus( processusDtos );
             response.setStatus( ReferentielSearchStatusType.SUCCESS );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
 
         return response;

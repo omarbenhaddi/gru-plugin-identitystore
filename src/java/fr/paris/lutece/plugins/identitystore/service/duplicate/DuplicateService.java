@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreat
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -102,11 +103,13 @@ public class DuplicateService implements IDuplicateService
             final String matchingRules = qualifiedIdentities.keySet( ).stream( ).filter( s -> CollectionUtils.isNotEmpty( qualifiedIdentities.get( s ) ) )
                     .collect( Collectors.joining( "," ) );
             response.setMessage( "Potential duplicate(s) found with rule(s) : " + matchingRules );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND );
             response.setIdentities( allResults );
         }
         else
         {
             response.setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_POTENTIAL_DUPLICATE_FOUND );
             response.setIdentities( Collections.emptyList( ) );
         }
 

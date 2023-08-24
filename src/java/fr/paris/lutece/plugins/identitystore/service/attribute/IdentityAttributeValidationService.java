@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.regex.Pattern;
@@ -77,6 +78,7 @@ public class IdentityAttributeValidationService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FAIL_ATTRIBUTE_VALIDATION );
         }
     }
 
@@ -91,6 +93,7 @@ public class IdentityAttributeValidationService
         {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FAIL_ATTRIBUTE_VALIDATION );
         }
     }
 

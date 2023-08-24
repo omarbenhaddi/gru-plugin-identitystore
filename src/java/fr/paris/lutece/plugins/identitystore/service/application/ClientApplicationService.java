@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.util.sql.TransactionManager;
 
 public class ClientApplicationService
@@ -64,6 +65,7 @@ public class ClientApplicationService
             {
                 response.setStatus( ClientChangeStatusType.CONFLICT );
                 response.setMessage( "A client exists with the code " + clientApplicationDto.getClientCode( ) );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_CLIENT_ALREADY_EXISTS );
             }
             else
             {
@@ -71,6 +73,7 @@ public class ClientApplicationService
                 ClientApplicationHome.create( client );
                 response.setClientApplication( DtoConverter.convertClientToDto( client ) );
                 response.setStatus( ClientChangeStatusType.SUCCESS );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
             TransactionManager.commitTransaction( null );
         }
@@ -78,6 +81,7 @@ public class ClientApplicationService
         {
             response.setStatus( ClientChangeStatusType.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
             TransactionManager.rollBack( null );
         }
     }
@@ -92,6 +96,7 @@ public class ClientApplicationService
             {
                 response.setStatus( ClientChangeStatusType.NOT_FOUND );
                 response.setMessage( "No client could be found with the code " + clientApplicationDto.getClientCode( ) );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_CLIENT_FOUND );
             }
             else
             {
@@ -99,6 +104,7 @@ public class ClientApplicationService
                 ClientApplicationHome.update( client );
                 response.setClientApplication( DtoConverter.convertClientToDto( client ) );
                 response.setStatus( ClientChangeStatusType.SUCCESS );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
             TransactionManager.commitTransaction( null );
         }
@@ -106,6 +112,7 @@ public class ClientApplicationService
         {
             response.setStatus( ClientChangeStatusType.FAILURE );
             response.setMessage( e.getMessage( ) );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
             TransactionManager.rollBack( null );
         }
     }

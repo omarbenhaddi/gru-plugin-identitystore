@@ -51,6 +51,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -153,6 +154,7 @@ public class ServiceContractService
         if ( IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
         {
             response.setMessage( "The request violates service contract definition" );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
         }
 
         return response;
@@ -181,6 +183,7 @@ public class ServiceContractService
         {
             response.setStatus( IdentityMergeStatus.FAILURE );
             response.setMessage( "The client application is not authorized to merge identities " );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_MERGE_UNAUTHORIZED );
         }
 
         return response;
@@ -209,6 +212,7 @@ public class ServiceContractService
         {
             response.setStatus( IdentityChangeStatus.FAILURE );
             response.setMessage( "The client application is not authorized to import identities " );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_IMPORT_UNAUTHORIZED );
         }
         else
         {
@@ -239,6 +243,8 @@ public class ServiceContractService
         if ( !serviceContract.getAuthorizedSearch( ) )
         {
             response.setStatus( IdentitySearchStatusType.FAILURE );
+            response.setMessage( "The client application is not authorized to search an identity." );
+            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SEARCH_UNAUTHORIZED );
             final IdentitySearchMessage message = new IdentitySearchMessage( );
             message.setMessage( "The client application is not authorized to search an identity." ); // TODO améliorer le modèle
             response.getAlerts( ).add( message );
@@ -263,6 +269,7 @@ public class ServiceContractService
                         alert.setMessage( "This attribute is not searchable in service contract definition." );
                         response.getAlerts( ).add( alert );
                         response.setStatus( IdentitySearchStatusType.FAILURE );
+                        response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
                     }
                 }
                 else
@@ -280,6 +287,7 @@ public class ServiceContractService
                             alert.setMessage( "This attribute group is not searchable in service contract definition." );
                             response.getAlerts( ).add( alert );
                             response.setStatus( IdentitySearchStatusType.FAILURE );
+                            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
                         }
                     }
                     else
@@ -289,6 +297,7 @@ public class ServiceContractService
                         alert.setMessage( "This attribute does not exist in service contract definition." );
                         response.getAlerts( ).add( alert );
                         response.setStatus( IdentitySearchStatusType.FAILURE );
+                        response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
                     }
                 }
             }
