@@ -41,8 +41,8 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IIdentitySearcher;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -91,9 +91,9 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
-    private List<QualifiedIdentity> getEntities( Response search )
+    private List<IdentityDto> getEntities( Response search )
     {
-        final List<QualifiedIdentity> identities = new ArrayList<>( );
+        final List<IdentityDto> identities = new ArrayList<>( );
 
         if ( search != null )
         {
@@ -111,10 +111,10 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         return identities;
     }
 
-    private QualifiedIdentity toQualifiedIdentity( final IdentityObject identityObject )
+    private IdentityDto toQualifiedIdentity( final IdentityObject identityObject )
             throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
-        final QualifiedIdentity identity = new QualifiedIdentity( );
+        final IdentityDto identity = new IdentityDto( );
         identity.setConnectionId( identityObject.getConnectionId( ) );
         identity.setCustomerId( identityObject.getCustomerId( ) );
         identity.setCreationDate( identityObject.getCreationDate( ) );
@@ -124,7 +124,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         {
             final String s = entry.getKey( );
             AttributeObject attributeObject = entry.getValue( );
-            final CertifiedAttribute attribute = new CertifiedAttribute( );
+            final AttributeDto attribute = new AttributeDto( );
             attribute.setKey( s );
             attribute.setValue( attributeObject.getValue( ) );
             attribute.setType( attributeObject.getType( ) );

@@ -36,9 +36,7 @@ package fr.paris.lutece.plugins.identitystore.service.attribute;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
@@ -68,7 +66,7 @@ public class IdentityAttributeValidationService
     }
 
     /**
-     * @see IdentityAttributeValidationService#validateIdentityAttributeValues(Identity, ChangeResponse)
+     * @see IdentityAttributeValidationService#validateIdentityAttributeValues(IdentityDto, ChangeResponse)
      */
     public void validateMergeRequestAttributeValues( final IdentityMergeRequest request, final IdentityMergeResponse response )
             throws IdentityAttributeNotFoundException
@@ -83,7 +81,7 @@ public class IdentityAttributeValidationService
     }
 
     /**
-     * @see IdentityAttributeValidationService#validateIdentityAttributeValues(Identity, ChangeResponse)
+     * @see IdentityAttributeValidationService#validateIdentityAttributeValues(IdentityDto, ChangeResponse)
      */
     public void validateChangeRequestAttributeValues( final IdentityChangeRequest request, final IdentityChangeResponse response )
             throws IdentityAttributeNotFoundException
@@ -107,12 +105,12 @@ public class IdentityAttributeValidationService
      *            the response
      * @return true if all values are valid, false otherwise.
      */
-    private boolean validateIdentityAttributeValues( final Identity identity, final ChangeResponse response ) throws IdentityAttributeNotFoundException
+    private boolean validateIdentityAttributeValues( final IdentityDto identity, final ChangeResponse response ) throws IdentityAttributeNotFoundException
     {
         boolean passedValidation = true;
         if ( identity != null )
         {
-            for ( final CertifiedAttribute attribute : identity.getAttributes( ) )
+            for ( final AttributeDto attribute : identity.getAttributes( ) )
             {
                 final Pattern validationPattern = _cache.get( attribute.getKey( ) );
                 if ( validationPattern != null )

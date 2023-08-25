@@ -35,8 +35,8 @@ package fr.paris.lutece.plugins.identitystore.service.attribute;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 
@@ -67,13 +67,13 @@ public class IdentityAttributeFormatterService
     /**
      * Formats attribute values in the Identity contained in the provided request.
      * 
-     * @see IdentityAttributeFormatterService#formatIdentityAttributeValues(Identity)
+     * @see IdentityAttributeFormatterService#formatIdentityAttributeValues(IdentityDto)
      * @param request
      *            the identity change request
      */
     public List<AttributeStatus> formatIdentityChangeRequestAttributeValues( final IdentityChangeRequest request )
     {
-        final Identity identity = request.getIdentity( );
+        final IdentityDto identity = request.getIdentity( );
         final List<AttributeStatus> statuses = this.formatIdentityAttributeValues( identity );
         request.setIdentity( identity );
         return statuses;
@@ -82,14 +82,14 @@ public class IdentityAttributeFormatterService
     /**
      * Formats attribute values in the Identity contained in the provided request.
      * 
-     * @see IdentityAttributeFormatterService#formatIdentityAttributeValues(Identity)
+     * @see IdentityAttributeFormatterService#formatIdentityAttributeValues(IdentityDto)
      * @param request
      *            the identity merge request
      */
     public List<AttributeStatus> formatIdentityMergeRequestAttributeValues( final IdentityMergeRequest request )
     {
         final List<AttributeStatus> statuses = new ArrayList<>( );
-        final Identity identity = request.getIdentity( );
+        final IdentityDto identity = request.getIdentity( );
         if ( identity != null )
         {
             statuses.addAll( this.formatIdentityAttributeValues( identity ) );
@@ -121,11 +121,11 @@ public class IdentityAttributeFormatterService
      *            identity containing attributes to format
      * @return FORMATTED_VALUE statuses for attributes whose value has changed after the formatting.
      */
-    private List<AttributeStatus> formatIdentityAttributeValues( final Identity identity )
+    private List<AttributeStatus> formatIdentityAttributeValues( final IdentityDto identity )
     {
-        final List<CertifiedAttribute> formattedAttributes = new ArrayList<>( );
+        final List<AttributeDto> formattedAttributes = new ArrayList<>( );
         final List<AttributeStatus> statuses = new ArrayList<>( );
-        for ( final CertifiedAttribute attribute : identity.getAttributes( ) )
+        for ( final AttributeDto attribute : identity.getAttributes( ) )
         {
             // Suppression espaces avant et après, et uniformisation des espacements (tab, space, nbsp, successions d'espaces, ...) en les remplaçant tous par
             // un espace

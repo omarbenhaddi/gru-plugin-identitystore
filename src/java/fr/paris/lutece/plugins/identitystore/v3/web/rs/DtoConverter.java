@@ -51,15 +51,12 @@ import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeDefinitionDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.CertificationProcessus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationLevelDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationProcessusDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -92,24 +89,37 @@ public final class DtoConverter
      *            business identity to convert
      * @return identityDto initialized from provided identity
      */
-    public static QualifiedIdentity convertIdentityToDto( final Identity identity ) throws RefAttributeCertificationDefinitionNotFoundException
+    public static IdentityDto convertIdentityToDto( final Identity identity ) throws RefAttributeCertificationDefinitionNotFoundException
     {
-        final QualifiedIdentity qualifiedIdentity = new QualifiedIdentity( );
-        qualifiedIdentity.setConnectionId( identity.getConnectionId( ) );
-        qualifiedIdentity.setCustomerId( identity.getCustomerId( ) );
-        qualifiedIdentity.setMerged( identity.isMerged( ) );
-        qualifiedIdentity.setMergeDate( identity.getMergeDate( ) );
-        if ( identity.getMasterIdentityId( ) != null )
+        final IdentityDto identityDto = new IdentityDto( );
+        identityDto.setConnectionId( identity.getConnectionId( ) );
+        identityDto.setCustomerId( identity.getCustomerId( ) );
+        identityDto.setLastUpdateDate( identity.getLastUpdateDate( ) );
+        identityDto.setCreationDate( identity.getCreationDate( ) );
+        identityDto.setMonParisActive( identity.isMonParisActive( ) );
+
+        if ( identity.isMerged( ) )
         {
-            qualifiedIdentity.setMasterCustomerId( IdentityHome.findByPrimaryKey( identity.getMasterIdentityId( ) ).getCustomerId( ) );
+            final MergeDefinition merge = new MergeDefinition( );
+            merge.setMerged( identity.isMerged( ) );
+            merge.setMergeDate( identity.getMergeDate( ) );
+            if ( identity.getMasterIdentityId( ) != null )
+            {
+                merge.setMasterCustomerId( IdentityHome.findByPrimaryKey( identity.getMasterIdentityId( ) ).getCustomerId( ) );
+            }
+            identityDto.setMerge( merge );
         }
-        qualifiedIdentity.setLastUpdateDate( identity.getLastUpdateDate( ) );
-        qualifiedIdentity.setCreationDate( identity.getCreationDate( ) );
-        qualifiedIdentity.setMonParisActive( identity.isMonParisActive( ) );
-        qualifiedIdentity.setExpirationDate( identity.getExpirationDate( ) );
-        qualifiedIdentity.setDeleted( identity.isDeleted( ) );
-        qualifiedIdentity.setDeleteDate( identity.getDeleteDate( ) );
-        qualifiedIdentity.setSuspicious( SuspiciousIdentityHome.hasSuspicious( Collections.singletonList( identity.getCustomerId( ) ) ) );
+
+        if ( identity.getExpirationDate( ) != null || identity.isDeleted( ) || identity.getDeleteDate( ) != null )
+        {
+            final ExpirationDefinition expiration = new ExpirationDefinition( );
+            expiration.setExpirationDate( identity.getExpirationDate( ) );
+            expiration.setDeleted( identity.isDeleted( ) );
+            expiration.setDeleteDate( identity.getDeleteDate( ) );
+            identityDto.setExpiration( expiration );
+        }
+
+        identityDto.setSuspicious( SuspiciousIdentityHome.hasSuspicious( Collections.singletonList( identity.getCustomerId( ) ) ) );
 
         if ( MapUtils.isNotEmpty( identity.getAttributes( ) ) )
         {
@@ -117,26 +127,26 @@ public final class DtoConverter
             {
                 final AttributeKey attributeKey = attribute.getAttributeKey( );
 
-                final CertifiedAttribute certifiedAttribute = new CertifiedAttribute( );
-                certifiedAttribute.setKey( attributeKey.getKeyName( ) );
-                certifiedAttribute.setValue( attribute.getValue( ) );
-                certifiedAttribute.setType( attributeKey.getKeyType( ).getCode( ) );
-                certifiedAttribute.setLastUpdateClientCode( attribute.getLastUpdateClientCode( ) );
-                certifiedAttribute.setLastUpdateDate( attribute.getLastUpdateDate( ) );
+                final AttributeDto attributeDto = new AttributeDto( );
+                attributeDto.setKey( attributeKey.getKeyName( ) );
+                attributeDto.setValue( attribute.getValue( ) );
+                attributeDto.setType( attributeKey.getKeyType( ).getCode( ) );
+                attributeDto.setLastUpdateClientCode( attribute.getLastUpdateClientCode( ) );
+                attributeDto.setLastUpdateDate( attribute.getLastUpdateDate( ) );
 
                 if ( attribute.getCertificate( ) != null )
                 {
-                    certifiedAttribute.setCertifier( attribute.getCertificate( ).getCertifierCode( ) );
-                    certifiedAttribute.setCertificationLevel( AttributeCertificationDefinitionService.instance( )
+                    attributeDto.setCertifier( attribute.getCertificate( ).getCertifierCode( ) );
+                    attributeDto.setCertificationLevel( AttributeCertificationDefinitionService.instance( )
                             .getLevelAsInteger( attribute.getCertificate( ).getCertifierCode( ), attributeKey.getKeyName( ) ) );
-                    certifiedAttribute.setCertificationDate( attribute.getCertificate( ).getCertificateDate( ) );
+                    attributeDto.setCertificationDate( attribute.getCertificate( ).getCertificateDate( ) );
 
                 }
-                qualifiedIdentity.getAttributes( ).add( certifiedAttribute );
+                identityDto.getAttributes( ).add( attributeDto );
             }
         }
 
-        return qualifiedIdentity;
+        return identityDto;
     }
 
     /**
@@ -180,7 +190,7 @@ public final class DtoConverter
             attributeDefinitionDto.setCertifiable( attributeRight.getAttributeKey( ).getCertifiable( ) );
             attributeDefinitionDto.setPivot( attributeRight.getAttributeKey( ).getPivot( ) );
             attributeDefinitionDto.setKeyWeight( attributeRight.getAttributeKey( ).getKeyWeight( ) );
-            attributeDefinitionDto.setAttributeRight( new fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRight( ) );
+            attributeDefinitionDto.setAttributeRight( new AttributeRightDto( ) );
             attributeDefinitionDto.getAttributeRight( ).setMandatory( attributeRight.isMandatory( ) );
             attributeDefinitionDto.getAttributeRight( ).setReadable( attributeRight.isReadable( ) );
             attributeDefinitionDto.getAttributeRight( ).setSearchable( attributeRight.isSearchable( ) );
@@ -206,9 +216,9 @@ public final class DtoConverter
                 attributeDefinitions.add( current );
             }
 
-            final List<CertificationProcessus> certificationProcessuses = attributeCertification.getRefAttributeCertificationProcessus( ).stream( )
+            final List<CertificationProcessusDto> certificationProcessuses = attributeCertification.getRefAttributeCertificationProcessus( ).stream( )
                     .map( ref -> {
-                        final CertificationProcessus certificationProcessus = new CertificationProcessus( );
+                        final CertificationProcessusDto certificationProcessus = new CertificationProcessusDto( );
                         certificationProcessus.setCode( ref.getCode( ) );
                         certificationProcessus.setLabel( ref.getLabel( ) );
                         certificationProcessus.setLevel( ref.getLevel( ).getRefCertificationLevel( ).getLevel( ) );
@@ -237,7 +247,7 @@ public final class DtoConverter
                 current.setKeyWeight( attributeRequirement.getAttributeKey( ).getKeyWeight( ) );
                 attributeDefinitions.add( current );
             }
-            fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRequirement requirement = new fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRequirement( );
+            AttributeRequirementDto requirement = new AttributeRequirementDto( );
             requirement.setLevel( attributeRequirement.getRefCertificationLevel( ).getLevel( ) );
             requirement.setName( attributeRequirement.getRefCertificationLevel( ).getName( ) );
             requirement.setDescription( attributeRequirement.getRefCertificationLevel( ).getDescription( ) );
@@ -305,7 +315,7 @@ public final class DtoConverter
                 final AttributeCertification certification = new AttributeCertification( );
                 certification.setAttributeKey( attributeKey );
                 serviceContract.getAttributeCertifications( ).add( certification );
-                for ( final CertificationProcessus attributeCertification : attributeDefinition.getAttributeCertifications( ) )
+                for ( final CertificationProcessusDto attributeCertification : attributeDefinition.getAttributeCertifications( ) )
                 {
                     final RefAttributeCertificationLevel refAttributeCertificationLevel = AttributeCertificationDefinitionService.instance( )
                             .get( attributeCertification.getCode( ), attributeKey.getKeyName( ) );

@@ -40,7 +40,6 @@ import fr.paris.lutece.plugins.identitystore.v2.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 
@@ -103,12 +102,12 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
         IdentityService.instance( ).search( _strCustomerId, _strConnectionId, response, _strClientAppCode );
         if ( response.getIdentities( ) != null && !response.getIdentities( ).isEmpty( ) )
         {
-            final QualifiedIdentity qualifiedIdentity = response.getIdentities( ).get( 0 );
-            final IdentityDto identityDto = DtoConverter.convert( qualifiedIdentity );
+            final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto v3Identity = response.getIdentities( ).get( 0 );
+            final IdentityDto v2Identity = DtoConverter.convert( v3Identity );
 
             try
             {
-                return _objectMapper.writeValueAsString( identityDto );
+                return _objectMapper.writeValueAsString( v2Identity );
             }
             catch( JsonProcessingException e )
             {

@@ -45,7 +45,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -132,7 +132,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         final Map<String, String> queryParameters = this.getQueryParameters( request );
 
         final List<SearchAttribute> atttributes = new ArrayList<>( );
-        final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( );
+        final List<IdentityDto> qualifiedIdentities = new ArrayList<>( );
         final String cuid = queryParameters.get( QUERY_PARAM_CUID );
         final String guid = queryParameters.get( QUERY_PARAM_GUID );
         final String email = queryParameters.get( QUERY_PARAM_EMAIL );
@@ -151,7 +151,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             final Identity identity = IdentityHome.findMasterIdentityByCustomerId( cuid );
             if ( identity != null )
             {
-                final QualifiedIdentity qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
+                final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
                 qualifiedIdentities.add( qualifiedIdentity );
             }
         }
@@ -162,7 +162,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 final Identity identity = IdentityHome.findMasterIdentityByConnectionId( guid );
                 if ( identity != null )
                 {
-                    final QualifiedIdentity qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
+                    final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
                     qualifiedIdentities.add( qualifiedIdentity );
                 }
             }

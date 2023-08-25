@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -297,7 +297,7 @@ public interface IIdentityDAO
      *            max number of days since the last update
      * @return the list of identities
      */
-    List<UpdatedIdentity> selectUpdated( final int days, final Plugin plugin );
+    List<UpdatedIdentityDto> selectUpdated( final int days, final Plugin plugin );
 
     /**
      * Search for history entries that matches the following parameters

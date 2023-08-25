@@ -62,10 +62,7 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.service.user.InternalUserService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
@@ -173,7 +170,7 @@ public class IdentityService
         if ( CollectionUtils.isNotEmpty( mandatoryAttributes ) )
         {
             final Set<String> providedKeySet = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
-                    .map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) );
+                    .map( AttributeDto::getKey ).collect( Collectors.toSet( ) );
             if ( !providedKeySet.containsAll( mandatoryAttributes ) )
             {
                 response.setStatus( IdentityChangeStatus.FAILURE );
@@ -184,7 +181,7 @@ public class IdentityService
         }
 
         // check if can set "mon_paris_active" flag to true
-        if ( Boolean.TRUE.equals( request.getIdentity( ).getMonParisActive( ) ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
+        if ( request.getIdentity( ).getMonParisActive( ) != null && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
             throw new IdentityStoreException( "You cannot set the 'mon_paris_active' flag when requesting for a creation" );
         }
@@ -197,7 +194,7 @@ public class IdentityService
         }
 
         final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
-                .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
+                .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
         final DuplicateSearchResponse duplicateSearchResponse = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_CREATION_RULES );
         if ( duplicateSearchResponse != null && CollectionUtils.isNotEmpty( duplicateSearchResponse.getIdentities( ) ) )
         {
@@ -211,21 +208,21 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
-            identity.setMonParisActive( request.getIdentity( ).getMonParisActive( ) != null ? request.getIdentity( ).getMonParisActive( ) : false );
+            identity.setMonParisActive( request.getIdentity( ).isMonParisActive( ) );
             if ( StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) ) )
             {
                 identity.setConnectionId( request.getIdentity( ).getConnectionId( ) );
             }
             IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
 
-            final List<CertifiedAttribute> attributesToCreate = request.getIdentity( ).getAttributes( );
+            final List<AttributeDto> attributesToCreate = request.getIdentity( ).getAttributes( );
             GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode, response );
             GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode, response );
 
-            for ( final CertifiedAttribute certifiedAttribute : attributesToCreate )
+            for ( final AttributeDto attributeDto : attributesToCreate )
             {
                 // TODO vérifier que la clef d'attribut existe dans le référentiel
-                final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( certifiedAttribute, identity, clientCode );
+                final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( attributeDto, identity, clientCode );
                 response.getAttributeStatuses( ).add( attributeStatus );
             }
 
@@ -710,7 +707,7 @@ public class IdentityService
             throws IdentityStoreException
     {
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
-                .collect( Collectors.toMap( CertifiedAttribute::getKey, CertifiedAttribute::getValue ) );
+                .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
 
         final DuplicateSearchResponse certitudeDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_STRICT );
         if ( certitudeDuplicates != null && CollectionUtils.isNotEmpty( certitudeDuplicates.getIdentities( ) ) )
@@ -736,10 +733,10 @@ public class IdentityService
         return null;
     }
 
-    public QualifiedIdentity getQualifiedIdentity( final String customerId ) throws IdentityStoreException
+    public IdentityDto getQualifiedIdentity( final String customerId ) throws IdentityStoreException
     {
         final Identity identity = IdentityHome.findByCustomerId( customerId );
-        final QualifiedIdentity qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
+        final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
         IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
         return qualifiedIdentity;
     }
@@ -758,8 +755,7 @@ public class IdentityService
      * @throws IdentityAttributeNotFoundException
      *             in case of {@link AttributeKey} management error
      */
-    public void search( final IdentitySearchRequest request, final IdentitySearchResponse response, final String clientCode )
-            throws ServiceContractNotFoundException, IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
+    public void search( final IdentitySearchRequest request, final IdentitySearchResponse response, final String clientCode ) throws IdentityStoreException
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
                 _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -827,10 +823,32 @@ public class IdentityService
                 request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
         {
-            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, result.getQualifiedIdentities( ) );
+            final List<IdentityDto> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, result.getQualifiedIdentities( ) );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
+                for ( final IdentityDto identity : response.getIdentities( ) )
+                {
+                    AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                            _internalUserService.getApiUser( request, clientCode ), identity.getCustomerId( ), SPECIFIC_ORIGIN );
+                    if ( request.getOrigin( ).getType( ).equals( AuthorType.agent ) )
+                    {
+                        /* Indexation et historique */
+                        // TODO refactor ?
+                        final IdentityChange identityChange = new IdentityChange( );
+                        identityChange.setChangeType( IdentityChangeType.READ );
+                        identityChange.setChangeStatus( response.getStatus( ).name( ) );
+                        identityChange.setChangeMessage( response.getMessage( ) );
+                        identityChange.setAuthor( request.getOrigin( ) );
+                        identityChange.setCustomerId( identity.getCustomerId( ) );
+                        identityChange.setConnectionId( identity.getConnectionId( ) );
+                        identityChange.setMonParisActive( identity.isMonParisActive( ) );
+                        identityChange.setCreationDate( identity.getCreationDate( ) );
+                        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
+                        identityChange.setClientCode( clientCode );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+                    }
+                }
                 response.setStatus( IdentitySearchStatusType.SUCCESS );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
@@ -871,12 +889,16 @@ public class IdentityService
         }
         else
         {
-            final QualifiedIdentity qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
-            final List<QualifiedIdentity> filteredIdentities = this.getFilteredQualifiedIdentities( null, clientCode,
+            final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
+            final List<IdentityDto> filteredIdentities = this.getFilteredQualifiedIdentities( null, clientCode,
                     Collections.singletonList( qualifiedIdentity ) );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
+                // TODO make this request a post with a signed request
+                // response.getIdentities().forEach(i -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
+                // SEARCH_IDENTITY_EVENT_CODE,
+                // _internalUserService.getApiUser( request, clientCode ), i.getCustomerId(), SPECIFIC_ORIGIN ));
                 response.setStatus( IdentitySearchStatusType.SUCCESS );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
@@ -898,23 +920,25 @@ public class IdentityService
      *            le code client du demandeur
      * @param qualifiedIdentities
      *            la liste de résultats à traiter
-     * @return the list of filtered and completed {@link QualifiedIdentity}
+     * @return the list of filtered and completed {@link IdentityDto}
      * @throws ServiceContractNotFoundException
      *             in case of error
      * @throws IdentityAttributeNotFoundException
      *             in case of errorj
      */
-    private List<QualifiedIdentity> getFilteredQualifiedIdentities( IdentitySearchRequest identitySearchRequest, String clientCode,
-            List<QualifiedIdentity> qualifiedIdentities ) throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
+    private List<IdentityDto> getFilteredQualifiedIdentities( IdentitySearchRequest identitySearchRequest, String clientCode,
+            List<IdentityDto> qualifiedIdentities ) throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
     {
         final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( clientCode );
-        final Comparator<QualifiedIdentity> comparator = Comparator.comparingDouble( QualifiedIdentity::getScoring )
-                .thenComparingDouble( QualifiedIdentity::getQuality ).reversed( );
+        final Comparator<QualityDefinition> qualityComparator = Comparator.comparing( QualityDefinition::getScoring )
+                .thenComparingDouble( QualityDefinition::getQuality ).reversed( );
+        final Comparator<IdentityDto> identityComparator = Comparator.comparing( IdentityDto::getQuality, qualityComparator );
 
-        final List<QualifiedIdentity> filteredIdentities = new ArrayList<>( );
-        for ( final QualifiedIdentity qualifiedIdentity : qualifiedIdentities )
+        final List<IdentityDto> filteredIdentities = new ArrayList<>( );
+        for ( final IdentityDto qualifiedIdentity : qualifiedIdentities )
         {
-            if ( CollectionUtils.isNotEmpty( qualifiedIdentity.getAttributes( ) ) && !qualifiedIdentity.isMerged( ) )
+            final boolean identityIsMerged = qualifiedIdentity.getMerge( ) != null && qualifiedIdentity.getMerge( ).isMerged( );
+            if ( CollectionUtils.isNotEmpty( qualifiedIdentity.getAttributes( ) ) && !identityIsMerged )
             {
                 IdentityQualityService.instance( ).computeCoverage( qualifiedIdentity, serviceContract );
                 // TODO gérer la qualité max dans la requête ?
@@ -924,11 +948,12 @@ public class IdentityService
                 }
                 else
                 {
-                    qualifiedIdentity.setScoring( 1.0 );
+                    final QualityDefinition quality = new QualityDefinition( );
+                    qualifiedIdentity.setQuality( quality );
+                    quality.setScoring( 1.0 );
                 }
                 IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
-                final List<fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute> filteredAttributeValues = qualifiedIdentity
-                        .getAttributes( ).stream( )
+                final List<AttributeDto> filteredAttributeValues = qualifiedIdentity.getAttributes( ).stream( )
                         .filter( certifiedAttribute -> serviceContract.getAttributeRights( ).stream( )
                                 .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) )
                                         && attributeRight.isReadable( ) ) )
@@ -969,19 +994,19 @@ public class IdentityService
             }
 
         }
-        filteredIdentities.sort( comparator );
+        filteredIdentities.sort( identityComparator );
         return filteredIdentities;
     }
 
-    private void updateIdentity( final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity requestIdentity, final String clientCode,
-            final ChangeResponse response, final Identity identity ) throws IdentityStoreException
+    private void updateIdentity( final IdentityDto requestIdentity, final String clientCode, final ChangeResponse response, final Identity identity )
+            throws IdentityStoreException
     {
         /* Récupération des attributs déja existants ou non */
-        final Map<Boolean, List<CertifiedAttribute>> sortedAttributes = requestIdentity.getAttributes( ).stream( )
+        final Map<Boolean, List<AttributeDto>> sortedAttributes = requestIdentity.getAttributes( ).stream( )
                 .collect( Collectors.partitioningBy( a -> identity.getAttributes( ).containsKey( a.getKey( ) ) ) );
-        final List<CertifiedAttribute> existingWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( true ) ) ? sortedAttributes.get( true )
+        final List<AttributeDto> existingWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( true ) ) ? sortedAttributes.get( true )
                 : new ArrayList<>( );
-        final List<CertifiedAttribute> newWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( false ) ) ? sortedAttributes.get( false )
+        final List<AttributeDto> newWritableAttributes = CollectionUtils.isNotEmpty( sortedAttributes.get( false ) ) ? sortedAttributes.get( false )
                 : new ArrayList<>( );
 
         // If identity is connected and service contract doesn't allow unrestricted update, do a bunch of checks
@@ -994,14 +1019,14 @@ public class IdentityService
         GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
 
         /* Create new attributes */
-        for ( final CertifiedAttribute attributeToWrite : newWritableAttributes )
+        for ( final AttributeDto attributeToWrite : newWritableAttributes )
         {
             final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( attributeToWrite, identity, clientCode );
             response.getAttributeStatuses( ).add( attributeStatus );
         }
 
         /* Update existing attributes */
-        for ( final CertifiedAttribute attributeToUpdate : existingWritableAttributes )
+        for ( final AttributeDto attributeToUpdate : existingWritableAttributes )
         {
             final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( attributeToUpdate, identity, clientCode );
             response.getAttributeStatuses( ).add( attributeStatus );
@@ -1009,7 +1034,7 @@ public class IdentityService
 
         if ( requestIdentity.getMonParisActive( ) != null )
         {
-            identity.setMonParisActive( requestIdentity.getMonParisActive( ) );
+            identity.setMonParisActive( requestIdentity.isMonParisActive( ) );
         }
         IdentityHome.update( identity );
     }
@@ -1037,8 +1062,8 @@ public class IdentityService
      * @param newWritableAttributes
      *            new attributes from request
      */
-    private void connectedIdentityUpdateCheck( final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity requestIdentity, final Identity identity,
-            final List<CertifiedAttribute> existingWritableAttributes, final List<CertifiedAttribute> newWritableAttributes ) throws IdentityStoreException
+    private void connectedIdentityUpdateCheck( final IdentityDto requestIdentity, final Identity identity, final List<AttributeDto> existingWritableAttributes,
+            final List<AttributeDto> newWritableAttributes ) throws IdentityStoreException
     {
         final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
@@ -1053,7 +1078,7 @@ public class IdentityService
 
         // - For new attributes, certification level must be > 100 (better than self-declare)
         final boolean newAttrSelfDeclare = newWritableAttributes.stream( )
-                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificationProcess( ), a.getKey( ) ) )
+                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertifier( ), a.getKey( ) ) )
                 .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) <= 100 );
         if ( newAttrSelfDeclare )
         {
@@ -1062,8 +1087,7 @@ public class IdentityService
 
         // - For existing attributes, certification level must be >= than the existing level
         final boolean lesserWantedLvl = existingWritableAttributes.stream( )
-                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificationProcess( ), a.getKey( ) ) )
-                .anyMatch( wantedCertif -> {
+                .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertifier( ), a.getKey( ) ) ).anyMatch( wantedCertif -> {
                     final int wantedLvl = Integer.parseInt( wantedCertif.getRefCertificationLevel( ).getLevel( ) );
 
                     final IdentityAttribute existingAttr = identity.getAttributes( ).get( wantedCertif.getAttributeKey( ).getKeyName( ) );
@@ -1085,7 +1109,7 @@ public class IdentityService
                         a.getAttributeKey( ).getKeyName( ) ) )
                 .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) >= threshold )
                 || requestIdentity.getAttributes( ).stream( )
-                        .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertificationProcess( ), a.getKey( ) ) )
+                        .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertifier( ), a.getKey( ) ) )
                         .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) >= threshold );
         if ( breakingThreshold )
         {
@@ -1096,7 +1120,7 @@ public class IdentityService
             // if any pivot is missing from request + existing -> throw exception
             @SuppressWarnings( "unchecked" )
             final Collection<String> unionOfExistingAndRequestedPivotKeys = CollectionUtils.union(
-                    requestIdentity.getAttributes( ).stream( ).map( CertifiedAttribute::getKey ).collect( Collectors.toSet( ) ),
+                    requestIdentity.getAttributes( ).stream( ).map( AttributeDto::getKey ).collect( Collectors.toSet( ) ),
                     identity.getAttributes( ).values( ).stream( ).map( IdentityAttribute::getAttributeKey ).filter( AttributeKey::getPivot )
                             .map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) ) );
             if ( !CollectionUtils.isEqualCollection( pivotAttributeKeys, unionOfExistingAndRequestedPivotKeys ) )
@@ -1108,15 +1132,14 @@ public class IdentityService
 
             // if any has level lesser than threshold -> throw exception
             final boolean lesserThanThreshold = pivotAttributeKeys.stream( ).map( key -> {
-                final CertifiedAttribute requested = requestIdentity.getAttributes( ).stream( ).filter( a -> a.getKey( ).equals( key ) ).findFirst( )
-                        .orElse( null );
+                final AttributeDto requested = requestIdentity.getAttributes( ).stream( ).filter( a -> a.getKey( ).equals( key ) ).findFirst( ).orElse( null );
                 final IdentityAttribute existing = identity.getAttributes( ).get( key );
                 int requestedLvl = 0;
                 int existingLvl = 0;
                 if ( requested != null )
                 {
-                    requestedLvl = Integer.parseInt( RefAttributeCertificationLevelHome
-                            .findByProcessusAndAttributeKeyName( requested.getCertificationProcess( ), key ).getRefCertificationLevel( ).getLevel( ) );
+                    requestedLvl = Integer.parseInt( RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( requested.getCertifier( ), key )
+                            .getRefCertificationLevel( ).getLevel( ) );
                 }
                 if ( existing != null )
                 {
@@ -1221,7 +1244,7 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( clientCode ), customerId, SPECIFIC_ORIGIN );
+                    _internalUserService.getApiUser( request, clientCode ), customerId, SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {

@@ -40,8 +40,9 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -73,27 +74,33 @@ public class IdentityQualityService
     }
 
     /**
-     * Compute the {@link QualifiedIdentity} coverage of the {@link ServiceContract} requirements.
+     * Compute the {@link IdentityDto} coverage of the {@link ServiceContract} requirements.
      *
-     * @param qualifiedIdentity
+     * @param identity
      * @param serviceContract
      */
-    public void computeCoverage( final QualifiedIdentity qualifiedIdentity, final ServiceContract serviceContract )
+    public void computeCoverage( final IdentityDto identity, final ServiceContract serviceContract )
     {
         // Check that all attributes required by the contract are present in the identity
         final List<String> reqKeys = serviceContract.getAttributeRequirements( ).stream( )
                 .filter( req -> req.getRefCertificationLevel( ) != null && StringUtils.isNotEmpty( req.getRefCertificationLevel( ).getLevel( ) ) )
                 .map( AttributeRequirement::getAttributeKey ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
-        final List<String> identityKeys = qualifiedIdentity.getAttributes( ).stream( ).map( CertifiedAttribute::getKey ).collect( Collectors.toList( ) );
+        final List<String> identityKeys = identity.getAttributes( ).stream( ).map( AttributeDto::getKey ).collect( Collectors.toList( ) );
         reqKeys.removeAll( identityKeys );
+
+        if ( identity.getQuality( ) == null )
+        {
+            identity.setQuality( new QualityDefinition( ) );
+        }
+
         if ( reqKeys.size( ) > 0 )
         {
-            qualifiedIdentity.setCoverage( 0 );
+            identity.getQuality( ).setCoverage( 0 );
         }
         else
         {
             // Check that no attribute of the identity has its certification level lower than the minimum defined in the contract
-            boolean noneMatch = qualifiedIdentity.getAttributes( ).stream( ).noneMatch( certifiedAttribute -> {
+            boolean noneMatch = identity.getAttributes( ).stream( ).noneMatch( certifiedAttribute -> {
                 final AttributeRequirement requirement = serviceContract.getAttributeRequirements( ).stream( )
                         .filter( req -> Objects.equals( req.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) ) ).findFirst( ).orElse( null );
                 final int attributeLevel = certifiedAttribute.getCertificationLevel( ) != null ? certifiedAttribute.getCertificationLevel( ) : 0;
@@ -103,14 +110,18 @@ public class IdentityQualityService
                                 : 0;
                 return minLevel > attributeLevel;
             } );
-            qualifiedIdentity.setCoverage( noneMatch ? 1 : 0 );
+            identity.getQuality( ).setCoverage( noneMatch ? 1 : 0 );
         }
     }
 
-    public void computeQuality( final QualifiedIdentity qualifiedIdentity ) throws IdentityAttributeNotFoundException
+    public void computeQuality( final IdentityDto identity ) throws IdentityAttributeNotFoundException
     {
+        if ( identity.getQuality( ) == null )
+        {
+            identity.setQuality( new QualityDefinition( ) );
+        }
         final AtomicInteger levels = new AtomicInteger( );
-        for ( final CertifiedAttribute attribute : qualifiedIdentity.getAttributes( ) )
+        for ( final AttributeDto attribute : identity.getAttributes( ) )
         {
             if ( attribute.getCertificationLevel( ) == null || attribute.getCertificationLevel( ) == 0 || StringUtils.isBlank( attribute.getValue( ) ) )
             {
@@ -122,11 +133,16 @@ public class IdentityQualityService
                 levels.addAndGet( attributeKey.getKeyWeight( ) * attribute.getCertificationLevel( ) );
             }
         }
-        qualifiedIdentity.setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
+        identity.getQuality( ).setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
     }
 
-    public void computeMatchScore( final QualifiedIdentity qualifiedIdentity, final List<SearchAttribute> searchAttributes )
+    public void computeMatchScore( final IdentityDto identity, final List<SearchAttribute> searchAttributes )
     {
+        if ( identity.getQuality( ) == null )
+        {
+            identity.setQuality( new QualityDefinition( ) );
+        }
+
         final AtomicDouble levels = new AtomicDouble( );
         final AtomicDouble base = new AtomicDouble( );
         final Map<SearchAttribute, List<AttributeKey>> attributesToProcess = new HashMap<>( );
@@ -157,10 +173,10 @@ public class IdentityQualityService
         {
             for ( final AttributeKey attributeKey : entry.getValue( ) )
             {
-                final CertifiedAttribute certifiedAttribute = qualifiedIdentity.getAttributes( ).stream( )
+                final AttributeDto attributeDto = identity.getAttributes( ).stream( )
                         .filter( attribute -> Objects.equals( attribute.getKey( ), attributeKey.getKeyName( ) ) ).findFirst( ).orElse( null );
                 base.addAndGet( attributeKey.getKeyWeight( ) );
-                if ( certifiedAttribute.getValue( ).equals( entry.getKey( ).getValue( ) ) )
+                if ( attributeDto.getValue( ).equals( entry.getKey( ).getValue( ) ) )
                 {
                     levels.addAndGet( attributeKey.getKeyWeight( ) );
                 }
@@ -172,6 +188,6 @@ public class IdentityQualityService
             }
         }
 
-        qualifiedIdentity.setScoring( levels.doubleValue( ) / base.doubleValue( ) );
+        identity.getQuality( ).setScoring( levels.doubleValue( ) / base.doubleValue( ) );
     }
 }

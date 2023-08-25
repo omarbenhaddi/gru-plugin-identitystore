@@ -53,8 +53,8 @@ import java.util.List;
 public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
 {
 
-    private IdentityChangeRequest _identityChangeRequest;
-    private String _strCustomerId;
+    private final IdentityChangeRequest _identityChangeRequest;
+    private final String _strCustomerId;
 
     /**
      * Constructor of IdentityStoreUpdateRequest

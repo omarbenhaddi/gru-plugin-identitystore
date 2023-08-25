@@ -49,12 +49,11 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.utils.Combinations;
 import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
@@ -96,8 +95,8 @@ public class IdentitySearcher implements IIdentitySearcher
      * @param max
      *            maximum number of identities in the response
      * @param connected
-     *            search for a connected {@link QualifiedIdentity} if true
-     * @return a list of {@link QualifiedIdentity} matching the requests
+     *            search for a connected {@link IdentityDto} if true
+     * @return a list of {@link IdentityDto} matching the requests
      */
     @Override
     public Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
@@ -142,7 +141,7 @@ public class IdentitySearcher implements IIdentitySearcher
      * @param nbMissingAttributes
      *            can be >= 0
      * @param connected
-     *            search for a connected {@link QualifiedIdentity}
+     *            search for a connected {@link IdentityDto}
      * @param workingAttributes
      *            the current list of attributes considered for the requests
      * @return

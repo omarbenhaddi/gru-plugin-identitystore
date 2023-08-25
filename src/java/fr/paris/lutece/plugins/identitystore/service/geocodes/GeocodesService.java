@@ -42,7 +42,7 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeN
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -66,28 +66,28 @@ public class GeocodesService
      * @param response
      * @throws IdentityAttributeNotFoundException
      */
-    public static void processCountryForUpdate( final Identity identity, final List<CertifiedAttribute> attrToCreate,
-            final List<CertifiedAttribute> attrToUpdate, final String clientCode, final ChangeResponse response ) throws IdentityStoreException
+    public static void processCountryForUpdate( final Identity identity, final List<AttributeDto> attrToCreate, final List<AttributeDto> attrToUpdate,
+            final String clientCode, final ChangeResponse response ) throws IdentityStoreException
     {
-        final CertifiedAttribute countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
-                .findFirst( ).orElse( null );
+        final AttributeDto countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) ).findFirst( )
+                .orElse( null );
         if ( countryCodeToCreate != null )
         {
             attrToCreate.remove( countryCodeToCreate );
         }
-        CertifiedAttribute countryLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY ) ).findFirst( )
+        AttributeDto countryLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY ) ).findFirst( )
                 .orElse( null );
         if ( countryLabelToCreate != null )
         {
             attrToCreate.remove( countryLabelToCreate );
         }
-        final CertifiedAttribute countryCodeToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
-                .findFirst( ).orElse( null );
+        final AttributeDto countryCodeToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) ).findFirst( )
+                .orElse( null );
         if ( countryCodeToUpdate != null )
         {
             attrToUpdate.remove( countryCodeToUpdate );
         }
-        CertifiedAttribute countryLabelToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY ) ).findFirst( )
+        AttributeDto countryLabelToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY ) ).findFirst( )
                 .orElse( null );
         if ( countryLabelToUpdate != null )
         {
@@ -123,11 +123,11 @@ public class GeocodesService
                                     : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
                     if ( countryLabelToCreate == null )
                     {
-                        countryLabelToCreate = new CertifiedAttribute( );
+                        countryLabelToCreate = new AttributeDto( );
                         countryLabelToCreate.setKey( Constants.PARAM_BIRTH_COUNTRY );
                     }
                     countryLabelToCreate.setValue( countryGeocodesLabel );
-                    countryLabelToCreate.setCertificationProcess( countryCodeToCreate.getCertificationProcess( ) );
+                    countryLabelToCreate.setCertifier( countryCodeToCreate.getCertifier( ) );
                     countryLabelToCreate.setCertificationDate( countryCodeToCreate.getCertificationDate( ) );
 
                     final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( countryLabelToCreate, identity, clientCode );
@@ -141,11 +141,11 @@ public class GeocodesService
                         final boolean override = ( countryLabelToUpdate != null && !countryLabelToUpdate.getValue( ).equals( countryGeocodesLabel ) );
                         if ( countryLabelToUpdate == null )
                         {
-                            countryLabelToUpdate = new CertifiedAttribute( );
+                            countryLabelToUpdate = new AttributeDto( );
                             countryLabelToUpdate.setKey( Constants.PARAM_BIRTH_COUNTRY );
                         }
                         countryLabelToUpdate.setValue( countryGeocodesLabel );
-                        countryLabelToUpdate.setCertificationProcess( countryCodeToCreate.getCertificationProcess( ) );
+                        countryLabelToUpdate.setCertifier( countryCodeToCreate.getCertifier( ) );
                         countryLabelToUpdate.setCertificationDate( countryCodeToCreate.getCertificationDate( ) );
 
                         final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( countryLabelToUpdate, identity, clientCode );
@@ -170,11 +170,11 @@ public class GeocodesService
                     {
                         if ( countryLabelToUpdate == null )
                         {
-                            countryLabelToUpdate = new CertifiedAttribute( );
+                            countryLabelToUpdate = new AttributeDto( );
                             countryLabelToUpdate.setKey( Constants.PARAM_BIRTH_COUNTRY );
                         }
                         countryLabelToUpdate.setValue( "" );
-                        countryLabelToUpdate.setCertificationProcess( countryCodeToUpdate.getCertificationProcess( ) );
+                        countryLabelToUpdate.setCertifier( countryCodeToUpdate.getCertifier( ) );
                         countryLabelToUpdate.setCertificationDate( countryCodeToUpdate.getCertificationDate( ) );
                         final AttributeStatus labelStatus = _identityAttributeService.updateAttribute( countryLabelToUpdate, identity, clientCode );
                         response.getAttributeStatuses( ).add( labelStatus );
@@ -208,11 +208,11 @@ public class GeocodesService
                                             : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
                             if ( countryLabelToCreate == null )
                             {
-                                countryLabelToCreate = new CertifiedAttribute( );
+                                countryLabelToCreate = new AttributeDto( );
                                 countryLabelToCreate.setKey( Constants.PARAM_BIRTH_COUNTRY );
                             }
                             countryLabelToCreate.setValue( countryGeocodesLabel );
-                            countryLabelToCreate.setCertificationProcess( countryCodeToUpdate.getCertificationProcess( ) );
+                            countryLabelToCreate.setCertifier( countryCodeToUpdate.getCertifier( ) );
                             countryLabelToCreate.setCertificationDate( countryCodeToUpdate.getCertificationDate( ) );
 
                             final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( countryLabelToCreate, identity, clientCode );
@@ -227,11 +227,11 @@ public class GeocodesService
                                 final boolean override = ( countryLabelToUpdate != null && !countryLabelToUpdate.getValue( ).equals( countryGeocodesLabel ) );
                                 if ( countryLabelToUpdate == null )
                                 {
-                                    countryLabelToUpdate = new CertifiedAttribute( );
+                                    countryLabelToUpdate = new AttributeDto( );
                                     countryLabelToUpdate.setKey( Constants.PARAM_BIRTH_COUNTRY );
                                 }
                                 countryLabelToUpdate.setValue( countryGeocodesLabel );
-                                countryLabelToUpdate.setCertificationProcess( countryCodeToUpdate.getCertificationProcess( ) );
+                                countryLabelToUpdate.setCertifier( countryCodeToUpdate.getCertifier( ) );
                                 countryLabelToUpdate.setCertificationDate( countryCodeToUpdate.getCertificationDate( ) );
 
                                 final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( countryLabelToUpdate, identity, clientCode );
@@ -279,10 +279,10 @@ public class GeocodesService
                             final String countryGeocodesCode = countries.get( 0 ).getCode( );
                             if ( !identity.getAttributes( ).containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
                             {
-                                final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                final AttributeDto codeToCreate = new AttributeDto( );
                                 codeToCreate.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                                 codeToCreate.setValue( countryGeocodesCode );
-                                codeToCreate.setCertificationProcess( countryLabelToCreate.getCertificationProcess( ) );
+                                codeToCreate.setCertifier( countryLabelToCreate.getCertifier( ) );
                                 codeToCreate.setCertificationDate( countryLabelToCreate.getCertificationDate( ) );
 
                                 final AttributeStatus codeStatus = _identityAttributeService.createAttribute( codeToCreate, identity, clientCode );
@@ -292,10 +292,10 @@ public class GeocodesService
                             else
                                 if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ).equals( countryGeocodesCode ) )
                                 {
-                                    final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                    final AttributeDto codeToUpdate = new AttributeDto( );
                                     codeToUpdate.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                                     codeToUpdate.setValue( countryGeocodesCode );
-                                    codeToUpdate.setCertificationProcess( countryLabelToCreate.getCertificationProcess( ) );
+                                    codeToUpdate.setCertifier( countryLabelToCreate.getCertifier( ) );
                                     codeToUpdate.setCertificationDate( countryLabelToCreate.getCertificationDate( ) );
 
                                     final AttributeStatus codeStatus = _identityAttributeService.updateAttribute( codeToUpdate, identity, clientCode );
@@ -313,10 +313,10 @@ public class GeocodesService
                             response.getAttributeStatuses( ).add( labelStatus );
                             if ( identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY_CODE ) != null )
                             {
-                                final CertifiedAttribute countryCodeToDelete = new CertifiedAttribute( );
+                                final AttributeDto countryCodeToDelete = new AttributeDto( );
                                 countryCodeToDelete.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                                 countryCodeToDelete.setValue( "" );
-                                countryCodeToDelete.setCertificationProcess( countryLabelToUpdate.getCertificationProcess( ) );
+                                countryCodeToDelete.setCertifier( countryLabelToUpdate.getCertifier( ) );
                                 countryCodeToDelete.setCertificationDate( countryLabelToUpdate.getCertificationDate( ) );
                                 final AttributeStatus codeStatus = _identityAttributeService.updateAttribute( countryCodeToDelete, identity, clientCode );
                                 response.getAttributeStatuses( ).add( codeStatus );
@@ -354,10 +354,10 @@ public class GeocodesService
                                     final String countryGeocodesCode = countries.get( 0 ).getCode( );
                                     if ( !identity.getAttributes( ).containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
                                     {
-                                        final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                        final AttributeDto codeToCreate = new AttributeDto( );
                                         codeToCreate.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                                         codeToCreate.setValue( countryGeocodesCode );
-                                        codeToCreate.setCertificationProcess( countryLabelToUpdate.getCertificationProcess( ) );
+                                        codeToCreate.setCertifier( countryLabelToUpdate.getCertifier( ) );
                                         codeToCreate.setCertificationDate( countryLabelToUpdate.getCertificationDate( ) );
 
                                         final AttributeStatus codeStatus = _identityAttributeService.createAttribute( codeToCreate, identity, clientCode );
@@ -368,10 +368,10 @@ public class GeocodesService
                                     {
                                         if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ).equals( countryGeocodesCode ) )
                                         {
-                                            final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                            final AttributeDto codeToUpdate = new AttributeDto( );
                                             codeToUpdate.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                                             codeToUpdate.setValue( countryGeocodesCode );
-                                            codeToUpdate.setCertificationProcess( countryLabelToUpdate.getCertificationProcess( ) );
+                                            codeToUpdate.setCertifier( countryLabelToUpdate.getCertifier( ) );
                                             codeToUpdate.setCertificationDate( countryLabelToUpdate.getCertificationDate( ) );
 
                                             final AttributeStatus codeStatus = _identityAttributeService.updateAttribute( codeToUpdate, identity, clientCode );
@@ -395,30 +395,28 @@ public class GeocodesService
      * @param response
      * @throws IdentityAttributeNotFoundException
      */
-    public static void processCityForUpdate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final List<CertifiedAttribute> attrToUpdate,
+    public static void processCityForUpdate( final Identity identity, final List<AttributeDto> attrToCreate, final List<AttributeDto> attrToUpdate,
             final String clientCode, final ChangeResponse response ) throws IdentityStoreException
     {
 
-        final CertifiedAttribute cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )
+        final AttributeDto cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )
                 .orElse( null );
         if ( cityCodeToCreate != null )
         {
             attrToCreate.remove( cityCodeToCreate );
         }
-        CertifiedAttribute cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( )
-                .orElse( null );
+        AttributeDto cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( ).orElse( null );
         if ( cityLabelToCreate != null )
         {
             attrToCreate.remove( cityLabelToCreate );
         }
-        final CertifiedAttribute cityCodeToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )
+        final AttributeDto cityCodeToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )
                 .orElse( null );
         if ( cityCodeToUpdate != null )
         {
             attrToUpdate.remove( cityCodeToUpdate );
         }
-        CertifiedAttribute cityLabelToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( )
-                .orElse( null );
+        AttributeDto cityLabelToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( ).orElse( null );
         if ( cityLabelToUpdate != null )
         {
             attrToUpdate.remove( cityLabelToUpdate );
@@ -453,11 +451,11 @@ public class GeocodesService
                             : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
                     if ( cityLabelToCreate == null )
                     {
-                        cityLabelToCreate = new CertifiedAttribute( );
+                        cityLabelToCreate = new AttributeDto( );
                         cityLabelToCreate.setKey( Constants.PARAM_BIRTH_PLACE );
                     }
                     cityLabelToCreate.setValue( cityGeocodesLabel );
-                    cityLabelToCreate.setCertificationProcess( cityCodeToCreate.getCertificationProcess( ) );
+                    cityLabelToCreate.setCertifier( cityCodeToCreate.getCertifier( ) );
                     cityLabelToCreate.setCertificationDate( cityCodeToCreate.getCertificationDate( ) );
 
                     final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( cityLabelToCreate, identity, clientCode );
@@ -471,11 +469,11 @@ public class GeocodesService
                         final boolean override = ( cityLabelToUpdate != null && !cityLabelToUpdate.getValue( ).equals( cityGeocodesLabel ) );
                         if ( cityLabelToUpdate == null )
                         {
-                            cityLabelToUpdate = new CertifiedAttribute( );
+                            cityLabelToUpdate = new AttributeDto( );
                             cityLabelToUpdate.setKey( Constants.PARAM_BIRTH_PLACE );
                         }
                         cityLabelToUpdate.setValue( cityGeocodesLabel );
-                        cityLabelToUpdate.setCertificationProcess( cityCodeToCreate.getCertificationProcess( ) );
+                        cityLabelToUpdate.setCertifier( cityCodeToCreate.getCertifier( ) );
                         cityLabelToUpdate.setCertificationDate( cityCodeToCreate.getCertificationDate( ) );
 
                         final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( cityLabelToUpdate, identity, clientCode );
@@ -500,11 +498,11 @@ public class GeocodesService
                     {
                         if ( cityLabelToUpdate == null )
                         {
-                            cityLabelToUpdate = new CertifiedAttribute( );
+                            cityLabelToUpdate = new AttributeDto( );
                             cityLabelToUpdate.setKey( Constants.PARAM_BIRTH_PLACE );
                         }
                         cityLabelToUpdate.setValue( "" );
-                        cityLabelToUpdate.setCertificationProcess( cityCodeToUpdate.getCertificationProcess( ) );
+                        cityLabelToUpdate.setCertifier( cityCodeToUpdate.getCertifier( ) );
                         cityLabelToUpdate.setCertificationDate( cityCodeToUpdate.getCertificationDate( ) );
                         final AttributeStatus labelStatus = _identityAttributeService.updateAttribute( cityLabelToUpdate, identity, clientCode );
                         response.getAttributeStatuses( ).add( labelStatus );
@@ -538,11 +536,11 @@ public class GeocodesService
                                     : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
                             if ( cityLabelToCreate == null )
                             {
-                                cityLabelToCreate = new CertifiedAttribute( );
+                                cityLabelToCreate = new AttributeDto( );
                                 cityLabelToCreate.setKey( Constants.PARAM_BIRTH_PLACE );
                             }
                             cityLabelToCreate.setValue( cityGeocodesLabel );
-                            cityLabelToCreate.setCertificationProcess( cityCodeToUpdate.getCertificationProcess( ) );
+                            cityLabelToCreate.setCertifier( cityCodeToUpdate.getCertifier( ) );
                             cityLabelToCreate.setCertificationDate( cityCodeToUpdate.getCertificationDate( ) );
 
                             final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( cityLabelToCreate, identity, clientCode );
@@ -556,11 +554,11 @@ public class GeocodesService
                                 final boolean override = ( cityLabelToUpdate != null && !cityLabelToUpdate.getValue( ).equals( cityGeocodesLabel ) );
                                 if ( cityLabelToUpdate == null )
                                 {
-                                    cityLabelToUpdate = new CertifiedAttribute( );
+                                    cityLabelToUpdate = new AttributeDto( );
                                     cityLabelToUpdate.setKey( Constants.PARAM_BIRTH_PLACE );
                                 }
                                 cityLabelToUpdate.setValue( cityGeocodesLabel );
-                                cityLabelToUpdate.setCertificationProcess( cityCodeToUpdate.getCertificationProcess( ) );
+                                cityLabelToUpdate.setCertifier( cityCodeToUpdate.getCertifier( ) );
                                 cityLabelToUpdate.setCertificationDate( cityCodeToUpdate.getCertificationDate( ) );
 
                                 final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( cityLabelToUpdate, identity, clientCode );
@@ -607,10 +605,10 @@ public class GeocodesService
                             final String cityGeocodesCode = cities.get( 0 ).getCode( );
                             if ( !identity.getAttributes( ).containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) )
                             {
-                                final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                final AttributeDto codeToCreate = new AttributeDto( );
                                 codeToCreate.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                                 codeToCreate.setValue( cityGeocodesCode );
-                                codeToCreate.setCertificationProcess( cityLabelToCreate.getCertificationProcess( ) );
+                                codeToCreate.setCertifier( cityLabelToCreate.getCertifier( ) );
                                 codeToCreate.setCertificationDate( cityLabelToCreate.getCertificationDate( ) );
 
                                 final AttributeStatus codeStatus = _identityAttributeService.createAttribute( codeToCreate, identity, clientCode );
@@ -620,10 +618,10 @@ public class GeocodesService
                             else
                                 if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE_CODE ).getValue( ).equals( cityGeocodesCode ) )
                                 {
-                                    final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                    final AttributeDto codeToUpdate = new AttributeDto( );
                                     codeToUpdate.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                                     codeToUpdate.setValue( cityGeocodesCode );
-                                    codeToUpdate.setCertificationProcess( cityLabelToCreate.getCertificationProcess( ) );
+                                    codeToUpdate.setCertifier( cityLabelToCreate.getCertifier( ) );
                                     codeToUpdate.setCertificationDate( cityLabelToCreate.getCertificationDate( ) );
 
                                     final AttributeStatus codeStatus = _identityAttributeService.updateAttribute( codeToUpdate, identity, clientCode );
@@ -641,10 +639,10 @@ public class GeocodesService
                             response.getAttributeStatuses( ).add( labelStatus );
                             if ( identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE_CODE ) != null )
                             {
-                                final CertifiedAttribute cityCodeToDelete = new CertifiedAttribute( );
+                                final AttributeDto cityCodeToDelete = new AttributeDto( );
                                 cityCodeToDelete.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                                 cityCodeToDelete.setValue( "" );
-                                cityCodeToDelete.setCertificationProcess( cityLabelToUpdate.getCertificationProcess( ) );
+                                cityCodeToDelete.setCertifier( cityLabelToUpdate.getCertifier( ) );
                                 cityCodeToDelete.setCertificationDate( cityLabelToUpdate.getCertificationDate( ) );
                                 final AttributeStatus codeStatus = _identityAttributeService.updateAttribute( cityCodeToDelete, identity, clientCode );
                                 response.getAttributeStatuses( ).add( codeStatus );
@@ -681,10 +679,10 @@ public class GeocodesService
                                     final String countryGeocodesCode = cities.get( 0 ).getCode( );
                                     if ( !identity.getAttributes( ).containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) )
                                     {
-                                        final CertifiedAttribute codeToCreate = new CertifiedAttribute( );
+                                        final AttributeDto codeToCreate = new AttributeDto( );
                                         codeToCreate.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                                         codeToCreate.setValue( countryGeocodesCode );
-                                        codeToCreate.setCertificationProcess( cityLabelToUpdate.getCertificationProcess( ) );
+                                        codeToCreate.setCertifier( cityLabelToUpdate.getCertifier( ) );
                                         codeToCreate.setCertificationDate( cityLabelToUpdate.getCertificationDate( ) );
 
                                         final AttributeStatus codeStatus = _identityAttributeService.createAttribute( codeToCreate, identity, clientCode );
@@ -694,10 +692,10 @@ public class GeocodesService
                                     else
                                         if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE_CODE ).getValue( ).equals( countryGeocodesCode ) )
                                         {
-                                            final CertifiedAttribute codeToUpdate = new CertifiedAttribute( );
+                                            final AttributeDto codeToUpdate = new AttributeDto( );
                                             codeToUpdate.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                                             codeToUpdate.setValue( countryGeocodesCode );
-                                            codeToUpdate.setCertificationProcess( cityLabelToUpdate.getCertificationProcess( ) );
+                                            codeToUpdate.setCertifier( cityLabelToUpdate.getCertifier( ) );
                                             codeToUpdate.setCertificationDate( cityLabelToUpdate.getCertificationDate( ) );
 
                                             final AttributeStatus codeStatus = _identityAttributeService.updateAttribute( codeToUpdate, identity, clientCode );
@@ -718,17 +716,17 @@ public class GeocodesService
      * @param response
      * @throws IdentityAttributeNotFoundException
      */
-    public static void processCountryForCreate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final String clientCode,
+    public static void processCountryForCreate( final Identity identity, final List<AttributeDto> attrToCreate, final String clientCode,
             final IdentityChangeResponse response ) throws IdentityStoreException
     {
 
-        CertifiedAttribute countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) ).findFirst( )
+        AttributeDto countryCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) ).findFirst( )
                 .orElse( null );
         if ( countryCodeToCreate != null )
         {
             attrToCreate.remove( countryCodeToCreate );
         }
-        CertifiedAttribute countryLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY ) ).findFirst( )
+        AttributeDto countryLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY ) ).findFirst( )
                 .orElse( null );
         if ( countryLabelToCreate != null )
         {
@@ -762,11 +760,11 @@ public class GeocodesService
                         : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
                 if ( countryLabelToCreate == null )
                 {
-                    countryLabelToCreate = new CertifiedAttribute( );
+                    countryLabelToCreate = new AttributeDto( );
                     countryLabelToCreate.setKey( Constants.PARAM_BIRTH_COUNTRY );
                 }
                 countryLabelToCreate.setValue( countryGeocodesLabel );
-                countryLabelToCreate.setCertificationProcess( countryCodeToCreate.getCertificationProcess( ) );
+                countryLabelToCreate.setCertifier( countryCodeToCreate.getCertifier( ) );
                 countryLabelToCreate.setCertificationDate( countryCodeToCreate.getCertificationDate( ) );
 
                 final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( countryLabelToCreate, identity, clientCode );
@@ -806,10 +804,10 @@ public class GeocodesService
 
                         // create country code attribute
                         final String countryGeocodesCode = countries.get( 0 ).getCode( );
-                        countryCodeToCreate = new CertifiedAttribute( );
+                        countryCodeToCreate = new AttributeDto( );
                         countryCodeToCreate.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                         countryCodeToCreate.setValue( countryGeocodesCode );
-                        countryCodeToCreate.setCertificationProcess( countryLabelToCreate.getCertificationProcess( ) );
+                        countryCodeToCreate.setCertifier( countryLabelToCreate.getCertifier( ) );
                         countryCodeToCreate.setCertificationDate( countryLabelToCreate.getCertificationDate( ) );
 
                         final AttributeStatus codeStatus = _identityAttributeService.createAttribute( countryCodeToCreate, identity, clientCode );
@@ -828,18 +826,17 @@ public class GeocodesService
      * @param response
      * @throws IdentityAttributeNotFoundException
      */
-    public static void processCityForCreate( final Identity identity, final List<CertifiedAttribute> attrToCreate, final String clientCode,
+    public static void processCityForCreate( final Identity identity, final List<AttributeDto> attrToCreate, final String clientCode,
             final IdentityChangeResponse response ) throws IdentityStoreException
     {
 
-        CertifiedAttribute cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )
+        AttributeDto cityCodeToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( )
                 .orElse( null );
         if ( cityCodeToCreate != null )
         {
             attrToCreate.remove( cityCodeToCreate );
         }
-        CertifiedAttribute cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( )
-                .orElse( null );
+        AttributeDto cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( ).orElse( null );
         if ( cityLabelToCreate != null )
         {
             attrToCreate.remove( cityLabelToCreate );
@@ -872,11 +869,11 @@ public class GeocodesService
                         : AttributeChangeStatus.OVERRIDDEN_GEOCODES_LABEL;
                 if ( cityLabelToCreate == null )
                 {
-                    cityLabelToCreate = new CertifiedAttribute( );
+                    cityLabelToCreate = new AttributeDto( );
                     cityLabelToCreate.setKey( Constants.PARAM_BIRTH_PLACE );
                 }
                 cityLabelToCreate.setValue( cityGeocodesLabel );
-                cityLabelToCreate.setCertificationProcess( cityCodeToCreate.getCertificationProcess( ) );
+                cityLabelToCreate.setCertifier( cityCodeToCreate.getCertifier( ) );
                 cityLabelToCreate.setCertificationDate( cityCodeToCreate.getCertificationDate( ) );
 
                 final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( cityLabelToCreate, identity, clientCode );
@@ -916,10 +913,10 @@ public class GeocodesService
 
                         // create city code attribute
                         final String countryGeocodesCode = cities.get( 0 ).getCode( );
-                        cityCodeToCreate = new CertifiedAttribute( );
+                        cityCodeToCreate = new AttributeDto( );
                         cityCodeToCreate.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                         cityCodeToCreate.setValue( countryGeocodesCode );
-                        cityCodeToCreate.setCertificationProcess( cityLabelToCreate.getCertificationProcess( ) );
+                        cityCodeToCreate.setCertifier( cityLabelToCreate.getCertifier( ) );
                         cityCodeToCreate.setCertificationDate( cityLabelToCreate.getCertificationDate( ) );
 
                         final AttributeStatus codeStatus = _identityAttributeService.createAttribute( cityCodeToCreate, identity, clientCode );

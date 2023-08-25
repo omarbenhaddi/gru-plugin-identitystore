@@ -38,7 +38,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -883,9 +883,9 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc}
      */
     @Override
-    public List<UpdatedIdentity> selectUpdated( final int days, final Plugin plugin )
+    public List<UpdatedIdentityDto> selectUpdated( final int days, final Plugin plugin )
     {
-        final List<UpdatedIdentity> list = new ArrayList<>( );
+        final List<UpdatedIdentityDto> list = new ArrayList<>( );
         final String strSQL = SQL_QUERY_SELECT_UPDATED_IDENTITIES.replace( "${days}", String.valueOf( days ) );
 
         try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
@@ -893,7 +893,7 @@ public final class IdentityDAO implements IIdentityDAO
             daoUtil.executeQuery( );
             while ( daoUtil.next( ) )
             {
-                final UpdatedIdentity updatedIdentity = new UpdatedIdentity( );
+                final UpdatedIdentityDto updatedIdentity = new UpdatedIdentityDto( );
                 int nIndex = 1;
                 updatedIdentity.setCustomerId( daoUtil.getString( nIndex++ ) );
                 updatedIdentity.setModificationDate( daoUtil.getTimestamp( nIndex ) );

@@ -33,11 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.v1.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.CertificateDto;
 import fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -58,29 +56,29 @@ public final class DtoConverter
     }
 
     /**
-     * Convert an qualifiedIdentity from V2 version to V1 version
+     * Convert an v3Identity from V2 version to V1 version
      * 
-     * @param qualifiedIdentity
+     * @param v3Identity
      * @return identityDtoOldVersion from package v1
      */
-    public static IdentityDto convert( final QualifiedIdentity qualifiedIdentity )
+    public static IdentityDto convert( final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto v3Identity )
     {
-        if ( qualifiedIdentity != null )
+        if ( v3Identity != null )
         {
-            final IdentityDto identityDtoOldVersion = new IdentityDto( );
-            identityDtoOldVersion.setConnectionId( qualifiedIdentity.getConnectionId( ) );
-            identityDtoOldVersion.setCustomerId( ( qualifiedIdentity.getCustomerId( ) ) );
+            final IdentityDto v1Identity = new IdentityDto( );
+            v1Identity.setConnectionId( v3Identity.getConnectionId( ) );
+            v1Identity.setCustomerId( ( v3Identity.getCustomerId( ) ) );
 
-            final Map<String, AttributeDto> newMapAttributeOldVersion = new HashMap<>( );
+            final Map<String, fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto> newMapAttributeOldVersion = new HashMap<>( );
 
-            for ( final CertifiedAttribute certifiedAttribute : qualifiedIdentity.getAttributes( ) )
+            for ( final AttributeDto attributeDto : v3Identity.getAttributes( ) )
             {
-                newMapAttributeOldVersion.put( certifiedAttribute.getKey( ), convertToAttributeDtoOldVersion( certifiedAttribute ) );
+                newMapAttributeOldVersion.put( attributeDto.getKey( ), convertToAttributeDtoOldVersion( attributeDto ) );
             }
 
-            identityDtoOldVersion.setAttributes( newMapAttributeOldVersion );
+            v1Identity.setAttributes( newMapAttributeOldVersion );
 
-            return identityDtoOldVersion;
+            return v1Identity;
         }
 
         return null;
@@ -89,20 +87,20 @@ public final class DtoConverter
     /**
      * Convert an AttributesDto from V2 version to V1 version
      * 
-     * @param certifiedAttribute
+     * @param attributeDto
      * @return certifiedAttribute from package v1
      */
-    public static AttributeDto convertToAttributeDtoOldVersion( final CertifiedAttribute certifiedAttribute )
+    public static fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto convertToAttributeDtoOldVersion( final AttributeDto attributeDto )
     {
-        final AttributeDto attributeDtoOldVersion = new AttributeDto( );
+        final fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto attributeDtoOldVersion = new fr.paris.lutece.plugins.identitystore.v1.web.rs.dto.AttributeDto( );
 
-        if ( certifiedAttribute != null )
+        if ( attributeDto != null )
         {
-            attributeDtoOldVersion.setCertificate( convertToCertificateDtoOldVersion( certifiedAttribute ) );
+            attributeDtoOldVersion.setCertificate( convertToCertificateDtoOldVersion( attributeDto ) );
             attributeDtoOldVersion.setCertified( attributeDtoOldVersion.getCertificate( ) != null );
-            attributeDtoOldVersion.setKey( certifiedAttribute.getKey( ) );
-            attributeDtoOldVersion.setType( certifiedAttribute.getType( ) );
-            attributeDtoOldVersion.setValue( certifiedAttribute.getValue( ) );
+            attributeDtoOldVersion.setKey( attributeDto.getKey( ) );
+            attributeDtoOldVersion.setType( attributeDto.getType( ) );
+            attributeDtoOldVersion.setValue( attributeDto.getValue( ) );
 
             return attributeDtoOldVersion;
         }
@@ -112,16 +110,16 @@ public final class DtoConverter
         }
     }
 
-    public static CertificateDto convertToCertificateDtoOldVersion( final CertifiedAttribute certifiedAttribute )
+    public static CertificateDto convertToCertificateDtoOldVersion( final AttributeDto attributeDto )
     {
         final CertificateDto certificateDtoOldVersion = new CertificateDto( );
 
-        if ( certifiedAttribute != null && StringUtils.isNotEmpty( certifiedAttribute.getCertifier( ) ) )
+        if ( attributeDto != null && StringUtils.isNotEmpty( attributeDto.getCertifier( ) ) )
         {
             certificateDtoOldVersion.setCertificateExpirationDate( null ); // TODO n'existe pas en V3
-            certificateDtoOldVersion.setCertifierCode( certifiedAttribute.getCertifier( ) );
-            certificateDtoOldVersion.setCertifierLevel( certifiedAttribute.getCertificationLevel( ) );
-            certificateDtoOldVersion.setCertifierName( certifiedAttribute.getCertifier( ) );
+            certificateDtoOldVersion.setCertifierCode( attributeDto.getCertifier( ) );
+            certificateDtoOldVersion.setCertifierLevel( attributeDto.getCertificationLevel( ) );
+            certificateDtoOldVersion.setCertifierName( attributeDto.getCertifier( ) );
 
             return certificateDtoOldVersion;
         }

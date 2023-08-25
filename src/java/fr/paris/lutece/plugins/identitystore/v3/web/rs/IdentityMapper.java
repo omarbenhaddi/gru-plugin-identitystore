@@ -33,8 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.Identity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,27 +42,27 @@ import java.util.stream.Collectors;
 public class IdentityMapper
 {
 
-    public static Identity toJsonIdentity( fr.paris.lutece.plugins.identitystore.business.identity.Identity identity )
+    public static IdentityDto toJsonIdentity( fr.paris.lutece.plugins.identitystore.business.identity.Identity identity )
     {
-        Identity jsonIdentity = new Identity( );
+        IdentityDto jsonIdentity = new IdentityDto( );
         jsonIdentity.setConnectionId( identity.getConnectionId( ) );
         jsonIdentity.setCustomerId( identity.getCustomerId( ) );
         jsonIdentity.setMonParisActive( identity.isMonParisActive( ) );
 
-        List<CertifiedAttribute> certifiedAttributes = identity.getAttributes( ).entrySet( ).stream( ).map( attr -> {
-            CertifiedAttribute attribute = new CertifiedAttribute( );
+        List<AttributeDto> attributeDtos = identity.getAttributes( ).entrySet( ).stream( ).map( attr -> {
+            AttributeDto attribute = new AttributeDto( );
             attribute.setKey( attr.getKey( ) );
             attribute.setValue( attr.getValue( ).getValue( ) );
             if ( attr.getValue( ).getCertificate( ) != null )
             {
-                attribute.setCertificationProcess( attr.getValue( ).getCertificate( ).getCertifierCode( ) );
+                attribute.setCertifier( attr.getValue( ).getCertificate( ).getCertifierCode( ) );
                 attribute.setCertificationDate( attr.getValue( ).getCertificate( ).getExpirationDate( ) );
             }
 
             return attribute;
         } ).collect( Collectors.toList( ) );
 
-        jsonIdentity.setAttributes( certifiedAttributes );
+        jsonIdentity.setAttributes( attributeDtos );
 
         return jsonIdentity;
     }

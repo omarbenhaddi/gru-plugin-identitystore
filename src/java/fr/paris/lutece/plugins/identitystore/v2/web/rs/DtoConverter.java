@@ -33,11 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.v2.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.CertificateDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.CertifiedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -64,7 +62,7 @@ public final class DtoConverter
      *            business qualifiedIdentity to convert
      * @return identityDto initialized from provided qualifiedIdentity
      */
-    public static IdentityDto convert( final QualifiedIdentity qualifiedIdentity )
+    public static IdentityDto convert( final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto qualifiedIdentity )
     {
         IdentityDto identityDto = new IdentityDto( );
         identityDto.setConnectionId( qualifiedIdentity.getConnectionId( ) );
@@ -72,25 +70,25 @@ public final class DtoConverter
 
         if ( qualifiedIdentity.getAttributes( ) != null )
         {
-            Map<String, AttributeDto> mapAttributeDto = new HashMap<String, AttributeDto>( );
+            Map<String, fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto> mapAttributeDto = new HashMap<>( );
 
-            for ( final CertifiedAttribute certifiedAttribute : qualifiedIdentity.getAttributes( ) )
+            for ( final AttributeDto attributeDto : qualifiedIdentity.getAttributes( ) )
             {
-                AttributeDto attrDto = new AttributeDto( );
-                attrDto.setKey( certifiedAttribute.getKey( ) );
-                attrDto.setValue( certifiedAttribute.getValue( ) );
-                attrDto.setType( certifiedAttribute.getType( ) );
-                attrDto.setLastUpdateApplicationCode( certifiedAttribute.getLastUpdateClientCode( ) );
-                attrDto.setLastUpdateDate( certifiedAttribute.getLastUpdateDate( ) );
+                fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto attrDto = new fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.AttributeDto( );
+                attrDto.setKey( attributeDto.getKey( ) );
+                attrDto.setValue( attributeDto.getValue( ) );
+                attrDto.setType( attributeDto.getType( ) );
+                attrDto.setLastUpdateApplicationCode( attributeDto.getLastUpdateClientCode( ) );
+                attrDto.setLastUpdateDate( attributeDto.getLastUpdateDate( ) );
                 attrDto.setStatus( null ); // TODO n'existe pas en V3
 
-                if ( StringUtils.isNotEmpty( certifiedAttribute.getCertifier( ) ) )
+                if ( StringUtils.isNotEmpty( attributeDto.getCertifier( ) ) )
                 {
                     final CertificateDto certifDto = new CertificateDto( );
                     certifDto.setCertificateExpirationDate( null ); // TODO n'existe pas en V3
-                    certifDto.setCertifierCode( certifiedAttribute.getCertifier( ) );
-                    certifDto.setCertifierName( certifiedAttribute.getCertifier( ) );
-                    certifDto.setCertifierLevel( certifiedAttribute.getCertificationLevel( ) );
+                    certifDto.setCertifierCode( attributeDto.getCertifier( ) );
+                    certifDto.setCertifierName( attributeDto.getCertifier( ) );
+                    certifDto.setCertifierLevel( attributeDto.getCertificationLevel( ) );
                     attrDto.setCertificate( certifDto );
                 }
                 attrDto.setCertified( attrDto.getCertificate( ) != null );

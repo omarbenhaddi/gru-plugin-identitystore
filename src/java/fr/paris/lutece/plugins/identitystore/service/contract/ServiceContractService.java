@@ -43,7 +43,7 @@ import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
@@ -117,35 +117,35 @@ public class ServiceContractService
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
-        for ( final CertifiedAttribute certifiedAttribute : identityChangeRequest.getIdentity( ).getAttributes( ) )
+        for ( final AttributeDto attributeDto : identityChangeRequest.getIdentity( ).getAttributes( ) )
         {
-            boolean canWriteAttribute = IdentityAttributeService.instance( ).getAttributeKey( certifiedAttribute.getKey( ) ) != null;
+            boolean canWriteAttribute = IdentityAttributeService.instance( ).getAttributeKey( attributeDto.getKey( ) ) != null;
             if ( !canWriteAttribute )
             {
-                response.getAttributeStatuses( ).add( this.buildAttributeStatus( certifiedAttribute, AttributeChangeStatus.NOT_FOUND ) );
+                response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.NOT_FOUND ) );
                 response.setStatus( IdentityChangeStatus.FAILURE );
                 continue;
             }
 
             canWriteAttribute = serviceContract.getAttributeRights( ).stream( )
-                    .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) )
+                    .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), attributeDto.getKey( ) )
                             && attributeRight.isWritable( ) );
             if ( !canWriteAttribute )
             {
-                response.getAttributeStatuses( ).add( this.buildAttributeStatus( certifiedAttribute, AttributeChangeStatus.UNAUTHORIZED ) );
+                response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.UNAUTHORIZED ) );
                 response.setStatus( IdentityChangeStatus.FAILURE );
                 continue;
             }
 
-            if ( certifiedAttribute.getCertificationProcess( ) != null )
+            if ( attributeDto.getCertifier( ) != null )
             {
                 canWriteAttribute = serviceContract.getAttributeCertifications( ).stream( ).anyMatch(
-                        attributeCertification -> StringUtils.equals( attributeCertification.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) )
+                        attributeCertification -> StringUtils.equals( attributeCertification.getAttributeKey( ).getKeyName( ), attributeDto.getKey( ) )
                                 && attributeCertification.getRefAttributeCertificationProcessus( ).stream( )
-                                        .anyMatch( processus -> StringUtils.equals( processus.getCode( ), certifiedAttribute.getCertificationProcess( ) ) ) );
+                                        .anyMatch( processus -> StringUtils.equals( processus.getCode( ), attributeDto.getCertifier( ) ) ) );
                 if ( !canWriteAttribute )
                 {
-                    response.getAttributeStatuses( ).add( this.buildAttributeStatus( certifiedAttribute, AttributeChangeStatus.INSUFFICIENT_RIGHTS ) );
+                    response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.INSUFFICIENT_RIGHTS ) );
                     response.setStatus( IdentityChangeStatus.FAILURE );
                 }
             }
@@ -353,10 +353,10 @@ public class ServiceContractService
         return serviceContract.getDataRetentionPeriodInMonths( );
     }
 
-    private AttributeStatus buildAttributeStatus( final CertifiedAttribute certifiedAttribute, final AttributeChangeStatus status )
+    private AttributeStatus buildAttributeStatus( final AttributeDto attributeDto, final AttributeChangeStatus status )
     {
         final AttributeStatus attributeStatus = new AttributeStatus( );
-        attributeStatus.setKey( certifiedAttribute.getKey( ) );
+        attributeStatus.setKey( attributeDto.getKey( ) );
         attributeStatus.setStatus( status );
         return attributeStatus;
     }

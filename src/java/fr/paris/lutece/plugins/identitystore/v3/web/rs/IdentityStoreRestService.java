@@ -46,7 +46,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentitySto
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
@@ -362,7 +362,7 @@ public final class IdentityStoreRestService
                     Response.Status.BAD_REQUEST );
         }
         final UpdatedIdentitySearchResponse entity = new UpdatedIdentitySearchResponse( );
-        final List<UpdatedIdentity> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
+        final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
             entity.setStatus( UpdatedIdentitySearchStatus.NOT_FOUND );

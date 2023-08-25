@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualitySer
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
@@ -76,7 +77,7 @@ public class DuplicateService implements IDuplicateService
      *            the customerId of the base {@link Identity}
      * @param ruleCodes
      *            the list of {@link DuplicateRule} codes to be applied
-     * @return a {@link DuplicateSearchResponse} that contains the result of the search request, with a list of {@link QualifiedIdentity} that matches the
+     * @return a {@link DuplicateSearchResponse} that contains the result of the search request, with a list of {@link IdentityDto} that matches the
      *         {@link DuplicateRule} definition and the given list of attributes.
      */
     @Override
@@ -129,8 +130,8 @@ public class DuplicateService implements IDuplicateService
             final QualifiedIdentitySearchResult result = _searchIdentityService.getQualifiedIdentities( searchAttributes, specialTreatmentAttributes,
                     duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false );
             result.getQualifiedIdentities( ).removeIf( qualifiedIdentity -> SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId ) );
-            result.getQualifiedIdentities( )
-                    .removeIf( qualifiedIdentity -> qualifiedIdentity.isMerged( ) || Objects.equals( qualifiedIdentity.getCustomerId( ), customerId ) );
+            result.getQualifiedIdentities( ).removeIf( identity -> ( identity.getMerge( ) != null && identity.getMerge( ).isMerged( ) )
+                    || Objects.equals( identity.getCustomerId( ), customerId ) );
             result.getQualifiedIdentities( ).forEach( qualifiedIdentity -> {
                 try
                 {

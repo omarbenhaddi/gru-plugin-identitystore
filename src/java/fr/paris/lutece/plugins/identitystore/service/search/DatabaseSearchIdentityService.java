@@ -39,7 +39,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -117,9 +117,9 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
      * @return the DTO list
      * @throws IdentityStoreException
      */
-    private List<QualifiedIdentity> getEntities( final List<Identity> identityList ) throws IdentityStoreException
+    private List<IdentityDto> getEntities( final List<Identity> identityList ) throws IdentityStoreException
     {
-        final List<QualifiedIdentity> qualifiedIdentities = new ArrayList<>( identityList.size( ) );
+        final List<IdentityDto> qualifiedIdentities = new ArrayList<>( identityList.size( ) );
         final List<IdentityAttribute> listIdentityAttribute = IdentityAttributeHome.getAttributesByIdentityListFullAttributes( identityList );
         for ( final Identity identity : identityList )
         {

@@ -48,7 +48,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.CertifiedAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -164,7 +164,7 @@ public class IdentityAttributeService
      * @return AttributeStatus
      * @throws IdentityAttributeNotFoundException
      */
-    public AttributeStatus createAttribute( final CertifiedAttribute attributeToCreate, final Identity identity, final String clientCode )
+    public AttributeStatus createAttribute( final AttributeDto attributeToCreate, final Identity identity, final String clientCode )
             throws IdentityStoreException
     {
         if ( StringUtils.isBlank( attributeToCreate.getValue( ) ) )
@@ -181,12 +181,12 @@ public class IdentityAttributeService
         attribute.setValue( attributeToCreate.getValue( ) );
         attribute.setLastUpdateClientCode( clientCode );
 
-        if ( attributeToCreate.getCertificationProcess( ) != null )
+        if ( attributeToCreate.getCertifier( ) != null )
         {
             final AttributeCertificate certificate = new AttributeCertificate( );
             certificate.setCertificateDate( new Timestamp( attributeToCreate.getCertificationDate( ).getTime( ) ) );
-            certificate.setCertifierCode( attributeToCreate.getCertificationProcess( ) );
-            certificate.setCertifierName( attributeToCreate.getCertificationProcess( ) ); // ?
+            certificate.setCertifierCode( attributeToCreate.getCertifier( ) );
+            certificate.setCertifierName( attributeToCreate.getCertifier( ) ); // ?
             attribute.setCertificate( AttributeCertificateHome.create( certificate ) );
             attribute.setIdCertificate( attribute.getCertificate( ).getId( ) );
         }
@@ -210,12 +210,12 @@ public class IdentityAttributeService
      * @return AttributeStatus
      * @throws IdentityStoreException
      */
-    public AttributeStatus updateAttribute( final CertifiedAttribute attributeToUpdate, final Identity identity, final String clientCode )
+    public AttributeStatus updateAttribute( final AttributeDto attributeToUpdate, final Identity identity, final String clientCode )
             throws IdentityStoreException
     {
         final IdentityAttribute existingAttribute = identity.getAttributes( ).get( attributeToUpdate.getKey( ) );
 
-        int attributeToUpdateLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( attributeToUpdate.getCertificationProcess( ),
+        int attributeToUpdateLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( attributeToUpdate.getCertifier( ),
                 attributeToUpdate.getKey( ) );
         int existingAttributeLevelInt = _attributeCertificationDefinitionService.getLevelAsInteger( existingAttribute.getCertificate( ).getCertifierCode( ),
                 existingAttribute.getAttributeKey( ).getKeyName( ) );
@@ -257,12 +257,12 @@ public class IdentityAttributeService
             existingAttribute.setValue( attributeToUpdate.getValue( ) );
             existingAttribute.setLastUpdateClientCode( clientCode );
 
-            if ( attributeToUpdate.getCertificationProcess( ) != null )
+            if ( attributeToUpdate.getCertifier( ) != null )
             {
                 final AttributeCertificate certificate = new AttributeCertificate( );
                 certificate.setCertificateDate( new Timestamp( attributeToUpdate.getCertificationDate( ).getTime( ) ) );
-                certificate.setCertifierCode( attributeToUpdate.getCertificationProcess( ) );
-                certificate.setCertifierName( attributeToUpdate.getCertificationProcess( ) );
+                certificate.setCertifierCode( attributeToUpdate.getCertifier( ) );
+                certificate.setCertifierName( attributeToUpdate.getCertifier( ) );
 
                 existingAttribute.setCertificate( AttributeCertificateHome.create( certificate ) ); // TODO supprime-t-on l'ancien certificat ?
                 existingAttribute.setIdCertificate( existingAttribute.getCertificate( ).getId( ) );
