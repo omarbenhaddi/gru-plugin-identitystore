@@ -99,15 +99,12 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
     {
         final IdentitySearchResponse response = new IdentitySearchResponse( );
 
-        IdentityService.instance( ).search( _strCustomerId, _strConnectionId, response, _strClientAppCode );
+        IdentityService.instance( ).search( _strCustomerId, _strConnectionId, response, _strClientAppCode, null );
         if ( response.getIdentities( ) != null && !response.getIdentities( ).isEmpty( ) )
         {
-            final fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto v3Identity = response.getIdentities( ).get( 0 );
-            final IdentityDto v2Identity = DtoConverter.convert( v3Identity );
-
             try
             {
-                return _objectMapper.writeValueAsString( v2Identity );
+                return _objectMapper.writeValueAsString( DtoConverter.convert( response.getIdentities( ).get( 0 ) ) );
             }
             catch( JsonProcessingException e )
             {

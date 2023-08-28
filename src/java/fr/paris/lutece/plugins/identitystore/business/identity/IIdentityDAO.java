@@ -281,6 +281,8 @@ public interface IIdentityDAO
      */
     void addChangeHistory( IdentityChange identityChange, Plugin plugin ) throws IdentityStoreException;
 
+    void addOrUpdateChangeHistory( IdentityChange identityChange, Plugin plugin ) throws IdentityStoreException;
+
     /**
      * get identity history
      *

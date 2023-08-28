@@ -62,14 +62,7 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.service.user.InternalUserService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefintion;
@@ -97,16 +90,7 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class IdentityService
@@ -846,6 +830,8 @@ public class IdentityService
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
+                response.setStatus( ResponseStatusType.SUCCESS );
+                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
                 for ( final IdentityDto identity : response.getIdentities( ) )
                 {
                     AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
@@ -868,8 +854,6 @@ public class IdentityService
                         _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
                     }
                 }
-                response.setStatus( ResponseStatusType.SUCCESS );
-                response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
             else
             {
@@ -894,8 +878,8 @@ public class IdentityService
      * @throws IdentityAttributeNotFoundException
      * @throws ServiceContractNotFoundException
      */
-    public void search( final String customerId, final String connectionId, final IdentitySearchResponse response, final String clientCode )
-            throws IdentityAttributeNotFoundException, ServiceContractNotFoundException, RefAttributeCertificationDefinitionNotFoundException
+    public void search( final String customerId, final String connectionId, final IdentitySearchResponse response, final String clientCode,
+            final RequestAuthor origin ) throws IdentityStoreException
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
                 customerId != null ? customerId : connectionId, SPECIFIC_ORIGIN );
@@ -914,12 +898,30 @@ public class IdentityService
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
-                // TODO make this request a post with a signed request
-                // response.getIdentities().forEach(i -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
-                // SEARCH_IDENTITY_EVENT_CODE,
-                // _internalUserService.getApiUser( request, clientCode ), i.getCustomerId(), SPECIFIC_ORIGIN ));
                 response.setStatus( ResponseStatusType.SUCCESS );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
+                for ( final IdentityDto i : response.getIdentities( ) )
+                {
+                    AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                            _internalUserService.getApiUser( origin, clientCode ), i.getCustomerId( ), SPECIFIC_ORIGIN );
+                    if ( origin != null && origin.getType( ).equals( AuthorType.agent ) )
+                    {
+                        /* Indexation et historique */
+                        // TODO refactor ?
+                        final IdentityChange identityChange = new IdentityChange( );
+                        identityChange.setChangeType( IdentityChangeType.READ );
+                        identityChange.setChangeStatus( response.getStatus( ).name( ) );
+                        identityChange.setChangeMessage( response.getMessage( ) );
+                        identityChange.setAuthor( origin );
+                        identityChange.setCustomerId( identity.getCustomerId( ) );
+                        identityChange.setConnectionId( identity.getConnectionId( ) );
+                        identityChange.setMonParisActive( identity.isMonParisActive( ) );
+                        identityChange.setCreationDate( identity.getCreationDate( ) );
+                        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
+                        identityChange.setClientCode( clientCode );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+                    }
+                }
             }
             else
             {

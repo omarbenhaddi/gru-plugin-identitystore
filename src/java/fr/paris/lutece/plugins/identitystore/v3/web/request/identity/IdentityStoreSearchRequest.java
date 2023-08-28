@@ -87,7 +87,8 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreRequest
         {
             if ( StringUtils.isNotEmpty( _identitySearchRequest.getConnectionId( ) ) )
             {
-                IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), response, _strClientCode );
+                IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), response, _strClientCode,
+                        _identitySearchRequest.getOrigin( ) );
             }
             else
             {

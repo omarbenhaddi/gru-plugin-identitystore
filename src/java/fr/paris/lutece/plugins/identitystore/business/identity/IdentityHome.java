@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class provides instances management methods (create, find, ...) for Identity objects
@@ -475,7 +476,14 @@ public final class IdentityHome
      */
     public static void addIdentityChangeHistory( IdentityChange identityChange ) throws IdentityStoreException
     {
-        _dao.addChangeHistory( identityChange, _plugin );
+        if ( Objects.equals( identityChange.getChangeType( ), IdentityChangeType.READ ) )
+        {
+            _dao.addOrUpdateChangeHistory( identityChange, _plugin );
+        }
+        else
+        {
+            _dao.addChangeHistory( identityChange, _plugin );
+        }
     }
 
     /**
