@@ -966,7 +966,8 @@ public final class IdentityDAO implements IIdentityDAO
 
     private String computeMetadaQuery( Map<String, String> metadata )
     {
-        return metadata.entrySet( ).stream( ).map( entry -> "metadata ->> '" + entry.getKey( ) + "' = '" + entry.getValue( ) + "'" )
+        // where string_to_array(metadata ->> 'duplicate_rule_code',',') @> '{RG_GEN_SuspectDoublon_03}';
+        return metadata.entrySet( ).stream( ).map( entry -> "string_to_array(metadata ->> '" + entry.getKey( ) + "',',') @>'{" + entry.getValue( ) + "}'" )
                 .collect( Collectors.joining( " AND " ) );
     }
 

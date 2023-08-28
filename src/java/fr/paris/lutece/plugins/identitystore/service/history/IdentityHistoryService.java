@@ -81,8 +81,9 @@ public class IdentityHistoryService
                 .map( ar -> ar.getAttributeKey( ).getKeyName( ) ).collect( Collectors.toSet( ) );
 
         final List<IdentityChange> identityChangeList = IdentityHome.findHistoryByCustomerId( customerId );
-        if(!serviceContract.getAuthorizedAgentHistoryRead()){
-            identityChangeList.removeIf(identityChange -> Objects.equals(identityChange.getChangeType(), IdentityChangeType.READ));
+        if ( !serviceContract.getAuthorizedAgentHistoryRead( ) )
+        {
+            identityChangeList.removeIf( identityChange -> Objects.equals( identityChange.getChangeType( ), IdentityChangeType.READ ) );
         }
         final List<AttributeChange> attributeChangeList = IdentityAttributeHome.getAttributeChangeHistory( identity.getId( ) );
 
@@ -103,8 +104,9 @@ public class IdentityHistoryService
 
         final List<IdentityChange> identityChangeList = IdentityHome.findHistoryBySearchParameters( request.getCustomerId( ), request.getClientCode( ),
                 request.getAuthorName( ), request.getIdentityChangeType( ), request.getMetadata( ), request.getNbDaysFrom( ) );
-        if(!serviceContract.getAuthorizedAgentHistoryRead()){
-            identityChangeList.removeIf(identityChange -> Objects.equals(identityChange.getChangeType(), IdentityChangeType.READ));
+        if ( !serviceContract.getAuthorizedAgentHistoryRead( ) )
+        {
+            identityChangeList.removeIf( identityChange -> Objects.equals( identityChange.getChangeType( ), IdentityChangeType.READ ) );
         }
         final Map<String, List<IdentityChange>> identityChangeMap = identityChangeList.stream( )
                 .collect( Collectors.groupingBy( IdentityChange::getCustomerId ) );
