@@ -41,8 +41,8 @@ import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertifica
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
@@ -92,7 +92,7 @@ public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
 
         if ( !result.isPresent( ) )
         {
-            response.setStatus( ServiceContractSearchStatusType.NOT_FOUND );
+            response.setStatus( ResponseStatusType.NOT_FOUND );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_NOT_FOUND );
         }
         else
@@ -108,7 +108,7 @@ public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
                 }
             }
             response.setServiceContract( DtoConverter.convertContractToDto( serviceContract ) );
-            response.setStatus( ServiceContractSearchStatusType.SUCCESS );
+            response.setStatus( ResponseStatusType.SUCCESS );
             response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
 

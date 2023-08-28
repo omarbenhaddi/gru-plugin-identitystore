@@ -36,11 +36,16 @@ package fr.paris.lutece.plugins.identitystore.service.attribute;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
@@ -74,7 +79,7 @@ public class IdentityAttributeValidationService
         final boolean passedValidation = this.validateIdentityAttributeValues( request.getIdentity( ), response );
         if ( !passedValidation )
         {
-            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FAIL_ATTRIBUTE_VALIDATION );
         }
@@ -89,7 +94,7 @@ public class IdentityAttributeValidationService
         final boolean passedValidation = this.validateIdentityAttributeValues( request.getIdentity( ), response );
         if ( !passedValidation )
         {
-            response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_FAIL_ATTRIBUTE_VALIDATION );
         }

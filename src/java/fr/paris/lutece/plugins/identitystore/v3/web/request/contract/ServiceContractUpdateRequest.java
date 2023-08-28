@@ -44,8 +44,8 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -92,7 +92,7 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
         final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strClientCode );
         if ( clientApplication == null )
         {
-            response.setStatus( ServiceContractChangeStatusType.FAILURE );
+            response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "No application could be found with code " + _strClientCode );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND );
         }
@@ -101,7 +101,7 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
             final Optional<ServiceContract> serviceContractToUpdate = ServiceContractHome.findByPrimaryKey( _serviceContractId );
             if ( !serviceContractToUpdate.isPresent( ) )
             {
-                response.setStatus( ServiceContractChangeStatusType.FAILURE );
+                response.setStatus( ResponseStatusType.FAILURE );
                 response.setMessage( "No service contract could be found with code " + _serviceContractId );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_NOT_FOUND );
             }
@@ -120,7 +120,7 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
                     }
                 }
                 response.setServiceContract( DtoConverter.convertContractToDto( serviceContract ) );
-                response.setStatus( ServiceContractChangeStatusType.SUCCESS );
+                response.setStatus( ResponseStatusType.SUCCESS );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             }
         }

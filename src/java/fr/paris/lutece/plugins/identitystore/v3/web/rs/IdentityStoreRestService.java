@@ -44,17 +44,16 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentitySto
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreSearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUncertifyRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUpdateRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -365,12 +364,12 @@ public final class IdentityStoreRestService
         final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
-            entity.setStatus( UpdatedIdentitySearchStatus.NOT_FOUND );
+            entity.setStatus( ResponseStatusType.NOT_FOUND );
             entity.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND );
         }
         else
         {
-            entity.setStatus( UpdatedIdentitySearchStatus.SUCCESS );
+            entity.setStatus( ResponseStatusType.SUCCESS );
             entity.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
         }
@@ -416,7 +415,7 @@ public final class IdentityStoreRestService
     private Response buildErrorResponse( final String strMessage, final String i18nMessageKey, final Response.Status status )
     {
         final ErrorResponse response = new ErrorResponse( );
-        response.setStatus( ErrorStatusType.valueOf( status.name( ) ) );
+        response.setStatus( ResponseStatusType.valueOf( status.name( ) ) );
         response.setMessage( strMessage );
         response.setI18nMessageKey( i18nMessageKey );
         return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );

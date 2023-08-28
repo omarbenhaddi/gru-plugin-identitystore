@@ -40,9 +40,9 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 import java.util.List;
@@ -88,17 +88,16 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
     {
         final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityChange( _identityChangeRequest, _strClientCode );
 
-        if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
+        if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
         {
             final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
                     .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
 
             IdentityAttributeValidationService.instance( ).validateChangeRequestAttributeValues( _identityChangeRequest, response );
-            if ( !IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
+            if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
             {
                 IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _strClientCode, response );
-                if ( IdentityChangeStatus.UPDATE_SUCCESS.equals( response.getStatus( ) )
-                        || IdentityChangeStatus.UPDATE_INCOMPLETE_SUCCESS.equals( response.getStatus( ) ) )
+                if ( ResponseStatusType.SUCCESS.equals( response.getStatus( ) ) || ResponseStatusType.INCOMPLETE_SUCCESS.equals( response.getStatus( ) ) )
                 {
                     // if request is accepted and treatment successfull, add the formatting statuses
                     response.getAttributeStatuses( ).addAll( formatStatuses );

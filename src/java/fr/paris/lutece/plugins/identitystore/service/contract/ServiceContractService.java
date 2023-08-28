@@ -36,21 +36,27 @@ package fr.paris.lutece.plugins.identitystore.service.contract;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.business.contract.*;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.cache.ActiveServiceContractCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.i18n.I18nService;
@@ -59,7 +65,11 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -123,7 +133,7 @@ public class ServiceContractService
             if ( !canWriteAttribute )
             {
                 response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.NOT_FOUND ) );
-                response.setStatus( IdentityChangeStatus.FAILURE );
+                response.setStatus( ResponseStatusType.FAILURE );
                 continue;
             }
 
@@ -133,7 +143,7 @@ public class ServiceContractService
             if ( !canWriteAttribute )
             {
                 response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.UNAUTHORIZED ) );
-                response.setStatus( IdentityChangeStatus.FAILURE );
+                response.setStatus( ResponseStatusType.FAILURE );
                 continue;
             }
 
@@ -146,12 +156,12 @@ public class ServiceContractService
                 if ( !canWriteAttribute )
                 {
                     response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.INSUFFICIENT_RIGHTS ) );
-                    response.setStatus( IdentityChangeStatus.FAILURE );
+                    response.setStatus( ResponseStatusType.FAILURE );
                 }
             }
         }
 
-        if ( IdentityChangeStatus.FAILURE.equals( response.getStatus( ) ) )
+        if ( ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
         {
             response.setMessage( "The request violates service contract definition" );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
@@ -181,7 +191,7 @@ public class ServiceContractService
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         if ( !serviceContract.getAuthorizedMerge( ) )
         {
-            response.setStatus( IdentityMergeStatus.FAILURE );
+            response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "The client application is not authorized to merge identities " );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_MERGE_UNAUTHORIZED );
         }
@@ -210,7 +220,7 @@ public class ServiceContractService
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         if ( !serviceContract.getAuthorizedImport( ) )
         {
-            response.setStatus( IdentityChangeStatus.FAILURE );
+            response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "The client application is not authorized to import identities " );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_IMPORT_UNAUTHORIZED );
         }
@@ -242,7 +252,7 @@ public class ServiceContractService
         final IdentitySearchResponse response = new IdentitySearchResponse( );
         if ( !serviceContract.getAuthorizedSearch( ) )
         {
-            response.setStatus( IdentitySearchStatusType.FAILURE );
+            response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "The client application is not authorized to search an identity." );
             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SEARCH_UNAUTHORIZED );
             final IdentitySearchMessage message = new IdentitySearchMessage( );
@@ -268,7 +278,7 @@ public class ServiceContractService
                         alert.setAttributeName( searchAttribute.getKey( ) );
                         alert.setMessage( "This attribute is not searchable in service contract definition." );
                         response.getAlerts( ).add( alert );
-                        response.setStatus( IdentitySearchStatusType.FAILURE );
+                        response.setStatus( ResponseStatusType.FAILURE );
                         response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
                     }
                 }
@@ -286,7 +296,7 @@ public class ServiceContractService
                             alert.setAttributeName( searchAttribute.getKey( ) );
                             alert.setMessage( "This attribute group is not searchable in service contract definition." );
                             response.getAlerts( ).add( alert );
-                            response.setStatus( IdentitySearchStatusType.FAILURE );
+                            response.setStatus( ResponseStatusType.FAILURE );
                             response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
                         }
                     }
@@ -296,7 +306,7 @@ public class ServiceContractService
                         alert.setAttributeName( searchAttribute.getKey( ) );
                         alert.setMessage( "This attribute does not exist in service contract definition." );
                         response.getAlerts( ).add( alert );
-                        response.setStatus( IdentitySearchStatusType.FAILURE );
+                        response.setStatus( ResponseStatusType.FAILURE );
                         response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
                     }
                 }

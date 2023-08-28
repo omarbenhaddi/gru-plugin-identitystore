@@ -36,12 +36,9 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.history;
 import fr.paris.lutece.plugins.identitystore.service.history.IdentityHistoryService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchResponse;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-
-import java.util.List;
 
 public class IdentityStoreHistorySearchRequest extends AbstractIdentityStoreRequest
 {
