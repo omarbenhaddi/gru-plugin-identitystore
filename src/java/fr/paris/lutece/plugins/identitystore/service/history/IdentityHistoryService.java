@@ -41,18 +41,14 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeHistory;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -85,6 +81,9 @@ public class IdentityHistoryService
                 .map( ar -> ar.getAttributeKey( ).getKeyName( ) ).collect( Collectors.toSet( ) );
 
         final List<IdentityChange> identityChangeList = IdentityHome.findHistoryByCustomerId( customerId );
+        if(!serviceContract.getAuthorizedAgentHistoryRead()){
+            identityChangeList.removeIf(identityChange -> Objects.equals(identityChange.getChangeType(), IdentityChangeType.READ));
+        }
         final List<AttributeChange> attributeChangeList = IdentityAttributeHome.getAttributeChangeHistory( identity.getId( ) );
 
         return toHistory( customerId, identityChangeList, attributeChangeList, readableAttributeKeys );
@@ -104,6 +103,9 @@ public class IdentityHistoryService
 
         final List<IdentityChange> identityChangeList = IdentityHome.findHistoryBySearchParameters( request.getCustomerId( ), request.getClientCode( ),
                 request.getAuthorName( ), request.getIdentityChangeType( ), request.getMetadata( ), request.getNbDaysFrom( ) );
+        if(!serviceContract.getAuthorizedAgentHistoryRead()){
+            identityChangeList.removeIf(identityChange -> Objects.equals(identityChange.getChangeType(), IdentityChangeType.READ));
+        }
         final Map<String, List<IdentityChange>> identityChangeMap = identityChangeList.stream( )
                 .collect( Collectors.groupingBy( IdentityChange::getCustomerId ) );
 
