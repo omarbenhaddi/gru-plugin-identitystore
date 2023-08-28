@@ -75,9 +75,6 @@
     <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedSearch}</th>
     <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedMerge}</th>
     <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedAccountUpdate}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedDeletion}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedImport}</th>
-    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedExport}</th>
     </thead>
     <tbody>
     <tr>
@@ -104,32 +101,67 @@
             </#if>
         </td>
         <td>
+            <#if servicecontract.authorizedMerge = true>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            <#else>
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </#if>
+        </td>
+        <td>
             <#if servicecontract.authorizedAccountUpdate = true>
                 <i class="fas fa-check" aria-hidden="true"></i>
             <#else>
                 <i class="fas fa-times" aria-hidden="true"></i>
             </#if>
         </td>
+    </tr>
+    </tbody>
+    </@table>
+    <@table>
+    <thead>
+    <input type="hidden" id="id" name="id"/>
+    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedDeletion}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedImport}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedExport}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedDecertification}</th>
+    <th>#i18n{identitystore.manage_servicecontracts.columnAuthorizedAgentHistoryRead}</th>
+    </thead>
+    <tbody>
+    <tr>
         <td>
             <#if servicecontract.authorizedDeletion = true>
-                <i class="fas fa-check" aria-hidden="true"></i>
+            <i class="fas fa-check" aria-hidden="true"></i>
             <#else>
-                <i class="fas fa-times" aria-hidden="true"></i>
-            </#if>
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </#if>
         </td>
         <td>
             <#if servicecontract.authorizedImport = true>
-                <i class="fas fa-check" aria-hidden="true"></i>
+            <i class="fas fa-check" aria-hidden="true"></i>
             <#else>
-                <i class="fas fa-times" aria-hidden="true"></i>
-            </#if>
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </#if>
         </td>
         <td>
             <#if servicecontract.authorizedExport = true>
-                <i class="fas fa-check" aria-hidden="true"></i>
+            <i class="fas fa-check" aria-hidden="true"></i>
             <#else>
-                <i class="fas fa-times" aria-hidden="true"></i>
-            </#if>
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </#if>
+        </td>
+        <td>
+            <#if servicecontract.authorizedDecertification = true>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            <#else>
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </#if>
+        </td>
+        <td>
+            <#if servicecontract.authorizedAgentHistoryRead = true>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            <#else>
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </#if>
         </td>
     </tr>
     </tbody>

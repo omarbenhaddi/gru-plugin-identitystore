@@ -18,7 +18,6 @@ DROP TABLE IF EXISTS identitystore_ref_certification_processus CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_certification_attribute_level CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_certification_level CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_attribute CASCADE;
-DROP TABLE IF EXISTS identitystore_identity CASCADE;
 --
 -- Structure for table identitystore_identity
 --
@@ -200,6 +199,7 @@ CREATE TABLE identitystore_service_contract
     authorized_export                               smallint not null default 0,
     authorized_merge                                smallint not null default 0,
     authorized_account_update                       smallint not null default 0,
+    authorized_agent_history_read                   smallint not null default 0,
     is_application_authorized_to_delete_value       smallint not null default 0,
     is_application_authorized_to_delete_certificate smallint not null default 0,
     PRIMARY KEY (id_service_contract)

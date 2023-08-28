@@ -176,6 +176,8 @@ public final class DtoConverter
         serviceContractDto.setAuthorizedExport( serviceContract.getAuthorizedExport( ) );
         serviceContractDto.setAuthorizedImport( serviceContract.getAuthorizedImport( ) );
         serviceContractDto.setAuthorizedMerge( serviceContract.getAuthorizedMerge( ) );
+        serviceContractDto.setAuthorizedDecertification( serviceContract.getAuthorizedDecertification( ) );
+        serviceContractDto.setAuthorizedAgentHistoryRead( serviceContract.getAuthorizedAgentHistoryRead( ) );
         serviceContractDto.setDataRetentionPeriodInMonths( serviceContract.getDataRetentionPeriodInMonths( ) );
 
         final List<AttributeDefinitionDto> attributeDefinitions = new ArrayList<>( );
@@ -286,6 +288,8 @@ public final class DtoConverter
         serviceContract.setAuthorizedExport( serviceContractDto.isAuthorizedExport( ) );
         serviceContract.setAuthorizedImport( serviceContractDto.isAuthorizedImport( ) );
         serviceContract.setAuthorizedMerge( serviceContractDto.isAuthorizedMerge( ) );
+        serviceContract.setAuthorizedDecertification( serviceContractDto.isAuthorizedDecertification( ) );
+        serviceContract.setAuthorizedAgentHistoryRead( serviceContractDto.isAuthorizedAgentHistoryRead( ) );
         serviceContract.setDataRetentionPeriodInMonths( serviceContractDto.getDataRetentionPeriodInMonths( ) );
 
         for ( final AttributeDefinitionDto attributeDefinition : serviceContractDto.getAttributeDefinitions( ) )

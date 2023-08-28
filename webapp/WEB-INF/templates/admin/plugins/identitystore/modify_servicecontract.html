@@ -58,9 +58,13 @@
 			<@formGroup labelFor='authorized_export' labelKey='#i18n{identitystore.modify_servicecontract.labelAuthorizedExport}'>
 				<@checkBox id="authorized_export" name="authorized_export"  value="1" checked=servicecontract.authorizedExport!'false' tabIndex='10' />
 			</@formGroup>
+			<@formGroup labelFor='authorized_decertification' labelKey='#i18n{identitystore.modify_servicecontract.labelAuthorizedDecertification}'>
+				<@checkBox id="authorized_decertification" name="authorized_decertification"  value="1" checked=servicecontract.authorizedDecertification!'false' tabIndex='11' />
+			</@formGroup>
+			<@formGroup labelFor='authorized_agent_history_read' labelKey='#i18n{identitystore.modify_servicecontract.labelAuthorizedAgentHistoryRead}'>
+				<@checkBox id="authorized_agent_history_read" name="authorized_agent_history_read"  value="1" checked=servicecontract.authorizedAgentHistoryRead!'false' tabIndex='12' />
+			</@formGroup>
 
-			<@fieldInputCheckBox i18nLabelKey="identitystore.modify_servicecontract.labelIsAuthorizedDeleteValue" inputName="isAuthorizedDeleteValue" value="1" checked=false i18nHelpBlockKey="identitystore.modify_clientapplication.labelIsAuthorizedDeleteValue.help" />
-			<@fieldInputCheckBox i18nLabelKey="identitystore.modify_servicecontract.labelIsAuthorizedDeleteCertificate" inputName="isAuthorizedDeleteCertificate" value="1" checked=false i18nHelpBlockKey="identitystore.modify_clientapplication.labelIsAuthorizedDeleteCertificate.help" />
 
 			<@table>
 			<tr>
