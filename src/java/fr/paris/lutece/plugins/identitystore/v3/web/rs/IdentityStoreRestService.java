@@ -372,7 +372,7 @@ public final class IdentityStoreRestService
         }
         else
         {
-            entity.setStatus( ResponseStatusType.SUCCESS );
+            entity.setStatus( ResponseStatusType.OK );
             entity.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
             entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
         }

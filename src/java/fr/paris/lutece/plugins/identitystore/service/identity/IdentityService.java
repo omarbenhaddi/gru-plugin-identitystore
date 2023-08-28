@@ -830,7 +830,7 @@ public class IdentityService
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
-                response.setStatus( ResponseStatusType.SUCCESS );
+                response.setStatus( ResponseStatusType.OK );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
                 for ( final IdentityDto identity : response.getIdentities( ) )
                 {
@@ -898,7 +898,7 @@ public class IdentityService
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
-                response.setStatus( ResponseStatusType.SUCCESS );
+                response.setStatus( ResponseStatusType.OK );
                 response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
                 for ( final IdentityDto i : response.getIdentities( ) )
                 {

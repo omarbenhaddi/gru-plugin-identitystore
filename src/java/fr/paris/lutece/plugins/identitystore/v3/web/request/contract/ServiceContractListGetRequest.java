@@ -113,7 +113,7 @@ public class ServiceContractListGetRequest extends AbstractIdentityStoreRequest
                 response.getServiceContracts( ).add( DtoConverter.convertContractToDto( serviceContract ) );
             }
 
-            response.setStatus( ResponseStatusType.SUCCESS );
+            response.setStatus( ResponseStatusType.OK );
             response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
 

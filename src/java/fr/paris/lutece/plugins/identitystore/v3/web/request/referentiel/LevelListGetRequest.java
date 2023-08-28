@@ -91,7 +91,7 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
         else
         {
             response.setLevels( DtoConverter.convertRefLevelsToListDto( refCertificationLevelsList ) );
-            response.setStatus( ResponseStatusType.SUCCESS );
+            response.setStatus( ResponseStatusType.OK );
             response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
         }
 

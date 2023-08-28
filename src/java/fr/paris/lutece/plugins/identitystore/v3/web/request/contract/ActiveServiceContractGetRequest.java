@@ -101,7 +101,7 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
         }
 
         response.setServiceContract( DtoConverter.convertContractToDto( activeServiceContract ) );
-        response.setStatus( ResponseStatusType.SUCCESS );
+        response.setStatus( ResponseStatusType.OK );
         response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
 
         return response;
