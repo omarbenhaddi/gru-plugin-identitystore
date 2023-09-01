@@ -310,7 +310,7 @@ public final class SuspiciousIdentityHome
             throw new IdentityNotFoundException( "Could not find suspicious identity with customerId " + customerId );
         }
 
-        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && !( suspiciousIdentity.getLock( ).getAuthorName( ).equals( authorName )
+        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && !(Objects.equals(suspiciousIdentity.getLock().getAuthorName(), authorName)
                 && suspiciousIdentity.getLock( ).getAuthorType( ).equals( authorType ) ) )
         {
             throw new SuspiciousIdentityLockedException(
@@ -327,6 +327,12 @@ public final class SuspiciousIdentityHome
         {
             throw new SuspiciousIdentityLockedException( "Suspicious identity with customerId " + customerId + " is locked by "
                     + suspiciousIdentity.getLock( ).getAuthorName( ) + ". User" + authorName + " is not allowed to unlock." );
+        }
+
+        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && Objects.equals(authorName, suspiciousIdentity.getLock( ).getAuthorName( ))  && Objects.equals(authorType, suspiciousIdentity.getLock( ).getAuthorType( )))
+        {
+            // the request user has already locked the resource, do nothing.
+            return true;
         }
 
         return _dao.manageLock( customerId, lock, authorType, authorName, _plugin );
