@@ -310,26 +310,28 @@ public final class SuspiciousIdentityHome
             throw new IdentityNotFoundException( "Could not find suspicious identity with customerId " + customerId );
         }
 
-        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && !(Objects.equals(suspiciousIdentity.getLock().getAuthorName(), authorName)
-                && suspiciousIdentity.getLock( ).getAuthorType( ).equals( authorType ) ) )
+        final boolean isAlreadyLocked = suspiciousIdentity.getLock( ).isLocked( );
+        final boolean sameAuthorName = Objects.equals( suspiciousIdentity.getLock( ).getAuthorName( ), authorName );
+        final boolean sameAuthorType = Objects.equals( suspiciousIdentity.getLock( ).getAuthorType( ), authorType );
+        final boolean sameAuthor = sameAuthorName && sameAuthorType;
+        if ( lock && isAlreadyLocked && !sameAuthor )
         {
             throw new SuspiciousIdentityLockedException(
                     "Suspicious identity with customerId " + customerId + " is locked by " + suspiciousIdentity.getLock( ).getAuthorName( ) + "." );
         }
 
-        if ( !lock && !suspiciousIdentity.getLock( ).isLocked( ) )
+        if ( !lock && !isAlreadyLocked )
         {
             throw new SuspiciousIdentityLockedException( "Suspicious identity with customerId " + customerId + " is already unlocked." );
         }
 
-        if ( !lock && suspiciousIdentity.getLock( ).isLocked( ) && ( !Objects.equals( authorName, suspiciousIdentity.getLock( ).getAuthorName( ) )
-                || !Objects.equals( authorType, suspiciousIdentity.getLock( ).getAuthorType( ) ) ) )
+        if ( !lock && isAlreadyLocked && !sameAuthor )
         {
             throw new SuspiciousIdentityLockedException( "Suspicious identity with customerId " + customerId + " is locked by "
                     + suspiciousIdentity.getLock( ).getAuthorName( ) + ". User" + authorName + " is not allowed to unlock." );
         }
 
-        if ( lock && suspiciousIdentity.getLock( ).isLocked( ) && Objects.equals(authorName, suspiciousIdentity.getLock( ).getAuthorName( ))  && Objects.equals(authorType, suspiciousIdentity.getLock( ).getAuthorType( )))
+        if ( lock && isAlreadyLocked && sameAuthor )
         {
             // the request user has already locked the resource, do nothing.
             return true;
