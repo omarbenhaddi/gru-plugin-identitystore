@@ -245,12 +245,12 @@ public class ServiceContractService
      *            code of the {@link ClientApplication} requesting the search
      * @throws ServiceContractNotFoundException
      */
-    public IdentitySearchResponse validateIdentitySearch( final IdentitySearchRequest identitySearchRequest, final String clientCode )
+    public IdentitySearchResponse validateIdentitySearch( final IdentitySearchRequest identitySearchRequest, final String clientCode, final boolean checkContract )
             throws ServiceContractNotFoundException
     {
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         final IdentitySearchResponse response = new IdentitySearchResponse( );
-        if ( !serviceContract.getAuthorizedSearch( ) )
+        if ( checkContract && !serviceContract.getAuthorizedSearch( ) )
         {
             response.setStatus( ResponseStatusType.FAILURE );
             response.setMessage( "The client application is not authorized to search an identity." );

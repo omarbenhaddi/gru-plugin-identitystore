@@ -81,11 +81,12 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreRequest
     @Override
     public IdentitySearchResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final IdentitySearchResponse response = ServiceContractService.instance( ).validateIdentitySearch( _identitySearchRequest, _strClientCode );
+        final boolean guidSearch = StringUtils.isNotEmpty(_identitySearchRequest.getConnectionId());
+        final IdentitySearchResponse response = ServiceContractService.instance( ).validateIdentitySearch( _identitySearchRequest, _strClientCode, !guidSearch );
 
         if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
         {
-            if ( StringUtils.isNotEmpty( _identitySearchRequest.getConnectionId( ) ) )
+            if (guidSearch)
             {
                 IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), response, _strClientCode,
                         _identitySearchRequest.getOrigin( ) );
