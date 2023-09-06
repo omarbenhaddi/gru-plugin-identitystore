@@ -192,7 +192,7 @@ public class IdentitySearcher implements IIdentitySearcher
             final String response = this._elasticClient.search( INDEX, initialRequest );
             final Response innerResponse = objectMapper.readValue( response, Response.class );
             int total = innerResponse.getResult( ).getTotal( ).getValue( );
-            int limit = Math.min( max, total );
+            int limit = max == 0 ? total : Math.min( max, total );
             if ( size < limit )
             {
                 int offset = initialRequest.getFrom( );
