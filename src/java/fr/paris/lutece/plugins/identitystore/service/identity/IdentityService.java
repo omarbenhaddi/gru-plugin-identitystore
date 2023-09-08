@@ -198,7 +198,7 @@ public class IdentityService
 
         final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
                 .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
-        final DuplicateSearchResponse duplicateSearchResponse = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_CREATION_RULES );
+        final DuplicateSearchResponse duplicateSearchResponse = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_CREATION_RULES, "" );
         if ( duplicateSearchResponse != null && CollectionUtils.isNotEmpty( duplicateSearchResponse.getIdentities( ) ) )
         {
             response.setStatus( ResponseStatusType.CONFLICT );
@@ -359,7 +359,8 @@ public class IdentityService
         }
 
         // check if update does not create duplicates
-        // TODO : check only "strict siblings" rule
+        // TODO : check only "strict siblings" rule, faire un update virtuel de l'identité dans un objet tampon et chercher des doublons à partir de cet objet
+        // (identituqe creta pour la config)
         /*
          * final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( ) .collect( Collectors.toMap(
          * CertifiedAttribute::getKey, CertifiedAttribute::getValue ) ); identity.getAttributes().forEach((key, value) -> attributes.putIfAbsent(key,
@@ -712,7 +713,7 @@ public class IdentityService
         final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( )
                 .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
 
-        final DuplicateSearchResponse certitudeDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_STRICT );
+        final DuplicateSearchResponse certitudeDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_STRICT, "" );
         if ( certitudeDuplicates != null && CollectionUtils.isNotEmpty( certitudeDuplicates.getIdentities( ) ) )
         {
             if ( certitudeDuplicates.getIdentities( ).size( ) == 1 )
@@ -721,7 +722,7 @@ public class IdentityService
             }
         }
 
-        final DuplicateSearchResponse suspicionDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION );
+        final DuplicateSearchResponse suspicionDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION, "" );
         if ( suspicionDuplicates != null && CollectionUtils.isNotEmpty( suspicionDuplicates.getIdentities( ) ) )
         {
             response.setStatus( ResponseStatusType.CONFLICT );
@@ -1285,10 +1286,11 @@ public class IdentityService
      * @throws IdentityStoreException
      *             in case of error
      */
-    private DuplicateSearchResponse checkDuplicates( final Map<String, String> attributes, final String ruleCodeProperty ) throws IdentityStoreException
+    private DuplicateSearchResponse checkDuplicates( final Map<String, String> attributes, final String ruleCodeProperty, final String customerId )
+            throws IdentityStoreException
     {
         final List<String> ruleCodes = Arrays.asList( AppPropertiesService.getProperty( ruleCodeProperty ).split( "," ) );
-        final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, "", ruleCodes );
+        final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, customerId, ruleCodes );
         if ( esDuplicates != null )
         {
             return esDuplicates;

@@ -123,7 +123,7 @@ public class DuplicateService implements IDuplicateService
     private QualifiedIdentitySearchResult findDuplicates( final Map<String, String> attributeValues, final String customerId,
             final DuplicateRule duplicateRule ) throws IdentityStoreException
     {
-        if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) )
+        if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) && this.canApplyRule( attributeValues, duplicateRule ) )
         {
             final List<SearchAttribute> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
             final List<List<SearchAttribute>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
@@ -145,6 +145,28 @@ public class DuplicateService implements IDuplicateService
             return result;
         }
         return new QualifiedIdentitySearchResult( );
+    }
+
+    /**
+     * A rule can be applying on a set of Attributes only when it contains nbFilledAttributes among checkedAttributes ({@link DuplicateRule} definition).
+     * 
+     * @param attributeValues
+     *            the set of Attributes that must be checked against the {@link DuplicateRule}.
+     * @param duplicateRule
+     *            the {@link DuplicateRule} definition.
+     * @return true if the set of Attributes matches the {@link DuplicateRule} requirements.
+     */
+    private boolean canApplyRule( final Map<String, String> attributeValues, final DuplicateRule duplicateRule )
+    {
+        if ( duplicateRule.getNbFilledAttributes( ) <= attributeValues.size( ) )
+        {
+            final List<String> ruleCheckedAttributeKeys = duplicateRule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName )
+                    .collect( Collectors.toList( ) );
+            final List<String> attributeKeys = new ArrayList<>( attributeValues.keySet( ) );
+            attributeKeys.removeIf( key -> !ruleCheckedAttributeKeys.contains( key ) );
+            return duplicateRule.getNbFilledAttributes( ) <= attributeKeys.size( );
+        }
+        return false;
     }
 
     private List<SearchAttribute> mapBaseAttributes( final Map<String, String> attributeValues, final DuplicateRule duplicateRule )
