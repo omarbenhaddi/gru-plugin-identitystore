@@ -141,6 +141,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
                 suspiciousIdentity.setDuplicateRuleCode( daoUtil.getString( nIndex++ ) );
                 final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                suspiciousIdentity.setLock( lock );
                 lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
                 if ( lock.getLockEndDate( ) != null )
                 {
@@ -152,9 +153,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 {
                     lock.setLocked( false );
                 }
-                suspiciousIdentity.setLock( lock );
             }
-
             return Optional.ofNullable( suspiciousIdentity );
         }
     }
@@ -182,6 +181,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 suspiciousIdentity.setIdDuplicateRule( daoUtil.getInt( nIndex++ ) );
                 suspiciousIdentity.setDuplicateRuleCode( daoUtil.getString( nIndex++ ) );
                 final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                suspiciousIdentity.setLock( lock );
                 lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
                 if ( lock.getLockEndDate( ) != null )
                 {
@@ -317,6 +317,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                     }
                 }
                 final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                suspiciousIdentity.setLock( lock );
                 lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
                 if ( lock.getLockEndDate( ) != null )
                 {
@@ -473,6 +474,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                     suspiciousIdentity.setDuplicateRuleCode( daoUtil.getString( nIndex++ ) );
 
                     final SuspiciousIdentityLock lock = new SuspiciousIdentityLock( );
+                    suspiciousIdentity.setLock( lock );
                     lock.setLockEndDate( daoUtil.getTimestamp( nIndex++ ) );
                     if ( lock.getLockEndDate( ) != null )
                     {
