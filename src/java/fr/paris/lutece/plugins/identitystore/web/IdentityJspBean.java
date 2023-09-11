@@ -33,6 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.web;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
@@ -44,11 +47,14 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.CustomMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.BatchDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.importing.BatchImportRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -61,6 +67,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +75,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,6 +134,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
 
     // Actions
     private static final String ACTION_EXPORT_IDENTITIES = "exportIdentities";
+    private static final String ACTION_BATCH_GENERATE_REQUESTS = "exportRequestIdentities";
 
     // Events
     private static final String DISPLAY_IDENTITY_EVENT_CODE = "DISPLAY_IDENTITY";
@@ -358,6 +368,60 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             zipOut.closeEntry( );
             zipOut.close( );
             this.download( outputStream.toByteArray( ), "identities.zip", "application/zip" );
+        }
+        catch( Exception e )
+        {
+            addError( e.getMessage( ) );
+            redirectView( request, VIEW_MANAGE_IDENTITIES );
+        }
+    }
+
+    /**
+     * Process the data capture form of a new suspiciousidentity
+     *
+     * @param request
+     *            The Http Request
+     * @return The Jsp URL of the process result
+     * @throws AccessDeniedException
+     */
+    @Action( ACTION_BATCH_GENERATE_REQUESTS )
+    public void doGenerateBatchIdentities( HttpServletRequest request )
+    {
+        try
+        {
+            _identities.forEach( identityDto -> identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) ) );
+            final Batch<IdentityDto> batches = Batch.ofSize( _identities, 100 );
+
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+            final ZipOutputStream zipOut = new ZipOutputStream( outputStream );
+
+            int i = 0;
+            final String reference = UUID.randomUUID( ).toString( );
+            final Date today = new Date( LocalDate.now( ).toEpochDay( ) );
+
+            final ObjectMapper mapper = new ObjectMapper( );
+            mapper.enable( SerializationFeature.INDENT_OUTPUT );
+            mapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
+
+            for ( final List<IdentityDto> batch : batches )
+            {
+                final BatchImportRequest batchImportRequest = new BatchImportRequest( );
+                batchImportRequest.setBatch( new BatchDto( ) );
+                batchImportRequest.getBatch( ).setReference( reference );
+                batchImportRequest.getBatch( ).setComment( "Batch exporté depuis identity store" );
+                batchImportRequest.getBatch( ).setDate( today );
+                batchImportRequest.getBatch( ).setUser( getUser( ).getEmail( ) );
+                batchImportRequest.getBatch( ).setAppCode( "TEST" );
+                batchImportRequest.getBatch( ).setIdentities( batch );
+                final ZipEntry zipEntry = new ZipEntry( "identities-" + ++i + ".json" );
+                final byte [ ] bytes = mapper.writeValueAsBytes( batchImportRequest );
+                zipEntry.setSize( bytes.length );
+                zipOut.putNextEntry( zipEntry );
+                zipOut.write( bytes );
+            }
+            zipOut.closeEntry( );
+            zipOut.close( );
+            this.download( outputStream.toByteArray( ), "identity_requests.zip", "application/zip" );
         }
         catch( Exception e )
         {
