@@ -41,29 +41,41 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceI
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
+import fr.paris.lutece.plugins.identitystore.utils.Batch;
+import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentity;
+import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
+import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * This class provides the user interface to manage Identity features ( manage, create, modify, remove )
@@ -111,6 +123,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String VIEW_IDENTITY = "viewIdentity";
     private static final String VIEW_IDENTITY_HISTORY = "viewIdentityHistory";
 
+    // Actions
+    private static final String ACTION_EXPORT_IDENTITIES = "exportIdentities";
+
     // Events
     private static final String DISPLAY_IDENTITY_EVENT_CODE = "DISPLAY_IDENTITY";
     private static final String DISPLAY_IDENTITY_HISTORY_EVENT_CODE = "DISPLAY_HISTORY_IDENTITY";
@@ -122,6 +137,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Session variable to store working values
     private Identity _identity;
 
+    private final List<IdentityDto> _identities = new ArrayList<>( );
+
     private final ISearchIdentityService _searchIdentityServiceDB = SpringContextService.getBean( "identitystore.searchIdentityService.database" );
     private final ISearchIdentityService _searchIdentityServiceES = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
 
@@ -129,10 +146,10 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     public String getManageIdentitys( HttpServletRequest request ) throws RefAttributeCertificationDefinitionNotFoundException
     {
         _identity = null;
+        _identities.clear( );
         final Map<String, String> queryParameters = this.getQueryParameters( request );
 
         final List<SearchAttribute> atttributes = new ArrayList<>( );
-        final List<IdentityDto> qualifiedIdentities = new ArrayList<>( );
         final String cuid = queryParameters.get( QUERY_PARAM_CUID );
         final String guid = queryParameters.get( QUERY_PARAM_GUID );
         final String email = queryParameters.get( QUERY_PARAM_EMAIL );
@@ -152,7 +169,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             if ( identity != null )
             {
                 final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
-                qualifiedIdentities.add( qualifiedIdentity );
+                _identities.add( qualifiedIdentity );
             }
         }
         else
@@ -163,7 +180,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 if ( identity != null )
                 {
                     final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
-                    qualifiedIdentities.add( qualifiedIdentity );
+                    _identities.add( qualifiedIdentity );
                 }
             }
             else
@@ -208,21 +225,21 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 {
                     if ( datasource.equals( DATASOURCE_DB ) )
                     {
-                        qualifiedIdentities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                        _identities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
                     }
                     else
                         if ( datasource.equals( DATASOURCE_ES ) )
                         {
-                            qualifiedIdentities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                            _identities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
                         }
                 }
             }
         }
 
-        qualifiedIdentities.forEach( qualifiedIdentity -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
+        _identities.forEach( qualifiedIdentity -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
                 IdentityService.SEARCH_IDENTITY_EVENT_CODE, getUser( ), queryParameters, IdentityService.SPECIFIC_ORIGIN ) );
 
-        final Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, qualifiedIdentities, JSP_MANAGE_IDENTITIES );
+        final Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, _identities, JSP_MANAGE_IDENTITIES );
         model.put( MARK_HAS_CREATE_ROLE,
                 IdentityManagementResourceIdService.isAuthorized( IdentityManagementResourceIdService.PERMISSION_CREATE_IDENTITY, getUser( ) ) );
         model.put( MARK_HAS_MODIFY_ROLE,
@@ -258,7 +275,6 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     @View( VIEW_IDENTITY )
     public String getViewIdentity( HttpServletRequest request )
     {
-        // int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_IDENTITY ) );
         final String nId = request.getParameter( PARAMETER_ID_IDENTITY );
 
         _identity = IdentityHome.findByCustomerId( nId );
@@ -309,5 +325,44 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         model.put( MARK_ATTRIBUTES_CHANGE_LIST, attributeChangeList );
 
         return getPage( PROPERTY_PAGE_TITLE_VIEW_CHANGE_HISTORY, TEMPLATE_VIEW_IDENTITY_HISTORY, model );
+    }
+
+    /**
+     * Process the data capture form of a new suspiciousidentity
+     *
+     * @param request
+     *            The Http Request
+     * @return The Jsp URL of the process result
+     * @throws AccessDeniedException
+     */
+    @Action( ACTION_EXPORT_IDENTITIES )
+    public void doExportIdentities( HttpServletRequest request )
+    {
+        try
+        {
+            _identities.forEach( identityDto -> identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) ) );
+            final Batch<IdentityDto> batches = Batch.ofSize( _identities, 100 );
+
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+            final ZipOutputStream zipOut = new ZipOutputStream( outputStream );
+
+            int i = 0;
+            for ( final List<IdentityDto> batch : batches )
+            {
+                final byte [ ] bytes = CsvIdentityService.instance( ).write( batch );
+                final ZipEntry zipEntry = new ZipEntry( "identities-" + ++i + ".csv" );
+                zipEntry.setSize( bytes.length );
+                zipOut.putNextEntry( zipEntry );
+                zipOut.write( bytes );
+            }
+            zipOut.closeEntry( );
+            zipOut.close( );
+            this.download( outputStream.toByteArray( ), "identities.zip", "application/zip" );
+        }
+        catch( Exception e )
+        {
+            addError( e.getMessage( ) );
+            redirectView( request, VIEW_MANAGE_IDENTITIES );
+        }
     }
 }

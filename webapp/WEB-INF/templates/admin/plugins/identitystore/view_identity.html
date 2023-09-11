@@ -22,7 +22,7 @@
     <#else>
         <li>Supprimé : <i class="fas fa-times" aria-hidden="true"></i></li>
     </#if>
-    <#if identity.merge.merged = true>
+    <#if identity.merge?? && identity.merge.merged == true>
         <li>Rapproché : <i class="fas fa-check" aria-hidden="true"></i></li>
         <li>Date de rapprochement : ${identity.merge.mergeDate?string["dd/MM/yyyy HH:mm"]!}</li>
         <li>Identité maîtresse : ${identity.masterCustomerId!}</li>
