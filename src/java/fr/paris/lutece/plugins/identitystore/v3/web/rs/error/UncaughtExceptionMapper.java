@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
@@ -60,9 +60,8 @@ public class UncaughtExceptionMapper extends GenericUncaughtExceptionMapper<Exce
     protected ErrorResponse buildEntity( final Exception e )
     {
         final ErrorResponse response = new ErrorResponse( );
-        response.setStatus( ResponseStatusType.valueOf( getStatus( ).name( ) ) );
-        response.setMessage( ERROR_DURING_TREATMENT + " :: " + e.getMessage( ) );
-        response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
+        response.setStatus( ResponseStatus.internalServerError( ).setMessage( ERROR_DURING_TREATMENT + " :: " + e.getMessage( ) )
+                .setMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT ) );
         return response;
     }
 

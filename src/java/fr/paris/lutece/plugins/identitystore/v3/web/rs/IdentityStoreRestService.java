@@ -44,7 +44,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentitySto
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreSearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUncertifyRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUpdateRequest;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
@@ -360,20 +360,17 @@ public final class IdentityStoreRestService
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         if ( StringUtils.isBlank( strDays ) || !StringUtils.isNumeric( strDays ) )
         {
-            return buildErrorResponse( "You must provide the 'days' parameter in numeric format.", Constants.PROPERTY_REST_ERROR_DAYS_NUMERIC_FORMAT,
-                    Response.Status.BAD_REQUEST );
+            return buildErrorResponse( "You must provide the 'days' parameter in numeric format.", Constants.PROPERTY_REST_ERROR_DAYS_NUMERIC_FORMAT );
         }
         final UpdatedIdentitySearchResponse entity = new UpdatedIdentitySearchResponse( );
         final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
-            entity.setStatus( ResponseStatusType.NOT_FOUND );
-            entity.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND );
+            entity.setStatus( ResponseStatus.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );
         }
         else
         {
-            entity.setStatus( ResponseStatusType.OK );
-            entity.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
+            entity.setStatus( ResponseStatus.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
         }
         return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
@@ -407,20 +404,16 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * Builds a {@code Response} object from the specified message and status
+     * Builds a {@code Response} object from the specified message
      *
      * @param strMessage
      *            the message
-     * @param status
-     *            the status
      * @return the {@code Response} object
      */
-    private Response buildErrorResponse( final String strMessage, final String i18nMessageKey, final Response.Status status )
+    private Response buildErrorResponse( final String strMessage, final String strMessageKey )
     {
         final ErrorResponse response = new ErrorResponse( );
-        response.setStatus( ResponseStatusType.valueOf( status.name( ) ) );
-        response.setMessage( strMessage );
-        response.setI18nMessageKey( i18nMessageKey );
-        return Response.status( status ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
+        response.setStatus( ResponseStatus.badRequest( ).setMessage( strMessage ).setMessageKey( strMessageKey ) );
+        return Response.status( response.getStatus( ).getCode( ) ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
     }
 }

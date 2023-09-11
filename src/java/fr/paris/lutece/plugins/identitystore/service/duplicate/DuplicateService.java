@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
@@ -107,13 +108,13 @@ public class DuplicateService implements IDuplicateService
 
         if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
         {
-            response.setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND );
+            response.setStatus( ResponseStatus.success( ).setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) )
+                    .setMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND ) );
         }
         else
         {
-            response.setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_POTENTIAL_DUPLICATE_FOUND );
+            response.setStatus( ResponseStatus.notFound( ).setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) )
+                    .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_POTENTIAL_DUPLICATE_FOUND ) );
             response.setIdentities( Collections.emptyList( ) );
         }
 

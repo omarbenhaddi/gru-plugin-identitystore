@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -85,7 +85,7 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreRequest
         final IdentitySearchResponse response = ServiceContractService.instance( ).validateIdentitySearch( _identitySearchRequest, _strClientCode,
                 !guidSearch );
 
-        if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
+        if ( !ResponseStatus.failure( ).equals( response.getStatus( ) ) )
         {
             if ( guidSearch )
             {

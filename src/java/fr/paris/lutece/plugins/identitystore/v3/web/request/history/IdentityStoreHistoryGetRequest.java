@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.history;
 import fr.paris.lutece.plugins.identitystore.service.history.IdentityHistoryService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistory;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistoryGetResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -69,13 +69,11 @@ public class IdentityStoreHistoryGetRequest extends AbstractIdentityStoreRequest
         if ( identityHistory != null )
         {
             response.setHistory( identityHistory );
-            response.setStatus( ResponseStatusType.OK );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
+            response.setStatus( ResponseStatus.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
         }
         else
         {
-            response.setStatus( ResponseStatusType.NOT_FOUND );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_HISTORY_FOUND );
+            response.setStatus( ResponseStatus.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_HISTORY_FOUND ) );
         }
 
         return response;

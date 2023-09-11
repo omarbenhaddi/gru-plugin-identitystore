@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificati
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevelHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -85,14 +85,12 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
 
         if ( refCertificationLevelsList == null || CollectionUtils.isEmpty( refCertificationLevelsList ) )
         {
-            response.setStatus( ResponseStatusType.NOT_FOUND );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_LEVEL_FOUND );
+            response.setStatus( ResponseStatus.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_LEVEL_FOUND ) );
         }
         else
         {
             response.setLevels( DtoConverter.convertRefLevelsToListDto( refCertificationLevelsList ) );
-            response.setStatus( ResponseStatusType.OK );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
+            response.setStatus( ResponseStatus.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
         }
 
         return response;

@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request;
 
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRuleSummaryDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRuleSummarySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -76,14 +76,12 @@ public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
         if ( CollectionUtils.isEmpty( rules ) )
         {
             response.setDuplicateRuleSummaries( Collections.emptyList( ) );
-            response.setStatus( ResponseStatusType.NOT_FOUND );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_FOUND );
+            response.setStatus( ResponseStatus.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_FOUND ) );
         }
         else
         {
             response.setDuplicateRuleSummaries( rules );
-            response.setStatus( ResponseStatusType.OK );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION );
+            response.setStatus( ResponseStatus.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
         }
         return response;
     }

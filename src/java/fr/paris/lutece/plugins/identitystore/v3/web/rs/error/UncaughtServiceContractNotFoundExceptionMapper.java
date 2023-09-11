@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs.error;
 
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper;
@@ -62,9 +62,8 @@ public class UncaughtServiceContractNotFoundExceptionMapper extends GenericUncau
     protected ErrorResponse buildEntity( final ServiceContractNotFoundException e )
     {
         final ErrorResponse response = new ErrorResponse( );
-        response.setStatus( ResponseStatusType.valueOf( getStatus( ).name( ) ) );
-        response.setMessage( ERROR_NO_SERVICE_CONTRACT_FOUND + " :: " + e.getMessage( ) );
-        response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND );
+        response.setStatus( ResponseStatus.notFound( ).setMessage( ERROR_NO_SERVICE_CONTRACT_FOUND + " :: " + e.getMessage( ) )
+                .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND ) );
         return response;
     }
 

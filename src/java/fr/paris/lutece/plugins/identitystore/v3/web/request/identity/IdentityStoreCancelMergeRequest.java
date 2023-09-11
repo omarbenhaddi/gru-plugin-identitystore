@@ -38,7 +38,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -75,10 +75,10 @@ public class IdentityStoreCancelMergeRequest extends AbstractIdentityStoreReques
     {
         final IdentityMergeResponse response = ServiceContractService.instance( ).validateIdentityMerge( _identityMergeRequest, _strClientCode );
 
-        if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
+        if ( !ResponseStatus.failure( ).equals( response.getStatus( ) ) )
         {
             IdentityAttributeValidationService.instance( ).validateMergeRequestAttributeValues( _identityMergeRequest, response );
-            if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
+            if ( !ResponseStatus.failure( ).equals( response.getStatus( ) ) )
             {
                 IdentityService.instance( ).cancelMerge( _identityMergeRequest, _strClientCode, response );
             }

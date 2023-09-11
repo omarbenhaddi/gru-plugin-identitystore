@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -74,7 +74,7 @@ public class IdentityStoreImportRequest extends AbstractIdentityStoreRequest
         final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityImport( _identityChangeRequest, _strClientCode );
 
         // Création de l'identité avec les attributs autorisés par le contrat.
-        if ( !ResponseStatusType.FAILURE.equals( response.getStatus( ) ) )
+        if ( !ResponseStatus.failure( ).equals( response.getStatus( ) ) )
         {
             IdentityService.instance( ).importIdentity( _identityChangeRequest, _strClientCode, response );
         }

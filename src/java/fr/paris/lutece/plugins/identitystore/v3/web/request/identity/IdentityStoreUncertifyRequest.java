@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -66,9 +66,8 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
         if ( !ServiceContractService.instance( ).canUncertifyIdentity( _strClientCode ) )
         {
             final IdentityChangeResponse response = new IdentityChangeResponse( );
-            response.setStatus( ResponseStatusType.FAILURE );
-            response.setMessage( "Unauthorized operation." );
-            response.setI18nMessageKey( Constants.PROPERTY_REST_ERROR_UNAUTHORIZED_OPERATION );
+            response.setStatus(
+                    ResponseStatus.failure( ).setMessage( "Unauthorized operation." ).setMessageKey( Constants.PROPERTY_REST_ERROR_UNAUTHORIZED_OPERATION ) );
             return response;
         }
         return IdentityService.instance( ).uncertifyIdentity( _strCustomerId );
