@@ -93,7 +93,7 @@ public class IdentityQualityService
             identity.setQuality( new QualityDefinition( ) );
         }
 
-        if ( reqKeys.size( ) > 0 )
+        if ( !reqKeys.isEmpty( ) )
         {
             identity.getQuality( ).setCoverage( 0 );
         }

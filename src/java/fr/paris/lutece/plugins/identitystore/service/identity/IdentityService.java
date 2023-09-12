@@ -877,8 +877,11 @@ public class IdentityService
                 response.setStatus( ResponseStatus.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
                 for ( final IdentityDto i : response.getIdentities( ) )
                 {
-                    AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                            _internalUserService.getApiUser( origin, clientCode ), i.getCustomerId( ), SPECIFIC_ORIGIN );
+                    if ( origin != null )
+                    {
+                        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                                _internalUserService.getApiUser( origin, clientCode ), i.getCustomerId( ), SPECIFIC_ORIGIN );
+                    }
                     if ( origin != null && origin.getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
@@ -943,9 +946,11 @@ public class IdentityService
                 }
                 else
                 {
-                    final QualityDefinition quality = new QualityDefinition( );
-                    qualifiedIdentity.setQuality( quality );
-                    quality.setScoring( 1.0 );
+                    if ( qualifiedIdentity.getQuality( ) == null )
+                    {
+                        qualifiedIdentity.setQuality( new QualityDefinition( ) );
+                    }
+                    qualifiedIdentity.getQuality( ).setScoring( 1.0 );
                 }
                 IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
                 final List<AttributeDto> filteredAttributeValues = qualifiedIdentity.getAttributes( ).stream( )
