@@ -51,7 +51,6 @@ import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearc
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
-import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.IDuplicateService;
@@ -65,7 +64,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefintion;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
@@ -966,9 +965,9 @@ public class IdentityService
             final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( qualifiedIdentity.getCustomerId( ) );
             if ( suspiciousIdentity != null )
             {
-                qualifiedIdentity.setDuplicateDefintion( new IdentityDuplicateDefintion( ) );
+                qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
                 final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
-                qualifiedIdentity.getDuplicateDefintion( ).setDuplicateSuspicion( duplicateSuspicion );
+                qualifiedIdentity.getDuplicateDefinition( ).setDuplicateSuspicion( duplicateSuspicion );
                 duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
                 duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
             }
@@ -976,11 +975,11 @@ public class IdentityService
             final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( qualifiedIdentity.getCustomerId( ) );
             if ( CollectionUtils.isNotEmpty( excludedIdentitiesList ) )
             {
-                if ( qualifiedIdentity.getDuplicateDefintion( ) == null )
+                if ( qualifiedIdentity.getDuplicateDefinition( ) == null )
                 {
-                    qualifiedIdentity.setDuplicateDefintion( new IdentityDuplicateDefintion( ) );
+                    qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
                 }
-                qualifiedIdentity.getDuplicateDefintion( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
+                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map(excludedIdentities -> {
                     final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
                     exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
                     exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );

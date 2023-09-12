@@ -45,9 +45,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertif
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
-import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentity;
 import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.CustomMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
@@ -69,14 +67,10 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -402,7 +396,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 identityDto.setConnectionId( null );
                 identityDto.setMonParisActive( null );
                 identityDto.setCreationDate( null );
-                identityDto.setDuplicateDefintion( null );
+                identityDto.setDuplicateDefinition( null );
                 identityDto.setSuspicious( null );
             } );
             final Batch<IdentityDto> batches = Batch.ofSize( _identities, 100 );
