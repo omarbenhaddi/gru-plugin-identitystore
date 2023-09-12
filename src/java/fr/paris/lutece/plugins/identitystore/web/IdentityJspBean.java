@@ -391,7 +391,20 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         try
         {
-            _identities.forEach( identityDto -> identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) ) );
+            // Prepare identities for import (clear not used params)
+            _identities.forEach( identityDto -> {
+                identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) );
+                identityDto.setCustomerId( null );
+                identityDto.setQuality( null );
+                identityDto.setExpiration( null );
+                identityDto.setMerge( null );
+                identityDto.setLastUpdateDate( null );
+                identityDto.setConnectionId( null );
+                identityDto.setMonParisActive( null );
+                identityDto.setCreationDate( null );
+                identityDto.setDuplicateDefintion( null );
+                identityDto.setSuspicious( null );
+            } );
             final Batch<IdentityDto> batches = Batch.ofSize( _identities, 100 );
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
