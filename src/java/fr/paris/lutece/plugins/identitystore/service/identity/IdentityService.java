@@ -388,6 +388,12 @@ public class IdentityService
             // => process update :
 
             this.updateIdentity( request.getIdentity( ), clientCode, response, identity );
+            if ( response.getStatus( ).equals( ResponseStatus.unauthorized( ) ) )
+            {
+                response.setCustomerId( identity.getCustomerId( ) );
+                TransactionManager.rollBack( null );
+                return null;
+            }
 
             response.setCustomerId( identity.getCustomerId( ) );
             response.setConnectionId( identity.getConnectionId( ) );
@@ -528,6 +534,12 @@ public class IdentityService
             if ( request.getIdentity( ) != null )
             {
                 this.updateIdentity( request.getIdentity( ), clientCode, response, primaryIdentity );
+                if ( response.getStatus( ).equals( ResponseStatus.unauthorized( ) ) )
+                {
+                    response.setCustomerId( primaryIdentity.getCustomerId( ) );
+                    TransactionManager.rollBack( null );
+                    return null;
+                }
             }
 
             /* Tag de l'identité secondaire */
@@ -1011,7 +1023,11 @@ public class IdentityService
         // If identity is connected and service contract doesn't allow unrestricted update, do a bunch of checks
         if ( identity.isConnected( ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-            connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes );
+            connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes, response );
+            if ( response.getStatus( ).equals( ResponseStatus.unauthorized( ) ) )
+            {
+                return;
+            }
         }
 
         GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
@@ -1062,7 +1078,7 @@ public class IdentityService
      *            new attributes from request
      */
     private void connectedIdentityUpdateCheck( final IdentityDto requestIdentity, final Identity identity, final List<AttributeDto> existingWritableAttributes,
-            final List<AttributeDto> newWritableAttributes ) throws IdentityStoreException
+            final List<AttributeDto> newWritableAttributes, final ChangeResponse response )
     {
         final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
@@ -1072,7 +1088,9 @@ public class IdentityService
                 .anyMatch( a -> !a.getPivot( ) );
         if ( requestOnNonPivot )
         {
-            throw new IdentityStoreException( "Identity is connected, updating non 'pivot' attributes is forbidden." );
+            response.setStatus( ResponseStatus.unauthorized( ).setMessage( "Identity is connected, updating non 'pivot' attributes is forbidden." )
+                    .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_NON_PIVOT ) );
+            return;
         }
 
         // - For new attributes, certification level must be > 100 (better than self-declare)
@@ -1081,7 +1099,10 @@ public class IdentityService
                 .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) <= 100 );
         if ( newAttrSelfDeclare )
         {
-            throw new IdentityStoreException( "Identity is connected, adding 'pivot' attributes with self-declarative certification level is forbidden." );
+            response.setStatus( ResponseStatus.unauthorized( )
+                    .setMessage( "Identity is connected, adding 'pivot' attributes with self-declarative certification level is forbidden." )
+                    .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_SELF_DECLARE ) );
+            return;
         }
 
         // - For existing attributes, certification level must be >= than the existing level
@@ -1098,7 +1119,10 @@ public class IdentityService
                 } );
         if ( lesserWantedLvl )
         {
-            throw new IdentityStoreException( "Identity is connected, updating existing 'pivot' attributes with lesser certification level is forbidden." );
+            response.setStatus( ResponseStatus.unauthorized( )
+                    .setMessage( "Identity is connected, updating existing 'pivot' attributes with lesser certification level is forbidden." )
+                    .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_PIVOT_LESSER_CERTIFICATION ) );
+            return;
         }
 
         // - If one "PIVOT" attribute is certified at a certain level N (conf), all "PIVOT" attributes must be set and certified with level >= N.
@@ -1116,7 +1140,7 @@ public class IdentityService
             final List<String> pivotAttributeKeys = allAttributesByKey.values( ).stream( ).filter( AttributeKey::getPivot ).map( AttributeKey::getKeyName )
                     .collect( Collectors.toList( ) );
 
-            // if any pivot is missing from request + existing -> throw exception
+            // if any pivot is missing from request + existing -> unauthorized
             @SuppressWarnings( "unchecked" )
             final Collection<String> unionOfExistingAndRequestedPivotKeys = CollectionUtils.union(
                     requestIdentity.getAttributes( ).stream( ).map( AttributeDto::getKey ).collect( Collectors.toSet( ) ),
@@ -1124,12 +1148,15 @@ public class IdentityService
                             .map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) ) );
             if ( !CollectionUtils.isEqualCollection( pivotAttributeKeys, unionOfExistingAndRequestedPivotKeys ) )
             {
-                throw new IdentityStoreException(
-                        "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level " + threshold
-                                + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold + "." );
+                response.setStatus( ResponseStatus.unauthorized( )
+                        .setMessage( "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level "
+                                + threshold + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold
+                                + "." )
+                        .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_CERTIFICATION_UNDER_THRESHOLD ) );
+                return;
             }
 
-            // if any has level lesser than threshold -> throw exception
+            // if any has level lesser than threshold -> unauthorized
             final boolean lesserThanThreshold = pivotAttributeKeys.stream( ).map( key -> {
                 final AttributeDto requested = requestIdentity.getAttributes( ).stream( ).filter( a -> a.getKey( ).equals( key ) ).findFirst( ).orElse( null );
                 final IdentityAttribute existing = identity.getAttributes( ).get( key );
@@ -1151,9 +1178,11 @@ public class IdentityService
 
             if ( lesserThanThreshold )
             {
-                throw new IdentityStoreException(
-                        "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level " + threshold
-                                + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold + "." );
+                response.setStatus( ResponseStatus.unauthorized( )
+                        .setMessage( "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level "
+                                + threshold + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold
+                                + "." )
+                        .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_CERTIFICATION_UNDER_THRESHOLD ) );
             }
         }
     }
