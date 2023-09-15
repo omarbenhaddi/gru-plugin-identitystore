@@ -33,11 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.log4j.Logger;
 
@@ -46,7 +48,6 @@ import java.util.stream.Collectors;
 
 public class IdentityIndexListener implements IdentityChangeListener
 {
-
     private static final String SERVICE_NAME = "Elastic Search identity change listener";
     private static final String PROPERTY_LOGGER_NAME = "identitystore.changelistener.logging.loggerName";
     private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
@@ -61,43 +62,35 @@ public class IdentityIndexListener implements IdentityChangeListener
     }
 
     @Override
-    public void processIdentityChange( IdentityChange identityChange )
+    public void processIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode, Map<String, String> metadata )
     {
-        if ( identityChange instanceof IndexIdentityChange )
+        _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId() );
+        final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( identity );
+        final IdentityObject identityObject = new IdentityObject( identity.getConnectionId( ), identity.getCustomerId( ),
+                identity.getCreationDate( ), identity.getLastUpdateDate( ), identity.isMonParisActive( ),
+                attributeObjects );
+
+        switch( identityChangeType )
         {
-            final IndexIdentityChange localIdentityChange = (IndexIdentityChange) identityChange;
-            if ( localIdentityChange.getCustomerId( ) != null && localIdentityChange.getChangeType( ) != null && localIdentityChange.getIdentity( ) != null )
-            {
-
-                _logger.info( "Indexing identity change (" + localIdentityChange.getChangeType( ).name( ) + ") with customerId = "
-                        + localIdentityChange.getCustomerId( ) );
-                final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( localIdentityChange );
-                final IdentityObject identityObject = new IdentityObject( localIdentityChange.getConnectionId( ), localIdentityChange.getCustomerId( ),
-                        localIdentityChange.getCreationDate( ), localIdentityChange.getLastUpdateDate( ), localIdentityChange.isMonParisActive( ),
-                        attributeObjects );
-
-                switch( localIdentityChange.getChangeType( ) )
-                {
-                    case CREATE:
-                    case MERGE_CANCELLED:
-                        this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
-                        break;
-                    case UPDATE:
-                    case CONSOLIDATED:
-                        this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
-                        break;
-                    case DELETE:
-                    case MERGED:
-                        this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else
-            {
-                _logger.error( "An error occurred during Identity change indexation" );
-            }
+            case CREATE:
+            case MERGE_CANCELLED:
+                this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                break;
+            case UPDATE:
+            case CONSOLIDATED:
+                this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                break;
+            case DELETE:
+            case MERGED:
+                this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                break;
+            case READ:
+            case EXCLUDED:
+            case EXCLUSION_CANCELLED:
+            case MARKED_SUSPICIOUS:
+            case CONSOLIDATION_CANCELLED:
+            default:
+                break;
         }
     }
 
@@ -107,9 +100,9 @@ public class IdentityIndexListener implements IdentityChangeListener
         return SERVICE_NAME;
     }
 
-    private Map<String, AttributeObject> mapToIndexObject( final IndexIdentityChange identity )
+    private Map<String, AttributeObject> mapToIndexObject( final Identity identity )
     {
-        return identity.getIdentity( ).getAttributes( ).values( ).stream( )
+        return identity.getAttributes( ).values( ).stream( )
                 .map( attribute -> new AttributeObject( attribute.getAttributeKey( ).getName( ), attribute.getAttributeKey( ).getKeyName( ),
                         attribute.getAttributeKey( ).getKeyType( ).getCode( ), attribute.getValue( ), attribute.getAttributeKey( ).getDescription( ),
                         attribute.getAttributeKey( ).getPivot( ), attribute.getCertificate( ) != null ? attribute.getCertificate( ).getCertifierCode( ) : null,

@@ -33,9 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.LuteceService;
+
+import java.util.Map;
 
 /**
  * IdentityChangeListener
@@ -43,10 +48,35 @@ import fr.paris.lutece.portal.service.util.LuteceService;
 public interface IdentityChangeListener extends LuteceService
 {
     /**
-     * Process an identity change
-     *
-     * @param identityChange
-     *            The identityChange
+     * Register an identity change
+     * @param identityChangeType the type of change
+     * @param identity the identity that changed
+     * @param statusCode the status code of the change
+     * @param statusMessage the message
+     * @param author the author of the change
+     * @param clientCode the client code that triggered the change
+     * @param metadata additional data
+     * @throws IdentityStoreException
      */
-    void processIdentityChange( IdentityChange identityChange ) throws IdentityStoreException;
+    void processIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException;
+
+    default IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
+                                                RequestAuthor author, String clientCode, Map<String, String> metadata )
+    {
+
+        final IdentityChange identityChange = new IdentityChange( );
+        identityChange.setChangeType( identityChangeType );
+        identityChange.setChangeStatus( statusCode );
+        identityChange.setChangeMessage( statusMessage );
+        identityChange.setAuthor( author );
+        identityChange.setCustomerId( identity.getCustomerId( ) );
+        identityChange.setConnectionId( identity.getConnectionId( ) );
+        identityChange.setMonParisActive( identity.isMonParisActive( ) );
+        identityChange.setCreationDate( identity.getCreationDate( ) );
+        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
+        identityChange.setId( identity.getId( ) );
+        identityChange.setClientCode( clientCode );
+        identityChange.getMetadata().putAll(metadata);
+        return identityChange;
+    }
 }

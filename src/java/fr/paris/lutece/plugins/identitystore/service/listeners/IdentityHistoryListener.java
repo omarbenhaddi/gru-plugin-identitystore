@@ -33,10 +33,15 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+
+import java.util.Map;
 
 public class IdentityHistoryListener implements IdentityChangeListener
 {
@@ -50,8 +55,9 @@ public class IdentityHistoryListener implements IdentityChangeListener
     }
 
     @Override
-    public void processIdentityChange( IdentityChange identityChange ) throws IdentityStoreException
+    public void processIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException
     {
+        final IdentityChange identityChange = this.buildIdentityChange(identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata);
         IdentityHome.addIdentityChangeHistory( identityChange );
     }
 

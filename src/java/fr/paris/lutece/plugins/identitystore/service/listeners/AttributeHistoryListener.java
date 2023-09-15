@@ -33,9 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 /**
@@ -49,9 +53,11 @@ public class AttributeHistoryListener implements AttributeChangeListener
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange( AttributeChange attributeChange ) throws IdentityStoreException
+    public void processAttributeChange(AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
+                                       RequestAuthor author, String clientCode ) throws IdentityStoreException
     {
-        IdentityAttributeHome.addAttributeChangeHistory( attributeChange );
+        final AttributeChange attributeChange = this.buildAttributeChange(changeType, identity, attributeStatus, author, clientCode);
+        IdentityAttributeHome.addAttributeChangeHistory(attributeChange);
     }
 
     @Override

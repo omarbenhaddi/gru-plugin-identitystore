@@ -33,24 +33,21 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
-import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -61,8 +58,11 @@ public final class IdentityStoreNotifyListenerService
     private static IdentityStoreNotifyListenerService _singleton;
 
     // List
-    private static List<AttributeChangeListener> _attributeChangelistListeners;
-    private List<IdentityChangeListener> _identityChangeListListeners;
+    private final List<AttributeChangeListener> _attributeChangelistListeners;
+    private final List<IdentityChangeListener> _identityChangeListListeners;
+
+    private ExecutorService attributeExecutor = Executors.newFixedThreadPool(5);
+    private ExecutorService identityExecutor = Executors.newFixedThreadPool(5);
 
     /**
      * private constructor
@@ -75,7 +75,7 @@ public final class IdentityStoreNotifyListenerService
         StringBuilder sbLog = new StringBuilder( );
         sbLog.append( "IdentityStore - loading listeners  : " );
 
-        for ( AttributeChangeListener listener : _attributeChangelistListeners )
+        for ( final AttributeChangeListener listener : _attributeChangelistListeners )
         {
             sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
@@ -88,7 +88,7 @@ public final class IdentityStoreNotifyListenerService
         sbLog = new StringBuilder( );
         sbLog.append( "IdentityStore - loading listeners  : " );
 
-        for ( IdentityChangeListener listener : _identityChangeListListeners )
+        for ( final IdentityChangeListener listener : _identityChangeListListeners )
         {
             sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
@@ -113,88 +113,41 @@ public final class IdentityStoreNotifyListenerService
 
     /**
      * Notify an attribute change to all registered listeners
-     *
-     * @param change
-     *            The change
+     * @param changeType the type of change
+     * @param identity the identity to which the attribute belongs
+     * @param attributeStatus the attribute status
+     * @param author the author of the change
+     * @param clientCode the client code that triggered the change
+     * @throws IdentityStoreException
      */
-    public void notifyListenersAttributeChange( AttributeChange change ) throws IdentityStoreException
+    public void notifyListenersAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
+                                                RequestAuthor author, String clientCode ) throws IdentityStoreException
     {
-        for ( AttributeChangeListener listener : _attributeChangelistListeners )
+        for ( final AttributeChangeListener listener : _attributeChangelistListeners )
         {
-            listener.processAttributeChange( change );
+            listener.processAttributeChange( changeType, identity, attributeStatus, author, clientCode );
         }
+
     }
 
     /**
      * Notify an identityChange to all registered listeners
-     *
-     * @param identityChange
-     *            The identityChange
+     * @param identityChangeType the type of change
+     * @param identity the identity that changed
+     * @param statusCode the status code of the change
+     * @param statusMessage the message
+     * @param author the author of the change
+     * @param clientCode the client code that triggered the change
+     * @param metadata additional data
+     * @throws IdentityStoreException
      */
-    public void notifyListenersIdentityChange( IdentityChange identityChange ) throws IdentityStoreException
+    public void notifyListenersIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
+                                               RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException
     {
-        for ( IdentityChangeListener listener : _identityChangeListListeners )
+        for ( final IdentityChangeListener listener : _identityChangeListListeners )
         {
-            listener.processIdentityChange( identityChange );
+            listener.processIdentityChange( identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata );
         }
-    }
-
-    /**
-     * create and return an AttributeChange from input params
-     *
-     * @param changeType
-     * @param identity
-     * @param attributeStatus
-     * @param author
-     * @param clientCode
-     * @return AttributeChange from input params
-     */
-    public static AttributeChange buildAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-            RequestAuthor author, String clientCode )
-    {
-        final AttributeChange attributeChange = new AttributeChange( );
-
-        attributeChange.setChangeType( changeType );
-        attributeChange.setChangeSatus( attributeStatus.getStatus( ).getCode( ) );
-        attributeChange.setChangeMessage( attributeStatus.getStatus( ).getMessage( ) );
-        attributeChange.setAuthorType( author.getType( ) );
-        attributeChange.setAuthorName( author.getName( ) );
-        attributeChange.setIdIdentity( identity.getId( ) );
-        attributeChange.setAttributeKey( attributeStatus.getKey( ) );
-        final IdentityAttribute identityAttribute = identity.getAttributes( ).get( attributeStatus.getKey( ) );
-        if ( identityAttribute != null )
-        {
-            attributeChange.setAttributeValue( identityAttribute.getValue( ) );
-            final AttributeCertificate certificate = identityAttribute.getCertificate( );
-            if ( certificate != null )
-            {
-                attributeChange.setCertificationProcessus( certificate.getCertifierCode( ) );
-                attributeChange.setCertificationDate( certificate.getCertificateDate( ) );
-            }
-        }
-        attributeChange.setClientCode( clientCode );
-        attributeChange.setModificationDate( new Timestamp( new Date( ).getTime( ) ) );
-
-        return attributeChange;
-    }
-
-    public static IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
-            RequestAuthor author, String clientCode )
-    {
-
-        final IdentityChange identityChange = new IdentityChange( );
-        identityChange.setChangeType( identityChangeType );
-        identityChange.setChangeStatus( statusCode );
-        identityChange.setChangeMessage( statusMessage );
-        identityChange.setAuthor( author );
-        identityChange.setCustomerId( identity.getCustomerId( ) );
-        identityChange.setConnectionId( identity.getConnectionId( ) );
-        identityChange.setMonParisActive( identity.isMonParisActive( ) );
-        identityChange.setCreationDate( identity.getCreationDate( ) );
-        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
-        identityChange.setId( identity.getId( ) );
-        identityChange.setClientCode( clientCode );
-        return identityChange;
     }
 
 }

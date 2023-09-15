@@ -55,21 +55,27 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNot
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.IDuplicateService;
 import fr.paris.lutece.plugins.identitystore.service.geocodes.GeocodesService;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.listener.IndexIdentityChange;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.service.user.InternalUserService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityMapper;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
@@ -237,17 +243,11 @@ public class IdentityService
                     .filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).collect( Collectors.toList( ) );
             for ( AttributeStatus attributeStatus : createdAttributes )
             {
-                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.CREATE, identity,
-                        attributeStatus, request.getOrigin( ), clientCode );
-                _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus, request.getOrigin( ), clientCode );
             }
 
             /* Indexation et historique */
-            final IndexIdentityChange identityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getStatus( ).name( ),
-                            response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode ),
-                    identity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getName( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>() );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, CREATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -388,12 +388,6 @@ public class IdentityService
             // => process update :
 
             this.updateIdentity( request.getIdentity( ), clientCode, response, identity );
-            if ( response.getStatus( ).equals( ResponseStatus.unauthorized( ) ) )
-            {
-                response.setCustomerId( identity.getCustomerId( ) );
-                TransactionManager.rollBack( null );
-                return null;
-            }
 
             response.setCustomerId( identity.getCustomerId( ) );
             response.setConnectionId( identity.getConnectionId( ) );
@@ -415,17 +409,11 @@ public class IdentityService
             /* Historique des modifications */
             for ( final AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
             {
-                final AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.UPDATE, identity,
-                        attributeStatus, request.getOrigin( ), clientCode );
-                _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus, request.getOrigin( ), clientCode );
             }
 
             /* Indexation et historique */
-            final IndexIdentityChange identityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getStatus( ).name( ),
-                            response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode ),
-                    identity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getName( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>() );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -534,12 +522,6 @@ public class IdentityService
             if ( request.getIdentity( ) != null )
             {
                 this.updateIdentity( request.getIdentity( ), clientCode, response, primaryIdentity );
-                if ( response.getStatus( ).equals( ResponseStatus.unauthorized( ) ) )
-                {
-                    response.setCustomerId( primaryIdentity.getCustomerId( ) );
-                    TransactionManager.rollBack( null );
-                    return null;
-                }
             }
 
             /* Tag de l'identité secondaire */
@@ -567,23 +549,20 @@ public class IdentityService
             /* Historique des modifications */
             for ( AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
             {
-                AttributeChange attributeChange = IdentityStoreNotifyListenerService.buildAttributeChange( AttributeChangeType.MERGE, primaryIdentity,
-                        attributeStatus, request.getOrigin( ), clientCode );
-                _identityStoreNotifyListenerService.notifyListenersAttributeChange( attributeChange );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.MERGE, primaryIdentity, attributeStatus, request.getOrigin( ), clientCode );
             }
 
             /* Indexation */
-            final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
-                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
-            secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
-            secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( secondaryIdentityChange, secondaryIdentity ) );
+            final Map<String, String> metadata = new HashMap<>();
+            metadata.put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
+            metadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange(IdentityChangeType.MERGED, secondaryIdentity,
+                    response.getStatus( ).getName( ), response.getStatus( ).getName( ), request.getOrigin( ), clientCode, metadata);
 
-            final IdentityChange primaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATED,
-                    primaryIdentity, response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
-            primaryIdentityChange.getMetadata( ).put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
-            primaryIdentityChange.getMetadata( ).put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( primaryIdentityChange, primaryIdentity ) );
+            final Map<String, String> metadata2 = new HashMap<>();
+            metadata2.put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
+            metadata2.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).getName( ), response.getStatus( ).getName( ), request.getOrigin( ), clientCode, metadata2 );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, MERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -666,15 +645,14 @@ public class IdentityService
             response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Indexation */
-            final IdentityChange secondaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.MERGE_CANCELLED,
-                    secondaryIdentity, response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
-            secondaryIdentityChange.getMetadata( ).put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( secondaryIdentityChange, secondaryIdentity ) );
-
-            final IdentityChange primaryIdentityChange = IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED,
-                    primaryIdentity, response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode );
-            primaryIdentityChange.getMetadata( ).put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( new IndexIdentityChange( primaryIdentityChange, primaryIdentity ) );
+            final Map<String, String> metadata = new HashMap<>();
+            metadata.put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGE_CANCELLED,
+                    secondaryIdentity, response.getStatus( ).getName( ), response.getStatus( ).getName( ), request.getOrigin( ), clientCode, metadata );
+            final Map<String, String> metadata2 = new HashMap<>();
+            metadata2.put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED,
+                    primaryIdentity, response.getStatus( ).getName( ), response.getStatus( ).getName( ), request.getOrigin( ), clientCode, metadata2 );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UNMERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -829,19 +807,7 @@ public class IdentityService
                     if ( request.getOrigin( ).getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
-                        // TODO refactor ?
-                        final IdentityChange identityChange = new IdentityChange( );
-                        identityChange.setChangeType( IdentityChangeType.READ );
-                        identityChange.setChangeStatus( response.getStatus( ).getStatus( ).name( ) );
-                        identityChange.setChangeMessage( response.getStatus( ).getMessage( ) );
-                        identityChange.setAuthor( request.getOrigin( ) );
-                        identityChange.setCustomerId( identity.getCustomerId( ) );
-                        identityChange.setConnectionId( identity.getConnectionId( ) );
-                        identityChange.setMonParisActive( identity.isMonParisActive( ) );
-                        identityChange.setCreationDate( identity.getCreationDate( ) );
-                        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
-                        identityChange.setClientCode( clientCode );
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, IdentityMapper.toBean(identity), response.getStatus( ).getName( ), response.getStatus( ).getMessage( ), request.getOrigin(), clientCode, new HashMap<>() );
                     }
                 }
             }
@@ -896,19 +862,7 @@ public class IdentityService
                     if ( origin != null && origin.getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
-                        // TODO refactor ?
-                        final IdentityChange identityChange = new IdentityChange( );
-                        identityChange.setChangeType( IdentityChangeType.READ );
-                        identityChange.setChangeStatus( response.getStatus( ).getStatus( ).name( ) );
-                        identityChange.setChangeMessage( response.getStatus( ).getMessage( ) );
-                        identityChange.setAuthor( origin );
-                        identityChange.setCustomerId( identity.getCustomerId( ) );
-                        identityChange.setConnectionId( identity.getConnectionId( ) );
-                        identityChange.setMonParisActive( identity.isMonParisActive( ) );
-                        identityChange.setCreationDate( identity.getCreationDate( ) );
-                        identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
-                        identityChange.setClientCode( clientCode );
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, identity, response.getStatus( ).getName( ), response.getStatus( ).getMessage( ), origin, clientCode, new HashMap<>() );
                     }
                 }
             }
@@ -991,7 +945,7 @@ public class IdentityService
                 {
                     qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
                 }
-                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
+                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map(excludedIdentities -> {
                     final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
                     exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
                     exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
@@ -1023,11 +977,7 @@ public class IdentityService
         // If identity is connected and service contract doesn't allow unrestricted update, do a bunch of checks
         if ( identity.isConnected( ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-            connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes, response );
-            if ( response.getStatus( ).equals( ResponseStatus.unauthorized( ) ) )
-            {
-                return;
-            }
+            connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes );
         }
 
         GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
@@ -1078,7 +1028,7 @@ public class IdentityService
      *            new attributes from request
      */
     private void connectedIdentityUpdateCheck( final IdentityDto requestIdentity, final Identity identity, final List<AttributeDto> existingWritableAttributes,
-            final List<AttributeDto> newWritableAttributes, final ChangeResponse response )
+            final List<AttributeDto> newWritableAttributes ) throws IdentityStoreException
     {
         final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
@@ -1088,9 +1038,7 @@ public class IdentityService
                 .anyMatch( a -> !a.getPivot( ) );
         if ( requestOnNonPivot )
         {
-            response.setStatus( ResponseStatus.unauthorized( ).setMessage( "Identity is connected, updating non 'pivot' attributes is forbidden." )
-                    .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_NON_PIVOT ) );
-            return;
+            throw new IdentityStoreException( "Identity is connected, updating non 'pivot' attributes is forbidden." );
         }
 
         // - For new attributes, certification level must be > 100 (better than self-declare)
@@ -1099,10 +1047,7 @@ public class IdentityService
                 .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) <= 100 );
         if ( newAttrSelfDeclare )
         {
-            response.setStatus( ResponseStatus.unauthorized( )
-                    .setMessage( "Identity is connected, adding 'pivot' attributes with self-declarative certification level is forbidden." )
-                    .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_SELF_DECLARE ) );
-            return;
+            throw new IdentityStoreException( "Identity is connected, adding 'pivot' attributes with self-declarative certification level is forbidden." );
         }
 
         // - For existing attributes, certification level must be >= than the existing level
@@ -1119,10 +1064,7 @@ public class IdentityService
                 } );
         if ( lesserWantedLvl )
         {
-            response.setStatus( ResponseStatus.unauthorized( )
-                    .setMessage( "Identity is connected, updating existing 'pivot' attributes with lesser certification level is forbidden." )
-                    .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_PIVOT_LESSER_CERTIFICATION ) );
-            return;
+            throw new IdentityStoreException( "Identity is connected, updating existing 'pivot' attributes with lesser certification level is forbidden." );
         }
 
         // - If one "PIVOT" attribute is certified at a certain level N (conf), all "PIVOT" attributes must be set and certified with level >= N.
@@ -1140,7 +1082,7 @@ public class IdentityService
             final List<String> pivotAttributeKeys = allAttributesByKey.values( ).stream( ).filter( AttributeKey::getPivot ).map( AttributeKey::getKeyName )
                     .collect( Collectors.toList( ) );
 
-            // if any pivot is missing from request + existing -> unauthorized
+            // if any pivot is missing from request + existing -> throw exception
             @SuppressWarnings( "unchecked" )
             final Collection<String> unionOfExistingAndRequestedPivotKeys = CollectionUtils.union(
                     requestIdentity.getAttributes( ).stream( ).map( AttributeDto::getKey ).collect( Collectors.toSet( ) ),
@@ -1148,15 +1090,12 @@ public class IdentityService
                             .map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) ) );
             if ( !CollectionUtils.isEqualCollection( pivotAttributeKeys, unionOfExistingAndRequestedPivotKeys ) )
             {
-                response.setStatus( ResponseStatus.unauthorized( )
-                        .setMessage( "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level "
-                                + threshold + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold
-                                + "." )
-                        .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_CERTIFICATION_UNDER_THRESHOLD ) );
-                return;
+                throw new IdentityStoreException(
+                        "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level " + threshold
+                                + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold + "." );
             }
 
-            // if any has level lesser than threshold -> unauthorized
+            // if any has level lesser than threshold -> throw exception
             final boolean lesserThanThreshold = pivotAttributeKeys.stream( ).map( key -> {
                 final AttributeDto requested = requestIdentity.getAttributes( ).stream( ).filter( a -> a.getKey( ).equals( key ) ).findFirst( ).orElse( null );
                 final IdentityAttribute existing = identity.getAttributes( ).get( key );
@@ -1178,11 +1117,9 @@ public class IdentityService
 
             if ( lesserThanThreshold )
             {
-                response.setStatus( ResponseStatus.unauthorized( )
-                        .setMessage( "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level "
-                                + threshold + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold
-                                + "." )
-                        .setMessageKey( Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_CERTIFICATION_UNDER_THRESHOLD ) );
+                throw new IdentityStoreException(
+                        "Identity is connected, and at least one 'pivot' attribute is, or has been requested to be, certified above level " + threshold
+                                + ". In that case, all 'pivot' attributes must be set, and certified with level greater or equal to " + threshold + "." );
             }
         }
     }
@@ -1262,11 +1199,8 @@ public class IdentityService
             response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Notify listeners for indexation, history, ... */
-            final IndexIdentityChange identityChange = new IndexIdentityChange(
-                    IdentityStoreNotifyListenerService.buildIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).getStatus( ).name( ),
-                            response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode ),
-                    identity );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( identityChange );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).getName( ),
+                    response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>() );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), customerId, SPECIFIC_ORIGIN );

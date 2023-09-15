@@ -33,8 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.listeners;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.service.AttributeChangeListener;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.log4j.Logger;
 
@@ -53,8 +57,10 @@ public class LoggingListener implements AttributeChangeListener
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange( AttributeChange change )
+    public void processAttributeChange(AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
+                                       RequestAuthor author, String clientCode )
     {
+        final AttributeChange change = this.buildAttributeChange(changeType, identity, attributeStatus, author, clientCode);
         final String sbLog = "Change for identity '" + "' [ID:" + change.getIdIdentity( ) + "] " + " by " + " [ID:" + change.getAuthorName( ) + "] "
                 + " via application : '" + change.getClientCode( ) + "' on " + change.getModificationDate( ) + " Key changed : '" + change.getAttributeKey( )
                 + "' New value : '" + change.getAttributeValue( ) + "' With status : '" + change.getChangeSatus( ) + " - " + change.getChangeSatus( )

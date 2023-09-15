@@ -33,9 +33,18 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.LuteceService;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * AttributeChangeListener
@@ -43,10 +52,53 @@ import fr.paris.lutece.portal.service.util.LuteceService;
 public interface AttributeChangeListener extends LuteceService
 {
     /**
-     * Process an attribute change
-     *
-     * @param change
-     *            The change
+     * Register an attribute change
+     * @param changeType the type of change
+     * @param identity the identity to which the attribute belongs
+     * @param attributeStatus the attribute status
+     * @param author the author of the change
+     * @param clientCode the client code that triggered the change
+     * @throws IdentityStoreException
      */
-    void processAttributeChange( AttributeChange change ) throws IdentityStoreException;
+    void processAttributeChange(AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
+                                RequestAuthor author, String clientCode ) throws IdentityStoreException;
+
+    /**
+     * create and return an AttributeChange from input params
+     *
+     * @param changeType
+     * @param identity
+     * @param attributeStatus
+     * @param author
+     * @param clientCode
+     * @return AttributeChange from input params
+     */
+    default AttributeChange buildAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
+                                                        RequestAuthor author, String clientCode )
+    {
+        final AttributeChange attributeChange = new AttributeChange( );
+
+        attributeChange.setChangeType( changeType );
+        attributeChange.setChangeSatus( attributeStatus.getStatus( ).getCode( ) );
+        attributeChange.setChangeMessage( attributeStatus.getStatus( ).getMessage( ) );
+        attributeChange.setAuthorType( author.getType( ) );
+        attributeChange.setAuthorName( author.getName( ) );
+        attributeChange.setIdIdentity( identity.getId( ) );
+        attributeChange.setAttributeKey( attributeStatus.getKey( ) );
+        final IdentityAttribute identityAttribute = identity.getAttributes( ).get( attributeStatus.getKey( ) );
+        if ( identityAttribute != null )
+        {
+            attributeChange.setAttributeValue( identityAttribute.getValue( ) );
+            final AttributeCertificate certificate = identityAttribute.getCertificate( );
+            if ( certificate != null )
+            {
+                attributeChange.setCertificationProcessus( certificate.getCertifierCode( ) );
+                attributeChange.setCertificationDate( certificate.getCertificateDate( ) );
+            }
+        }
+        attributeChange.setClientCode( clientCode );
+        attributeChange.setModificationDate( new Timestamp( new Date( ).getTime( ) ) );
+
+        return attributeChange;
+    }
 }

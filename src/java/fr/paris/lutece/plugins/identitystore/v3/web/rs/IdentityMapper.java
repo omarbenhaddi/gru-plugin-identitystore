@@ -33,23 +33,30 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class IdentityMapper
 {
 
-    public static IdentityDto toJsonIdentity( fr.paris.lutece.plugins.identitystore.business.identity.Identity identity )
+    public static IdentityDto toDto( final Identity identity )
     {
-        IdentityDto jsonIdentity = new IdentityDto( );
-        jsonIdentity.setConnectionId( identity.getConnectionId( ) );
-        jsonIdentity.setCustomerId( identity.getCustomerId( ) );
-        jsonIdentity.setMonParisActive( identity.isMonParisActive( ) );
+        final IdentityDto dto = new IdentityDto( );
+        dto.setConnectionId( identity.getConnectionId( ) );
+        dto.setCustomerId( identity.getCustomerId( ) );
+        dto.setMonParisActive( identity.isMonParisActive( ) );
 
-        List<AttributeDto> attributeDtos = identity.getAttributes( ).entrySet( ).stream( ).map( attr -> {
+        final List<AttributeDto> attributeDtos = identity.getAttributes( ).entrySet( ).stream( ).map( attr -> {
             AttributeDto attribute = new AttributeDto( );
             attribute.setKey( attr.getKey( ) );
             attribute.setValue( attr.getValue( ).getValue( ) );
@@ -62,8 +69,39 @@ public class IdentityMapper
             return attribute;
         } ).collect( Collectors.toList( ) );
 
-        jsonIdentity.setAttributes( attributeDtos );
+        dto.setAttributes( attributeDtos );
 
-        return jsonIdentity;
+        return dto;
+    }
+
+    public static Identity toBean( final IdentityDto identityDto ){
+        final Identity bean = new Identity();
+        bean.setCustomerId(identityDto.getCustomerId());
+        bean.setConnectionId(identityDto.getConnectionId());
+        bean.setMerged(identityDto.getMerge() != null && identityDto.getMerge().isMerged());
+        bean.setExpirationDate(identityDto.getExpiration() != null ? identityDto.getExpiration().getExpirationDate() : null);
+        bean.setDeleted(identityDto.getExpiration() != null && identityDto.getExpiration().isDeleted());
+        bean.setMonParisActive(identityDto.isMonParisActive());
+        bean.setLastUpdateDate(identityDto.getLastUpdateDate());
+        final Map<String, IdentityAttribute> attributes = identityDto.getAttributes( ).stream( ).map(attributeDto -> {
+            IdentityAttribute attribute = new IdentityAttribute( );
+            final AttributeKey attributeKey = new AttributeKey();
+            attributeKey.setKeyName(attributeDto.getKey( ));
+            attributeKey.setKeyType(KeyType.valueOf(attributeDto.getType()));
+            attribute.setAttributeKey(attributeKey);
+            attribute.setValue( attributeDto.getValue( ) );
+            if ( attributeDto.getCertifier( ) != null )
+            {
+                final AttributeCertificate certificate = new AttributeCertificate();
+                attribute.setCertificate(certificate);
+                certificate.setCertifierCode( attributeDto.getCertifier() );
+                certificate.setCertifierName( attributeDto.getCertifier() );
+                certificate.setCertificateDate(Timestamp.from(attributeDto.getCertificationDate().toInstant()));
+            }
+
+            return attribute;
+        } ).collect( Collectors.toMap( identityAttribute -> identityAttribute.getAttributeKey().getKeyName(), identityAttribute -> identityAttribute ) );
+        bean.getAttributes().putAll(attributes);
+        return bean;
     }
 }
