@@ -126,7 +126,7 @@ public final class IdentityStoreRestService
         final IdentityStoreGetRequest identityStoreRequest = new IdentityStoreGetRequest( strCustomerId, strClientAppCode, strHeaderAuthorType,
                 strHeaderAuthorName );
         final IdentitySearchResponse entity = (IdentitySearchResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -153,7 +153,7 @@ public final class IdentityStoreRestService
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         final IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( identitySearchRequest, strClientAppCode );
         final IdentitySearchResponse entity = (IdentitySearchResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -187,7 +187,7 @@ public final class IdentityStoreRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeRequest, trustedClientCode );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -216,7 +216,7 @@ public final class IdentityStoreRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest, trustedClientCode );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -243,7 +243,7 @@ public final class IdentityStoreRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final IdentityStoreMergeRequest identityStoreRequest = new IdentityStoreMergeRequest( identityMergeRequest, trustedClientCode );
         final IdentityMergeResponse entity = (IdentityMergeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -270,7 +270,7 @@ public final class IdentityStoreRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final IdentityStoreCancelMergeRequest identityStoreRequest = new IdentityStoreCancelMergeRequest( identityMergeRequest, trustedClientCode );
         final IdentityMergeResponse entity = (IdentityMergeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -297,7 +297,7 @@ public final class IdentityStoreRestService
     {
         final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strCustomerId, strClientCode, identityChangeRequest );
         final IdentityChangeResponse response = (IdentityChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( response.getStatus( ).getCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( response.getStatus( ).getHttpCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -333,7 +333,7 @@ public final class IdentityStoreRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final IdentityStoreImportRequest identityStoreRequest = new IdentityStoreImportRequest( identityChangeRequest, trustedClientCode );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -373,7 +373,7 @@ public final class IdentityStoreRestService
             entity.setStatus( ResponseStatus.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
         }
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -400,7 +400,7 @@ public final class IdentityStoreRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final IdentityStoreUncertifyRequest identityStoreUncertifyRequest = new IdentityStoreUncertifyRequest( trustedClientCode, strCustomerId );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreUncertifyRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -414,6 +414,6 @@ public final class IdentityStoreRestService
     {
         final ErrorResponse response = new ErrorResponse( );
         response.setStatus( ResponseStatus.badRequest( ).setMessage( strMessage ).setMessageKey( strMessageKey ) );
-        return Response.status( response.getStatus( ).getCode( ) ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
+        return Response.status( response.getStatus( ).getHttpCode( ) ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
     }
 }

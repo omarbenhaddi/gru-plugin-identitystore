@@ -84,7 +84,7 @@ public class ClientRestService
     {
         final ClientsGetRequest request = new ClientsGetRequest( null, applicationCode );
         final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -109,7 +109,7 @@ public class ClientRestService
         final String trustedCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ClientGetRequest request = new ClientGetRequest( trustedCode );
         final ClientSearchResponse entity = (ClientSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -135,7 +135,7 @@ public class ClientRestService
     {
         final ClientCreateRequest identityStoreRequest = new ClientCreateRequest( clientDto, null );
         final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -164,6 +164,6 @@ public class ClientRestService
     {
         final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, clientCode );
         final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 }

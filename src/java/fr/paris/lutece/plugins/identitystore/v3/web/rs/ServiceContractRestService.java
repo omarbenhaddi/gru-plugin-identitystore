@@ -83,7 +83,7 @@ public class ServiceContractRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ServiceContractListGetRequest request = new ServiceContractListGetRequest( trustedClientCode );
         final ServiceContractsSearchResponse entity = (ServiceContractsSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -109,7 +109,7 @@ public class ServiceContractRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ActiveServiceContractGetRequest request = new ActiveServiceContractGetRequest( trustedClientCode );
         final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -138,7 +138,7 @@ public class ServiceContractRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ServiceContractGetRequest request = new ServiceContractGetRequest( trustedClientCode, serviceContractId );
         final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -166,7 +166,7 @@ public class ServiceContractRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ServiceContractCreateRequest identityStoreRequest = new ServiceContractCreateRequest( serviceContract, trustedClientCode );
         final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -198,7 +198,7 @@ public class ServiceContractRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ServiceContractUpdateRequest identityStoreRequest = new ServiceContractUpdateRequest( serviceContract, trustedClientCode, serviceContractId );
         final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -231,7 +231,7 @@ public class ServiceContractRestService
         final ServiceContractPutEndDateRequest identityStoreRequest = new ServiceContractPutEndDateRequest( serviceContract, trustedClientCode,
                 serviceContractId );
         final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
 }

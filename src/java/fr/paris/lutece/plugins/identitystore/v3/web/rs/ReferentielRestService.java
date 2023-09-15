@@ -78,7 +78,7 @@ public class ReferentielRestService
     {
         final ProcessusListGetRequest request = new ProcessusListGetRequest( null );
         final ProcessusSearchResponse entity = (ProcessusSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -98,7 +98,7 @@ public class ReferentielRestService
     {
         final LevelListGetRequest request = new LevelListGetRequest( null );
         final LevelSearchResponse entity = (LevelSearchResponse) request.doRequest( );
-        return Response.status( entity.getStatus( ).getCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
 }

@@ -93,7 +93,8 @@ public class HistoryRestService
     {
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         final IdentityStoreHistoryGetRequest request = new IdentityStoreHistoryGetRequest( strClientAppCode, strCustomerId );
-        return Response.status( Response.Status.OK ).entity( request.doRequest( ) ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        final IdentityHistoryGetResponse response = (IdentityHistoryGetResponse) request.doRequest( );
+        return Response.status( response.getStatus( ).getHttpCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
     /**
@@ -121,7 +122,7 @@ public class HistoryRestService
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
         final IdentityStoreHistorySearchRequest searchRequest = new IdentityStoreHistorySearchRequest( strClientAppCode, request );
         final IdentityHistorySearchResponse response = (IdentityHistorySearchResponse) searchRequest.doRequest( );
-        return Response.status( response.getStatus( ).getCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+        return Response.status( response.getStatus( ).getHttpCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
 }
