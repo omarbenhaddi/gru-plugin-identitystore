@@ -53,11 +53,11 @@ public class AttributeHistoryListener implements AttributeChangeListener
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange(AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-                                       RequestAuthor author, String clientCode ) throws IdentityStoreException
+    public void processAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus, RequestAuthor author,
+            String clientCode ) throws IdentityStoreException
     {
-        final AttributeChange attributeChange = this.buildAttributeChange(changeType, identity, attributeStatus, author, clientCode);
-        IdentityAttributeHome.addAttributeChangeHistory(attributeChange);
+        final AttributeChange attributeChange = this.buildAttributeChange( changeType, identity, attributeStatus, author, clientCode );
+        IdentityAttributeHome.addAttributeChangeHistory( attributeChange );
     }
 
     @Override

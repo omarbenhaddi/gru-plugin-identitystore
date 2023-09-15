@@ -57,10 +57,10 @@ public class LoggingListener implements AttributeChangeListener
      * {@inheritDoc }
      */
     @Override
-    public void processAttributeChange(AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-                                       RequestAuthor author, String clientCode )
+    public void processAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus, RequestAuthor author,
+            String clientCode )
     {
-        final AttributeChange change = this.buildAttributeChange(changeType, identity, attributeStatus, author, clientCode);
+        final AttributeChange change = this.buildAttributeChange( changeType, identity, attributeStatus, author, clientCode );
         final String sbLog = "Change for identity '" + "' [ID:" + change.getIdIdentity( ) + "] " + " by " + " [ID:" + change.getAuthorName( ) + "] "
                 + " via application : '" + change.getClientCode( ) + "' on " + change.getModificationDate( ) + " Key changed : '" + change.getAttributeKey( )
                 + "' New value : '" + change.getAttributeValue( ) + "' With status : '" + change.getChangeSatus( ) + " - " + change.getChangeSatus( )

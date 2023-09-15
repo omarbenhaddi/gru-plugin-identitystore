@@ -55,9 +55,10 @@ public class IdentityHistoryListener implements IdentityChangeListener
     }
 
     @Override
-    public void processIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException
+    public void processIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author,
+            String clientCode, Map<String, String> metadata ) throws IdentityStoreException
     {
-        final IdentityChange identityChange = this.buildIdentityChange(identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata);
+        final IdentityChange identityChange = this.buildIdentityChange( identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata );
         IdentityHome.addIdentityChangeHistory( identityChange );
     }
 

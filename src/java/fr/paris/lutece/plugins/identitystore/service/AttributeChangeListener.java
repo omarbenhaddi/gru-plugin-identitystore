@@ -53,15 +53,21 @@ public interface AttributeChangeListener extends LuteceService
 {
     /**
      * Register an attribute change
-     * @param changeType the type of change
-     * @param identity the identity to which the attribute belongs
-     * @param attributeStatus the attribute status
-     * @param author the author of the change
-     * @param clientCode the client code that triggered the change
+     * 
+     * @param changeType
+     *            the type of change
+     * @param identity
+     *            the identity to which the attribute belongs
+     * @param attributeStatus
+     *            the attribute status
+     * @param author
+     *            the author of the change
+     * @param clientCode
+     *            the client code that triggered the change
      * @throws IdentityStoreException
      */
-    void processAttributeChange(AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-                                RequestAuthor author, String clientCode ) throws IdentityStoreException;
+    void processAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus, RequestAuthor author, String clientCode )
+            throws IdentityStoreException;
 
     /**
      * create and return an AttributeChange from input params
@@ -73,8 +79,8 @@ public interface AttributeChangeListener extends LuteceService
      * @param clientCode
      * @return AttributeChange from input params
      */
-    default AttributeChange buildAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-                                                        RequestAuthor author, String clientCode )
+    default AttributeChange buildAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus, RequestAuthor author,
+            String clientCode )
     {
         final AttributeChange attributeChange = new AttributeChange( );
 

@@ -49,19 +49,28 @@ public interface IdentityChangeListener extends LuteceService
 {
     /**
      * Register an identity change
-     * @param identityChangeType the type of change
-     * @param identity the identity that changed
-     * @param statusCode the status code of the change
-     * @param statusMessage the message
-     * @param author the author of the change
-     * @param clientCode the client code that triggered the change
-     * @param metadata additional data
+     * 
+     * @param identityChangeType
+     *            the type of change
+     * @param identity
+     *            the identity that changed
+     * @param statusCode
+     *            the status code of the change
+     * @param statusMessage
+     *            the message
+     * @param author
+     *            the author of the change
+     * @param clientCode
+     *            the client code that triggered the change
+     * @param metadata
+     *            additional data
      * @throws IdentityStoreException
      */
-    void processIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException;
+    void processIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author,
+            String clientCode, Map<String, String> metadata ) throws IdentityStoreException;
 
     default IdentityChange buildIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
-                                                RequestAuthor author, String clientCode, Map<String, String> metadata )
+            RequestAuthor author, String clientCode, Map<String, String> metadata )
     {
 
         final IdentityChange identityChange = new IdentityChange( );
@@ -76,7 +85,7 @@ public interface IdentityChangeListener extends LuteceService
         identityChange.setLastUpdateDate( identity.getLastUpdateDate( ) );
         identityChange.setId( identity.getId( ) );
         identityChange.setClientCode( clientCode );
-        identityChange.getMetadata().putAll(metadata);
+        identityChange.getMetadata( ).putAll( metadata );
         return identityChange;
     }
 }

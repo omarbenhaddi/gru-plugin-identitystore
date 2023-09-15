@@ -62,13 +62,13 @@ public class IdentityIndexListener implements IdentityChangeListener
     }
 
     @Override
-    public void processIdentityChange(IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author, String clientCode, Map<String, String> metadata )
+    public void processIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author,
+            String clientCode, Map<String, String> metadata )
     {
-        _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId() );
+        _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
         final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( identity );
-        final IdentityObject identityObject = new IdentityObject( identity.getConnectionId( ), identity.getCustomerId( ),
-                identity.getCreationDate( ), identity.getLastUpdateDate( ), identity.isMonParisActive( ),
-                attributeObjects );
+        final IdentityObject identityObject = new IdentityObject( identity.getConnectionId( ), identity.getCustomerId( ), identity.getCreationDate( ),
+                identity.getLastUpdateDate( ), identity.isMonParisActive( ), attributeObjects );
 
         switch( identityChangeType )
         {

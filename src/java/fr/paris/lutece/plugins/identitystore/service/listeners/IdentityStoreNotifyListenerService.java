@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import java.util.List;
 import java.util.Map;
@@ -61,8 +62,10 @@ public final class IdentityStoreNotifyListenerService
     private final List<AttributeChangeListener> _attributeChangelistListeners;
     private final List<IdentityChangeListener> _identityChangeListListeners;
 
-    private ExecutorService attributeExecutor = Executors.newFixedThreadPool(5);
-    private ExecutorService identityExecutor = Executors.newFixedThreadPool(5);
+    private final Integer poolSize = AppPropertiesService.getPropertyInt( "identitystore.listener.pool.size", 3 );
+
+    private final ExecutorService attributeExecutor = Executors.newFixedThreadPool( poolSize );
+    private final ExecutorService identityExecutor = Executors.newFixedThreadPool( poolSize );
 
     /**
      * private constructor
@@ -113,41 +116,66 @@ public final class IdentityStoreNotifyListenerService
 
     /**
      * Notify an attribute change to all registered listeners
-     * @param changeType the type of change
-     * @param identity the identity to which the attribute belongs
-     * @param attributeStatus the attribute status
-     * @param author the author of the change
-     * @param clientCode the client code that triggered the change
+     * 
+     * @param changeType
+     *            the type of change
+     * @param identity
+     *            the identity to which the attribute belongs
+     * @param attributeStatus
+     *            the attribute status
+     * @param author
+     *            the author of the change
+     * @param clientCode
+     *            the client code that triggered the change
      * @throws IdentityStoreException
      */
-    public void notifyListenersAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus,
-                                                RequestAuthor author, String clientCode ) throws IdentityStoreException
+    public void notifyListenersAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus, RequestAuthor author,
+            String clientCode )
     {
-        for ( final AttributeChangeListener listener : _attributeChangelistListeners )
-        {
-            listener.processAttributeChange( changeType, identity, attributeStatus, author, clientCode );
-        }
-
+        _attributeChangelistListeners.stream( ).<Runnable> map( listener -> ( ) -> {
+            try
+            {
+                listener.processAttributeChange( changeType, identity, attributeStatus, author, clientCode );
+            }
+            catch( IdentityStoreException e )
+            {
+                AppLogService.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
+            }
+        } ).forEach( attributeExecutor::submit );
     }
 
     /**
      * Notify an identityChange to all registered listeners
-     * @param identityChangeType the type of change
-     * @param identity the identity that changed
-     * @param statusCode the status code of the change
-     * @param statusMessage the message
-     * @param author the author of the change
-     * @param clientCode the client code that triggered the change
-     * @param metadata additional data
+     * 
+     * @param identityChangeType
+     *            the type of change
+     * @param identity
+     *            the identity that changed
+     * @param statusCode
+     *            the status code of the change
+     * @param statusMessage
+     *            the message
+     * @param author
+     *            the author of the change
+     * @param clientCode
+     *            the client code that triggered the change
+     * @param metadata
+     *            additional data
      * @throws IdentityStoreException
      */
     public void notifyListenersIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
-                                               RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException
+            RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException
     {
-        for ( final IdentityChangeListener listener : _identityChangeListListeners )
-        {
-            listener.processIdentityChange( identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata );
-        }
+        _identityChangeListListeners.stream( ).<Runnable> map( listener -> ( ) -> {
+            try
+            {
+                listener.processIdentityChange( identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata );
+            }
+            catch( IdentityStoreException e )
+            {
+                AppLogService.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
+            }
+        } ).forEach( identityExecutor::submit );
     }
 
 }

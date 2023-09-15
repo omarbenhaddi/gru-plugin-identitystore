@@ -74,34 +74,35 @@ public class IdentityMapper
         return dto;
     }
 
-    public static Identity toBean( final IdentityDto identityDto ){
-        final Identity bean = new Identity();
-        bean.setCustomerId(identityDto.getCustomerId());
-        bean.setConnectionId(identityDto.getConnectionId());
-        bean.setMerged(identityDto.getMerge() != null && identityDto.getMerge().isMerged());
-        bean.setExpirationDate(identityDto.getExpiration() != null ? identityDto.getExpiration().getExpirationDate() : null);
-        bean.setDeleted(identityDto.getExpiration() != null && identityDto.getExpiration().isDeleted());
-        bean.setMonParisActive(identityDto.isMonParisActive());
-        bean.setLastUpdateDate(identityDto.getLastUpdateDate());
-        final Map<String, IdentityAttribute> attributes = identityDto.getAttributes( ).stream( ).map(attributeDto -> {
+    public static Identity toBean( final IdentityDto identityDto )
+    {
+        final Identity bean = new Identity( );
+        bean.setCustomerId( identityDto.getCustomerId( ) );
+        bean.setConnectionId( identityDto.getConnectionId( ) );
+        bean.setMerged( identityDto.getMerge( ) != null && identityDto.getMerge( ).isMerged( ) );
+        bean.setExpirationDate( identityDto.getExpiration( ) != null ? identityDto.getExpiration( ).getExpirationDate( ) : null );
+        bean.setDeleted( identityDto.getExpiration( ) != null && identityDto.getExpiration( ).isDeleted( ) );
+        bean.setMonParisActive( identityDto.isMonParisActive( ) );
+        bean.setLastUpdateDate( identityDto.getLastUpdateDate( ) );
+        final Map<String, IdentityAttribute> attributes = identityDto.getAttributes( ).stream( ).map( attributeDto -> {
             IdentityAttribute attribute = new IdentityAttribute( );
-            final AttributeKey attributeKey = new AttributeKey();
-            attributeKey.setKeyName(attributeDto.getKey( ));
-            attributeKey.setKeyType(KeyType.valueOf(attributeDto.getType()));
-            attribute.setAttributeKey(attributeKey);
+            final AttributeKey attributeKey = new AttributeKey( );
+            attributeKey.setKeyName( attributeDto.getKey( ) );
+            attributeKey.setKeyType( KeyType.valueOf( attributeDto.getType( ) ) );
+            attribute.setAttributeKey( attributeKey );
             attribute.setValue( attributeDto.getValue( ) );
             if ( attributeDto.getCertifier( ) != null )
             {
-                final AttributeCertificate certificate = new AttributeCertificate();
-                attribute.setCertificate(certificate);
-                certificate.setCertifierCode( attributeDto.getCertifier() );
-                certificate.setCertifierName( attributeDto.getCertifier() );
-                certificate.setCertificateDate(Timestamp.from(attributeDto.getCertificationDate().toInstant()));
+                final AttributeCertificate certificate = new AttributeCertificate( );
+                attribute.setCertificate( certificate );
+                certificate.setCertifierCode( attributeDto.getCertifier( ) );
+                certificate.setCertifierName( attributeDto.getCertifier( ) );
+                certificate.setCertificateDate( Timestamp.from( attributeDto.getCertificationDate( ).toInstant( ) ) );
             }
 
             return attribute;
-        } ).collect( Collectors.toMap( identityAttribute -> identityAttribute.getAttributeKey().getKeyName(), identityAttribute -> identityAttribute ) );
-        bean.getAttributes().putAll(attributes);
+        } ).collect( Collectors.toMap( identityAttribute -> identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute -> identityAttribute ) );
+        bean.getAttributes( ).putAll( attributes );
         return bean;
     }
 }

@@ -243,11 +243,13 @@ public class IdentityService
                     .filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).collect( Collectors.toList( ) );
             for ( AttributeStatus attributeStatus : createdAttributes )
             {
-                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus, request.getOrigin( ), clientCode );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus, request.getOrigin( ),
+                        clientCode );
             }
 
             /* Indexation et historique */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getStatus().name(), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>() );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getStatus( ).name( ),
+                    response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>( ) );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, CREATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -409,11 +411,13 @@ public class IdentityService
             /* Historique des modifications */
             for ( final AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
             {
-                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus, request.getOrigin( ), clientCode );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus, request.getOrigin( ),
+                        clientCode );
             }
 
             /* Indexation et historique */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getStatus().name(), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>() );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getStatus( ).name( ),
+                    response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>( ) );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -549,20 +553,22 @@ public class IdentityService
             /* Historique des modifications */
             for ( AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
             {
-                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.MERGE, primaryIdentity, attributeStatus, request.getOrigin( ), clientCode );
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.MERGE, primaryIdentity, attributeStatus,
+                        request.getOrigin( ), clientCode );
             }
 
             /* Indexation */
-            final Map<String, String> metadata = new HashMap<>();
+            final Map<String, String> metadata = new HashMap<>( );
             metadata.put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
             metadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange(IdentityChangeType.MERGED, secondaryIdentity,
-                    response.getStatus( ).getStatus( ).name(), response.getStatus( ).getStatus( ).name(), request.getOrigin( ), clientCode, metadata);
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
+                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), request.getOrigin( ), clientCode, metadata );
 
-            final Map<String, String> metadata2 = new HashMap<>();
+            final Map<String, String> metadata2 = new HashMap<>( );
             metadata2.put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
             metadata2.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity, response.getStatus( ).getStatus( ).name(), response.getStatus( ).getStatus( ).name(), request.getOrigin( ), clientCode, metadata2 );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity,
+                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), request.getOrigin( ), clientCode, metadata2 );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, MERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -645,14 +651,14 @@ public class IdentityService
             response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Indexation */
-            final Map<String, String> metadata = new HashMap<>();
+            final Map<String, String> metadata = new HashMap<>( );
             metadata.put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGE_CANCELLED,
-                    secondaryIdentity, response.getStatus( ).getStatus( ).name(), response.getStatus( ).getStatus( ).name(), request.getOrigin( ), clientCode, metadata );
-            final Map<String, String> metadata2 = new HashMap<>();
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity,
+                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), request.getOrigin( ), clientCode, metadata );
+            final Map<String, String> metadata2 = new HashMap<>( );
             metadata2.put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED,
-                    primaryIdentity, response.getStatus( ).getStatus( ).name(), response.getStatus( ).getStatus( ).name(), request.getOrigin( ), clientCode, metadata2 );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
+                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), request.getOrigin( ), clientCode, metadata2 );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UNMERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), request, SPECIFIC_ORIGIN );
@@ -807,7 +813,9 @@ public class IdentityService
                     if ( request.getOrigin( ).getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, IdentityMapper.toBean(identity), response.getStatus( ).getStatus( ).name(), response.getStatus( ).getMessage( ), request.getOrigin(), clientCode, new HashMap<>() );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, IdentityMapper.toBean( identity ),
+                                response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode,
+                                new HashMap<>( ) );
                     }
                 }
             }
@@ -862,7 +870,8 @@ public class IdentityService
                     if ( origin != null && origin.getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, identity, response.getStatus( ).getStatus( ).name(), response.getStatus( ).getMessage( ), origin, clientCode, new HashMap<>() );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, identity,
+                                response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), origin, clientCode, new HashMap<>( ) );
                     }
                 }
             }
@@ -945,7 +954,7 @@ public class IdentityService
                 {
                     qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
                 }
-                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map(excludedIdentities -> {
+                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
                     final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
                     exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
                     exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
@@ -1199,8 +1208,8 @@ public class IdentityService
             response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Notify listeners for indexation, history, ... */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).getStatus( ).name(),
-                    response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>() );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).getStatus( ).name( ),
+                    response.getStatus( ).getMessage( ), request.getOrigin( ), clientCode, new HashMap<>( ) );
             TransactionManager.commitTransaction( null );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( request, clientCode ), customerId, SPECIFIC_ORIGIN );
