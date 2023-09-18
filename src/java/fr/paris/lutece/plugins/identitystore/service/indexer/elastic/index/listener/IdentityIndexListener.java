@@ -65,7 +65,6 @@ public class IdentityIndexListener implements IdentityChangeListener
     public void processIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage, RequestAuthor author,
             String clientCode, Map<String, String> metadata )
     {
-        _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
         final Map<String, AttributeObject> attributeObjects = this.mapToIndexObject( identity );
         final IdentityObject identityObject = new IdentityObject( identity.getConnectionId( ), identity.getCustomerId( ), identity.getCreationDate( ),
                 identity.getLastUpdateDate( ), identity.isMonParisActive( ), attributeObjects );
@@ -74,14 +73,17 @@ public class IdentityIndexListener implements IdentityChangeListener
         {
             case CREATE:
             case MERGE_CANCELLED:
+                _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case UPDATE:
             case CONSOLIDATED:
+                _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case DELETE:
             case MERGED:
+                _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case READ:
