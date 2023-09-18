@@ -41,12 +41,12 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.regex.Pattern;
@@ -79,7 +79,7 @@ public class IdentityAttributeValidationService
         final boolean passedValidation = this.validateIdentityAttributeValues( request.getIdentity( ), response );
         if ( !passedValidation )
         {
-            response.setStatus( ResponseStatus.failure( )
+            response.setStatus( ResponseStatusFactory.failure( )
                     .setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." )
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_FAIL_ATTRIBUTE_VALIDATION ) );
         }
@@ -94,7 +94,7 @@ public class IdentityAttributeValidationService
         final boolean passedValidation = this.validateIdentityAttributeValues( request.getIdentity( ), response );
         if ( !passedValidation )
         {
-            response.setStatus( ResponseStatus.failure( )
+            response.setStatus( ResponseStatusFactory.failure( )
                     .setMessage( "Some attribute values are not passing validation. Please check in the attribute statuses for details." )
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_FAIL_ATTRIBUTE_VALIDATION ) );
         }

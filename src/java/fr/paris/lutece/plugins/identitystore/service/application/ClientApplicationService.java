@@ -38,8 +38,8 @@ import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicat
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.util.sql.TransactionManager;
 
 public class ClientApplicationService
@@ -63,7 +63,7 @@ public class ClientApplicationService
             final ClientApplication clientApplication = ClientApplicationHome.findByCode( clientApplicationDto.getClientCode( ) );
             if ( clientApplication != null )
             {
-                response.setStatus( ResponseStatus.conflict( ).setMessage( "A client exists with the code " + clientApplicationDto.getClientCode( ) )
+                response.setStatus( ResponseStatusFactory.conflict( ).setMessage( "A client exists with the code " + clientApplicationDto.getClientCode( ) )
                         .setMessageKey( Constants.PROPERTY_REST_ERROR_CLIENT_ALREADY_EXISTS ) );
             }
             else
@@ -71,13 +71,14 @@ public class ClientApplicationService
                 final ClientApplication client = DtoConverter.convertDtoToClient( clientApplicationDto );
                 ClientApplicationHome.create( client );
                 response.setClientApplication( DtoConverter.convertClientToDto( client ) );
-                response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+                response.setStatus( ResponseStatusFactory.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             }
             TransactionManager.commitTransaction( null );
         }
         catch( Exception e )
         {
-            response.setStatus( ResponseStatus.failure( ).setMessage( e.getMessage( ) ).setMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT ) );
+            response.setStatus(
+                    ResponseStatusFactory.failure( ).setMessage( e.getMessage( ) ).setMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT ) );
             TransactionManager.rollBack( null );
         }
     }
@@ -90,21 +91,23 @@ public class ClientApplicationService
             final ClientApplication clientApplication = ClientApplicationHome.findByCode( clientApplicationDto.getClientCode( ) );
             if ( clientApplication == null )
             {
-                response.setStatus( ResponseStatus.notFound( ).setMessage( "No client could be found with the code " + clientApplicationDto.getClientCode( ) )
-                        .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CLIENT_FOUND ) );
+                response.setStatus(
+                        ResponseStatusFactory.notFound( ).setMessage( "No client could be found with the code " + clientApplicationDto.getClientCode( ) )
+                                .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CLIENT_FOUND ) );
             }
             else
             {
                 final ClientApplication client = DtoConverter.convertDtoToClient( clientApplicationDto );
                 ClientApplicationHome.update( client );
                 response.setClientApplication( DtoConverter.convertClientToDto( client ) );
-                response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+                response.setStatus( ResponseStatusFactory.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             }
             TransactionManager.commitTransaction( null );
         }
         catch( Exception e )
         {
-            response.setStatus( ResponseStatus.failure( ).setMessage( e.getMessage( ) ).setMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT ) );
+            response.setStatus(
+                    ResponseStatusFactory.failure( ).setMessage( e.getMessage( ) ).setMessageKey( Constants.PROPERTY_REST_ERROR_DURING_TREATMENT ) );
             TransactionManager.rollBack( null );
         }
     }

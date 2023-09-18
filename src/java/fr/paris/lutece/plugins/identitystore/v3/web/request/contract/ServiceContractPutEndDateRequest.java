@@ -41,10 +41,10 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
 import java.util.Optional;
@@ -89,7 +89,7 @@ public class ServiceContractPutEndDateRequest extends AbstractIdentityStoreReque
         final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strClientCode );
         if ( clientApplication == null )
         {
-            response.setStatus( ResponseStatus.failure( ).setMessage( "No application could be found with code " + _strClientCode )
+            response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No application could be found with code " + _strClientCode )
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND ) );
         }
         else
@@ -97,14 +97,14 @@ public class ServiceContractPutEndDateRequest extends AbstractIdentityStoreReque
             final Optional<ServiceContract> serviceContractToClose = ServiceContractHome.findByPrimaryKey( _serviceContractId );
             if ( !serviceContractToClose.isPresent( ) )
             {
-                response.setStatus( ResponseStatus.failure( ).setMessage( "No service contract could be found with code " + _serviceContractId )
+                response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No service contract could be found with code " + _serviceContractId )
                         .setMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_NOT_FOUND ) );
             }
             else
             {
                 _serviceContractDto.setId( _serviceContractId );
                 ServiceContractService.instance( ).close( DtoConverter.convertDtoToContract( _serviceContractDto ) );
-                response.setStatus( ResponseStatus.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+                response.setStatus( ResponseStatusFactory.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             }
         }
 

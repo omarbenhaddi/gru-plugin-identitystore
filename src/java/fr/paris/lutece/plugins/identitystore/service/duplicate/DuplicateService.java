@@ -44,15 +44,20 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DuplicateService implements IDuplicateService
@@ -108,13 +113,15 @@ public class DuplicateService implements IDuplicateService
 
         if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
         {
-            response.setStatus( ResponseStatus.success( ).setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) )
-                    .setMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND ) );
+            response.setStatus(
+                    ResponseStatusFactory.success( ).setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) )
+                            .setMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND ) );
         }
         else
         {
-            response.setStatus( ResponseStatus.notFound( ).setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) )
-                    .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_POTENTIAL_DUPLICATE_FOUND ) );
+            response.setStatus(
+                    ResponseStatusFactory.notFound( ).setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) )
+                            .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_POTENTIAL_DUPLICATE_FOUND ) );
             response.setIdentities( Collections.emptyList( ) );
         }
 
