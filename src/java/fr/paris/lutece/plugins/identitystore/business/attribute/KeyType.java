@@ -39,6 +39,7 @@ import fr.paris.lutece.util.ReferenceList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -120,6 +121,20 @@ public enum KeyType
     public static KeyType valueOf( int nId )
     {
         return _mapKeyType.get( Integer.valueOf( nId ) );
+    }
+
+    /**
+     * returns KeyType enum for id
+     *
+     * @param code
+     *            code of KeyType
+     * @return KeyType enum
+     */
+    public static KeyType valueByCode( String code )
+    {
+        return Objects
+                .requireNonNull( _mapKeyType.entrySet( ).stream( ).filter( e -> Objects.equals( e.getValue( ).getCode( ), code ) ).findFirst( ).orElse( null ) )
+                .getValue( );
     }
 
     /**

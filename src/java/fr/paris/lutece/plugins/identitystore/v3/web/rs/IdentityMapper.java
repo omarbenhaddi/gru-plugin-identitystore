@@ -88,7 +88,7 @@ public class IdentityMapper
             IdentityAttribute attribute = new IdentityAttribute( );
             final AttributeKey attributeKey = new AttributeKey( );
             attributeKey.setKeyName( attributeDto.getKey( ) );
-            attributeKey.setKeyType( KeyType.valueOf( attributeDto.getType( ) ) );
+            attributeKey.setKeyType( KeyType.valueByCode( attributeDto.getType( ) ) );
             attribute.setAttributeKey( attributeKey );
             attribute.setValue( attributeDto.getValue( ) );
             if ( attributeDto.getCertifier( ) != null )
