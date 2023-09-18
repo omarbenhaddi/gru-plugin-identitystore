@@ -36,10 +36,12 @@ package fr.paris.lutece.plugins.identitystore.business.attribute;
 import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.util.ReferenceList;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -132,9 +134,7 @@ public enum KeyType
      */
     public static KeyType valueByCode( String code )
     {
-        return Objects
-                .requireNonNull( _mapKeyType.entrySet( ).stream( ).filter( e -> Objects.equals( e.getValue( ).getCode( ), code ) ).findFirst( ).orElse( null ) )
-                .getValue( );
+        return Arrays.stream( values( ) ).filter( keyType -> Objects.equals( keyType.getCode( ), code ) ).findFirst( ).orElse( null );
     }
 
     /**
