@@ -256,3 +256,24 @@ COMMENT ON COLUMN identitystore_service_contract.authorized_decertification IS '
 --
 ALTER TABLE identitystore_service_contract
     ADD COLUMN authorized_agent_history_read smallint not null default 0;
+
+--
+-- #323 [ API Update ] probleme de gestion des millisecondes dans le processus de contrôle d'accès concurrents
+--
+alter table identitystore_identity alter column last_update_date type timestamp(3);
+alter table identitystore_identity alter column date_create type timestamp(3);
+alter table identitystore_identity alter column date_delete type timestamp(3);
+alter table identitystore_identity alter column date_merge type timestamp(3);
+alter table identitystore_identity alter column expiration_date type timestamp(3);
+alter table identitystore_identity_attribute alter column lastupdate_date type timestamp(3);
+alter table identitystore_identity_attribute_certificate alter column certificate_date type timestamp(3);
+alter table identitystore_identity_attribute_certificate alter column expiration_date type timestamp(3);
+alter table identitystore_identity_attribute_history alter column certification_date type timestamp(3);
+alter table identitystore_identity_attribute_history alter column modification_date type timestamp(3);
+alter table identitystore_identity_history alter column modification_date type timestamp(3);
+alter table identitystore_index_action alter column date_index type timestamp(3);
+alter table identitystore_quality_suspicious_identity alter column last_update_date type timestamp(3);
+alter table identitystore_quality_suspicious_identity alter column date_delete type timestamp(3);
+alter table identitystore_quality_suspicious_identity alter column date_create type timestamp(3);
+alter table identitystore_quality_suspicious_identity_excluded alter column date_create type timestamp(3);
+alter table identitystore_quality_suspicious_identity_lock alter column date_lock_end type timestamp(3);
