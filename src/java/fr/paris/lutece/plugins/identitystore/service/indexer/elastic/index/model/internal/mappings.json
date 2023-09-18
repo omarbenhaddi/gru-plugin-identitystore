@@ -10,7 +10,7 @@
                     ]
                 },
                 "email_analyzer" : {
-                    "tokenizer" : "email_tokenizer",
+                    "tokenizer" : "keyword",
                     "filter" : [
                         "lowercase",
                         "asciifolding"
