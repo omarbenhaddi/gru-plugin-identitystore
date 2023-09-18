@@ -157,7 +157,7 @@ public interface ISuspiciousIdentityDAO
      *            the Plugin
      * @return The list which contains the data of all the suspiciousIdentity objects
      */
-    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final int max,
+    List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final Integer max,
             final Integer priority, Plugin plugin ) throws IdentityStoreException;
 
     /**

@@ -257,7 +257,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
      * {@inheritDoc }
      */
     @Override
-    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final int max,
+    public List<SuspiciousIdentity> selectSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final Integer max,
             final Integer priority, Plugin plugin ) throws IdentityStoreException
     {
         final List<SuspiciousIdentity> suspiciousIdentityList = new ArrayList<>( );
@@ -285,7 +285,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                     .append( SQL_GROUPBY_HAVING_SELECTALL_ATTRIBUTE_FILTER.replace( "${filter_count}", String.valueOf( attributes.size( ) ) ) );
         }
 
-        if ( max != 0 )
+        if ( max != null && max != 0 )
         {
             query.append( " LIMIT " ).append( max );
         }

@@ -206,7 +206,7 @@ public final class SuspiciousIdentityHome
      *            max number of suspicious identities to return
      * @return the list which contains the data of all the suspiciousIdentity objects
      */
-    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final int max,
+    public static List<SuspiciousIdentity> getSuspiciousIdentitysList( final String ruleCode, final List<SearchAttribute> attributes, final Integer max,
             final Integer priority ) throws IdentityStoreException
     {
         return _dao.selectSuspiciousIdentitysList( ruleCode, attributes, max, priority, _plugin );
