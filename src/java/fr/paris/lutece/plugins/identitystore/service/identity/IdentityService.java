@@ -1063,7 +1063,8 @@ public class IdentityService
      *            new attributes from request
      */
     private void connectedIdentityUpdateCheck( final IdentityDto requestIdentity, final Identity identity, final List<AttributeDto> existingWritableAttributes,
-            final List<AttributeDto> newWritableAttributes, final ChangeResponse response ) {
+            final List<AttributeDto> newWritableAttributes, final ChangeResponse response )
+    {
         final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
 
