@@ -60,7 +60,8 @@ public interface ISearchIdentityService
     QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
             final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected ) throws IdentityStoreException;
 
-    QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected );
+    QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected )
+            throws IdentityStoreException;
 
     default List<SearchAttribute> computeOutputKeys( final List<SearchAttribute> attributes )
     {

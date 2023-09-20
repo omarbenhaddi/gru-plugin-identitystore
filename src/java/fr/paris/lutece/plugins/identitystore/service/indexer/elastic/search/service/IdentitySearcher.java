@@ -100,7 +100,7 @@ public class IdentitySearcher implements IIdentitySearcher
      */
     @Override
     public Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
-            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected )
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected ) throws IdentityStoreException
     {
         final List<ASearchRequest> requests = new ArrayList<>( );
         /* Split attribute list into N combinations (list) of nbEqualAttributes */
@@ -175,13 +175,13 @@ public class IdentitySearcher implements IIdentitySearcher
     }
 
     @Override
-    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected )
+    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected ) throws IdentityStoreException
     {
         final ASearchRequest request = new ComplexSearchRequest( attributes, connected );
         return this.getResponse( request, max );
     }
 
-    private Response getResponse( final ASearchRequest request, final int max )
+    private Response getResponse( final ASearchRequest request, final int max ) throws IdentityStoreException
     {
         try
         {
@@ -213,60 +213,62 @@ public class IdentitySearcher implements IIdentitySearcher
         }
         catch( ElasticClientException | JsonProcessingException e )
         {
-            logger.error( "Failed to search", e );
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
-        return null;
     }
 
-    private Response getResponse( final List<ASearchRequest> requests, final int max )
+    private Response getResponse( final List<ASearchRequest> requests, final int max ) throws IdentityStoreException
     {
         try
         {
-            final int size = ( max == 0 ) ? propertySize : Math.min( max, propertySize );
-            final List<MultiSearchAction> searchActions = requests.stream( ).map( aSearchRequest -> {
-                final InnerSearchRequest innerSearchRequest = aSearchRequest.body( );
-                innerSearchRequest.setFrom( 0 );
-                innerSearchRequest.setSize( size );
-                return new MultiSearchAction( innerSearchRequest, MultiSearchActionType.QUERY, INDEX );
-            } ).collect( Collectors.toList( ) );
-            final String response = this._elasticClient.multiSearch( INDEX, searchActions );
-            final Responses innerResponses = objectMapper.readValue( response, Responses.class );
-            final Response globalResponse = new Response( );
-            globalResponse.setResult( new Result( ) );
-            globalResponse.getResult( ).setHits( new ArrayList<>( ) );
-            this.computeResponseMetadata( globalResponse, innerResponses, searchActions );
-
-            final Map<String, Hit> hits = innerResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
-                    .collect( Collectors.toMap( hit -> hit.getSource( ).getCustomerId( ), hit -> hit ) );
-            final Map<String, Hit> distinctHits = new HashMap<>( hits );
-
-            final int maxTotal = innerResponses.getResponses( ).stream( ).map( r -> r.getResult( ).getTotal( ).getValue( ) ).mapToInt( value -> value ).max( )
-                    .orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute total of hits" ) );
-            final int limit = Math.min( max, maxTotal );
-            int offset = searchActions.get( 0 ).getQuery( ).getFrom( );
-            while ( offset < limit )
+            if ( CollectionUtils.isNotEmpty( requests ) )
             {
-                offset += size;
-                int finalOffset = offset;
-                searchActions.forEach( multiSearchAction -> multiSearchAction.getQuery( ).setFrom( finalOffset ) );
-                final String pagedResponse = this._elasticClient.multiSearch( INDEX, searchActions );
-                final Responses pagedResponses = objectMapper.readValue( pagedResponse, Responses.class );
-                pagedResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
-                        .forEach( hit -> distinctHits.putIfAbsent( hit.getSource( ).getCustomerId( ), hit ) );
-                final BigDecimal maxScore = pagedResponses.getResponses( ).stream( ).filter( r -> r.getResult( ).getMaxScore( ) != null )
-                        .map( r -> r.getResult( ).getMaxScore( ) ).max( Comparator.comparingDouble( BigDecimal::doubleValue ) )
-                        .orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute max score" ) );
-                globalResponse.getResult( ).setMaxScore( maxScore );
-                this.computeResponseMetadata( globalResponse, pagedResponses, searchActions );
+                final int size = ( max == 0 ) ? propertySize : Math.min( max, propertySize );
+                final List<MultiSearchAction> searchActions = requests.stream( ).map( aSearchRequest -> {
+                    final InnerSearchRequest innerSearchRequest = aSearchRequest.body( );
+                    innerSearchRequest.setFrom( 0 );
+                    innerSearchRequest.setSize( size );
+                    return new MultiSearchAction( innerSearchRequest, MultiSearchActionType.QUERY, INDEX );
+                } ).collect( Collectors.toList( ) );
+                final String response = this._elasticClient.multiSearch( INDEX, searchActions );
+                final Responses innerResponses = objectMapper.readValue( response, Responses.class );
+                final Response globalResponse = new Response( );
+                globalResponse.setResult( new Result( ) );
+                globalResponse.getResult( ).setHits( new ArrayList<>( ) );
+                this.computeResponseMetadata( globalResponse, innerResponses, searchActions );
+
+                final Map<String, Hit> hits = innerResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
+                        .collect( Collectors.toMap( hit -> hit.getSource( ).getCustomerId( ), hit -> hit ) );
+                final Map<String, Hit> distinctHits = new HashMap<>( hits );
+
+                final int maxTotal = innerResponses.getResponses( ).stream( ).map( r -> r.getResult( ).getTotal( ).getValue( ) ).mapToInt( value -> value )
+                        .max( ).orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute total of hits" ) );
+                final int limit = Math.min( max, maxTotal );
+                int offset = searchActions.get( 0 ).getQuery( ).getFrom( );
+                while ( offset < limit )
+                {
+                    offset += size;
+                    int finalOffset = offset;
+                    searchActions.forEach( multiSearchAction -> multiSearchAction.getQuery( ).setFrom( finalOffset ) );
+                    final String pagedResponse = this._elasticClient.multiSearch( INDEX, searchActions );
+                    final Responses pagedResponses = objectMapper.readValue( pagedResponse, Responses.class );
+                    pagedResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
+                            .forEach( hit -> distinctHits.putIfAbsent( hit.getSource( ).getCustomerId( ), hit ) );
+                    final BigDecimal maxScore = pagedResponses.getResponses( ).stream( ).filter( r -> r.getResult( ).getMaxScore( ) != null )
+                            .map( r -> r.getResult( ).getMaxScore( ) ).max( Comparator.comparingDouble( BigDecimal::doubleValue ) )
+                            .orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute max score" ) );
+                    globalResponse.getResult( ).setMaxScore( maxScore );
+                    this.computeResponseMetadata( globalResponse, pagedResponses, searchActions );
+                }
+                globalResponse.getResult( ).getHits( ).addAll( distinctHits.values( ) );
+                return globalResponse;
             }
-            globalResponse.getResult( ).getHits( ).addAll( distinctHits.values( ) );
-            return globalResponse;
         }
         catch( final ElasticClientException | JsonProcessingException | IdentityStoreException e )
         {
-            logger.error( "Failed to multi search", e );
+            throw new IdentityStoreException( e.getMessage( ), e );
         }
-        return null;
+        return emptyResponse( );
     }
 
     /**

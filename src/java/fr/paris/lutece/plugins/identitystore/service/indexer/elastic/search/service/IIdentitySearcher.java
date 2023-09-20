@@ -34,15 +34,46 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service;
 
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Result;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Shard;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Total;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface IIdentitySearcher
 {
     Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes,
-            final Integer nbMissingAttributes, int max, boolean connected );
+            final Integer nbMissingAttributes, int max, boolean connected ) throws IdentityStoreException;
 
-    Response search( final List<SearchAttribute> attributes, final int max, final boolean connected );
+    Response search( final List<SearchAttribute> attributes, final int max, final boolean connected ) throws IdentityStoreException;
+
+    default Response emptyResponse( )
+    {
+        final Response response = new Response( );
+        final Result result = new Result( );
+        result.setHits( new ArrayList<>( ) );
+        result.setMaxScore( BigDecimal.ZERO );
+        final Total total = new Total( );
+        total.setValue( 0 );
+        total.setRelation( "" );
+        result.setTotal( total );
+        response.setResult( result );
+        final Shard shards = new Shard( );
+        shards.setFailed( 0 );
+        shards.setTotal( 0 );
+        shards.setSkipped( 0 );
+        shards.setSuccessful( 0 );
+        response.setShards( shards );
+        response.setTook( "" );
+        response.setTimedOut( false );
+        response.setStatus( 0 );
+        response.setMetadata( new HashMap<>( ) );
+        return response;
+    }
 
 }

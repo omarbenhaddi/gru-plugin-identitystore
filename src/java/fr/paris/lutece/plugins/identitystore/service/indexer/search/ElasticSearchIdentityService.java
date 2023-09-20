@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
     @Override
     public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes,
             final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
+            final boolean connected ) throws IdentityStoreException
     {
         final List<SearchAttribute> searchAttributes = this.computeOutputKeys( attributes );
         final List<List<SearchAttribute>> specialAttributes = specialTreatmentAttributes == null ? null
@@ -82,7 +83,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected )
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected ) throws IdentityStoreException
     {
         final List<SearchAttribute> searchAttributes = this.computeOutputKeys( attributes );
 

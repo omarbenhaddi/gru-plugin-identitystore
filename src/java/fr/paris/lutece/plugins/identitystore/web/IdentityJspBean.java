@@ -147,7 +147,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private final ISearchIdentityService _searchIdentityServiceES = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
 
     @View( value = VIEW_MANAGE_IDENTITIES, defaultView = true )
-    public String getManageIdentitys( HttpServletRequest request ) throws RefAttributeCertificationDefinitionNotFoundException
+    public String getManageIdentitys( HttpServletRequest request )
     {
         _identity = null;
         _identities.clear( );
@@ -167,20 +167,11 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         final String phone = queryParameters.get( QUERY_PARAM_PHONE );
         final String datasource = Optional.ofNullable( queryParameters.get( QUERY_PARAM_DATASOURCE ) ).orElse( DATASOURCE_DB );
 
-        if ( StringUtils.isNotEmpty( cuid ) )
+        try
         {
-            final Identity identity = IdentityHome.findMasterIdentityByCustomerId( cuid );
-            if ( identity != null )
+            if ( StringUtils.isNotEmpty( cuid ) )
             {
-                final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
-                _identities.add( qualifiedIdentity );
-            }
-        }
-        else
-        {
-            if ( StringUtils.isNotEmpty( guid ) )
-            {
-                final Identity identity = IdentityHome.findMasterIdentityByConnectionId( guid );
+                final Identity identity = IdentityHome.findMasterIdentityByCustomerId( cuid );
                 if ( identity != null )
                 {
                     final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
@@ -189,55 +180,73 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             }
             else
             {
-                if ( StringUtils.isNotEmpty( email ) )
+                if ( StringUtils.isNotEmpty( guid ) )
                 {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_LOGIN, email, AttributeTreatmentType.STRICT ) );
-                }
-                if ( StringUtils.isNotEmpty( gender ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_GENDER, gender, AttributeTreatmentType.STRICT ) );
-                }
-                if ( StringUtils.isNotEmpty( family_name ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_FAMILY_NAME, family_name, AttributeTreatmentType.APPROXIMATED ) );
-                }
-                if ( StringUtils.isNotEmpty( preferred_username ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_PREFERRED_USERNAME, preferred_username, AttributeTreatmentType.APPROXIMATED ) );
-                }
-                if ( StringUtils.isNotEmpty( first_name ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_FIRST_NAME, first_name, AttributeTreatmentType.APPROXIMATED ) );
-                }
-                if ( StringUtils.isNotEmpty( birthdate ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_BIRTH_DATE, birthdate, AttributeTreatmentType.STRICT ) );
-                }
-                if ( StringUtils.isNotEmpty( birthplace ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_BIRTH_PLACE, birthplace, AttributeTreatmentType.STRICT ) );
-                }
-                if ( StringUtils.isNotEmpty( birthcountry ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_BIRTH_COUNTRY, birthcountry, AttributeTreatmentType.STRICT ) );
-                }
-                if ( StringUtils.isNotEmpty( phone ) )
-                {
-                    atttributes.add( new SearchAttribute( Constants.PARAM_MOBILE_PHONE, phone, AttributeTreatmentType.STRICT ) );
-                }
-                if ( CollectionUtils.isNotEmpty( atttributes ) )
-                {
-                    if ( datasource.equals( DATASOURCE_DB ) )
+                    final Identity identity = IdentityHome.findMasterIdentityByConnectionId( guid );
+                    if ( identity != null )
                     {
-                        _identities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                        final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
+                        _identities.add( qualifiedIdentity );
                     }
-                    else
-                        if ( datasource.equals( DATASOURCE_ES ) )
+                }
+                else
+                {
+                    if ( StringUtils.isNotEmpty( email ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_LOGIN, email, AttributeTreatmentType.STRICT ) );
+                    }
+                    if ( StringUtils.isNotEmpty( gender ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_GENDER, gender, AttributeTreatmentType.STRICT ) );
+                    }
+                    if ( StringUtils.isNotEmpty( family_name ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_FAMILY_NAME, family_name, AttributeTreatmentType.APPROXIMATED ) );
+                    }
+                    if ( StringUtils.isNotEmpty( preferred_username ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_PREFERRED_USERNAME, preferred_username, AttributeTreatmentType.APPROXIMATED ) );
+                    }
+                    if ( StringUtils.isNotEmpty( first_name ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_FIRST_NAME, first_name, AttributeTreatmentType.APPROXIMATED ) );
+                    }
+                    if ( StringUtils.isNotEmpty( birthdate ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_BIRTH_DATE, birthdate, AttributeTreatmentType.STRICT ) );
+                    }
+                    if ( StringUtils.isNotEmpty( birthplace ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_BIRTH_PLACE, birthplace, AttributeTreatmentType.STRICT ) );
+                    }
+                    if ( StringUtils.isNotEmpty( birthcountry ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_BIRTH_COUNTRY, birthcountry, AttributeTreatmentType.STRICT ) );
+                    }
+                    if ( StringUtils.isNotEmpty( phone ) )
+                    {
+                        atttributes.add( new SearchAttribute( Constants.PARAM_MOBILE_PHONE, phone, AttributeTreatmentType.STRICT ) );
+                    }
+                    if ( CollectionUtils.isNotEmpty( atttributes ) )
+                    {
+                        if ( datasource.equals( DATASOURCE_DB ) )
                         {
-                            _identities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                            _identities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
                         }
+                        else
+                            if ( datasource.equals( DATASOURCE_ES ) )
+                            {
+                                _identities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                            }
+                    }
                 }
             }
+        }
+        catch( Exception e )
+        {
+            addError( e.getMessage( ) );
+            request.getParameterMap( ).clear( );
+            redirectView( request, VIEW_MANAGE_IDENTITIES );
         }
 
         _identities.forEach( qualifiedIdentity -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
