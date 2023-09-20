@@ -27,15 +27,15 @@ CREATE TABLE identitystore_identity
     id_identity        int AUTO_INCREMENT,
     connection_id      varchar(100) NULL UNIQUE,
     customer_id        varchar(50)  NOT NULL UNIQUE,
-    date_create        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_update_date   timestamp             DEFAULT NULL,
+    date_create        timestamp(3)    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_update_date   timestamp(3)             DEFAULT NULL,
     is_deleted         smallint              default 0,
-    date_delete        timestamp    NULL,
+    date_delete        timestamp(3)    NULL,
     is_merged          smallint              default 0,
-    date_merge         timestamp    NULL,
+    date_merge         timestamp(3)    NULL,
     id_master_identity int          NULL,
     is_mon_paris_active smallint NOT NULL DEFAULT 0,
-    expiration_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '36 MONTH',
+    expiration_date timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '36 MONTH',
     PRIMARY KEY (id_identity)
 );
 
@@ -104,7 +104,7 @@ CREATE TABLE identitystore_identity_attribute
     attribute_value        varchar(100) NULL,
     id_certification       int          NOT NULL default '0',
     id_file                int                   default '0',
-    lastupdate_date        timestamp    NOT NULL default CURRENT_TIMESTAMP,
+    lastupdate_date        timestamp(3)    NOT NULL default CURRENT_TIMESTAMP,
     lastupdate_application VARCHAR(100) NULL,
     PRIMARY KEY (id_identity, id_attribute)
 );
@@ -122,9 +122,9 @@ CREATE TABLE identitystore_identity_attribute_certificate
 (
     id_attribute_certificate int AUTO_INCREMENT,
     certifier_code           varchar(255) NOT NULL default '',
-    certificate_date         timestamp    NOT NULL,
+    certificate_date         timestamp(3)    NOT NULL,
     certificate_level        int          NOT NULL default '0',
-    expiration_date          timestamp    NULL     default NULL,
+    expiration_date          timestamp(3)    NULL     default NULL,
     PRIMARY KEY (id_attribute_certificate)
 );
 
@@ -170,8 +170,8 @@ CREATE TABLE identitystore_identity_attribute_history
     attribute_key         varchar(50)  NOT NULL,
     attribute_value       varchar(255)          default null,
     certification_process varchar(255)          default null,
-    certification_date    timestamp             default null,
-    modification_date     timestamp    NOT NULL default CURRENT_TIMESTAMP,
+    certification_date    timestamp(3)             default null,
+    modification_date     timestamp(3)    NOT NULL default CURRENT_TIMESTAMP,
     metadata              json         DEFAULT NULL,
     PRIMARY KEY (id_history)
 );
@@ -270,7 +270,7 @@ CREATE TABLE identitystore_index_action
     id_index_action int AUTO_INCREMENT,
     customer_id     varchar(50) NOT NULL,
     action_type     varchar(50) NOT NULL,
-    date_index      timestamp   NOT NULL,
+    date_index      timestamp(3)   NOT NULL,
     PRIMARY KEY (id_index_action)
 );
 
@@ -316,7 +316,7 @@ CREATE TABLE  identitystore_identity_history
     author_name           varchar(255),
     client_code           varchar(255),
     customer_id           varchar(50) NOT NULL,
-    modification_date     timestamp    default CURRENT_TIMESTAMP,
+    modification_date     timestamp(3)    default CURRENT_TIMESTAMP,
     metadata              json default NULL,
     PRIMARY KEY (id_history)
     );
@@ -351,9 +351,9 @@ CREATE TABLE identitystore_quality_suspicious_identity (
     id_suspicious_identity int AUTO_INCREMENT,
     customer_id varchar(50) default '' NOT NULL,
     id_duplicate_rule INT NOT NULL DEFAULT 0,
-    date_create timestamp default CURRENT_TIMESTAMP not null,
-    last_update_date timestamp,
-    date_delete timestamp,
+    date_create timestamp(3) default CURRENT_TIMESTAMP not null,
+    last_update_date timestamp(3),
+    date_delete timestamp(3),
     is_deleted smallint default 0,
     PRIMARY KEY (id_suspicious_identity)
 );
@@ -364,7 +364,7 @@ CREATE TABLE identitystore_quality_suspicious_identity (
 DROP TABLE IF EXISTS identitystore_quality_suspicious_identity_lock;
 CREATE TABLE identitystore_quality_suspicious_identity_lock (
     customer_id varchar(50) default '' NOT NULL,
-    date_lock_end timestamp,
+    date_lock_end timestamp(3),
     is_locked smallint default 0,
     author_type varchar(255),
     author_name varchar(255)
@@ -379,7 +379,7 @@ CREATE TABLE identitystore_quality_suspicious_identity_excluded
 (
     first_customer_id  VARCHAR(50)  NOT NULL,
     second_customer_id VARCHAR(50)  NOT NULL,
-    date_create        TIMESTAMP    NOT NULL,
+    date_create        TIMESTAMP(3)    NOT NULL,
     author_type        VARCHAR(255) NOT NULL,
     author_name        VARCHAR(255) NOT NULL
 );
