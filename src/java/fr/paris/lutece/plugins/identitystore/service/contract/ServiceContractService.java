@@ -65,6 +65,7 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -126,14 +127,14 @@ public class ServiceContractService
             throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
+        final List<AttributeStatus> attrStatusList = new ArrayList<>( );
         final ServiceContract serviceContract = this.getActiveServiceContract( clientCode );
         for ( final AttributeDto attributeDto : identityChangeRequest.getIdentity( ).getAttributes( ) )
         {
             boolean canWriteAttribute = IdentityAttributeService.instance( ).getAttributeKey( attributeDto.getKey( ) ) != null;
             if ( !canWriteAttribute )
             {
-                response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.NOT_FOUND ) );
-                response.setStatus( ResponseStatusFactory.failure( ) );
+                attrStatusList.add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.NOT_FOUND ) );
                 continue;
             }
 
@@ -142,8 +143,7 @@ public class ServiceContractService
                             && attributeRight.isWritable( ) );
             if ( !canWriteAttribute )
             {
-                response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.UNAUTHORIZED ) );
-                response.setStatus( ResponseStatusFactory.failure( ) );
+                attrStatusList.add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.UNAUTHORIZED ) );
                 continue;
             }
 
@@ -155,16 +155,16 @@ public class ServiceContractService
                                         .anyMatch( processus -> StringUtils.equals( processus.getCode( ), attributeDto.getCertifier( ) ) ) );
                 if ( !canWriteAttribute )
                 {
-                    response.getAttributeStatuses( ).add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.INSUFFICIENT_RIGHTS ) );
-                    response.setStatus( ResponseStatusFactory.failure( ) );
+                    attrStatusList.add( this.buildAttributeStatus( attributeDto, AttributeChangeStatus.INSUFFICIENT_RIGHTS ) );
                 }
             }
         }
 
-        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+        if ( !attrStatusList.isEmpty( ) )
         {
-            response.getStatus( ).setMessage( "The request violates service contract definition" );
-            response.getStatus( ).setMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION );
+            response.setStatus(
+                    ResponseStatusFactory.failure( ).setAttributeStatuses( attrStatusList ).setMessage( "The request violates service contract definition" )
+                            .setMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION ) );
         }
 
         return response;

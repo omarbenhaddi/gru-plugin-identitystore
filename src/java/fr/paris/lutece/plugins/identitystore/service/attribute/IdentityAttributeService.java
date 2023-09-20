@@ -49,6 +49,7 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeN
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -172,6 +173,7 @@ public class IdentityAttributeService
             final AttributeStatus attributeStatus = new AttributeStatus( );
             attributeStatus.setKey( attributeToCreate.getKey( ) );
             attributeStatus.setStatus( AttributeChangeStatus.NOT_CREATED );
+            attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_NOT_CREATED );
             return attributeStatus;
         }
 
@@ -197,6 +199,7 @@ public class IdentityAttributeService
         final AttributeStatus attributeStatus = new AttributeStatus( );
         attributeStatus.setKey( attribute.getAttributeKey( ).getKeyName( ) );
         attributeStatus.setStatus( AttributeChangeStatus.CREATED );
+        attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_CREATED );
 
         return attributeStatus;
     }
@@ -226,6 +229,7 @@ public class IdentityAttributeService
             final AttributeStatus attributeStatus = new AttributeStatus( );
             attributeStatus.setKey( attributeToUpdate.getKey( ) );
             attributeStatus.setStatus( AttributeChangeStatus.NOT_UPDATED );
+            attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_NOT_UPDATED );
             return attributeStatus;
         }
         if ( attributeToUpdateLevelInt >= existingAttributeLevelInt )
@@ -243,6 +247,7 @@ public class IdentityAttributeService
                     final AttributeStatus attributeStatus = new AttributeStatus( );
                     attributeStatus.setKey( attributeToUpdate.getKey( ) );
                     attributeStatus.setStatus( AttributeChangeStatus.NOT_REMOVED );
+                    attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_NOT_REMOVED );
                     return attributeStatus;
                 }
                 IdentityAttributeHome.remove( identity.getId( ), existingAttribute.getAttributeKey( ).getId( ) );
@@ -251,6 +256,7 @@ public class IdentityAttributeService
                 final AttributeStatus attributeStatus = new AttributeStatus( );
                 attributeStatus.setKey( attributeToUpdate.getKey( ) );
                 attributeStatus.setStatus( AttributeChangeStatus.REMOVED );
+                attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_REMOVED );
                 return attributeStatus;
             }
 
@@ -274,12 +280,14 @@ public class IdentityAttributeService
             final AttributeStatus attributeStatus = new AttributeStatus( );
             attributeStatus.setKey( attributeToUpdate.getKey( ) );
             attributeStatus.setStatus( AttributeChangeStatus.UPDATED );
+            attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_UPDATED );
             return attributeStatus;
         }
 
         final AttributeStatus attributeStatus = new AttributeStatus( );
         attributeStatus.setKey( attributeToUpdate.getKey( ) );
         attributeStatus.setStatus( AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL );
+        attributeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_INSUFFICIENT_CERTIFICATION_LEVEL );
         return attributeStatus;
     }
 
@@ -321,6 +329,7 @@ public class IdentityAttributeService
         IdentityAttributeHome.update( attribute );
 
         status.setStatus( AttributeChangeStatus.UNCERTIFIED );
+        status.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_UNCERTIFIED );
         return status;
     }
 }

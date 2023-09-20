@@ -77,7 +77,7 @@ public class IdentityStoreCancelMergeRequest extends AbstractIdentityStoreReques
 
         if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
         {
-            IdentityAttributeValidationService.instance( ).validateMergeRequestAttributeValues( _identityMergeRequest, response );
+            IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityMergeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
                 IdentityService.instance( ).cancelMerge( _identityMergeRequest, _strClientCode, response );

@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
@@ -46,11 +47,13 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
 {
 
     private final String _strCustomerId;
+    private final RequestAuthor _origin;
 
-    public IdentityStoreUncertifyRequest( final String strClientCode, final String strCustomerId )
+    public IdentityStoreUncertifyRequest( final String strClientCode, final String strCustomerId, final String strAuthorType, final String strAuthorName )
     {
         super( strClientCode );
         this._strCustomerId = strCustomerId;
+        this._origin = new RequestAuthor( strAuthorName, strAuthorType );
     }
 
     @Override
@@ -70,6 +73,6 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_UNAUTHORIZED_OPERATION ) );
             return response;
         }
-        return IdentityService.instance( ).uncertifyIdentity( _strCustomerId );
+        return IdentityService.instance( ).uncertifyIdentity( _strCustomerId, _strClientCode, _origin );
     }
 }

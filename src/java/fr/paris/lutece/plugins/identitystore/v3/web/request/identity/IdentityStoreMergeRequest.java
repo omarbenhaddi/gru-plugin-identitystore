@@ -86,7 +86,7 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
             final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
                     .formatIdentityMergeRequestAttributeValues( _identityMergeRequest );
 
-            IdentityAttributeValidationService.instance( ).validateMergeRequestAttributeValues( _identityMergeRequest, response );
+            IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityMergeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
                 IdentityService.instance( ).merge( _identityMergeRequest, _strClientCode, response );
@@ -94,7 +94,7 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
                         || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
                 {
                     // if request is accepted and treatment successfull, add the formatting statuses
-                    response.getAttributeStatuses( ).addAll( formatStatuses );
+                    response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
                 }
             }
         }

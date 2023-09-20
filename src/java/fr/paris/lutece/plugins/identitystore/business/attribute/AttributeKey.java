@@ -64,6 +64,7 @@ public class AttributeKey implements Serializable
 
     private String _strValidationRegex;
     private String _strValidationErrorMessage;
+    private String _strValidationErrorMessageKey;
 
     /**
      * Returns the Id
@@ -303,5 +304,25 @@ public class AttributeKey implements Serializable
     public void setValidationErrorMessage( String _strValidationErrorMessage )
     {
         this._strValidationErrorMessage = _strValidationErrorMessage;
+    }
+
+    /**
+     * Gets the validation error message key to display if the attribute value doesn't match the validation regex.
+     *
+     * @return the validation error message key
+     */
+    public String getValidationErrorMessageKey( )
+    {
+        return _strValidationErrorMessageKey;
+    }
+
+    /**
+     * Sets the validation error message key to display if the attribute value doesn't match the validation regex.
+     *
+     * @return the validation error message key
+     */
+    public void setValidationErrorMessageKey( final String _strValidationErrorMessageKey )
+    {
+        this._strValidationErrorMessageKey = _strValidationErrorMessageKey;
     }
 }

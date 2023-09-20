@@ -70,7 +70,6 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
@@ -233,26 +232,26 @@ public class IdentityService
             IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
 
             final List<AttributeDto> attributesToCreate = request.getIdentity( ).getAttributes( );
-            GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode, response );
-            GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode, response );
+            final List<AttributeStatus> attrStatusList = new ArrayList<>( );
+            attrStatusList.addAll( GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode ) );
+            attrStatusList.addAll( GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode ) );
 
             for ( final AttributeDto attributeDto : attributesToCreate )
             {
                 // TODO vérifier que la clef d'attribut existe dans le référentiel
                 final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( attributeDto, identity, clientCode );
-                response.getAttributeStatuses( ).add( attributeStatus );
+                attrStatusList.add( attributeStatus );
             }
 
             response.setCustomerId( identity.getCustomerId( ) );
             response.setCreationDate( identity.getCreationDate( ) );
-            final boolean incompleteCreation = response.getAttributeStatuses( ).stream( )
-                    .anyMatch( s -> s.getStatus( ).equals( AttributeChangeStatus.NOT_CREATED ) );
+            final boolean incompleteCreation = attrStatusList.stream( ).anyMatch( s -> s.getStatus( ).equals( AttributeChangeStatus.NOT_CREATED ) );
             final ResponseStatus status = incompleteCreation ? ResponseStatusFactory.incompleteSuccess( ) : ResponseStatusFactory.success( );
-            response.setStatus( status.setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Historique des modifications */
-            final List<AttributeStatus> createdAttributes = response.getAttributeStatuses( ).stream( )
-                    .filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) ).collect( Collectors.toList( ) );
+            final List<AttributeStatus> createdAttributes = attrStatusList.stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) )
+                    .collect( Collectors.toList( ) );
             for ( AttributeStatus attributeStatus : createdAttributes )
             {
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus, request.getOrigin( ),
@@ -404,7 +403,7 @@ public class IdentityService
 
             // => process update :
 
-            this.updateIdentity( request.getIdentity( ), clientCode, response, identity );
+            final List<AttributeStatus> attrStatusList = this.updateIdentity( request.getIdentity( ), clientCode, response, identity );
             if ( ResponseStatusFactory.unauthorized( ).equals( response.getStatus( ) ) )
             {
                 response.setCustomerId( identity.getCustomerId( ) );
@@ -416,7 +415,7 @@ public class IdentityService
             response.setConnectionId( identity.getConnectionId( ) );
             response.setCreationDate( identity.getCreationDate( ) );
             response.setLastUpdateDate( identity.getLastUpdateDate( ) );
-            boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
+            boolean notAllAttributesCreatedOrUpdated = attrStatusList.stream( )
                     .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
@@ -427,10 +426,10 @@ public class IdentityService
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
             final ResponseStatus status = notAllAttributesCreatedOrUpdated ? ResponseStatusFactory.incompleteSuccess( ) : ResponseStatusFactory.success( );
-            response.setStatus( status.setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Historique des modifications */
-            for ( final AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
+            for ( final AttributeStatus attributeStatus : attrStatusList )
             {
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus, request.getOrigin( ),
                         clientCode );
@@ -548,9 +547,10 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
+            final List<AttributeStatus> attrStatusList = new ArrayList<>( );
             if ( request.getIdentity( ) != null )
             {
-                this.updateIdentity( request.getIdentity( ), clientCode, response, primaryIdentity );
+                attrStatusList.addAll( this.updateIdentity( request.getIdentity( ), clientCode, response, primaryIdentity ) );
                 if ( ResponseStatusFactory.unauthorized( ).equals( response.getStatus( ) ) )
                 {
                     response.setCustomerId( primaryIdentity.getCustomerId( ) );
@@ -568,7 +568,7 @@ public class IdentityService
             response.setCustomerId( primaryIdentity.getCustomerId( ) );
             response.setConnectionId( primaryIdentity.getConnectionId( ) );
             response.setLastUpdateDate( primaryIdentity.getLastUpdateDate( ) );
-            boolean notAllAttributesCreatedOrUpdated = response.getAttributeStatuses( ).stream( )
+            boolean notAllAttributesCreatedOrUpdated = attrStatusList.stream( )
                     .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
@@ -579,10 +579,10 @@ public class IdentityService
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
                             || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
             final ResponseStatus status = notAllAttributesCreatedOrUpdated ? ResponseStatusFactory.incompleteSuccess( ) : ResponseStatusFactory.success( );
-            response.setStatus( status.setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
             /* Historique des modifications */
-            for ( AttributeStatus attributeStatus : response.getAttributeStatuses( ) )
+            for ( AttributeStatus attributeStatus : attrStatusList )
             {
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.MERGE, primaryIdentity, attributeStatus,
                         request.getOrigin( ), clientCode );
@@ -1006,9 +1006,11 @@ public class IdentityService
         return filteredIdentities;
     }
 
-    private void updateIdentity( final IdentityDto requestIdentity, final String clientCode, final ChangeResponse response, final Identity identity )
-            throws IdentityStoreException
+    private List<AttributeStatus> updateIdentity( final IdentityDto requestIdentity, final String clientCode, final ChangeResponse response,
+            final Identity identity ) throws IdentityStoreException
     {
+        final List<AttributeStatus> attrStatusList = new ArrayList<>( );
+
         /* Récupération des attributs déja existants ou non */
         final Map<Boolean, List<AttributeDto>> sortedAttributes = requestIdentity.getAttributes( ).stream( )
                 .collect( Collectors.partitioningBy( a -> identity.getAttributes( ).containsKey( a.getKey( ) ) ) );
@@ -1023,25 +1025,25 @@ public class IdentityService
             connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes, response );
             if ( ResponseStatusFactory.unauthorized( ).equals( response.getStatus( ) ) )
             {
-                return;
+                return attrStatusList;
             }
         }
 
-        GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
-        GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode, response );
+        attrStatusList.addAll( GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode ) );
+        attrStatusList.addAll( GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode ) );
 
         /* Create new attributes */
         for ( final AttributeDto attributeToWrite : newWritableAttributes )
         {
             final AttributeStatus attributeStatus = _identityAttributeService.createAttribute( attributeToWrite, identity, clientCode );
-            response.getAttributeStatuses( ).add( attributeStatus );
+            attrStatusList.add( attributeStatus );
         }
 
         /* Update existing attributes */
         for ( final AttributeDto attributeToUpdate : existingWritableAttributes )
         {
             final AttributeStatus attributeStatus = _identityAttributeService.updateAttribute( attributeToUpdate, identity, clientCode );
-            response.getAttributeStatuses( ).add( attributeStatus );
+            attrStatusList.add( attributeStatus );
         }
 
         if ( requestIdentity.getMonParisActive( ) != null )
@@ -1049,6 +1051,8 @@ public class IdentityService
             identity.setMonParisActive( requestIdentity.isMonParisActive( ) );
         }
         IdentityHome.update( identity );
+
+        return attrStatusList;
     }
 
     /**
@@ -1309,7 +1313,8 @@ public class IdentityService
      * @return the response
      * @see IdentityAttributeService#uncertifyAttribute
      */
-    public IdentityChangeResponse uncertifyIdentity( final String strCustomerId ) throws IdentityStoreException
+    public IdentityChangeResponse uncertifyIdentity( final String strCustomerId, final String strClientCode, final RequestAuthor origin )
+            throws IdentityStoreException
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
 
@@ -1324,13 +1329,30 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
+            final List<AttributeStatus> attrStatusList = new ArrayList<>( );
             for ( final IdentityAttribute attribute : identity.getAttributes( ).values( ) )
             {
                 final AttributeStatus status = _identityAttributeService.uncertifyAttribute( attribute );
-                response.getAttributeStatuses( ).add( status );
+                attrStatusList.add( status );
             }
+
+            response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( attrStatusList )
+                    .setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+
+            /* Historique des modifications */
+            for ( AttributeStatus attributeStatus : attrStatusList )
+            {
+                _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.UPDATE, identity, attributeStatus, origin,
+                        strClientCode );
+            }
+
+            /* Indexation et historique */
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getStatus( ).name( ),
+                    response.getStatus( ).getMessage( ), origin, strClientCode, new HashMap<>( ) );
+
             TransactionManager.commitTransaction( null );
-            response.setStatus( ResponseStatusFactory.success( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( origin, strClientCode ), strCustomerId, SPECIFIC_ORIGIN );
         }
         catch( final Exception e )
         {

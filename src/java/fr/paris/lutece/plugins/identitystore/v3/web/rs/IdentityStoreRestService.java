@@ -394,11 +394,14 @@ public final class IdentityStoreRestService
     } )
     public Response uncertifyIdentity(
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String strHeaderAuthorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String strHeaderAuthorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreUncertifyRequest identityStoreUncertifyRequest = new IdentityStoreUncertifyRequest( trustedClientCode, strCustomerId );
+        final IdentityStoreUncertifyRequest identityStoreUncertifyRequest = new IdentityStoreUncertifyRequest( trustedClientCode, strCustomerId,
+                strHeaderAuthorType, strHeaderAuthorName );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreUncertifyRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }

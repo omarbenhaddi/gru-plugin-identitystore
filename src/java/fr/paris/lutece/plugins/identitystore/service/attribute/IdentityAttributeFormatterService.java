@@ -34,11 +34,12 @@
 package fr.paris.lutece.plugins.identitystore.service.attribute;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -222,6 +223,7 @@ public class IdentityAttributeFormatterService
         status.setKey( attrStrKey );
         status.setStatus( AttributeChangeStatus.FORMATTED_VALUE );
         status.setMessage( "[" + oldValue + "] -> [" + newValue + "]" );
+        status.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_FORMATTED_VALUE );
         return status;
     }
 

@@ -277,3 +277,17 @@ alter table identitystore_quality_suspicious_identity alter column date_delete t
 alter table identitystore_quality_suspicious_identity alter column date_create type timestamp(3);
 alter table identitystore_quality_suspicious_identity_excluded alter column date_create type timestamp(3);
 alter table identitystore_quality_suspicious_identity_lock alter column date_lock_end type timestamp(3);
+
+--
+-- #313 Add error message key for attribute validation
+--
+ALTER TABLE identitystore_ref_attribute
+    ADD COLUMN validation_error_message_key varchar(128) NOT NULL DEFAULT 'identitystore.attribute.status.validation.error.only.alphanum.apostrophe.space.dash';
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.only.alpha.apostrophe.space.dash' WHERE key_name IN ('family_name', 'preferred_username', 'first_name');
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.date.format' WHERE key_name = 'birthdate';
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.mobile.phone.format' WHERE key_name = 'mobile_phone';
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.fixed.phone.format' WHERE key_name = 'fixed_phone';
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.email.format' WHERE key_name = 'email';
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.geocodes.format' WHERE key_name IN ('birthplace_code', 'birthcountry_code');
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.only.uppercase.space' WHERE key_name IN ('birthplace', 'birthcountry');
+UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.gender.format' WHERE key_name = 'gender';
