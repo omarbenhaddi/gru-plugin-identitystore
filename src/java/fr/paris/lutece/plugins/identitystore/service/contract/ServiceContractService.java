@@ -396,6 +396,7 @@ public class ServiceContractService
             {
                 ServiceContractHome.addAttributeCertifications( serviceContract.getAttributeCertifications( ), serviceContract );
             }
+            serviceContract.setClientCode( clientApplication.getClientCode( ) );
 
             if ( serviceContract.isActive( ) )
             {
@@ -438,6 +439,7 @@ public class ServiceContractService
             ServiceContractHome.addAttributeRequirements( serviceContract.getAttributeRequirements( ), serviceContract );
             ServiceContractHome.removeAttributeCertifications( serviceContract );
             ServiceContractHome.addAttributeCertifications( serviceContract.getAttributeCertifications( ), serviceContract );
+            serviceContract.setClientCode( clientApplication.getClientCode( ) );
 
             if ( serviceContract.isActive( ) )
             {

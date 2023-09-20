@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
@@ -48,8 +48,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class IdentityStoreGetRequest extends AbstractIdentityStoreRequest
 {
-
-    private final RequestAuthor _origin;
     private final String _strCustomerId;
 
     /**
@@ -62,19 +60,16 @@ public class IdentityStoreGetRequest extends AbstractIdentityStoreRequest
      * @param strAuthorType
      * @param strAuthorName
      */
-    public IdentityStoreGetRequest( String strCustomerId, String strClientCode, String strAuthorType, String strAuthorName )
+    public IdentityStoreGetRequest( String strCustomerId, String strClientCode, String strAuthorType, String strAuthorName ) throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, strAuthorName, strAuthorType );
         this._strCustomerId = strCustomerId;
-        this._origin = new RequestAuthor( strAuthorName, strAuthorType );
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkCustomerId( _strCustomerId );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
-        IdentityRequestValidator.instance( ).checkOrigin( _origin );
     }
 
     /**
@@ -88,7 +83,7 @@ public class IdentityStoreGetRequest extends AbstractIdentityStoreRequest
     {
         final IdentitySearchResponse response = new IdentitySearchResponse( );
 
-        IdentityService.instance( ).search( _strCustomerId, StringUtils.EMPTY, response, _strClientCode, _origin );
+        IdentityService.instance( ).search( _strCustomerId, StringUtils.EMPTY, response, _strClientCode, _author );
 
         return response;
     }

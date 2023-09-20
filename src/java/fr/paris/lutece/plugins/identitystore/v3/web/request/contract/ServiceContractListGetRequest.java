@@ -39,15 +39,15 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractsSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -57,6 +57,7 @@ import java.util.List;
  */
 public class ServiceContractListGetRequest extends AbstractIdentityStoreRequest
 {
+    private final String _strTargetClientCode;
 
     /**
      * Constructor of ServiceContractListGetRequest
@@ -64,14 +65,16 @@ public class ServiceContractListGetRequest extends AbstractIdentityStoreRequest
      * @param strClientCode
      *            the client application Code
      */
-    public ServiceContractListGetRequest( String strClientCode )
+    public ServiceContractListGetRequest( String strTargetClientCode, String strClientCode, String authorName, String authorType ) throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, authorName, authorType );
+        this._strTargetClientCode = strTargetClientCode;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
+        IdentityRequestValidator.instance( ).checkTargetClientCode( this._strTargetClientCode );
     }
 
     /**
@@ -85,9 +88,7 @@ public class ServiceContractListGetRequest extends AbstractIdentityStoreRequest
     {
         final ServiceContractsSearchResponse response = new ServiceContractsSearchResponse( );
 
-        final List<ServiceContract> serviceContracts = StringUtils.isNotEmpty( _strClientCode )
-                ? ClientApplicationHome.selectServiceContracts( ClientApplicationHome.findByCode( _strClientCode ) )
-                : ServiceContractHome.getAllServiceContractsList( );
+        final List<ServiceContract> serviceContracts = ClientApplicationHome.selectServiceContracts( ClientApplicationHome.findByCode( _strTargetClientCode ) );
         if ( CollectionUtils.isEmpty( serviceContracts ) )
         {
             response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND ) );

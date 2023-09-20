@@ -35,7 +35,6 @@ package fr.paris.lutece.plugins.identitystore.service.user;
 
 import fr.paris.lutece.plugins.identitystore.business.user.InternalUser;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.SignedRequest;
 
 public class InternalUserService
 {
@@ -49,11 +48,6 @@ public class InternalUserService
             instance = new InternalUserService( );
         }
         return instance;
-    }
-
-    public InternalUser getApiUser( SignedRequest request, String clientCode )
-    {
-        return new InternalUser( request.getOrigin( ).getName( ), request.getOrigin( ).getType( ).name( ), null, clientCode, API_USER );
     }
 
     public InternalUser getApiUser( RequestAuthor origin, String clientCode )

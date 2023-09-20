@@ -79,7 +79,8 @@ public final class SwaggerConstants
 
     public static final String PARAM_AUTHOR_TYPE_DESCRIPTION = "Type of the author that signs the request";
     public static final String PARAM_AUTHOR_NAME_DESCRIPTION = "Name of the author that signs the request";
-    public static final String CLIENT_CLIENT_CODE_DESCRIPTION = "Client application code of the requester that is used to validate every request over its service contract";
+    public static final String PARAM_CLIENT_CODE_DESCRIPTION = "Client code of the requester that is used to validate every request over its service contract";
+    public static final String PARAM_TARGET_CLIENT_CODE_DESCRIPTION = "Target client code to which the request is related";
     public static final String CLIENT_APPLICATION_CODE_DESCRIPTION = "Client application code of the requester that is used to validate every request over its service contract";
 
     /**

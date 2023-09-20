@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel;
 
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevelHome;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -59,15 +59,14 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
      * @param strClientCode
      *            the client application Code
      */
-    public LevelListGetRequest( String strClientCode )
+    public LevelListGetRequest( String strClientCode, String authorName, String authorType ) throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, authorName, authorType );
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        // TODO ?
     }
 
     /**

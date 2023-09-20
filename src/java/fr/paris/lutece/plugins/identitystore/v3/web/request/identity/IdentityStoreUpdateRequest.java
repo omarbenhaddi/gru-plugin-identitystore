@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeValidationService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
@@ -62,19 +62,19 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
      * @param identityChangeRequest
      *            the dto of identity's change
      */
-    public IdentityStoreUpdateRequest( String _strCustomerId, IdentityChangeRequest identityChangeRequest, String strClientAppCode )
+    public IdentityStoreUpdateRequest( String _strCustomerId, IdentityChangeRequest identityChangeRequest, String strClientAppCode, String authorName,
+            String authorType ) throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientAppCode, authorName, authorType );
         this._identityChangeRequest = identityChangeRequest;
         this._strCustomerId = _strCustomerId;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkIdentityChange( _identityChangeRequest, true );
         IdentityRequestValidator.instance( ).checkIdentityForUpdate( _identityChangeRequest.getIdentity( ).getConnectionId( ), _strCustomerId );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     /**
@@ -96,7 +96,7 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
             IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
-                IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _strClientCode, response );
+                IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
                 if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
                         || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
                 {

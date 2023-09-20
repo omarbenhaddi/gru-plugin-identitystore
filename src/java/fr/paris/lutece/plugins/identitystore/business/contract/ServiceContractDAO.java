@@ -50,15 +50,14 @@ import java.util.stream.Collectors;
  */
 public final class ServiceContractDAO implements IServiceContractDAO
 {
-    private static final String COLUMNS = "name, moa_entity_name, moe_responsible_name, moa_contact_name, moe_entity_name, data_retention_period_in_months, service_type, starting_date, ending_date, authorized_creation, authorized_update, authorized_search, authorized_merge, authorized_account_update, authorized_deletion, authorized_import, authorized_export, authorized_decertification, authorized_agent_history_read ";
-    private static final String JOINED_COLUMNS = "a.id_service_contract, a.name, a.moa_entity_name, a.moe_responsible_name, a.moa_contact_name, a.moe_entity_name, a.data_retention_period_in_months, a.service_type, a.starting_date, a.ending_date, a.authorized_creation, a.authorized_update, a.authorized_search, a.authorized_merge, a.authorized_account_update, a.authorized_deletion, a.authorized_import, a.authorized_export, a.authorized_decertification, a.authorized_agent_history_read ";
-    private static final String SQL_QUERY_SELECT = "SELECT id_service_contract, " + COLUMNS
-            + " FROM identitystore_service_contract WHERE id_service_contract = ?";
-    private static final String SQL_QUERY_SELECT_ALL = "SELECT id_service_contract, " + COLUMNS + " FROM identitystore_service_contract";
-    private static final String SQL_QUERY_SELECT_WITH_CLIENT_APP_ID = "SELECT id_service_contract, " + COLUMNS
-            + " FROM identitystore_service_contract WHERE id_client_app = ?";
-    private static final String SQL_QUERY_SELECT_ACTIVE_WITH_CLIENT_APP_CODE = "SELECT " + JOINED_COLUMNS
-            + " FROM identitystore_service_contract a JOIN identitystore_client_application b on a.id_client_app = b.id_client_app WHERE b.client_code = ? AND CASE WHEN a.ending_date IS NULL THEN NOW() >= a.starting_date ELSE NOW() BETWEEN a.starting_date AND a.ending_date END";
+    private static final String COLUMNS = " name, moa_entity_name, moe_responsible_name, moa_contact_name, moe_entity_name, data_retention_period_in_months, service_type, starting_date, ending_date, authorized_creation, authorized_update, authorized_search, authorized_merge, authorized_account_update, authorized_deletion, authorized_import, authorized_export, authorized_decertification, authorized_agent_history_read ";
+    private static final String JOINED_COLUMNS = " a.id_service_contract, b.client_code, a.name, a.moa_entity_name, a.moe_responsible_name, a.moa_contact_name, a.moe_entity_name, a.data_retention_period_in_months, a.service_type, a.starting_date, a.ending_date, a.authorized_creation, a.authorized_update, a.authorized_search, a.authorized_merge, a.authorized_account_update, a.authorized_deletion, a.authorized_import, a.authorized_export, a.authorized_decertification, a.authorized_agent_history_read ";
+    private static final String JOIN = " FROM identitystore_service_contract a JOIN identitystore_client_application b on a.id_client_app = b.id_client_app";
+    private static final String SQL_QUERY_SELECT = "SELECT" + JOINED_COLUMNS + JOIN + "  WHERE a.id_service_contract = ?";
+    private static final String SQL_QUERY_SELECT_ALL = "SELECT" + JOINED_COLUMNS + JOIN;
+    private static final String SQL_QUERY_SELECT_WITH_CLIENT_APP_ID = "SELECT" + JOINED_COLUMNS + JOIN + " WHERE a.id_client_app = ?";
+    private static final String SQL_QUERY_SELECT_ACTIVE_WITH_CLIENT_APP_CODE = "SELECT" + JOINED_COLUMNS + JOIN
+            + " WHERE b.client_code = ? AND CASE WHEN a.ending_date IS NULL THEN NOW() >= a.starting_date ELSE NOW() BETWEEN a.starting_date AND a.ending_date END";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_service_contract (id_client_app, " + COLUMNS
             + " ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_service_contract WHERE id_service_contract = ?";
@@ -66,11 +65,10 @@ public final class ServiceContractDAO implements IServiceContractDAO
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_service_contract SET name = ?, id_client_app = ?, moa_entity_name = ?, moe_responsible_name = ?, moa_contact_name = ?, moe_entity_name = ?, data_retention_period_in_months = ?, service_type = ?, starting_date = ?, ending_date = ?, authorized_creation = ?, authorized_update = ?, authorized_search = ?, authorized_merge = ?, authorized_account_update = ?, authorized_deletion = ?, authorized_import = ?, authorized_export = ?, authorized_decertification = ?, authorized_agent_history_read = ? WHERE id_service_contract = ?";
     private static final String SQL_QUERY_UPDATE_DATE = "UPDATE identitystore_service_contract SET ending_date = ? WHERE id_service_contract = ?";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_service_contract FROM identitystore_service_contract";
-    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT b.client_code, " + JOINED_COLUMNS
-            + " FROM identitystore_service_contract a JOIN identitystore_client_application b on a.id_client_app = b.id_client_app WHERE id_service_contract IN (  ";
-    private static final String SQL_QUERY_SELECT_BETWEEN_ACTIVE_DATES = "SELECT id_service_contract, " + COLUMNS
-            + " FROM identitystore_service_contract WHERE starting_date BETWEEN ? AND ? OR ending_date BETWEEN ? AND ?";
-    private static final String QUERY_SELECT_ALL_FILTERED_IDS = "SELECT id_service_contract FROM identitystore_service_contract a JOIN identitystore_client_application b on a.id_client_app = b.id_client_app ";
+    private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT" + JOINED_COLUMNS + JOIN + " WHERE a.id_service_contract IN (  ";
+    private static final String SQL_QUERY_SELECT_BETWEEN_ACTIVE_DATES = "SELECT" + JOINED_COLUMNS + JOIN
+            + " WHERE a.starting_date BETWEEN ? AND ? OR a.ending_date BETWEEN ? AND ?";
+    private static final String QUERY_SELECT_ALL_FILTERED_IDS = "SELECT a.id_service_contract" + JOIN;
 
     public static final String QUERY_PARAM_ACTIVE = "active";
     public static final String QUERY_PARAM_CONTRACT_NAME = "contract_name";
@@ -386,9 +384,8 @@ public final class ServiceContractDAO implements IServiceContractDAO
                 daoUtil.executeQuery( );
                 while ( daoUtil.next( ) )
                 {
-                    int nIndex = 1;
-                    final String clientCode = daoUtil.getString( nIndex++ );
-                    serviceContractList.add( new ImmutablePair<>( this.extractServiceContract( daoUtil, nIndex ), clientCode ) );
+                    final ServiceContract serviceContract = this.extractServiceContract( daoUtil, 1 );
+                    serviceContractList.add( new ImmutablePair<>( serviceContract, serviceContract.getClientCode( ) ) );
                 }
             }
         }
@@ -437,6 +434,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
         final ServiceContract serviceContract = new ServiceContract( );
         int nIndex = offset;
         serviceContract.setId( daoUtil.getInt( nIndex++ ) );
+        serviceContract.setClientCode( daoUtil.getString( nIndex++ ) );
         serviceContract.setName( daoUtil.getString( nIndex++ ) );
         serviceContract.setMoaEntityName( daoUtil.getString( nIndex++ ) );
         serviceContract.setMoeResponsibleName( daoUtil.getString( nIndex++ ) );

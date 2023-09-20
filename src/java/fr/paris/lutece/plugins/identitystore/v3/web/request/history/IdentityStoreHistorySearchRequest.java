@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.request.history;
 
 import fr.paris.lutece.plugins.identitystore.service.history.IdentityHistoryService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityHistorySearchResponse;
@@ -45,16 +45,16 @@ public class IdentityStoreHistorySearchRequest extends AbstractIdentityStoreRequ
 
     private final IdentityHistorySearchRequest _request;
 
-    public IdentityStoreHistorySearchRequest( String strClientCode, IdentityHistorySearchRequest request )
+    public IdentityStoreHistorySearchRequest( String strClientCode, IdentityHistorySearchRequest request, String authorName, String authorType )
+            throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, authorName, authorType );
         _request = request;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
         IdentityRequestValidator.instance( ).checkIdentityHistory( _request );
     }
 

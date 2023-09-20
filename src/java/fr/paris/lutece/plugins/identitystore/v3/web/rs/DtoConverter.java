@@ -51,12 +51,19 @@ import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.*;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ExpirationDefinition;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.MergeDefinition;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeDefinitionDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRequirementDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRightDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.CertificationProcessusDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationLevelDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationProcessusDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -160,6 +167,7 @@ public final class DtoConverter
     {
         final ServiceContractDto serviceContractDto = new ServiceContractDto( );
         serviceContractDto.setId( serviceContract.getId( ) );
+        serviceContractDto.setClientCode( serviceContract.getClientCode( ) );
         serviceContractDto.setName( serviceContract.getName( ) );
         serviceContractDto.setServiceType( serviceContract.getServiceType( ) );
         serviceContractDto.setMoaContactName( serviceContract.getMoaContactName( ) );

@@ -88,11 +88,13 @@ public class HistoryRestService
     } )
     public Response getHistory(
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the requested identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
-        final IdentityStoreHistoryGetRequest request = new IdentityStoreHistoryGetRequest( strClientAppCode, strCustomerId );
+        final IdentityStoreHistoryGetRequest request = new IdentityStoreHistoryGetRequest( strClientAppCode, strCustomerId, authorName, authorType );
         final IdentityHistoryGetResponse response = (IdentityHistoryGetResponse) request.doRequest( );
         return Response.status( response.getStatus( ).getHttpCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -116,11 +118,13 @@ public class HistoryRestService
             @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response searchHistory( @ApiParam( name = "Request body", value = "An Identity History search Request" ) IdentityHistorySearchRequest request,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
-        final IdentityStoreHistorySearchRequest searchRequest = new IdentityStoreHistorySearchRequest( strClientAppCode, request );
+        final IdentityStoreHistorySearchRequest searchRequest = new IdentityStoreHistorySearchRequest( strClientAppCode, request, authorName, authorType );
         final IdentityHistorySearchResponse response = (IdentityHistorySearchResponse) searchRequest.doRequest( );
         return Response.status( response.getStatus( ).getHttpCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }

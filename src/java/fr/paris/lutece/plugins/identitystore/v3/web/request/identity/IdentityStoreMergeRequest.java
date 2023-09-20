@@ -37,7 +37,7 @@ import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeValidationService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
@@ -52,7 +52,6 @@ import java.util.List;
  */
 public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
 
     private final IdentityMergeRequest _identityMergeRequest;
 
@@ -62,18 +61,18 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
      * @param identityMergeRequest
      *            the dto of identity's merge
      */
-    public IdentityStoreMergeRequest( IdentityMergeRequest identityMergeRequest, String strClientAppCode )
+    public IdentityStoreMergeRequest( IdentityMergeRequest identityMergeRequest, String strClientAppCode, String authorName, String authorType )
+            throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientAppCode, authorName, authorType );
         this._identityMergeRequest = identityMergeRequest;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         // Vérification de la consistence des paramètres
         IdentityRequestValidator.instance( ).checkMergeRequest( _identityMergeRequest );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     @Override
@@ -89,7 +88,7 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreRequest
             IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityMergeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
-                IdentityService.instance( ).merge( _identityMergeRequest, _strClientCode, response );
+                IdentityService.instance( ).merge( _identityMergeRequest, _author, _strClientCode, response );
                 if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
                         || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
                 {

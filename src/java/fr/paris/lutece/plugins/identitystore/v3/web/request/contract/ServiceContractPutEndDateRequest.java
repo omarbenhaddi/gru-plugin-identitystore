@@ -38,7 +38,7 @@ import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicat
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeResponse;
@@ -67,18 +67,18 @@ public class ServiceContractPutEndDateRequest extends AbstractIdentityStoreReque
      * @param serviceContractId
      *            the id of the service contract
      */
-    public ServiceContractPutEndDateRequest( ServiceContractDto serviceContractDto, String strClientAppCode, Integer serviceContractId )
+    public ServiceContractPutEndDateRequest( ServiceContractDto serviceContractDto, String strClientAppCode, Integer serviceContractId, String authorName,
+            String authorType ) throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientAppCode, authorName, authorType );
         this._serviceContractDto = serviceContractDto;
         this._serviceContractId = serviceContractId;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkClosingServiceContract( _serviceContractDto );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
         IdentityRequestValidator.instance( ).checkContractId( _serviceContractId );
     }
 
@@ -86,10 +86,10 @@ public class ServiceContractPutEndDateRequest extends AbstractIdentityStoreReque
     public ServiceContractChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final ServiceContractChangeResponse response = new ServiceContractChangeResponse( );
-        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strClientCode );
+        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _serviceContractDto.getClientCode( ) );
         if ( clientApplication == null )
         {
-            response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No application could be found with code " + _strClientCode )
+            response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No application could be found with code " + _serviceContractDto.getClientCode( ) )
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND ) );
         }
         else

@@ -31,58 +31,74 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
-import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
+import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRuleSummaryDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.DuplicateRuleSummarySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import org.apache.commons.collections.CollectionUtils;
+import fr.paris.lutece.portal.service.util.AppException;
 
-import java.util.Collections;
 import java.util.List;
 
-public class DuplicateRuleGetRequest extends AbstractIdentityStoreRequest
+/**
+ * This class represents a get request for IdentityStoreRestServive
+ *
+ */
+public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentityStoreRequest
 {
-    private Integer _nPriority;
+    private final String _strDays;
 
     /**
-     * Constructor.
-     * 
+     * Constructor of IdentityStoreGetRequest
+     *
+     * @param strDays
+     *            the number of days
      * @param strClientCode
-     *            the client application Code
+     *            the client application code
+     * @param strAuthorType
+     * @param strAuthorName
      */
-    public DuplicateRuleGetRequest( final String strClientCode, final Integer _nPriority )
+    public IdentityStoreGetUpdatedIdentitiesRequest( String strDays, String strClientCode, String strAuthorName, String strAuthorType )
+            throws IdentityStoreException
     {
-        super( strClientCode );
-        this._nPriority = _nPriority;
+        super( strClientCode, strAuthorName, strAuthorType );
+        this._strDays = strDays;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
+        IdentityRequestValidator.instance( ).checkDays( this._strDays );
     }
 
+    /**
+     * get the identity
+     * 
+     * @throws AppException
+     *             if there is an exception during the treatment
+     */
     @Override
-    protected DuplicateRuleSummarySearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public UpdatedIdentitySearchResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final DuplicateRuleSummarySearchResponse response = new DuplicateRuleSummarySearchResponse( );
-
-        final List<DuplicateRuleSummaryDto> rules = DuplicateRuleService.instance( ).findSummaries( _nPriority );
-        if ( CollectionUtils.isEmpty( rules ) )
+        final UpdatedIdentitySearchResponse response = new UpdatedIdentitySearchResponse( );
+        final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( _strDays ) );
+        if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
-            response.setDuplicateRuleSummaries( Collections.emptyList( ) );
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_FOUND ) );
+            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );
         }
         else
         {
-            response.setDuplicateRuleSummaries( rules );
             response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            response.getUpdatedIdentityList( ).addAll( updatedIdentities );
         }
+
         return response;
     }
+
 }

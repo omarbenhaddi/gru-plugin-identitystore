@@ -33,12 +33,12 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
-import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreCancelMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreCreateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreDeleteRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreGetUpdatedIdentitiesRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreImportRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreSearchRequest;
@@ -46,8 +46,6 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentitySto
 import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentityStoreUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.error.ErrorResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
@@ -55,7 +53,6 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearch
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import io.swagger.annotations.Api;
@@ -77,7 +74,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 import static fr.paris.lutece.plugins.identitystore.v3.web.rs.error.UncaughtIdentityNotFoundExceptionMapper.ERROR_NO_IDENTITY_FOUND;
 import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExceptionMapper.ERROR_DURING_TREATMENT;
@@ -117,7 +113,7 @@ public final class IdentityStoreRestService
     } )
     public Response getIdentity(
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the requested identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String strHeaderAuthorName,
             @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String strHeaderAuthorType )
             throws IdentityStoreException
@@ -147,11 +143,14 @@ public final class IdentityStoreRestService
     } )
     public Response searchIdentities(
             @ApiParam( name = "Request body", value = "Identity Search Request", type = "IdentitySearchRequest" ) IdentitySearchRequest identitySearchRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
-        final IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( identitySearchRequest, strClientAppCode );
+        final IdentityStoreSearchRequest identityStoreRequest = new IdentityStoreSearchRequest( identitySearchRequest, strClientAppCode, authorName,
+                authorType );
         final IdentitySearchResponse entity = (IdentitySearchResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -181,11 +180,14 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response createIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeRequest, trustedClientCode );
+        final IdentityStoreCreateRequest identityStoreRequest = new IdentityStoreCreateRequest( identityChangeRequest, trustedClientCode, authorName,
+                authorType );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -210,11 +212,14 @@ public final class IdentityStoreRestService
     } )
     public Response updateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest, trustedClientCode );
+        final IdentityStoreUpdateRequest identityStoreRequest = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest, trustedClientCode,
+                authorName, authorType );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -237,11 +242,13 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
     } )
     public Response mergeIdentities( @ApiParam( name = "Request body", value = "An Identity Merge Request" ) IdentityMergeRequest identityMergeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreMergeRequest identityStoreRequest = new IdentityStoreMergeRequest( identityMergeRequest, trustedClientCode );
+        final IdentityStoreMergeRequest identityStoreRequest = new IdentityStoreMergeRequest( identityMergeRequest, trustedClientCode, authorName, authorType );
         final IdentityMergeResponse entity = (IdentityMergeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -264,11 +271,14 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
     } )
     public Response unmergeIdentities( @ApiParam( name = "Request body", value = "An Identity Merge Request" ) IdentityMergeRequest identityMergeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreCancelMergeRequest identityStoreRequest = new IdentityStoreCancelMergeRequest( identityMergeRequest, trustedClientCode );
+        final IdentityStoreCancelMergeRequest identityStoreRequest = new IdentityStoreCancelMergeRequest( identityMergeRequest, trustedClientCode, authorName,
+                authorType );
         final IdentityMergeResponse entity = (IdentityMergeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -292,10 +302,12 @@ public final class IdentityStoreRestService
     public Response deleteIdentity(
             @ApiParam( name = "Request body", value = "An Identity Change Request to specify the author" ) IdentityChangeRequest identityChangeRequest,
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
-        final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strCustomerId, strClientCode, identityChangeRequest );
+        final IdentityStoreDeleteRequest identityStoreRequest = new IdentityStoreDeleteRequest( strCustomerId, strClientCode, authorName, authorType );
         final IdentityChangeResponse response = (IdentityChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( response.getStatus( ).getHttpCode( ) ).entity( response ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -327,11 +339,14 @@ public final class IdentityStoreRestService
     } )
     public Response importMediationIdentity(
             @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreImportRequest identityStoreRequest = new IdentityStoreImportRequest( identityChangeRequest, trustedClientCode );
+        final IdentityStoreImportRequest identityStoreRequest = new IdentityStoreImportRequest( identityChangeRequest, trustedClientCode, authorName,
+                authorType );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -355,24 +370,15 @@ public final class IdentityStoreRestService
     } )
     public Response getUpdatedIdentities(
             @ApiParam( name = Constants.PARAM_DAYS, value = "max number of days since the last update" ) @QueryParam( Constants.PARAM_DAYS ) String strDays,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
+            throws IdentityStoreException
     {
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY );
-        if ( StringUtils.isBlank( strDays ) || !StringUtils.isNumeric( strDays ) )
-        {
-            return buildErrorResponse( "You must provide the 'days' parameter in numeric format.", Constants.PROPERTY_REST_ERROR_DAYS_NUMERIC_FORMAT );
-        }
-        final UpdatedIdentitySearchResponse entity = new UpdatedIdentitySearchResponse( );
-        final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( strDays ) );
-        if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
-        {
-            entity.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );
-        }
-        else
-        {
-            entity.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
-            entity.getUpdatedIdentityList( ).addAll( updatedIdentities );
-        }
+        final IdentityStoreGetUpdatedIdentitiesRequest request = new IdentityStoreGetUpdatedIdentitiesRequest( strDays, strClientAppCode, authorName,
+                authorType );
+        final UpdatedIdentitySearchResponse entity = request.doSpecificRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 
@@ -394,29 +400,15 @@ public final class IdentityStoreRestService
     } )
     public Response uncertifyIdentity(
             @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
-            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String strHeaderAuthorName,
-            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String strHeaderAuthorType )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final IdentityStoreUncertifyRequest identityStoreUncertifyRequest = new IdentityStoreUncertifyRequest( trustedClientCode, strCustomerId,
-                strHeaderAuthorType, strHeaderAuthorName );
+        final IdentityStoreUncertifyRequest identityStoreUncertifyRequest = new IdentityStoreUncertifyRequest( trustedClientCode, strCustomerId, authorName,
+                authorType );
         final IdentityChangeResponse entity = (IdentityChangeResponse) identityStoreUncertifyRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
-    }
-
-    /**
-     * Builds a {@code Response} object from the specified message
-     *
-     * @param strMessage
-     *            the message
-     * @return the {@code Response} object
-     */
-    private Response buildErrorResponse( final String strMessage, final String strMessageKey )
-    {
-        final ErrorResponse response = new ErrorResponse( );
-        response.setStatus( ResponseStatusFactory.badRequest( ).setMessage( strMessage ).setMessageKey( strMessageKey ) );
-        return Response.status( response.getStatus( ).getHttpCode( ) ).type( MediaType.APPLICATION_JSON ).entity( response ).build( );
     }
 }

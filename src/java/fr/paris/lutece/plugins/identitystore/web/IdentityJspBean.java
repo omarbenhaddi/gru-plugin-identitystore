@@ -48,10 +48,8 @@ import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.csv.CsvIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.BatchDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.importing.BatchImportRequest;
@@ -415,9 +413,6 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             for ( final List<IdentityDto> batch : batches )
             {
                 final BatchImportRequest batchImportRequest = new BatchImportRequest( );
-                batchImportRequest.setOrigin( new RequestAuthor( ) );
-                batchImportRequest.getOrigin( ).setName( "test" );
-                batchImportRequest.getOrigin( ).setType( AuthorType.application );
                 batchImportRequest.setBatch( new BatchDto( ) );
                 batchImportRequest.getBatch( ).setReference( reference );
                 batchImportRequest.getBatch( ).setComment( "Batch exporté depuis identity store" );

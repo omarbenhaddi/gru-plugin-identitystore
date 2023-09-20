@@ -41,7 +41,7 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHo
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeResponse;
@@ -65,23 +65,23 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
      *
      * @param serviceContractDto
      *            the dto of identity's change
-     * @param strClientAppCode
+     * @param strClientCode
      *            the client app code
      * @param serviceContractId
      *            the id of the service contract
      */
-    public ServiceContractUpdateRequest( ServiceContractDto serviceContractDto, String strClientAppCode, Integer serviceContractId )
+    public ServiceContractUpdateRequest( ServiceContractDto serviceContractDto, String strClientCode, Integer serviceContractId, String authorName,
+            String authorType ) throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientCode, authorName, authorType );
         this._serviceContractDto = serviceContractDto;
         this._serviceContractId = serviceContractId;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkServiceContract( _serviceContractDto );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
         IdentityRequestValidator.instance( ).checkContractId( _serviceContractId );
     }
 
@@ -89,10 +89,10 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
     public ServiceContractChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final ServiceContractChangeResponse response = new ServiceContractChangeResponse( );
-        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strClientCode );
+        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _serviceContractDto.getClientCode( ) );
         if ( clientApplication == null )
         {
-            response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No application could be found with code " + _strClientCode )
+            response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No application could be found with code " + _serviceContractDto.getClientCode( ) )
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND ) );
         }
         else

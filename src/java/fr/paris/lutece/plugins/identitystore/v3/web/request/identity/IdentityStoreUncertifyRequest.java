@@ -35,9 +35,8 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
@@ -47,20 +46,18 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
 {
 
     private final String _strCustomerId;
-    private final RequestAuthor _origin;
 
-    public IdentityStoreUncertifyRequest( final String strClientCode, final String strCustomerId, final String strAuthorType, final String strAuthorName )
+    public IdentityStoreUncertifyRequest( final String strClientCode, final String strCustomerId, String strAuthorName, String strAuthorType )
+            throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, strAuthorName, strAuthorType );
         this._strCustomerId = strCustomerId;
-        this._origin = new RequestAuthor( strAuthorName, strAuthorType );
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkCustomerId( _strCustomerId );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     @Override
@@ -73,6 +70,6 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreRequest
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_UNAUTHORIZED_OPERATION ) );
             return response;
         }
-        return IdentityService.instance( ).uncertifyIdentity( _strCustomerId, _strClientCode, _origin );
+        return IdentityService.instance( ).uncertifyIdentity( _strCustomerId, _strClientCode, _author );
     }
 }

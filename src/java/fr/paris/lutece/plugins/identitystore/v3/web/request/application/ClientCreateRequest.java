@@ -34,7 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.request.application;
 
 import fr.paris.lutece.plugins.identitystore.service.application.ClientApplicationService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientChangeResponse;
@@ -53,14 +53,15 @@ public class ClientCreateRequest extends AbstractIdentityStoreRequest
      * @param clientApplicationDto
      *            the dto of identity's change
      */
-    public ClientCreateRequest( ClientApplicationDto clientApplicationDto, String strClientAppCode )
+    public ClientCreateRequest( ClientApplicationDto clientApplicationDto, String strClientCode, final String authorName, final String authorType )
+            throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientCode, authorName, authorType );
         this._clientApplicationDto = clientApplicationDto;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         IdentityRequestValidator.instance( ).checkClientApplicationDto( _clientApplicationDto );
     }

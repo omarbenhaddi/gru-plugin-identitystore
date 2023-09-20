@@ -52,6 +52,8 @@ public class ServiceContract implements Serializable
     // Variables declarations
     private int _nId;
 
+    private String _strClientCode;
+
     @NotEmpty( message = "#i18n{contractservice.validation.servicecontract.Name.notEmpty}" )
     @Size( max = 50, message = "#i18n{contractservice.validation.servicecontract.Name.size}" )
     private String _strName;
@@ -130,6 +132,16 @@ public class ServiceContract implements Serializable
     public void setId( int nId )
     {
         _nId = nId;
+    }
+
+    public String getClientCode( )
+    {
+        return _strClientCode;
+    }
+
+    public void setClientCode( String _strClientCode )
+    {
+        this._strClientCode = _strClientCode;
     }
 
     /**

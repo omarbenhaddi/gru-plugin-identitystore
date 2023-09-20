@@ -79,10 +79,13 @@ public class ClientRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getClients(
-            @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_APPLICATION_CODE ) String applicationCode )
+            @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_APPLICATION_CODE ) String applicationCode,
+            @ApiParam( name = Constants.PARAM_CLIENT_TOKEN, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
-        final ClientsGetRequest request = new ClientsGetRequest( null, applicationCode );
+        final ClientsGetRequest request = new ClientsGetRequest( clientCode, applicationCode, authorName, authorType );
         final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -103,11 +106,13 @@ public class ClientRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = "No service contract found" )
     } )
     public Response getClient(
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final ClientGetRequest request = new ClientGetRequest( trustedCode );
+        final ClientGetRequest request = new ClientGetRequest( trustedCode, authorName, authorType );
         final ClientSearchResponse entity = (ClientSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -130,10 +135,13 @@ public class ClientRestService
             @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
     } )
-    public Response createClient( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ClientApplicationDto clientDto )
+    public Response createClient( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ClientApplicationDto clientDto,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
-        final ClientCreateRequest identityStoreRequest = new ClientCreateRequest( clientDto, null );
+        final ClientCreateRequest identityStoreRequest = new ClientCreateRequest( clientDto, clientCode, authorName, authorType );
         final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -159,10 +167,12 @@ public class ClientRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response updateClient( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ClientApplicationDto clientDto,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
-        final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, clientCode );
+        final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, clientCode, authorName, authorType );
         final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }

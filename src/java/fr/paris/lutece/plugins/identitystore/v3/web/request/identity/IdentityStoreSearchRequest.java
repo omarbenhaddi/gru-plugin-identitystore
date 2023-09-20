@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
@@ -50,26 +50,20 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class IdentityStoreSearchRequest extends AbstractIdentityStoreRequest
 {
-    protected static final String ERROR_JSON_MAPPING = "Error while translate object to json";
     private final IdentitySearchRequest _identitySearchRequest;
 
-    /**
-     * Constructor of IdentityStoreSearchRequest
-     * 
-     * @param identitySearchRequest
-     */
-    public IdentityStoreSearchRequest( IdentitySearchRequest identitySearchRequest, String strClientAppCode )
+    public IdentityStoreSearchRequest( IdentitySearchRequest identitySearchRequest, String strClientAppCode, String authorName, String authorType )
+            throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientAppCode, authorName, authorType );
         this._identitySearchRequest = identitySearchRequest;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         // Vérification de la consistence des paramètres
         IdentityRequestValidator.instance( ).checkIdentitySearch( _identitySearchRequest );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     /**
@@ -89,12 +83,11 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreRequest
         {
             if ( guidSearch )
             {
-                IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), response, _strClientCode,
-                        _identitySearchRequest.getOrigin( ) );
+                IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), response, _strClientCode, _author );
             }
             else
             {
-                IdentityService.instance( ).search( _identitySearchRequest, response, _strClientCode );
+                IdentityService.instance( ).search( _identitySearchRequest, _author, response, _strClientCode );
             }
         }
 

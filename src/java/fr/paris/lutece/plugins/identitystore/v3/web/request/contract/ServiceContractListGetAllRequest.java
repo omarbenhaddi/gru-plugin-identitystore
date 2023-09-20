@@ -31,38 +31,40 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel;
+package fr.paris.lutece.plugins.identitystore.v3.web.request.contract;
 
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
+import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
-import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessusHome;
+import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationProcessusDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ProcessusSearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractsSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represents a get request for IdentityStoreRestServive
+ * This class represents a get request for ServiceContractRestService
  *
  */
-public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
+public class ServiceContractListGetAllRequest extends AbstractIdentityStoreRequest
 {
 
     /**
-     * Constructor of IdentityStoreGetRequest
+     * Constructor of ServiceContractListGetRequest
      *
      * @param strClientCode
      *            the client application Code
      */
-    public ProcessusListGetRequest( String strClientCode, String authorName, String authorType ) throws IdentityStoreException
+    public ServiceContractListGetAllRequest( String strClientCode, String authorName, String authorType ) throws IdentityStoreException
     {
         super( strClientCode, authorName, authorType );
     }
@@ -73,33 +75,41 @@ public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
     }
 
     /**
-     * get the identity
+     * get the service contract list
      * 
      * @throws AppException
      *             if there is an exception during the treatment
      */
     @Override
-    public ProcessusSearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public ServiceContractsSearchResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        final ProcessusSearchResponse response = new ProcessusSearchResponse( );
-        final List<RefAttributeCertificationProcessus> refAttributeCertificationProcessussList = RefAttributeCertificationProcessusHome
-                .getRefAttributeCertificationProcessussList( );
+        final ServiceContractsSearchResponse response = new ServiceContractsSearchResponse( );
 
-        if ( refAttributeCertificationProcessussList == null || CollectionUtils.isEmpty( refAttributeCertificationProcessussList ) )
+        final List<ServiceContract> serviceContracts = ServiceContractHome.getAllServiceContractsList( );
+        if ( CollectionUtils.isEmpty( serviceContracts ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_PROCESSUS_FOUND ) );
+            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND ) );
         }
         else
         {
-            final List<AttributeCertificationProcessusDto> processusDtos = new ArrayList<>( );
-            for ( final RefAttributeCertificationProcessus processus : refAttributeCertificationProcessussList )
+            for ( final ServiceContract serviceContract : serviceContracts )
             {
-                final List<RefAttributeCertificationLevel> refAttributeCertificationLevels = RefAttributeCertificationProcessusHome
-                        .selectAttributeLevels( processus );
-                processusDtos.add( DtoConverter.convertProcessusToDto( processus, refAttributeCertificationLevels ) );
+                serviceContract.setAttributeRights( ServiceContractHome.selectApplicationRights( serviceContract ) );
+                serviceContract.setAttributeCertifications( ServiceContractHome.selectAttributeCertifications( serviceContract ) );
+                serviceContract.setAttributeRequirements( ServiceContractHome.selectAttributeRequirements( serviceContract ) );
+                // TODO amélioration générale à mener sur ce point
+                for ( final AttributeCertification certification : serviceContract.getAttributeCertifications( ) )
+                {
+                    for ( final RefAttributeCertificationProcessus processus : certification.getRefAttributeCertificationProcessus( ) )
+                    {
+                        processus.setLevel( AttributeCertificationDefinitionService.instance( ).get( processus.getCode( ),
+                                certification.getAttributeKey( ).getKeyName( ) ) );
+                    }
+                }
+
+                response.getServiceContracts( ).add( DtoConverter.convertContractToDto( serviceContract ) );
             }
 
-            response.setProcessus( processusDtos );
             response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
         }
 

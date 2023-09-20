@@ -38,7 +38,7 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchResponse;
@@ -53,6 +53,7 @@ import fr.paris.lutece.portal.service.util.AppException;
  */
 public class ActiveServiceContractGetRequest extends AbstractIdentityStoreRequest
 {
+    private final String _strTargetClientCode;
 
     /**
      * Constructor of ActiveServiceContractGetRequest
@@ -60,15 +61,17 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
      * @param strClientCode
      *            the client application Code
      */
-    public ActiveServiceContractGetRequest( String strClientCode )
+    public ActiveServiceContractGetRequest( String _strTargetClientCode, String strClientCode, final String authorName, final String authorType )
+            throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, authorName, authorType );
+        this._strTargetClientCode = _strTargetClientCode;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
+        IdentityRequestValidator.instance( ).checkTargetClientCode( _strTargetClientCode );
     }
 
     /**
@@ -82,7 +85,7 @@ public class ActiveServiceContractGetRequest extends AbstractIdentityStoreReques
     {
         final ServiceContractSearchResponse response = new ServiceContractSearchResponse( );
 
-        final ServiceContract activeServiceContract = ServiceContractService.instance( ).getActiveServiceContract( _strClientCode );
+        final ServiceContract activeServiceContract = ServiceContractService.instance( ).getActiveServiceContract( _strTargetClientCode );
         if ( activeServiceContract == null )
         {
             response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND ) );

@@ -38,7 +38,7 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessus;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchResponse;
@@ -55,26 +55,27 @@ import java.util.Optional;
  */
 public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
 {
-    private Integer serviceContractId;
+    private final Integer _nServiceContractId;
 
     /**
      * Constructor of ServiceContractGetRequest
      *
      * @param strClientCode
      *            the client application Code
-     * @param serviceContractId
+     * @param nServiceContractId
      *            the service contract id
      */
-    public ServiceContractGetRequest( String strClientCode, Integer serviceContractId )
+    public ServiceContractGetRequest( String strClientCode, Integer nServiceContractId, final String authorName, final String authorType )
+            throws IdentityStoreException
     {
-        super( strClientCode );
-        this.serviceContractId = serviceContractId;
+        super( strClientCode, authorName, authorType );
+        this._nServiceContractId = nServiceContractId;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
+        IdentityRequestValidator.instance( ).checkContractId( _nServiceContractId );
     }
 
     /**
@@ -88,7 +89,7 @@ public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
     {
         final ServiceContractSearchResponse response = new ServiceContractSearchResponse( );
 
-        final Optional<ServiceContract> result = ServiceContractHome.findByPrimaryKey( serviceContractId );
+        final Optional<ServiceContract> result = ServiceContractHome.findByPrimaryKey( _nServiceContractId );
 
         if ( !result.isPresent( ) )
         {

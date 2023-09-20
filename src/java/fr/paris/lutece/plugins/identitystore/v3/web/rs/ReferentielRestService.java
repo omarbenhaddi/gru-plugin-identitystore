@@ -37,15 +37,18 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.LevelLis
 import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.ProcessusListGetRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ProcessusSearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -74,9 +77,13 @@ public class ReferentielRestService
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response getAllProcessus( ) throws IdentityStoreException
+    public Response getAllProcessus(
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
+            throws IdentityStoreException
     {
-        final ProcessusListGetRequest request = new ProcessusListGetRequest( null );
+        final ProcessusListGetRequest request = new ProcessusListGetRequest( clientCode, authorName, authorType );
         final ProcessusSearchResponse entity = (ProcessusSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -94,9 +101,13 @@ public class ReferentielRestService
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response getAllLevels( ) throws IdentityStoreException
+    public Response getAllLevels(
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
+            throws IdentityStoreException
     {
-        final LevelListGetRequest request = new LevelListGetRequest( null );
+        final LevelListGetRequest request = new LevelListGetRequest( strClientCode, authorName, authorType );
         final LevelSearchResponse entity = (LevelSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }

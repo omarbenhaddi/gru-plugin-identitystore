@@ -34,7 +34,13 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.*;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ActiveServiceContractGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ServiceContractCreateRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ServiceContractGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ServiceContractListGetAllRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ServiceContractListGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ServiceContractPutEndDateRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.contract.ServiceContractUpdateRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractChangeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractSearchResponse;
@@ -43,10 +49,21 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -60,6 +77,7 @@ import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExcepti
 @Api( RestConstants.BASE_PATH + Constants.PLUGIN_PATH + Constants.VERSION_PATH_V3 )
 public class ServiceContractRestService
 {
+
     /**
      * Get ServiceContract List
      *
@@ -76,12 +94,43 @@ public class ServiceContractRestService
             @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),
             @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response getServiceContractList(
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+    public Response getAllServiceContractList(
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final ServiceContractListGetRequest request = new ServiceContractListGetRequest( trustedClientCode );
+        final ServiceContractListGetAllRequest request = new ServiceContractListGetAllRequest( trustedClientCode, authorName, authorType );
+        final ServiceContractsSearchResponse entity = (ServiceContractsSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+    }
+
+    /**
+     * Get ServiceContract List
+     *
+     * @param clientCode
+     *            client code
+     * @return the ServiceContract
+     */
+    @Path( Constants.SERVICECONTRACTS_PATH + "/{" + Constants.PARAM_TARGET_CLIENT_CODE + "}" )
+    @GET
+    @Produces( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Get all service contract associated to the given client code", response = ServiceContractsSearchResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 200, message = "Service contract Found" ),
+            @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ), @ApiResponse( code = 403, message = "Failure" ),
+            @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
+    } )
+    public Response getServiceContractList(
+            @ApiParam( name = Constants.PARAM_TARGET_CLIENT_CODE, value = SwaggerConstants.PARAM_TARGET_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_TARGET_CLIENT_CODE ) String strTargetClientCode,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
+            throws IdentityStoreException
+    {
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
+        final ServiceContractListGetRequest request = new ServiceContractListGetRequest( strTargetClientCode, trustedClientCode, authorName, authorType );
         final ServiceContractsSearchResponse entity = (ServiceContractsSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -93,7 +142,7 @@ public class ServiceContractRestService
      *            client code
      * @return the ServiceContract
      */
-    @Path( Constants.SERVICECONTRACT_PATH )
+    @Path( Constants.ACTIVE_SERVICE_CONTRACT_PATH + "/{" + Constants.PARAM_TARGET_CLIENT_CODE + "}" )
     @GET
     @Produces( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Get the active service contract associated to the given client code", response = ServiceContractSearchResponse.class )
@@ -103,11 +152,14 @@ public class ServiceContractRestService
             @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getActiveServiceContract(
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_TARGET_CLIENT_CODE, value = SwaggerConstants.PARAM_TARGET_CLIENT_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_TARGET_CLIENT_CODE ) String strTargetClientCode,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final ActiveServiceContractGetRequest request = new ActiveServiceContractGetRequest( trustedClientCode );
+        final ActiveServiceContractGetRequest request = new ActiveServiceContractGetRequest( strTargetClientCode, trustedClientCode, authorName, authorType );
         final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -131,12 +183,14 @@ public class ServiceContractRestService
             @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
     public Response getServiceContract(
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
             @ApiParam( name = Constants.PARAM_ID_SERVICE_CONTRACT, value = "ID of the searched contract" ) @PathParam( Constants.PARAM_ID_SERVICE_CONTRACT ) Integer serviceContractId )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final ServiceContractGetRequest request = new ServiceContractGetRequest( trustedClientCode, serviceContractId );
+        final ServiceContractGetRequest request = new ServiceContractGetRequest( trustedClientCode, serviceContractId, authorName, authorType );
         final ServiceContractSearchResponse entity = (ServiceContractSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -159,12 +213,15 @@ public class ServiceContractRestService
             @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
     } )
-    public Response createServiceContract( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ServiceContractDto serviceContract,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+    public Response createServiceContract( @ApiParam( name = "Request body", value = "A service contract creation Request" ) ServiceContractDto serviceContract,
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final ServiceContractCreateRequest identityStoreRequest = new ServiceContractCreateRequest( serviceContract, trustedClientCode );
+        final ServiceContractCreateRequest identityStoreRequest = new ServiceContractCreateRequest( serviceContract, trustedClientCode, authorName,
+                authorType );
         final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -190,13 +247,16 @@ public class ServiceContractRestService
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" ),
             @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response updateServiceContract( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ServiceContractDto serviceContract,
+    public Response updateServiceContract( @ApiParam( name = "Request body", value = "A service contract change Request" ) ServiceContractDto serviceContract,
             @ApiParam( name = Constants.PARAM_ID_SERVICE_CONTRACT, value = "ID of the updated contract" ) @PathParam( Constants.PARAM_ID_SERVICE_CONTRACT ) Integer serviceContractId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
-        final ServiceContractUpdateRequest identityStoreRequest = new ServiceContractUpdateRequest( serviceContract, trustedClientCode, serviceContractId );
+        final ServiceContractUpdateRequest identityStoreRequest = new ServiceContractUpdateRequest( serviceContract, trustedClientCode, serviceContractId,
+                authorName, authorType );
         final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
@@ -224,12 +284,14 @@ public class ServiceContractRestService
     } )
     public Response closeServiceContract( @ApiParam( name = "Request body", value = "An Identity Change Request" ) ServiceContractDto serviceContract,
             @ApiParam( name = Constants.PARAM_ID_SERVICE_CONTRACT, value = "ID of the updated contract" ) @PathParam( Constants.PARAM_ID_SERVICE_CONTRACT ) Integer serviceContractId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.CLIENT_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode )
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType )
             throws IdentityStoreException
     {
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY );
         final ServiceContractPutEndDateRequest identityStoreRequest = new ServiceContractPutEndDateRequest( serviceContract, trustedClientCode,
-                serviceContractId );
+                serviceContractId, authorName, authorType );
         final ServiceContractChangeResponse entity = (ServiceContractChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }

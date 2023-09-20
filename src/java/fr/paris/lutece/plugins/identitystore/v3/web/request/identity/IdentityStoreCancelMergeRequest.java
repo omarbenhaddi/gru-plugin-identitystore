@@ -36,7 +36,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeValidationService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
@@ -56,18 +56,18 @@ public class IdentityStoreCancelMergeRequest extends AbstractIdentityStoreReques
      * @param identityMergeRequest
      *            the dto of identity's merge
      */
-    public IdentityStoreCancelMergeRequest( IdentityMergeRequest identityMergeRequest, String strClientAppCode )
+    public IdentityStoreCancelMergeRequest( IdentityMergeRequest identityMergeRequest, String strClientAppCode, String authorName, String authorType )
+            throws IdentityStoreException
     {
-        super( strClientAppCode );
+        super( strClientAppCode, authorName, authorType );
         this._identityMergeRequest = identityMergeRequest;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
         // Vérification de la consistence des paramètres
         IdentityRequestValidator.instance( ).checkCancelMergeRequest( _identityMergeRequest );
-        IdentityRequestValidator.instance( ).checkClientApplication( _strClientCode );
     }
 
     @Override
@@ -80,7 +80,7 @@ public class IdentityStoreCancelMergeRequest extends AbstractIdentityStoreReques
             IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityMergeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
-                IdentityService.instance( ).cancelMerge( _identityMergeRequest, _strClientCode, response );
+                IdentityService.instance( ).cancelMerge( _identityMergeRequest, _author, _strClientCode, response );
             }
         }
 

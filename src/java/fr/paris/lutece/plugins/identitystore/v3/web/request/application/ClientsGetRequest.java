@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.identitystore.v3.web.request.application;
 
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
-import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientsSearchResponse;
@@ -54,7 +54,7 @@ import java.util.List;
 public class ClientsGetRequest extends AbstractIdentityStoreRequest
 {
 
-    private String _strApplicationCode;
+    private final String _strApplicationCode;
 
     /**
      * Constructor of IdentityStoreGetRequest
@@ -62,16 +62,16 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
      * @param strClientCode
      *            the client application Code
      */
-    public ClientsGetRequest( String strClientCode, String strApplicationCode )
+    public ClientsGetRequest( String strClientCode, String strApplicationCode, final String authorName, final String authorType ) throws IdentityStoreException
     {
-        super( strClientCode );
+        super( strClientCode, authorName, authorType );
         this._strApplicationCode = strApplicationCode;
     }
 
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkClientApplicationCode( _strApplicationCode );
+        IdentityRequestValidator.instance( ).checkApplicationCode( _strApplicationCode );
     }
 
     /**
