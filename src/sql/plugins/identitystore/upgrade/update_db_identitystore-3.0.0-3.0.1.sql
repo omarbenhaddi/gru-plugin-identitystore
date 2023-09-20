@@ -291,3 +291,6 @@ UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitys
 UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.geocodes.format' WHERE key_name IN ('birthplace_code', 'birthcountry_code');
 UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.only.uppercase.space' WHERE key_name IN ('birthplace', 'birthcountry');
 UPDATE identitystore_ref_attribute SET validation_error_message_key = 'identitystore.attribute.status.validation.error.gender.format' WHERE key_name = 'gender';
+
+
+ALTER TABLE identitystore_identity_attribute_history DROP CONSTRAINT fk_history_identity_attribute_id_identity;

@@ -3341,14 +3341,6 @@ ALTER TABLE ONLY public.identitystore_service_contract_attribute_right
 
 
 --
--- Name: identitystore_identity_attribute_history  fk_history_identity_attribute_id_identity; Type: FK CONSTRAINT; Schema: public; Owner: idstore
---
-
-ALTER TABLE ONLY public.identitystore_identity_attribute_history 
-    ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY (id_identity) REFERENCES public.identitystore_identity(id_identity);
-
-
---
 -- Name: identitystore_identity_attribute fk_identity_attribute_id_attribute; Type: FK CONSTRAINT; Schema: public; Owner: idstore
 --
 

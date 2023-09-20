@@ -175,8 +175,6 @@ CREATE TABLE identitystore_identity_attribute_history
     metadata              json         DEFAULT NULL,
     PRIMARY KEY (id_history)
 );
-ALTER TABLE identitystore_identity_attribute_history
-    ADD CONSTRAINT fk_history_identity_attribute_id_identity FOREIGN KEY (id_identity) REFERENCES identitystore_identity (id_identity);
 
 --
 -- Structure for table identitystore_service_contract
