@@ -676,13 +676,14 @@ public class IdentityService
             return;
         }
 
-        if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), request.getSecondaryLastUpdateDate( ) ) )
-        {
-            response.setStatus( ResponseStatusFactory.failure( )
-                    .setMessage( "The secondary identity has been updated recently, please load the latest data before canceling merge." )
-                    .setMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_UPDATE_CONFLICT ) );
-            return;
-        }
+        // TODO il n'y a pas d'API permettant de récupérer une identité merged, on renvoie systématiquement le master => impossible d'unmerge en passant ce test
+        // if ( !Objects.equals( secondaryIdentity.getLastUpdateDate( ), request.getSecondaryLastUpdateDate( ) ) )
+        // {
+        // response.setStatus( ResponseStatusFactory.failure( )
+        // .setMessage( "The secondary identity has been updated recently, please load the latest data before canceling merge." )
+        // .setMessageKey( Constants.PROPERTY_REST_ERROR_SECONDARY_IDENTITY_UPDATE_CONFLICT ) );
+        // return;
+        // }
 
         TransactionManager.beginTransaction( null );
         try
@@ -958,7 +959,7 @@ public class IdentityService
         for ( final IdentityDto qualifiedIdentity : qualifiedIdentities )
         {
             final boolean identityIsMerged = qualifiedIdentity.getMerge( ) != null && qualifiedIdentity.getMerge( ).isMerged( );
-            if ( CollectionUtils.isNotEmpty( qualifiedIdentity.getAttributes( ) ) && !identityIsMerged )
+            if ( /* CollectionUtils.isNotEmpty( qualifiedIdentity.getAttributes( ) ) && */ !identityIsMerged )
             {
                 IdentityQualityService.instance( ).computeCoverage( qualifiedIdentity, serviceContract );
                 // TODO gérer la qualité max dans la requête ?
