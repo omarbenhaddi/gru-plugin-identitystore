@@ -161,10 +161,9 @@ public final class IdentityStoreNotifyListenerService
      *            the client code that triggered the change
      * @param metadata
      *            additional data
-     * @throws IdentityStoreException
      */
     public void notifyListenersIdentityChange( IdentityChangeType identityChangeType, Identity identity, String statusCode, String statusMessage,
-            RequestAuthor author, String clientCode, Map<String, String> metadata ) throws IdentityStoreException
+            RequestAuthor author, String clientCode, Map<String, String> metadata )
     {
         _identityChangeListListeners.stream( ).<Runnable> map( listener -> ( ) -> {
             try
