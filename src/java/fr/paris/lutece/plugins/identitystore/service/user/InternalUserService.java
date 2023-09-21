@@ -50,9 +50,9 @@ public class InternalUserService
         return instance;
     }
 
-    public InternalUser getApiUser( RequestAuthor origin, String clientCode )
+    public InternalUser getApiUser( RequestAuthor author, String clientCode )
     {
-        return new InternalUser( origin.getName( ), origin.getType( ).name( ), null, clientCode, API_USER );
+        return new InternalUser( author.getName( ), author.getType( ).name( ), null, clientCode, API_USER );
     }
 
     public InternalUser getApiUser( String clientCode )
