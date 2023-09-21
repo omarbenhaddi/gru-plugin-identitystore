@@ -113,9 +113,8 @@ public class DuplicateService implements IDuplicateService
 
         if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
         {
-            response.setStatus(
-                    ResponseStatusFactory.success( ).setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) )
-                            .setMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND ) );
+            response.setStatus( ResponseStatusFactory.ok( ).setMessage( "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ) )
+                    .setMessageKey( Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND ) );
         }
         else
         {
