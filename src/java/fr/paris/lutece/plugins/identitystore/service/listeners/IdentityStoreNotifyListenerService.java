@@ -40,7 +40,6 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatu
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
-import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
@@ -127,7 +126,6 @@ public final class IdentityStoreNotifyListenerService
      *            the author of the change
      * @param clientCode
      *            the client code that triggered the change
-     * @throws IdentityStoreException
      */
     public void notifyListenersAttributeChange( AttributeChangeType changeType, Identity identity, AttributeStatus attributeStatus, RequestAuthor author,
             String clientCode )
@@ -137,7 +135,7 @@ public final class IdentityStoreNotifyListenerService
             {
                 listener.processAttributeChange( changeType, identity, attributeStatus, author, clientCode );
             }
-            catch( IdentityStoreException e )
+            catch( Exception e )
             {
                 AppLogService.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
             }
@@ -170,7 +168,7 @@ public final class IdentityStoreNotifyListenerService
             {
                 listener.processIdentityChange( identityChangeType, identity, statusCode, statusMessage, author, clientCode, metadata );
             }
-            catch( IdentityStoreException e )
+            catch( Exception e )
             {
                 AppLogService.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
             }
