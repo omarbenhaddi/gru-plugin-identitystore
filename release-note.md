@@ -4,7 +4,7 @@ This release note is quite detailed but please refer to [Official documentation]
 
 Versions:
 * [3.0.0](#300)
-* [3.0.1](#301)
+* [3.1.0](#310)
 
 ## 3.0.0
 This major version introduces new features. V1 and V2 are kept in corresponding packages. A new V3 package contains updated and new features.
@@ -64,7 +64,7 @@ The existing [identity api](src/java/fr/paris/lutece/plugins/identitystore/v3/we
 ### Indexing
 Identities are now indexed into an ElasticSearch cluster. So the search feature of Identity API is built on ES search.
 
-## 3.0.1
+## 3.1.0
 
 This minor version introduces a set of new APIs, a refactoring of Identity DTOs and a new capability for resolving duplicate identities. This new feature is available through [module-identitystore-quality](https://github.com/lutece-secteur-public/gru-module-identitystore-quality).
 
