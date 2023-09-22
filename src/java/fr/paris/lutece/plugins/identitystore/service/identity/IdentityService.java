@@ -262,7 +262,7 @@ public class IdentityService
             }
 
             /* Indexation et historique */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getStatus( ).name( ),
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, CREATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
@@ -440,7 +440,7 @@ public class IdentityService
             }
 
             /* Indexation et historique */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getStatus( ).name( ),
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
@@ -600,13 +600,13 @@ public class IdentityService
             metadata.put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
             metadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
-                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), author, clientCode, metadata );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata );
 
             final Map<String, String> metadata2 = new HashMap<>( );
             metadata2.put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
             metadata2.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity,
-                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), author, clientCode, metadata2 );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata2 );
 
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, MERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
@@ -698,11 +698,11 @@ public class IdentityService
             final Map<String, String> metadata = new HashMap<>( );
             metadata.put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity,
-                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), author, clientCode, metadata );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata );
             final Map<String, String> metadata2 = new HashMap<>( );
             metadata2.put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
-                    response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getStatus( ).name( ), author, clientCode, metadata2 );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata2 );
 
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UNMERGE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
@@ -864,7 +864,7 @@ public class IdentityService
                     {
                         /* Indexation et historique */
                         _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, IdentityMapper.toBean( identity ),
-                                response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
+                                response.getStatus( ).getType( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
                     }
                 }
             }
@@ -922,7 +922,7 @@ public class IdentityService
                     {
                         /* Indexation et historique */
                         _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, identity,
-                                response.getStatus( ).getStatus( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
+                                response.getStatus( ).getType( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
                     }
                 }
             }
@@ -1281,7 +1281,7 @@ public class IdentityService
             TransactionManager.commitTransaction( null );
 
             /* Notify listeners for indexation, history, ... */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).getStatus( ).name( ),
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.DELETE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
 
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
@@ -1365,7 +1365,7 @@ public class IdentityService
             }
 
             /* Indexation et historique */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getStatus( ).name( ),
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, strClientCode, new HashMap<>( ) );
 
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
