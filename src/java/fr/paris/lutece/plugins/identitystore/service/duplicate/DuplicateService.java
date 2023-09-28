@@ -99,7 +99,11 @@ public class DuplicateService implements IDuplicateService
                 final DuplicateRule duplicateRule = DuplicateRuleService.instance( ).get( ruleCode );
                 if ( duplicateRule == null )
                 {
-                    throw new IdentityStoreException( "Could not find duplicate rule with code " + ruleCode );
+                    final DuplicateSearchResponse errorResponse = new DuplicateSearchResponse();
+                    errorResponse.setStatus( ResponseStatusFactory.notFound( )
+                                                                  .setMessage( "Duplicate rule not found for code " + ruleCode )
+                                                                  .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_FOUND ) );
+                    return errorResponse;
                 }
                 final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
                 if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
