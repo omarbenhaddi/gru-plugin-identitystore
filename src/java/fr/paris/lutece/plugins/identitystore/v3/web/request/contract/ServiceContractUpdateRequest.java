@@ -92,7 +92,7 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
         final ClientApplication clientApplication = ClientApplicationHome.findByCode( _serviceContractDto.getClientCode( ) );
         if ( clientApplication == null )
         {
-            response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No application could be found with code " + _serviceContractDto.getClientCode( ) )
+            response.setStatus( ResponseStatusFactory.notFound( ).setMessage( "No application could be found with code " + _serviceContractDto.getClientCode( ) )
                     .setMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND ) );
         }
         else
@@ -100,7 +100,7 @@ public class ServiceContractUpdateRequest extends AbstractIdentityStoreRequest
             final Optional<ServiceContract> serviceContractToUpdate = ServiceContractHome.findByPrimaryKey( _serviceContractId );
             if ( !serviceContractToUpdate.isPresent( ) )
             {
-                response.setStatus( ResponseStatusFactory.failure( ).setMessage( "No service contract could be found with code " + _serviceContractId )
+                response.setStatus( ResponseStatusFactory.notFound( ).setMessage( "No service contract could be found with code " + _serviceContractId )
                         .setMessageKey( Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_NOT_FOUND ) );
             }
             else
