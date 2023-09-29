@@ -84,8 +84,9 @@ public class ServiceContractCreateRequest extends AbstractIdentityStoreRequest
         final ClientApplication clientApplication = ClientApplicationHome.findByCode( _serviceContractDto.getClientCode( ) );
         if ( clientApplication == null )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessage( "No application could be found with code " + _serviceContractDto.getClientCode( ) )
-                    .setMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND ) );
+            response.setStatus(
+                    ResponseStatusFactory.notFound( ).setMessage( "No application could be found with code " + _serviceContractDto.getClientCode( ) )
+                            .setMessageKey( Constants.PROPERTY_REST_ERROR_APPLICATION_NOT_FOUND ) );
         }
         else
         {
