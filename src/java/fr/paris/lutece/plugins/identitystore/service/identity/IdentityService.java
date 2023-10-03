@@ -402,6 +402,7 @@ public class IdentityService
                 else
                 {
                     identity.setConnectionId( request.getIdentity( ).getConnectionId( ) );
+                    IdentityHome.update( identity );
                 }
             }
 
@@ -419,18 +420,23 @@ public class IdentityService
             response.setConnectionId( identity.getConnectionId( ) );
             response.setCreationDate( identity.getCreationDate( ) );
             response.setLastUpdateDate( identity.getLastUpdateDate( ) );
-            boolean notAllAttributesCreatedOrUpdated = attrStatusList.stream( )
-                    .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
-            final ResponseStatus status = notAllAttributesCreatedOrUpdated ? ResponseStatusFactory.incompleteSuccess( ) : ResponseStatusFactory.success( );
-            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+
+            final boolean allAttributesCreatedOrUpdated = attrStatusList.stream( ).map( AttributeStatus::getStatus )
+                    .allMatch( status -> AttributeChangeStatus.getSuccessStatuses( ).contains( status ) );
+            final ResponseStatus status = allAttributesCreatedOrUpdated ? ResponseStatusFactory.success( ) : ResponseStatusFactory.incompleteSuccess( );
+
+            final String msgKey;
+            if ( Collections.disjoint( AttributeChangeStatus.getSuccessStatuses( ),
+                    attrStatusList.stream( ).map( AttributeStatus::getStatus ).collect( Collectors.toList( ) ) ) )
+            {
+                // If there was no attribute change, send back a specific message key
+                msgKey = Constants.PROPERTY_REST_INFO_NO_ATTRIBUTE_CHANGE;
+            }
+            else
+            {
+                msgKey = Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION;
+            }
+            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( msgKey ) );
             TransactionManager.commitTransaction( null );
 
             /* Historique des modifications */
@@ -574,18 +580,24 @@ public class IdentityService
             response.setCustomerId( primaryIdentity.getCustomerId( ) );
             response.setConnectionId( primaryIdentity.getConnectionId( ) );
             response.setLastUpdateDate( primaryIdentity.getLastUpdateDate( ) );
-            boolean notAllAttributesCreatedOrUpdated = attrStatusList.stream( )
-                    .anyMatch( attributeStatus -> AttributeChangeStatus.INSUFFICIENT_CERTIFICATION_LEVEL.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.NOT_UPDATED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.NOT_CREATED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.INSUFFICIENT_RIGHTS.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.UNAUTHORIZED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.NOT_REMOVED.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.MULTIPLE_GEOCODES_RESULTS_FOR_LABEL.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.UNKNOWN_GEOCODES_CODE.equals( attributeStatus.getStatus( ) )
-                            || AttributeChangeStatus.UNKNOWN_GEOCODES_LABEL.equals( attributeStatus.getStatus( ) ) );
-            final ResponseStatus status = notAllAttributesCreatedOrUpdated ? ResponseStatusFactory.incompleteSuccess( ) : ResponseStatusFactory.success( );
-            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+
+            final boolean allAttributesCreatedOrUpdated = attrStatusList.stream( ).map( AttributeStatus::getStatus )
+                    .allMatch( status -> AttributeChangeStatus.getSuccessStatuses( ).contains( status ) );
+            final ResponseStatus status = allAttributesCreatedOrUpdated ? ResponseStatusFactory.success( ) : ResponseStatusFactory.incompleteSuccess( );
+
+            final String msgKey;
+            if ( Collections.disjoint( AttributeChangeStatus.getSuccessStatuses( ),
+                    attrStatusList.stream( ).map( AttributeStatus::getStatus ).collect( Collectors.toList( ) ) ) )
+            {
+                // If there was no attribute change, send back a specific message key
+                msgKey = Constants.PROPERTY_REST_INFO_NO_ATTRIBUTE_CHANGE;
+            }
+            else
+            {
+                msgKey = Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION;
+            }
+
+            response.setStatus( status.setAttributeStatuses( attrStatusList ).setMessageKey( msgKey ) );
             TransactionManager.commitTransaction( null );
 
             /* Historique des modifications */
@@ -1063,11 +1075,19 @@ public class IdentityService
             attrStatusList.add( attributeStatus );
         }
 
-        if ( requestIdentity.getMonParisActive( ) != null )
+        boolean monParisUpdated = false;
+        if ( requestIdentity.getMonParisActive( ) != null && requestIdentity.getMonParisActive( ) != identity.isMonParisActive( ) )
         {
+            monParisUpdated = true;
             identity.setMonParisActive( requestIdentity.isMonParisActive( ) );
         }
-        IdentityHome.update( identity );
+
+        if ( monParisUpdated || !Collections.disjoint( AttributeChangeStatus.getSuccessStatuses( ),
+                attrStatusList.stream( ).map( AttributeStatus::getStatus ).collect( Collectors.toList( ) ) ) )
+        {
+            // If there was an update on the monParis flag or in the attributes, we update the identity
+            IdentityHome.update( identity );
+        }
 
         return attrStatusList;
     }

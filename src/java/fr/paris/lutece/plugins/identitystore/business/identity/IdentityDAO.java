@@ -132,6 +132,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SEARCH_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE ${client_code} AND ${customer_id} AND ${author_name} AND ${change_type} AND ${modification_date} AND ${metadata} ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days}' DAY)";
+    private static final String SQL_QUERY_REFRESH_LAST_UPDATE_DATE = "UPDATE identitystore_identity SET last_update_date = now() WHERE id_identity = ?";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
 
@@ -249,6 +250,11 @@ public final class IdentityDAO implements IIdentityDAO
             daoUtil.setInt( 2, identity.getId( ) );
             daoUtil.executeUpdate( );
         }
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REFRESH_LAST_UPDATE_DATE, plugin ) )
+        {
+            daoUtil.setInt( 1, identity.getMasterIdentityId( ) );
+            daoUtil.executeQuery( );
+        }
     }
 
     @Override
@@ -258,6 +264,11 @@ public final class IdentityDAO implements IIdentityDAO
         {
             daoUtil.setInt( 1, identity.getId( ) );
             daoUtil.executeUpdate( );
+        }
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REFRESH_LAST_UPDATE_DATE, plugin ) )
+        {
+            daoUtil.setInt( 1, identity.getMasterIdentityId( ) );
+            daoUtil.executeQuery( );
         }
     }
 
