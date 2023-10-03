@@ -1236,7 +1236,7 @@ public class IdentityService
      */
     public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize )
     {
-        if ( rule == null )
+        if ( rule == null || !rule.isActive( ) )
         {
             return Batch.ofSize( new ArrayList<>( ), 0 );
         }

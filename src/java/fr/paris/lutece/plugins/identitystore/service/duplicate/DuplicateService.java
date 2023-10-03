@@ -104,12 +104,15 @@ public class DuplicateService implements IDuplicateService
                             .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_FOUND ) );
                     return errorResponse;
                 }
-                final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
-                if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
+                if ( duplicateRule.isActive( ) )
                 {
-                    matchingRuleCodes.add( ruleCode );
-                    response.getIdentities( ).addAll( identitySearchResult.getQualifiedIdentities( ) );
-                    Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
+                    final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
+                    if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
+                    {
+                        matchingRuleCodes.add( ruleCode );
+                        response.getIdentities( ).addAll( identitySearchResult.getQualifiedIdentities( ) );
+                        Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
+                    }
                 }
             }
         }
