@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
+import fr.paris.lutece.plugins.identitystore.cache.IdentityDtoCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
@@ -138,6 +139,9 @@ public class IdentityService
     private final IDuplicateService _duplicateServiceDatabase = SpringContextService.getBean( "identitystore.duplicateService.database" );
     private final IDuplicateService _duplicateServiceElasticSearch = SpringContextService.getBean( "identitystore.duplicateService.elasticsearch" );
     protected ISearchIdentityService _elasticSearchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
+
+    // CACHE
+    private IdentityDtoCache _identityDtoCache = SpringContextService.getBean( "identitystore.identityDtoCache" );
 
     private static IdentityService _instance;
 
@@ -908,39 +912,32 @@ public class IdentityService
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
                 customerId != null ? customerId : connectionId, SPECIFIC_ORIGIN );
-        final Identity identity = StringUtils.isNotEmpty( customerId ) ? IdentityHome.findMasterIdentityByCustomerId( customerId )
-                : StringUtils.isNotEmpty( connectionId ) ? IdentityHome.findMasterIdentityByConnectionId( connectionId ) : null;
-        if ( identity == null )
+
+        final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( clientCode );
+        if ( serviceContract == null )
+        {
+            throw new ServiceContractNotFoundException( "No active service contract could be found for clientCode = " + clientCode );
+        }
+        final IdentityDto identityDto = _identityDtoCache.get( customerId, connectionId, serviceContract );
+        if ( identityDto == null )
         {
             response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
         }
         else
         {
-            final IdentityDto qualifiedIdentity = DtoConverter.convertIdentityToDto( identity );
-            final List<IdentityDto> filteredIdentities = this.getFilteredQualifiedIdentities( null, clientCode,
-                    Collections.singletonList( qualifiedIdentity ) );
-            response.setIdentities( filteredIdentities );
-            if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
+            response.setIdentities( Collections.singletonList( identityDto ) );
+            response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            if ( author != null )
             {
-                response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
-                for ( final IdentityDto i : response.getIdentities( ) )
-                {
-                    if ( author != null )
-                    {
-                        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                                _internalUserService.getApiUser( author, clientCode ), i.getCustomerId( ), SPECIFIC_ORIGIN );
-                    }
-                    if ( author != null && author.getType( ).equals( AuthorType.agent ) )
-                    {
-                        /* Indexation et historique */
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, identity,
-                                response.getStatus( ).getType( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
-                    }
-                }
+                AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                        _internalUserService.getApiUser( author, clientCode ), identityDto.getCustomerId( ), SPECIFIC_ORIGIN );
             }
-            else
+            if ( author != null && author.getType( ).equals( AuthorType.agent ) )
             {
-                response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
+                /* Indexation et historique */
+                _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ,
+                        IdentityHome.findMasterIdentityByCustomerIdNoAttributes( identityDto.getCustomerId( ) ), response.getStatus( ).getType( ).name( ),
+                        response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
             }
         }
     }

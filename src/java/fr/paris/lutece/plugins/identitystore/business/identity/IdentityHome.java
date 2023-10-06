@@ -298,6 +298,18 @@ public final class IdentityHome
     }
 
     /**
+     * Find not merged identity by customer ID, without populating attributes.
+     *
+     * @param strCustomerId
+     *            The customer ID
+     * @return The Identity
+     */
+    public static Identity findMasterIdentityByCustomerIdNoAttributes( final String strCustomerId )
+    {
+        return _dao.selectNotMergedByCustomerId( strCustomerId, _plugin );
+    }
+
+    /**
      * Find by customer ID
      *
      * @param strCustomerId
@@ -320,7 +332,7 @@ public final class IdentityHome
     }
 
     /**
-     * Find by customer ID
+     * Find by connection ID
      *
      * @param strConnectionId
      *            The customer ID
@@ -336,6 +348,18 @@ public final class IdentityHome
         }
 
         return identity;
+    }
+
+    /**
+     * Find by connection ID without attributes
+     *
+     * @param strConnectionId
+     *            The customer ID
+     * @return The Identity
+     */
+    public static Identity findMasterIdentityByConnectionIdNoAttributes( final String strConnectionId )
+    {
+        return _dao.selectNotMergedByConnectionId( strConnectionId, _plugin );
     }
 
     public static Identity findMasterIdentity( String strCustomerId, String strConnectionId )
