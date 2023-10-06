@@ -140,5 +140,6 @@ public interface IClientApplicationDAO
      */
     List<ClientApplication> getClientApplications( String strCertifier, Plugin plugin );
 
+    
     List<ClientApplication> selectByApplicationCode( String strApplicationCode, Plugin plugin );
 }

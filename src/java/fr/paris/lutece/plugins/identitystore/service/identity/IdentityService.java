@@ -1401,4 +1401,15 @@ public class IdentityService
         return response;
     }
 
+    /**
+     * Delete the identity and all his children EXCEPT identity history
+     * 
+     * 
+     * @param customerId
+     */
+	public void delete(String customerId) 
+	{
+		// TODO	 (in a transaction)
+	}
+
 }

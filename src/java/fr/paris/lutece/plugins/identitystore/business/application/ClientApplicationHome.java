@@ -114,11 +114,22 @@ public final class ClientApplicationHome
         }
     }
 
+    /**
+     * find service contracts of a client app
+     * @param clientApplication
+     * @return the service contract list
+     */
     public static List<ServiceContract> selectServiceContracts( ClientApplication clientApplication )
     {
         return _daoServiceContract.loadFromClientApplication( clientApplication.getId( ), _plugin );
     }
 
+    /**
+     * select active service contract for a client code
+     * 
+     * @param clientCode
+     * @return the service contract list
+     */
     public static List<ServiceContract> selectActiveServiceContract( String clientCode )
     {
         return _daoServiceContract.selectActiveServiceContract( clientCode, _plugin );

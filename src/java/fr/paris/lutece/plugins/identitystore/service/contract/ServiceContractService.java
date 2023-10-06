@@ -598,4 +598,18 @@ public class ServiceContractService
         return false;
     }
 
+    /**
+     * get Client Code From AppCode
+     * if there is more than one client_code, the first one
+     * 
+     * @param appCode
+     * @return
+     */
+	public List<String> getClientCodesFromAppCode(String appCode) {
+
+		List<ClientApplication> clientApplicationList = ClientApplicationHome.findByApplicationCode( appCode );
+				
+		return clientApplicationList.stream().map( ClientApplication::getClientCode ).collect(Collectors.toList());
+	}
+
 }
