@@ -237,6 +237,11 @@ public final class SuspiciousIdentityHome
         _dao.removeExcludedIdentities( firstCuid, secondCuid, _plugin );
     }
 
+    public static void removeExcludedIdentities( final String cuid )
+    {
+        _dao.removeExcludedIdentities( cuid, _plugin );
+    }
+
     /**
      * Load the data of all the suspiciousIdentity objects and returns them as a list
      *

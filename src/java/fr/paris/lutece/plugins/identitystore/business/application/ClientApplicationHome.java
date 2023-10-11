@@ -116,6 +116,7 @@ public final class ClientApplicationHome
 
     /**
      * find service contracts of a client app
+     * 
      * @param clientApplication
      * @return the service contract list
      */

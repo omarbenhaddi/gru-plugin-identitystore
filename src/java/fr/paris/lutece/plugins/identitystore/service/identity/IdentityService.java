@@ -1399,14 +1399,51 @@ public class IdentityService
     }
 
     /**
-     * Delete the identity and all his children EXCEPT identity history
-     * 
+     * Delete the identity and all his children, including potential merged identities, EXCEPT identity history.<br/>
+     * The purge consist of deleting, for the identity and all of its potential merged identities :
+     * <ul>
+     * <li>the {@link Identity} object</li>
+     * <li>the {@link IdentityAttribute} objetcs</li>
+     * <li>the IdentityAttributeHistory objects</li>
+     * <li>the {@link SuspiciousIdentity} objects</li>
+     * <li>the {@link ExcludedIdentities} objects</li>
+     * </ul>
+     * The identity's history is kept.
      * 
      * @param customerId
+     *            the customerId of the identity to delete
      */
-	public void delete(String customerId) 
-	{
-		// TODO	 (in a transaction)
-	}
+    public void delete( final String customerId )
+    {
+        final int identityId = IdentityHome.findIdByCustomerId( customerId );
+        if ( identityId != -1 )
+        {
+            final List<Identity> mergedIdentities = IdentityHome.findMergedIdentities( identityId );
+            TransactionManager.beginTransaction( null );
+            try
+            {
+                // Delete eventual merged identities first
+                for ( final Identity mergedIdentity : mergedIdentities )
+                {
+                    SuspiciousIdentityHome.remove( mergedIdentity.getCustomerId( ) );
+                    SuspiciousIdentityHome.removeExcludedIdentities( mergedIdentity.getCustomerId( ) );
+                    IdentityHome.deleteAttributeHistory( mergedIdentity.getId( ) );
+                    IdentityHome.hardRemove( mergedIdentity.getId( ) );
+                }
+                // Delete the actual identity
+                SuspiciousIdentityHome.remove( customerId );
+                SuspiciousIdentityHome.removeExcludedIdentities( customerId );
+                IdentityHome.deleteAttributeHistory( identityId );
+                IdentityHome.hardRemove( identityId );
+
+                TransactionManager.commitTransaction( null );
+            }
+            catch( final Exception e )
+            {
+                TransactionManager.rollBack( null );
+                throw e;
+            }
+        }
+    }
 
 }

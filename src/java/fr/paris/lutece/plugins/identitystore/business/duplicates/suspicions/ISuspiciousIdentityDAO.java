@@ -233,6 +233,8 @@ public interface ISuspiciousIdentityDAO
 
     void removeExcludedIdentities( String firstCuid, String secondCuid, Plugin plugin );
 
+    void removeExcludedIdentities( String cuid, Plugin plugin );
+
     List<ExcludedIdentities> selectExcludedIdentitiesList( String customerId, Plugin plugin );
 
 }

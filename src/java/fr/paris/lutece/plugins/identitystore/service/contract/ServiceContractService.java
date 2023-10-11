@@ -599,17 +599,16 @@ public class ServiceContractService
     }
 
     /**
-     * get Client Code From AppCode
-     * if there is more than one client_code, the first one
+     * get Client Code list From AppCode
      * 
      * @param appCode
-     * @return
+     *            the app code
+     * @return list of corresponding client code
      */
-	public List<String> getClientCodesFromAppCode(String appCode) {
-
-		List<ClientApplication> clientApplicationList = ClientApplicationHome.findByApplicationCode( appCode );
-				
-		return clientApplicationList.stream().map( ClientApplication::getClientCode ).collect(Collectors.toList());
-	}
+    public List<String> getClientCodesFromAppCode( String appCode )
+    {
+        List<ClientApplication> clientApplicationList = ClientApplicationHome.findByApplicationCode( appCode );
+        return clientApplicationList.stream( ).map( ClientApplication::getClientCode ).collect( Collectors.toList( ) );
+    }
 
 }

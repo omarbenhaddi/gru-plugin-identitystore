@@ -49,7 +49,11 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -82,6 +86,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_SELECT_BY_CUSTOMER_ID = "SELECT i.id_suspicious_identity, i.customer_id, i.date_create, i.id_duplicate_rule, r.code, l.date_lock_end, l.is_locked, l.author_type, l.author_name FROM identitystore_quality_suspicious_identity i LEFT JOIN identitystore_quality_suspicious_identity_lock l ON i.customer_id = l.customer_id LEFT JOIN identitystore_duplicate_rule r ON r.id_rule = i.id_duplicate_rule WHERE i.customer_id = ? ";
     private static final String SQL_QUERY_SELECT_COUNT_BY_RULE_ID = "SELECT count(id_suspicious_identity) FROM identitystore_quality_suspicious_identity WHERE id_duplicate_rule = ? ";
     private static final String SQL_QUERY_REMOVE_EXCLUDED_IDENTITIES = "DELETE FROM identitystore_quality_suspicious_identity_excluded WHERE first_customer_id = ? AND second_customer_id = ?";
+    private static final String SQL_QUERY_REMOVE_EXCLUDED_IDENTITIES_ONE_CUID = "DELETE FROM identitystore_quality_suspicious_identity_excluded WHERE first_customer_id = ? OR second_customer_id = ?";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
 
@@ -649,6 +654,17 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
         {
             daoUtil.setString( 1, firstCuid );
             daoUtil.setString( 2, secondCuid );
+            daoUtil.executeUpdate( );
+        }
+    }
+
+    @Override
+    public void removeExcludedIdentities( final String cuid, final Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REMOVE_EXCLUDED_IDENTITIES_ONE_CUID, plugin ) )
+        {
+            daoUtil.setString( 1, cuid );
+            daoUtil.setString( 2, cuid );
             daoUtil.executeUpdate( );
         }
     }

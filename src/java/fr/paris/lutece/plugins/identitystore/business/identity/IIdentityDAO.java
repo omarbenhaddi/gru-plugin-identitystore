@@ -194,6 +194,17 @@ public interface IIdentityDAO
     int selectIdByConnectionId( String strConnectionId, Plugin plugin );
 
     /**
+     * Find an identity ID from the specified customer ID
+     *
+     * @param strCustomerId
+     *            the customer ID
+     * @param plugin
+     *            the plugin
+     * @return The identity ID
+     */
+    int selectIdByCustomerId( String strCustomerId, Plugin plugin );
+
+    /**
      * Find by a given Attribute value
      *
      * @param strAttributeId
@@ -321,4 +332,36 @@ public interface IIdentityDAO
      */
     List<IdentityChange> selectIdentityHistoryBySearchParameters( String strCustomerId, String clientCode, String authorName, IdentityChangeType changeType,
             Map<String, String> metadata, Integer nbDaysFrom, Plugin plugin ) throws IdentityStoreException;
+
+    /**
+     * Search for identities that are not connected, and have a past expirationDate.
+     * 
+     * @param limit
+     *            the max number of results
+     * @param plugin
+     *            the plugin
+     * @return a list of {@link Identity}
+     */
+    List<Identity> selectExpiredNotMergedAndNotConnectedIdentities( int limit, Plugin plugin );
+
+    /**
+     * Search for identities that are merged to the provided identity ID.
+     * 
+     * @param identityId
+     *            the 'master' identity ID
+     * @param plugin
+     *            the plugin
+     * @return a list of {@link Identity}
+     */
+    List<Identity> selectMergedIdentities( int identityId, Plugin plugin );
+
+    /**
+     * Delete all attribute history of the identity's provided id.
+     * 
+     * @param identityId
+     *            the identity's id
+     * @param plugin
+     *            the plugin
+     */
+    void deleteAttributeHistory( int identityId, Plugin plugin );
 }

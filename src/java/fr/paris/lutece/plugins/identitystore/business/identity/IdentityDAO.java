@@ -51,7 +51,13 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +100,7 @@ public final class IdentityDAO implements IIdentityDAO
             + "    FROM identitystore_identity id" + "        INNER JOIN identity_tree mtree ON mtree.id_master_identity = id.id_identity" + " )" + " select "
             + COLUMNS + " from identity_tree a where a.is_merged = 0;";
     private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity, is_deleted, is_merged FROM identitystore_identity WHERE connection_id = ?";
+    private static final String SQL_QUERY_SELECT_ID_BY_CUSTOMER_ID = "SELECT id_identity, is_deleted, is_merged FROM identitystore_identity WHERE customer_id = ?";
     private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE = "SELECT DISTINCT " + COLUMNS
             + " FROM identitystore_identity a,  identitystore_identity_attribute b " + " WHERE a.id_identity = b.id_identity AND b.attribute_value ";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE = " AND b.id_attribute = ? ";
@@ -133,6 +140,11 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SEARCH_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE ${client_code} AND ${customer_id} AND ${author_name} AND ${change_type} AND ${modification_date} AND ${metadata} ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days}' DAY)";
     private static final String SQL_QUERY_REFRESH_LAST_UPDATE_DATE = "UPDATE identitystore_identity SET last_update_date = now() WHERE id_identity = ?";
+    private static final String SQL_QUERY_SELECT_EXPIRED_NOT_MERGED_AND_NOT_CONNECTED = "SELECT " + COLUMNS
+            + " FROM identitystore_identity a WHERE a.expiration_date < NOW() AND a.is_merged = 0 AND a.is_mon_paris_active = 0 LIMIT ?";
+    private static final String SQL_QUERY_SELECT_MERGED_TO = "SELECT " + COLUMNS
+            + " FROM identitystore_identity a WHERE a.is_merged = 1 AND a.id_master_identity = ?";
+    private static final String SQL_QUERY_DELETE_ALL_ATTRIBUTE_HISTORY = "DELETE from identitystore_identity_attribute_history WHERE id_identity = ?";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
 
@@ -495,6 +507,25 @@ public final class IdentityDAO implements IIdentityDAO
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CONNECTION_ID, plugin ) )
         {
             daoUtil.setString( 1, strConnectionId );
+            daoUtil.executeQuery( );
+
+            int nIdentityId = -1;
+
+            if ( daoUtil.next( ) )
+            {
+                nIdentityId = daoUtil.getInt( 1 );
+            }
+
+            return nIdentityId;
+        }
+    }
+
+    @Override
+    public int selectIdByCustomerId( final String strCustomerId, final Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CONNECTION_ID, plugin ) )
+        {
+            daoUtil.setString( 1, strCustomerId );
             daoUtil.executeQuery( );
 
             int nIdentityId = -1;
@@ -973,6 +1004,57 @@ public final class IdentityDAO implements IIdentityDAO
             throw new IdentityStoreException( e.getMessage( ), e );
         }
         return identityChanges;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Identity> selectExpiredNotMergedAndNotConnectedIdentities( final int limit, final Plugin plugin )
+    {
+        final List<Identity> listIdentities = new ArrayList<>( );
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_EXPIRED_NOT_MERGED_AND_NOT_CONNECTED, plugin ) )
+        {
+            daoUtil.setInt( 1, limit );
+            daoUtil.executeQuery( );
+            while ( daoUtil.next( ) )
+            {
+                listIdentities.add( getIdentityFromQuery( daoUtil ) );
+            }
+        }
+        return listIdentities;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Identity> selectMergedIdentities( final int identityId, final Plugin plugin )
+    {
+        final List<Identity> listIdentities = new ArrayList<>( );
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_MERGED_TO, plugin ) )
+        {
+            daoUtil.setInt( 1, identityId );
+            daoUtil.executeQuery( );
+            while ( daoUtil.next( ) )
+            {
+                listIdentities.add( getIdentityFromQuery( daoUtil ) );
+            }
+        }
+        return listIdentities;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteAttributeHistory( final int identityId, final Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_ALL_ATTRIBUTE_HISTORY, plugin ) )
+        {
+            daoUtil.setInt( 1, identityId );
+            daoUtil.executeUpdate( );
+        }
     }
 
     private String computeMetadaQuery( Map<String, String> metadata )

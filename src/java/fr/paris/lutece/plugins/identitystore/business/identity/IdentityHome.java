@@ -143,6 +143,18 @@ public final class IdentityHome
     }
 
     /**
+     * Find an identity ID from the specified customer ID
+     *
+     * @param strCustomerId
+     *            the customer ID
+     * @return the identity ID
+     */
+    public static int findIdByCustomerId( String strCustomerId )
+    {
+        return _dao.selectIdByCustomerId( strCustomerId, _plugin );
+    }
+
+    /**
      * Returns an instance of a identity whose identifier is specified in parameter
      *
      * @param nKey
@@ -520,5 +532,40 @@ public final class IdentityHome
     public static List<UpdatedIdentityDto> findUpdatedIdentities( final int days )
     {
         return _dao.selectUpdated( days, _plugin );
+    }
+
+    /**
+     * Search for identities that are not connected, and have a past expirationDate.
+     * 
+     * @param limit
+     *            the max number of returned results
+     * @return a list of expired {@link Identity}
+     */
+    public static List<Identity> findExpiredNotMergedAndNotConnectedIdentities( final int limit )
+    {
+        return _dao.selectExpiredNotMergedAndNotConnectedIdentities( limit, _plugin );
+    }
+
+    /**
+     * Search for identities that are merged to the provided identity ID.
+     * 
+     * @param identityId
+     *            the 'master' identity ID
+     * @return a list of {@link Identity}
+     */
+    public static List<Identity> findMergedIdentities( final int identityId )
+    {
+        return _dao.selectMergedIdentities( identityId, _plugin );
+    }
+
+    /**
+     * Delete all attribute history of the identity's provided id.
+     * 
+     * @param identityId
+     *            the identity id
+     */
+    public static void deleteAttributeHistory( final int identityId )
+    {
+        _dao.deleteAttributeHistory( identityId, _plugin );
     }
 }
