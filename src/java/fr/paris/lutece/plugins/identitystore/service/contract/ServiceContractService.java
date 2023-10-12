@@ -607,7 +607,7 @@ public class ServiceContractService
      */
     public List<String> getClientCodesFromAppCode( String appCode )
     {
-        List<ClientApplication> clientApplicationList = ClientApplicationHome.findByApplicationCode( appCode );
+        final List<ClientApplication> clientApplicationList = ClientApplicationHome.findByApplicationCode( appCode );
         return clientApplicationList.stream( ).map( ClientApplication::getClientCode ).collect( Collectors.toList( ) );
     }
 

@@ -93,6 +93,7 @@ import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import fr.paris.lutece.util.http.SecurityUtil;
 import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,11 +119,14 @@ public class IdentityService
     // EVENTS FOR ACCESS LOGGING
     public static final String CREATE_IDENTITY_EVENT_CODE = "CREATE_IDENTITY";
     public static final String UPDATE_IDENTITY_EVENT_CODE = "UPDATE_IDENTITY";
+    public static final String DECERTIFY_IDENTITY_EVENT_CODE = "DECERTIFY_IDENTITY";
     public static final String GET_IDENTITY_EVENT_CODE = "GET_IDENTITY";
     public static final String SEARCH_IDENTITY_EVENT_CODE = "SEARCH_IDENTITY";
     public static final String DELETE_IDENTITY_EVENT_CODE = "DELETE_IDENTITY";
+    public static final String CONSOLIDATE_IDENTITY_EVENT_CODE = "CONSOLIDATE_IDENTITY";
     public static final String MERGE_IDENTITY_EVENT_CODE = "MERGE_IDENTITY";
-    public static final String UNMERGE_IDENTITY_EVENT_CODE = "UNMERGE_IDENTITY";
+    public static final String CANCEL_MERGE_IDENTITY_EVENT_CODE = "CANCEL_MERGE_IDENTITY";
+    public static final String CANCEL_CONSOLIDATE_IDENTITY_EVENT_CODE = "CANCEL_CONSOLIDATE_IDENTITY";
     public static final String SPECIFIC_ORIGIN = "BO";
 
     // PROPERTIES
@@ -269,7 +273,7 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CREATE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, CREATE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identity.getCustomerId( ) ), SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -453,7 +457,7 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identity.getCustomerId( ) ), SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -612,20 +616,25 @@ public class IdentityService
             }
 
             /* Indexation */
-            final Map<String, String> metadata = new HashMap<>( );
-            metadata.put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
-            metadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
+            final Map<String, String> primaryMetadata = new HashMap<>( );
+            primaryMetadata.put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
+            primaryMetadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGED, secondaryIdentity,
-                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, primaryMetadata );
 
-            final Map<String, String> metadata2 = new HashMap<>( );
-            metadata2.put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
-            metadata2.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, CONSOLIDATE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( primaryIdentity.getCustomerId( ) ),
+                    SPECIFIC_ORIGIN );
+
+            final Map<String, String> secondaryMetadata = new HashMap<>( );
+            secondaryMetadata.put( Constants.METADATA_MERGED_CHILD_IDENTITY_CUID, secondaryIdentity.getCustomerId( ) );
+            secondaryMetadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, request.getDuplicateRuleCode( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATED, primaryIdentity,
-                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata2 );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, secondaryMetadata );
 
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, MERGE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( secondaryIdentity.getCustomerId( ) ),
+                    SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -711,17 +720,21 @@ public class IdentityService
             TransactionManager.commitTransaction( null );
 
             /* Indexation */
-            final Map<String, String> metadata = new HashMap<>( );
-            metadata.put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
+            final Map<String, String> secondaryMetadata = new HashMap<>( );
+            secondaryMetadata.put( Constants.METADATA_UNMERGED_MASTER_CUID, primaryIdentity.getCustomerId( ) );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGE_CANCELLED, secondaryIdentity,
-                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata );
-            final Map<String, String> metadata2 = new HashMap<>( );
-            metadata2.put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
-                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, metadata2 );
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, secondaryMetadata );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, CANCEL_MERGE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( secondaryIdentity.getCustomerId( ) ),
+                    SPECIFIC_ORIGIN );
 
-            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UNMERGE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
+            final Map<String, String> primaryMetadata = new HashMap<>( );
+            primaryMetadata.put( Constants.METADATA_UNMERGED_CHILD_CUID, secondaryIdentity.getCustomerId( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.CONSOLIDATION_CANCELLED, primaryIdentity,
+                    response.getStatus( ).getType( ).name( ), response.getStatus( ).getType( ).name( ), author, clientCode, primaryMetadata );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, CANCEL_CONSOLIDATE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( primaryIdentity.getCustomerId( ) ),
+                    SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -803,7 +816,7 @@ public class IdentityService
             throws IdentityStoreException
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                _internalUserService.getApiUser( author, clientCode ), request, SPECIFIC_ORIGIN );
+                _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( request.toString( ) ), SPECIFIC_ORIGIN );
         final List<SearchAttribute> providedAttributes = request.getSearch( ).getAttributes( );
         final Set<String> providedKeys = providedAttributes.stream( ).map( SearchAttribute::getKey ).collect( Collectors.toSet( ) );
 
@@ -875,7 +888,8 @@ public class IdentityService
                 for ( final IdentityDto identity : response.getIdentities( ) )
                 {
                     AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                            _internalUserService.getApiUser( author, clientCode ), identity.getCustomerId( ), SPECIFIC_ORIGIN );
+                            _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identity.getCustomerId( ) ),
+                            SPECIFIC_ORIGIN );
                     if ( author.getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
@@ -911,7 +925,7 @@ public class IdentityService
             final RequestAuthor author ) throws IdentityStoreException
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
-                customerId != null ? customerId : connectionId, SPECIFIC_ORIGIN );
+                SecurityUtil.logForgingProtect( customerId != null ? customerId : connectionId ), SPECIFIC_ORIGIN );
 
         final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( clientCode );
         if ( serviceContract == null )
@@ -930,7 +944,8 @@ public class IdentityService
             if ( author != null )
             {
                 AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                        _internalUserService.getApiUser( author, clientCode ), identityDto.getCustomerId( ), SPECIFIC_ORIGIN );
+                        _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identityDto.getCustomerId( ) ),
+                        SPECIFIC_ORIGIN );
             }
             if ( author != null && author.getType( ).equals( AuthorType.agent ) )
             {
@@ -1302,7 +1317,7 @@ public class IdentityService
                     response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
 
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, clientCode ), customerId, SPECIFIC_ORIGIN );
+                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( customerId ), SPECIFIC_ORIGIN );
         }
         catch( Exception e )
         {
@@ -1385,8 +1400,8 @@ public class IdentityService
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, response.getStatus( ).getType( ).name( ),
                     response.getStatus( ).getMessage( ), author, strClientCode, new HashMap<>( ) );
 
-            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, strClientCode ), strCustomerId, SPECIFIC_ORIGIN );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, DECERTIFY_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser( author, strClientCode ), SecurityUtil.logForgingProtect( strCustomerId ), SPECIFIC_ORIGIN );
         }
         catch( final Exception e )
         {

@@ -36,19 +36,16 @@ package fr.paris.lutece.plugins.identitystore.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.IndexStatus;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
-import fr.paris.lutece.portal.service.security.AccessLogService;
-import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -60,6 +57,8 @@ import java.util.Map;
 @Controller( controllerJsp = "IndexIdentities.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class IndexIdentityJspBean extends ManageIdentitiesJspBean
 {
+    private final static Logger _logger = Logger.getLogger( IndexIdentityJspBean.class );
+
     /**
      * 
      */
@@ -80,11 +79,7 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
     // Actions
     private static final String ACTION_INDEX_IDENTITIES = "indexIdentities";
     private static final String ACTION_INDEX_STATUS = "indexStatus";
-
-    // Events
-    private static final String INDEX_IDENTITY_EVENT_CODE = "INDEX_IDENTITIES";
-
-    private FullIndexTask _fullIndexTask = SpringContextService.getBean( "identitystore.fullIndexer" );
+    private final FullIndexTask _fullIndexTask = SpringContextService.getBean( "identitystore.fullIndexer" );
     private String _strLastLogs;
 
     @View( value = VIEW_INDEX_IDENTITIES, defaultView = true )
@@ -122,8 +117,6 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
         if ( _fullIndexTask.getStatus( ) == null || !_fullIndexTask.getStatus( ).isRunning( ) )
         {
             new Thread( _fullIndexTask::run ).start( );
-            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_CREATE, INDEX_IDENTITY_EVENT_CODE, getUser( ), null,
-                    IdentityService.SPECIFIC_ORIGIN );
         }
 
         return redirectView( request, VIEW_INDEX_IDENTITIES );
@@ -164,7 +157,7 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
         }
         catch( JsonProcessingException e )
         {
-            AppLogService.error( "Unable to serialize index status", e );
+            _logger.error( "Unable to serialize index status", e );
             return StringUtils.EMPTY;
         }
     }

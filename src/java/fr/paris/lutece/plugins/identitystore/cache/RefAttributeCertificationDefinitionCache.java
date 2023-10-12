@@ -36,7 +36,6 @@ package fr.paris.lutece.plugins.identitystore.cache;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevelHome;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -44,7 +43,7 @@ import java.util.List;
 public class RefAttributeCertificationDefinitionCache extends AbstractCacheableService
 {
 
-    private static Logger _logger = Logger.getLogger( RefAttributeCertificationDefinitionCache.class );
+    private static final Logger _logger = Logger.getLogger( RefAttributeCertificationDefinitionCache.class );
 
     public static final String SERVICE_NAME = "RefAttributeCertificationDefinitionCache";
 
@@ -58,7 +57,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
         _logger.info( "Init AttributeCertificationLevel cache" );
         this.resetCache( );
         final List<RefAttributeCertificationLevel> all = RefAttributeCertificationLevelHome.getRefAttributeCertificationLevelsList( );
-        all.forEach( refAttributeCertificationLevel -> this.put( refAttributeCertificationLevel ) );
+        all.forEach( this::put );
     }
 
     private String buildKey( final RefAttributeCertificationLevel refAttributeCertificationLevel )
@@ -114,7 +113,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
                 attributeKeyName );
         if ( certificationLevel == null )
         {
-            AppLogService.error( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
+            _logger.error( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
                     + attributeKeyName );
         }
         return certificationLevel;

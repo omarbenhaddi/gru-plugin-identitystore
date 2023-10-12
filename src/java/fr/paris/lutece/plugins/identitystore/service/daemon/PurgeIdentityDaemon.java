@@ -41,11 +41,11 @@ import fr.paris.lutece.plugins.identitystore.service.PurgeIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.portal.service.daemon.Daemon;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -75,6 +75,7 @@ import java.util.List;
  */
 public class PurgeIdentityDaemon extends Daemon
 {
+    private final static Logger _logger = Logger.getLogger( PurgeIdentityDaemon.class );
     private final String authorName = AppPropertiesService.getProperty( "daemon.purgeIdentityDaemon.author.name" );
     private final String clientCode = AppPropertiesService.getProperty( "daemon.purgeIdentityDaemon.client.code" );
     private final List<String> excludedAppCodes = Arrays
@@ -92,7 +93,7 @@ public class PurgeIdentityDaemon extends Daemon
         final StringBuilder logs = PurgeIdentityService.getInstance( ).purge( buildAuthor( stopWatch.getTime( ) ), clientCode, excludedAppCodes, batchLimit );
         stopWatch.stop( );
         final String execTime = "Execution time " + DurationFormatUtils.formatDurationWords( stopWatch.getTime( ), true, true );
-        AppLogService.info( execTime );
+        _logger.info( execTime );
         logs.append( execTime );
         setLastRunLogs( logs.toString( ) );
     }
@@ -104,5 +105,4 @@ public class PurgeIdentityDaemon extends Daemon
         author.setName( authorName + DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format( time ) );
         return author;
     }
-
 }

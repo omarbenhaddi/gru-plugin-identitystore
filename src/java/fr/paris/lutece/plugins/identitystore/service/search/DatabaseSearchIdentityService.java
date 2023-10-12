@@ -43,8 +43,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +54,8 @@ import java.util.stream.Collectors;
 
 public class DatabaseSearchIdentityService implements ISearchIdentityService
 {
+    private final static Logger _logger = Logger.getLogger( DatabaseSearchIdentityService.class );
+
     /**
      * private constructor
      */
@@ -78,7 +80,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
         }
         catch( final IdentityStoreException e )
         {
-            AppLogService.error( "An error occurred during database search: ", e );
+            _logger.error( "An error occurred during database search: ", e );
         }
         return new QualifiedIdentitySearchResult( );
     }
@@ -104,7 +106,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
         }
         catch( final IdentityStoreException e )
         {
-            AppLogService.error( "An error occurred during database search: ", e );
+            _logger.error( "An error occurred during database search: ", e );
         }
         return new QualifiedIdentitySearchResult( );
     }

@@ -48,7 +48,7 @@ import java.util.Objects;
 public class ActiveServiceContractCache extends AbstractCacheableService
 {
 
-    private static Logger _logger = Logger.getLogger( ActiveServiceContractCache.class );
+    private static final Logger _logger = Logger.getLogger( ActiveServiceContractCache.class );
 
     public static final String SERVICE_NAME = "ActiveServiceContractCache";
 

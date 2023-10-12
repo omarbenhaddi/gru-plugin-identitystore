@@ -33,13 +33,14 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task;
 
-import fr.paris.lutece.portal.service.util.AppLogService;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class IndexStatus implements Serializable
 {
+    private final static Logger _logger = Logger.getLogger( IndexStatus.class );
     protected int _nCurrentNbIndexedIdentities = 0;
     protected int _nNbTotalIdentities = 0;
     protected StringBuilder _sbLogs;
@@ -105,7 +106,6 @@ public class IndexStatus implements Serializable
         {
             _sbLogs = new StringBuilder( );
         }
-        AppLogService.info( message );
         _sbLogs.append( message ).append( "\n" );
     }
 }

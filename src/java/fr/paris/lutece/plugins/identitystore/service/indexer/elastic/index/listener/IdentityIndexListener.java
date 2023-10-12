@@ -53,6 +53,7 @@ public class IdentityIndexListener implements IdentityChangeListener
     private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
     private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME, DEFAULT_LOGGER_NAME );
     private static final Logger _logger = Logger.getLogger( LOGGER_NAME );
+    private static final String INDEX_IDENTITY_EVENT_CODE = "INDEX_IDENTITY";
 
     private final IIdentityIndexer _identityIndexer;
 

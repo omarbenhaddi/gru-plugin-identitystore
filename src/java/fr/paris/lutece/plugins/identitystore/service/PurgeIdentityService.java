@@ -33,7 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.grubusiness.business.demand.DemandType;
 import fr.paris.lutece.plugins.grubusiness.business.web.rs.DemandDisplay;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
@@ -49,8 +48,8 @@ import fr.paris.lutece.plugins.notificationstore.v1.web.service.NotificationStor
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -64,6 +63,7 @@ import static fr.paris.lutece.plugins.identitystore.service.identity.IdentitySer
 
 public final class PurgeIdentityService
 {
+    private static final Logger _logger = Logger.getLogger( PurgeIdentityService.class );
     private static PurgeIdentityService _instance;
 
     private final NotificationStoreService _notificationStoreService = SpringContextService.getBean( "notificationStore.notificationStoreService" );
@@ -235,9 +235,8 @@ public final class PurgeIdentityService
         }
         catch( final Exception e )
         {
-            AppLogService.error( "Notification Store Service Error", e );
+            _logger.error( "Notification Store Service Error", e );
         }
         return foundDemandType;
     }
-
 }

@@ -41,7 +41,6 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
-import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
@@ -63,6 +62,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
+import fr.paris.lutece.util.http.SecurityUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -249,8 +249,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             redirectView( request, VIEW_MANAGE_IDENTITIES );
         }
 
-        _identities.forEach( qualifiedIdentity -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ,
-                IdentityService.SEARCH_IDENTITY_EVENT_CODE, getUser( ), queryParameters, IdentityService.SPECIFIC_ORIGIN ) );
+        _identities.forEach(
+                qualifiedIdentity -> AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, IdentityService.SEARCH_IDENTITY_EVENT_CODE,
+                        getUser( ), SecurityUtil.logForgingProtect( qualifiedIdentity.getCustomerId( ) ), IdentityService.SPECIFIC_ORIGIN ) );
 
         final Map<String, Object> model = getPaginatedListModel( request, MARK_IDENTITY_LIST, _identities, JSP_MANAGE_IDENTITIES );
         model.put( MARK_HAS_CREATE_ROLE,
@@ -291,7 +292,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         final String nId = request.getParameter( PARAMETER_ID_IDENTITY );
 
         _identity = IdentityHome.findByCustomerId( nId );
-        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_EVENT_CODE, getUser( ), _identity.getCustomerId( ),
+        final String filteredCustomerId = SecurityUtil.logForgingProtect( _identity.getCustomerId( ) );
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_EVENT_CODE, getUser( ), filteredCustomerId,
                 IdentityService.SPECIFIC_ORIGIN );
 
         final Map<String, Object> model = getModel( );
@@ -330,8 +332,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 return getViewIdentity( request );
             }
         }
-        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_HISTORY_EVENT_CODE, getUser( ),
-                _identity.getCustomerId( ), IdentityService.SPECIFIC_ORIGIN );
+        final String filteredCustomerId = SecurityUtil.logForgingProtect( _identity.getCustomerId( ) );
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_HISTORY_EVENT_CODE, getUser( ), filteredCustomerId,
+                IdentityService.SPECIFIC_ORIGIN );
 
         final Map<String, Object> model = getModel( );
         model.put( MARK_IDENTITY_CHANGE_LIST, identityChangeList );
