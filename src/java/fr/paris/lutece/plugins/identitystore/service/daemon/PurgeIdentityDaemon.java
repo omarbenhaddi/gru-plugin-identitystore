@@ -79,7 +79,7 @@ public class PurgeIdentityDaemon extends Daemon
     private final String authorName = AppPropertiesService.getProperty( "daemon.purgeIdentityDaemon.author.name" );
     private final String clientCode = AppPropertiesService.getProperty( "daemon.purgeIdentityDaemon.client.code" );
     private final List<String> excludedAppCodes = Arrays
-            .asList( AppPropertiesService.getProperty( "daemon.purgeIdentityDaemon.excluded.app.codes" ).split( "," ) );
+            .asList( AppPropertiesService.getProperty( "daemon.purgeIdentityDaemon.excluded.app.codes", "" ).split( "," ) );
     private final int batchLimit = AppPropertiesService.getPropertyInt( "daemon.purgeIdentityDaemon.batch.limit", 1000 );
 
     /**
