@@ -112,7 +112,7 @@ public class IdentityDtoCache extends AbstractCacheableService
     public IdentityDto get( final String cuid, final String connectionId, final ServiceContract serviceContract ) throws IdentityStoreException
     {
         final String customerId;
-        if ( cuid == null )
+        if ( StringUtils.isEmpty( cuid ) )
         {
             final Identity identity = IdentityHome.findMasterIdentityByConnectionIdNoAttributes( connectionId );
             if ( identity == null )
