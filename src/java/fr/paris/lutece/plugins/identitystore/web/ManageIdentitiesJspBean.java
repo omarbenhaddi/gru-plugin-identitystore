@@ -182,4 +182,68 @@ public abstract class ManageIdentitiesJspBean extends MVCAdminJspBean
         }
         return parameters;
     }
+
+    protected void clearParameters( final HttpServletRequest request )
+    {
+        final String cuid = request.getParameter( QUERY_PARAM_CUID );
+        if ( cuid != null )
+        {
+            request.removeAttribute( QUERY_PARAM_CUID );
+        }
+        final String guid = request.getParameter( QUERY_PARAM_GUID );
+        if ( guid != null )
+        {
+            request.removeAttribute( QUERY_PARAM_GUID );
+        }
+        final String email = request.getParameter( QUERY_PARAM_EMAIL );
+        if ( email != null )
+        {
+            request.removeAttribute( QUERY_PARAM_EMAIL );
+        }
+        final String gender = request.getParameter( QUERY_PARAM_GENDER );
+        if ( gender != null )
+        {
+            request.removeAttribute( QUERY_PARAM_GENDER );
+        }
+        final String family_name = request.getParameter( QUERY_PARAM_FAMILY_NAME );
+        if ( family_name != null )
+        {
+            request.removeAttribute( QUERY_PARAM_FAMILY_NAME );
+        }
+        final String preferred_username = request.getParameter( QUERY_PARAM_PREFERRED_USERNAME );
+        if ( preferred_username != null )
+        {
+            request.removeAttribute( QUERY_PARAM_PREFERRED_USERNAME );
+        }
+        final String first_name = request.getParameter( QUERY_PARAM_FIRST_NAME );
+        if ( first_name != null )
+        {
+            request.removeAttribute( QUERY_PARAM_FIRST_NAME );
+        }
+        final String birthdate = request.getParameter( QUERY_PARAM_BIRTHDATE );
+        if ( birthdate != null )
+        {
+            request.removeAttribute( QUERY_PARAM_BIRTHDATE );
+        }
+        final String insee_birthplace_label = request.getParameter( QUERY_PARAM_INSEE_BIRTHPLACE_LABEL );
+        if ( insee_birthplace_label != null )
+        {
+            request.removeAttribute( QUERY_PARAM_INSEE_BIRTHPLACE_LABEL );
+        }
+        final String insee_birthcountry_label = request.getParameter( QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL );
+        if ( insee_birthcountry_label != null )
+        {
+            request.removeAttribute( QUERY_PARAM_INSEE_BIRTHCOUNTRY_LABEL );
+        }
+        final String phone = request.getParameter( QUERY_PARAM_PHONE );
+        if ( phone != null )
+        {
+            request.removeAttribute( QUERY_PARAM_PHONE );
+        }
+        final String datasource = request.getParameter( QUERY_PARAM_DATASOURCE );
+        if ( datasource != null )
+        {
+            request.removeAttribute( QUERY_PARAM_DATASOURCE );
+        }
+    }
 }
