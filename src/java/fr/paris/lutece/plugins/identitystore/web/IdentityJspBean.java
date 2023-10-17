@@ -59,6 +59,7 @@ import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
@@ -137,6 +138,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     // Datasource
     private static final String DATASOURCE_DB = "db";
     private static final String DATASOURCE_ES = "es";
+    private static final int BATCH_PARTITION_SIZE = AppPropertiesService.getPropertyInt( "identitystore.export.batch.size", 100 );
 
     // Session variable to store working values
     private Identity _identity;
@@ -245,8 +247,8 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         catch( Exception e )
         {
             addError( e.getMessage( ) );
-            request.getParameterMap( ).clear( );
-            redirectView( request, VIEW_MANAGE_IDENTITIES );
+            this.clearParameters( request );
+            return redirectView( request, VIEW_MANAGE_IDENTITIES );
         }
 
         _identities.forEach(
@@ -357,7 +359,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
         try
         {
             _identities.forEach( identityDto -> identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) ) );
-            final Batch<IdentityDto> batches = Batch.ofSize( _identities, 100 );
+            final Batch<IdentityDto> batches = Batch.ofSize( _identities, BATCH_PARTITION_SIZE );
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             final ZipOutputStream zipOut = new ZipOutputStream( outputStream );
@@ -409,7 +411,7 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 identityDto.setDuplicateDefinition( null );
                 identityDto.setSuspicious( null );
             } );
-            final Batch<IdentityDto> batches = Batch.ofSize( _identities, 100 );
+            final Batch<IdentityDto> batches = Batch.ofSize( _identities, BATCH_PARTITION_SIZE );
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             final ZipOutputStream zipOut = new ZipOutputStream( outputStream );
