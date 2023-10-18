@@ -42,6 +42,7 @@ import fr.paris.lutece.plugins.identitystore.v2.web.request.IdentityStoreGetRequ
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.dto.ResponseDto;
 import fr.paris.lutece.plugins.identitystore.v2.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
+import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
@@ -91,7 +92,7 @@ public final class IdentityStoreRestService
     @Produces( MediaType.APPLICATION_JSON )
     public Response getIdentity( @QueryParam( Constants.PARAM_ID_CONNECTION ) String strConnectionId,
             @QueryParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId, @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
-            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode )
+            @QueryParam( Constants.PARAM_CLIENT_CODE ) String strQueryClientAppCode ) throws IdentityStoreException
     {
         String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, strQueryClientAppCode );
         try

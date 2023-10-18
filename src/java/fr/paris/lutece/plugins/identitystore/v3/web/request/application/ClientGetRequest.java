@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicat
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
@@ -50,20 +51,25 @@ import fr.paris.lutece.portal.service.util.AppException;
 public class ClientGetRequest extends AbstractIdentityStoreRequest
 {
 
+    private final String _strTargetClientCode;
+
     /**
      * Constructor of IdentityStoreGetRequest
      *
      * @param strClientCode
      *            the client application Code
      */
-    public ClientGetRequest( String strClientCode, final String authorName, final String authorType ) throws IdentityStoreException
+    public ClientGetRequest( final String strTargetClientCode, final String strClientCode, final String authorName, final String authorType )
+            throws IdentityStoreException
     {
         super( strClientCode, authorName, authorType );
+        this._strTargetClientCode = strTargetClientCode;
     }
 
     @Override
     protected void validateSpecificRequest( ) throws IdentityStoreException
     {
+        IdentityRequestValidator.instance( ).checkTargetClientCode( _strTargetClientCode );
     }
 
     /**
@@ -77,7 +83,7 @@ public class ClientGetRequest extends AbstractIdentityStoreRequest
     {
         final ClientSearchResponse response = new ClientSearchResponse( );
 
-        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strClientCode );
+        final ClientApplication clientApplication = ClientApplicationHome.findByCode( _strTargetClientCode );
 
         if ( clientApplication == null )
         {
