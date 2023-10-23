@@ -10,57 +10,65 @@
             </p>
             <subsection name="Introduction">
                 <p>
-                    Ce plugin permet de constituer un référentiel d'identités. Couplé à un système d'authentification, il offre une service
-                    de <b>Fournisseur d'Identités (FI)</b>.
+                    Ce plugin permet de constituer un référentiel d'identités. Couplé à un système d'authentification, il offre un service de <b>Fournisseur d'Identités (FI)</b>.
                 </p>
                 <p> 
-                    Une identité est composée d'attributs. L'accès aux attributs se fait via une API REST. 
-                    Chaque attribut peut être lu, écrit ou certifié par une application cliente de l'API si
-                    elle dispose des autorisations adéquates. 
+                    Une identité est composée d'attributs. L'accès aux attributs se fait via une API REST. Chaque attribut peut être lu, écrit ou certifié par une application cliente de l'API si elle dispose des autorisations adéquates.
                 </p>
                 <p> 
                     Les applications clientes sont aussi dénommées <b>Fournisseurs de Service (FS)</b>.
+                </p>
+                <p>
+                    Ce plugin offre une interface web pour permettre aux administrateurs de configurer le référentiel d'identités et les autorisations des fournisseurs de services.
                 </p>
             </subsection>
             <subsection name="API REST">
                 <p>
                    Le plugin fournit une API REST permettant de gérer les identités. Plusieurs versions de l'API peuvent être appelées :
                    <ul>
-                        <li>Version 1 : l'URL à utiliser est <code>/identity/rest/identitystore/v1/identity</code>. Cette version utilise les objets des packages <code>fr.paris.lutece.plugins.identitystore.v1.*</code> de la <code>library-identitystore</code>.</li>
-                        <li>Version 2 : l'URL à utiliser est <code>/identity/rest/identitystore/v2/identity</code>. Cette version utilise les objets des packages <code>fr.paris.lutece.plugins.identitystore.v2.*</code> de la <code>library-identitystore</code>.</li>
+                        <li>Version 2 : the URL to use is <code>/identity/rest/identitystore/v2/identity</code>. Cette version utilise les objets des packages <code>fr.paris.lutece.plugins.identitystore.v1.*</code> de la <code>library-identitybusiness</code>.</li>
+                        <li>Version 3 : the URL to use is <code>/identity/rest/identitystore/v3/identity</code>. Cette version utilise les objets des packages <code>fr.paris.lutece.plugins.identitystore.v2.*</code> de la <code>library-identitybusiness</code>.</li>
                    </ul>
                 </p>
                 <p>
-                    L'API peut être appelée sans version dans l'URL : <code>/identity/rest/identitystore/identity</code>. La version utilisée est alors celle configurée avec la clé <code>identitystore.version</code> du fichier de configuration <code>identitystore.properties</code>. <strong>Atention: </strong>Comme les differentes versions de l'API n'utilisent pas les mêmes objets, vérifier que la version configurée est la bonne.
+                    La Version 2 ne peut être utilisée que pour récupérer une identité à partir de son CUID ou GUID. Seulement la version 3 offre une utilisation complète de l'API (CRUD et recherche).
                 </p>
             </subsection>
-            <subsection name="Diversification des identifiants">
+            <subsection name="Environment">
                 <p>
-                    Le plugin peut utiliser des identités ayant des identifiants cryptés de . 
-                    Ce mécanisme permet d'avoir un identifiant spécifique par fournisseur de services. Par conséquent, l'identifiant n'est pas partagé.
+                    L'exécution de l'IDS nécessite une instance d'[Elasticsearch (8+)](https://www.elastic.co/fr/downloads/elasticsearch). Aucune configuration particulière nécessaire, télécharger et exécuter.
                 </p>
                 <p>
-                    Pour utiliser le cryptage, le site doit contenir une classe implémentant l'interface <code>fr.paris.lutece.plugins.identitystore.service.encryption.IIdentityEncryptionService</code> de la librairie <code>gru-library-identitystore</code>.
-                    Par exemple, ajoutez le plugin <code>gru-plugin-grukeydiversification</code> dans le <code>pom.xml</code> du site. Le cryptage est alors activé.
+                    L'IDS utilise [PostgreSQL 10+](https://www.postgresql.org/) comme database relationnelle pour stocker ses données.
                 </p>
             </subsection>
             <subsection name="Configuration">
                 <p>
-                    Le bean appelé <code>identitystore.identityInfoExternalProvider</code> doit être défini via la configuration Spring. Le bean doit implémenter l'interface Java <code>fr.paris.lutece.plugins.identitystore.service.external.IIdentityInfoExternalProvider</code>. Il est utilisé pour créer une identité à partir d'une source externe quand un id de connexion est fourni dans la méthode web <em>create</em>.
+                    Un configuration particulière peut-être trouvée dans le ficher <code>identitystore_context.xml file</code>. Il s'agit de l'utilisation d'une (https://docs.spring.io/spring-framework/docs/3.2.0.M1/reference/html/scheduling.html)[spring task] pour schéduler le job de ré-indexation full des identités dans Elasticsearch avec un CRON (ne peut pas être fait pour le moment avec un Daemon Lutèce).
+                    <div class="source">
+                        <pre>
+    &lt;!-- Schedule full E/S identities reindexing --&gt;
+    &lt;bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" &gt;
+    &lt;constructor-arg name="_identityIndexer" ref="identitystore.elasticsearch.identityIndexer"/&gt;
+    &lt;/bean&gt;
+    &lt;task:scheduler id="identitystore.fullIndexerScheduler" /&gt;
+    &lt;task:scheduled-tasks scheduler="identitystore.fullIndexerScheduler"&gt;
+    &lt;task:scheduled ref="identitystore.fullIndexer" method="run" cron="${identitystore.index.full.cron}"/&gt;
+    &lt;/task:scheduled-tasks&gt;
+                        </pre>
+                        Avec
+                        <ul>
+                            <li><code>identitystore.fullIndexer</code> le bean réalisant la ré-indéxation des identités</li>
+                            <li><code>identitystore.fullIndexerSchedulerr</code> le spring scheduler qui cadence le job <code>identitystore.fullIndexer</code></li>
+                            <li><code>method="run"</code> le nom de la méthode du bean <code>identitystore.fullIndexer</code> qui sera appelée par le scheduler</li>
+                            <li><code>identitystore.index.full.cron</code> définit l'expression CRON et doit être présente dans le fichier <code>identitystore.properties</code></li>
+                        </ul>
+                    </div>
                 </p>
             </subsection>
             <subsection name="Usage">
                 <p>
-                    Le plugin expose des méthodes web pour gérer les identités. Consulter la page <em>/jsp/site/Portal.jsp?page=swaggerui</em> pour plus d'informations à propos de ces méthodes.
-                </p>
-            </subsection>
-            <subsection name="deletion of the identity">
-                <p>
-                    La suppression d'une identité à partir du web service ne supprime pas l'identity mais la taggue comme 'supprimée'. Les attributs, eux, sont supprimés.
-                    La mise à jour ou la récupération d'une identité tagguée 'supprimée' à partir du web service renvoie une exception. 
-                </p>
-                <p>
-                    La suppression d'une identité depuis l'IHM supprime complètement l'identité en BDD. 
+                    Le plugin expose des méthodes web pour gérer les identités. Consulter la page <em>/jsp/site/Portal.jsp?page=swaggerui</em> pour plus d'informations à propos de ces méthodes (à venir..).
                 </p>
             </subsection>
         </section>
