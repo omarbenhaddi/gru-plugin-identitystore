@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS identitystore_ref_certification_processus CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_certification_attribute_level CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_certification_level CASCADE;
 DROP TABLE IF EXISTS identitystore_ref_attribute CASCADE;
+DROP TABLE IF EXISTS identitystore_index_action CASCADE;
 --
 -- Structure for table identitystore_identity
 --
@@ -148,13 +149,14 @@ CREATE INDEX identitystore_client_application_certifiers_id_client_app ON identi
 CREATE TABLE identitystore_client_application
 (
     id_client_app int AUTO_INCREMENT,
-    name          varchar(100) NOT NULL UNIQUE,
-    code          varchar(100) NOT NULL UNIQUE,
+    name                 varchar(255) NOT NULL UNIQUE,
+    client_code          varchar(255) NOT NULL ,
+    application_code     varchar(255) NOT NULL ,
     PRIMARY KEY (id_client_app)
 );
 
 --
--- Structure for table identitystore_identity_attribute_history 
+-- Structure for table identitystore_identity_attribute_history
 --
 
 CREATE TABLE identitystore_identity_attribute_history
@@ -179,29 +181,34 @@ CREATE TABLE identitystore_identity_attribute_history
 --
 -- Structure for table identitystore_service_contract
 --
-CREATE TABLE identitystore_service_contract
-(
-    id_service_contract                             int AUTO_INCREMENT,
-    id_client_app                                   int      NOT NULL,
-    name                                            varchar(50)       default '' NOT NULL,
-    organizational_entity                           varchar(50)       default '' NOT NULL,
-    responsible_name                                varchar(50)       default '' NOT NULL,
-    contact_name                                    varchar(50)       default '' NOT NULL,
-    service_type                                    varchar(50)       default '' NOT NULL,
-    starting_date                                   date     NOT NULL,
-    ending_date                                     date              default NULL,
-    authorized_read                                 smallint not null default 0,
-    authorized_deletion                             smallint not null default 0,
-    authorized_search                               smallint not null default 0,
-    authorized_import                               smallint not null default 0,
-    authorized_export                               smallint not null default 0,
-    authorized_merge                                smallint not null default 0,
-    authorized_account_update                       smallint not null default 0,
-    authorized_agent_history_read                   smallint not null default 0,
-    is_application_authorized_to_delete_value       smallint not null default 0,
-    is_application_authorized_to_delete_certificate smallint not null default 0,
-    PRIMARY KEY (id_service_contract)
+
+CREATE TABLE identitystore_service_contract (
+    id_service_contract int AUTO_INCREMENT,
+    id_client_app integer NOT NULL,
+    name character varying(255) DEFAULT ''::character varying NOT NULL,
+    organizational_entity character varying(255) DEFAULT ''::character varying NOT NULL,    
+    moa_entity_name character varying(255) DEFAULT ''::character varying NOT NULL,
+    moa_responsible_name character varying(255) DEFAULT ''::character varying NOT NULL,
+    moa_contact_name character varying(255) DEFAULT ''::character varying NOT NULL,    
+    moe_entity_name character varying(255) DEFAULT ''::character varying NOT NULL,
+    moe_responsible_name character varying(255) DEFAULT ''::character varying NOT NULL,    
+    contact_name character varying(255) DEFAULT ''::character varying NOT NULL,
+    service_type character varying(255) DEFAULT ''::character varying NOT NULL,
+    starting_date date NOT NULL,
+    ending_date date,
+    data_retention_period_in_months integer NOT NULL,
+    authorized_creation smallint DEFAULT 0 NOT NULL,
+    authorized_update smallint DEFAULT 0 NOT NULL,
+    authorized_deletion smallint DEFAULT 0 NOT NULL,
+    authorized_search smallint DEFAULT 0 NOT NULL,
+    authorized_import smallint DEFAULT 0 NOT NULL,
+    authorized_export smallint DEFAULT 0 NOT NULL,
+    authorized_merge smallint DEFAULT 0 NOT NULL,
+    authorized_account_update smallint DEFAULT 0 NOT NULL,
+    authorized_decertification smallint DEFAULT 0 NOT NULL,
+    authorized_agent_history_read smallint DEFAULT 0 NOT NULL
 );
+
 ALTER TABLE identitystore_service_contract
     ADD CONSTRAINT fk_service_contract_id_client_app FOREIGN KEY (id_client_app) REFERENCES identitystore_client_application (id_client_app);
 
@@ -216,6 +223,7 @@ CREATE TABLE identitystore_service_contract_attribute_right
     searchable          smallint NOT NULL default 0,
     readable            smallint NOT NULL default 0,
     writable            smallint NOT NULL default 0,
+    mandatory           smallint NOT NULL default 0,
     PRIMARY KEY (id_service_contract, id_attribute)
 );
 ALTER TABLE identitystore_service_contract_attribute_right
@@ -276,7 +284,7 @@ CREATE TABLE identitystore_index_action
 
 DROP TABLE IF EXISTS identitystore_identity_search_rule;
 CREATE TABLE identitystore_identity_search_rule (
-    id_rule      int             AUTO_INCREMENT,
+    id_rule      int AUTO_INCREMENT,
     type         varchar(8)      NOT NULL,
     PRIMARY KEY (id_rule)
 );
