@@ -45,6 +45,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,9 @@ import java.util.stream.Collectors;
 public class FullIndexTask extends AbstractIndexTask
 {
     private static final String TASK_REINDEX_BATCH_SIZE_PROPERTY = "task.reindex.batch.size";
+    private static final String TASK_REINDEX_ACTIVE_PROPERTY = "task.reindex.active";
+    private final boolean active = AppPropertiesService.getPropertyBoolean( TASK_REINDEX_BATCH_SIZE_PROPERTY, false );
+    private final static Logger _logger = Logger.getLogger(FullIndexTask.class);
     private final IIdentityIndexer _identityIndexer;
 
     public FullIndexTask( IIdentityIndexer _identityIndexer )
@@ -63,6 +67,14 @@ public class FullIndexTask extends AbstractIndexTask
 
     public void run( )
     {
+        if(active) {
+            this.doJob();
+        } else {
+            _logger.info("Full index task is not active.");
+        }
+    }
+
+    private void doJob() {
         final StopWatch stopWatch = new StopWatch( );
         stopWatch.start( );
         this.init( );
