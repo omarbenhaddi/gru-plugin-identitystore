@@ -1238,23 +1238,41 @@ public class IdentityService
     }
 
     /**
-     * Gets a list of customer IDs on which to search potential duplicates.<br/>
-     * Returned customer IDS belong to identities that must have all attributes checked by the provided rule, and must also not be already merged nor be tagged
-     * as suspicious.
+     * Gets a list of qualified identities on which to search potential duplicates.<br/>
+     * Returned identities must have all attributes checked by the provided rule, and must also not be already merged nor be tagged as suspicious.<br/>
+     * The list is sorted by quality (higher quality identities first).
      *
      * @param rule
      *            the rule used to get matching identities
      * @return the list of identities
      */
-    public Batch<String> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize )
+    public Batch<IdentityDto> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize )
     {
         if ( rule == null || !rule.isActive( ) )
         {
-            return Batch.ofSize( new ArrayList<>( ), 0 );
+            return Batch.ofSize( Collections.emptyList( ), 0 );
         }
         final List<Integer> attributes = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) );
         final List<String> customerIdsList = IdentityHome.findByAttributeExisting( attributes, rule.getNbFilledAttributes( ), true, true );
-        return Batch.ofSize( customerIdsList, batchSize );
+        if ( customerIdsList.isEmpty( ) )
+        {
+            return Batch.ofSize( Collections.emptyList( ), 0 );
+        }
+        return Batch.ofSize( customerIdsList.stream( ).map( this::getQualifiedIdentitySafe ).filter( Objects::nonNull )
+                .sorted( Comparator.comparingDouble( i -> i.getQuality( ).getQuality( ) ) ).collect( Collectors.toList( ) ), batchSize );
+    }
+
+    private IdentityDto getQualifiedIdentitySafe( final String cuid )
+    {
+        try
+        {
+            return getQualifiedIdentity( cuid );
+        }
+        catch( final IdentityStoreException e )
+        {
+            // ignore this identity
+            return null;
+        }
     }
 
     /**

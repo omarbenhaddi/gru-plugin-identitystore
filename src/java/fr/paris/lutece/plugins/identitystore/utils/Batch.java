@@ -70,7 +70,7 @@ public final class Batch<T> extends AbstractList<List<T>>
     @Override
     public int size( )
     {
-        return (int) Math.ceil( (double) this.innerList.size( ) / (double) this.partitionSize );
+        return partitionSize == 0 ? 0 : (int) Math.ceil( (double) this.innerList.size( ) / (double) this.partitionSize );
     }
 
     public int totalSize( )
