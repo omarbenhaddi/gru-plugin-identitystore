@@ -67,6 +67,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_quality_suspicious_identity ( customer_id, id_duplicate_rule ) VALUES ( ?, ?) ";
     private static final String SQL_QUERY_ADD_LOCK = "INSERT INTO identitystore_quality_suspicious_identity_lock ( customer_id, is_locked, date_lock_end, author_type, author_name ) VALUES ( ?, ?, ?, ?, ?) ";
     private static final String SQL_QUERY_REMOVE_LOCK = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id = ? ";
+    private static final String SQL_QUERY_REMOVE_LOCK_WITH_ID_SUSPICIOUS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE customer_id IN ( SELECT customer_id FROM identitystore_quality_suspicious_identity WHERE id_suspicious_identity = ? ) ";
     private static final String SQL_QUERY_PURGE_LOCKS = "DELETE FROM identitystore_quality_suspicious_identity_lock WHERE date_lock_end < NOW()";
     private static final String SQL_QUERY_CHECK_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE (first_customer_id = ? AND second_customer_id = ?) OR (first_customer_id = ? AND second_customer_id = ?)";
     private static final String SQL_QUERY_CHECK_LIST_EXCLUDED = "SELECT COUNT(*) FROM identitystore_quality_suspicious_identity_excluded WHERE ";
@@ -216,6 +217,11 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
             daoUtil.setInt( 1, nId );
             daoUtil.executeUpdate( );
         }
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REMOVE_LOCK_WITH_ID_SUSPICIOUS, plugin ) )
+        {
+            daoUtil.setInt( 1, nId );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -225,6 +231,11 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     public void delete( String customerId, Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_CUID, plugin ) )
+        {
+            daoUtil.setString( 1, customerId );
+            daoUtil.executeUpdate( );
+        }
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REMOVE_LOCK, plugin ) )
         {
             daoUtil.setString( 1, customerId );
             daoUtil.executeUpdate( );
