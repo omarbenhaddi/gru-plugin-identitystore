@@ -29,7 +29,7 @@ CREATE TABLE identitystore_identity
     connection_id      varchar(100) NULL UNIQUE,
     customer_id        varchar(50)  NOT NULL UNIQUE,
     date_create        timestamp(3)    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_update_date   timestamp(3)             DEFAULT NULL,
+    last_update_date   timestamp(3)             DEFAULT CURRENT_TIMESTAMP,
     is_deleted         smallint              default 0,
     date_delete        timestamp(3)    NULL,
     is_merged          smallint              default 0,
@@ -58,6 +58,9 @@ CREATE TABLE identitystore_ref_attribute
     certifiable  smallint              default 0,
     pivot        smallint              default 0,
     mandatory_for_creation smallint NOT NULL DEFAULT 0,
+    validation_regex varchar(510) DEFAULT '^[A-Za-zÀ-Üà-ü\d\s''-]+$',
+    validation_error_message varchar(255) DEFAULT 'uniquement caractères alphanumériques, apostrophe, espace et tirets.',
+    validation_error_message_key varchar(128) NOT NULL DEFAULT 'identitystore.attribute.status.validation.error.only.alphanum.apostrophe.space.dash',
     PRIMARY KEY (id_attribute)
 );
 
@@ -181,7 +184,6 @@ CREATE TABLE identitystore_identity_attribute_history
 --
 -- Structure for table identitystore_service_contract
 --
-
 CREATE TABLE identitystore_service_contract (
     id_service_contract int AUTO_INCREMENT,
     id_client_app integer NOT NULL,
@@ -206,7 +208,8 @@ CREATE TABLE identitystore_service_contract (
     authorized_merge smallint DEFAULT 0 NOT NULL,
     authorized_account_update smallint DEFAULT 0 NOT NULL,
     authorized_decertification smallint DEFAULT 0 NOT NULL,
-    authorized_agent_history_read smallint DEFAULT 0 NOT NULL
+    authorized_agent_history_read smallint DEFAULT 0 NOT NULL,
+    PRIMARY KEY (id_service_contract)
 );
 
 ALTER TABLE identitystore_service_contract
@@ -344,6 +347,7 @@ CREATE TABLE identitystore_duplicate_rule (
     priority INT NOT NULL DEFAULT 100,
     active smallint NOT NULL DEFAULT 0,
     daemon smallint NOT NULL DEFAULT 0,
+    daemon_last_exec_date TIMESTAMP(3) DEFAULT NULL,
     PRIMARY KEY (id_rule)
 );
 
