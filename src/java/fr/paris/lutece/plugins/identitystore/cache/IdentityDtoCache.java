@@ -42,6 +42,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ConsolidateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
@@ -130,20 +131,19 @@ public class IdentityDtoCache extends AbstractCacheableService
         if ( identityDto == null || !verifyLastUpdateDate( identityDto ) )
         {
             this.remove( cacheKey );
-            final Identity identityFromDb = this.getFromDatabase( cacheKey );
+            final Identity identityFromDb = this.getFromDatabase( customerId );
             identityDto = convertAndEnrich( identityFromDb, serviceContract );
             this.put( identityDto, serviceContract.getId( ) );
         }
         return identityDto;
     }
 
-    public Identity getFromDatabase( final String cacheKey ) throws IdentityNotFoundException
+    public Identity getFromDatabase( final String customerId ) throws IdentityNotFoundException
     {
-        final String cuid = extractCuid( cacheKey );
-        final Identity identity = IdentityHome.findMasterIdentityByCustomerId( cuid );
+        final Identity identity = IdentityHome.findMasterIdentityByCustomerId( customerId );
         if ( identity == null )
         {
-            throw new IdentityNotFoundException( "No identity could be found for CUID : " + cuid );
+            throw new IdentityNotFoundException( "No identity could be found for CUID : " + customerId );
         }
         return identity;
     }
@@ -202,6 +202,20 @@ public class IdentityDtoCache extends AbstractCacheableService
                 exclusion.setExcludedCustomerId( excludedCustomerId );
                 return exclusion;
             } ).collect( Collectors.toList( ) ) );
+        }
+
+        final List<Identity> mergedIdentities = IdentityHome.findMergedIdentities( identity.getId( ) );
+        if ( !mergedIdentities.isEmpty( ) )
+        {
+            final ConsolidateDefinition consolidateDefinition = new ConsolidateDefinition( );
+            for ( final Identity mergedIdentity : mergedIdentities )
+            {
+                final IdentityDto mergedDto = new IdentityDto( );
+                mergedDto.setCustomerId( mergedIdentity.getCustomerId( ) );
+                mergedDto.setConnectionId( mergedIdentity.getConnectionId( ) );
+                consolidateDefinition.getMergedIdentities( ).add( mergedDto );
+            }
+            identityDto.setConsolidate( consolidateDefinition );
         }
 
         return identityDto;
