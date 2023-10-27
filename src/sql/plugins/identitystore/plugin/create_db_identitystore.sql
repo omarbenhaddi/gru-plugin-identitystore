@@ -105,7 +105,7 @@ CREATE TABLE identitystore_identity_attribute
 (
     id_identity            int          NOT NULL default '0',
     id_attribute           int          NOT NULL default '0',
-    attribute_value        varchar(100) NULL,
+    attribute_value        LONG VARCHAR NULL,
     id_certification       int          NOT NULL default '0',
     id_file                int                   default '0',
     lastupdate_date        timestamp(3)    NOT NULL default CURRENT_TIMESTAMP,
