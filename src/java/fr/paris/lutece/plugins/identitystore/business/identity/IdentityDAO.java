@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -138,7 +139,15 @@ public final class IdentityDAO implements IIdentityDAO
             + "    WHERE date_trunc('day', master.modification_date) = date_trunc('day', CURRENT_TIMESTAMP)) ";
     private static final String SQL_QUERY_SELECT_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE customer_id = ?  ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SEARCH_IDENTITY_HISTORY = "SELECT change_type, change_status, change_message, author_type, author_name, client_code, customer_id, modification_date, metadata::text FROM identitystore_identity_history WHERE ${client_code} AND ${customer_id} AND ${author_name} AND ${change_type} AND ${modification_date} AND ${metadata} ORDER BY modification_date DESC";
-    private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT customer_id, last_update_date from identitystore_identity where last_update_date > (NOW() - INTERVAL '${days}' DAY)";
+
+    private static final String SQL_QUERY_SELECT_UPDATED_IDENTITIES = "SELECT DISTINCT i.customer_id, i.last_update_date FROM identitystore_identity i JOIN identitystore_identity_history ih ON i.customer_id = ih.customer_id JOIN identitystore_identity_attribute_history iah ON i.id_identity = iah.id_identity WHERE 1=1";
+    private static final String SQL_QUERY_FILTER_LAST_UPDATE = "i.last_update_date > (NOW() - INTERVAL '${days}' DAY)";
+    private static final String SQL_QUERY_FILTER_IDENTITY_MODIFICATION_DATE = "ih.modification_date > (NOW() - INTERVAL '${days}' DAY)";
+    private static final String SQL_QUERY_FILTER_ATTRIBUTE_MODIFICATION_DATE = "iah.modification_date > (NOW() - INTERVAL '${days}' DAY)";
+    private static final String SQL_QUERY_FILTER_IDENTITY_CHANGE_TYPE = "ih.change_type IN (${identity_change_type_list})";
+    private static final String SQL_QUERY_FILTER_ATTRIBUTE_CHANGE_TYPE = "iah.change_type IN (${attribute_change_type_list})";
+    private static final String SQL_QUERY_FILTER_ATTRIBUTE_KEY = "iah.attribute_key = '${attribute_key}'";
+
     private static final String SQL_QUERY_REFRESH_LAST_UPDATE_DATE = "UPDATE identitystore_identity SET last_update_date = now() WHERE id_identity = ?";
     private static final String SQL_QUERY_SELECT_EXPIRED_NOT_MERGED_AND_NOT_CONNECTED = "SELECT " + COLUMNS
             + " FROM identitystore_identity a WHERE a.expiration_date < NOW() AND a.is_merged = 0 AND a.is_mon_paris_active = 0 LIMIT ?";
@@ -956,12 +965,60 @@ public final class IdentityDAO implements IIdentityDAO
      * {@inheritDoc}
      */
     @Override
-    public List<UpdatedIdentityDto> selectUpdated( final int days, final Plugin plugin )
+    public List<UpdatedIdentityDto> selectUpdated( final Integer days, final List<IdentityChangeType> identityChangeTypes,
+            final List<SearchUpdatedAttribute> updatedAttributes, final Plugin plugin )
     {
         final List<UpdatedIdentityDto> list = new ArrayList<>( );
-        final String strSQL = SQL_QUERY_SELECT_UPDATED_IDENTITIES.replace( "${days}", String.valueOf( days ) );
+        final StringBuilder sqlBuilder = new StringBuilder( SQL_QUERY_SELECT_UPDATED_IDENTITIES );
+        if ( days != null )
+        {
+            // AND i.last_update_date > (NOW() - INTERVAL '100' DAY)
+            sqlBuilder.append( " AND " ).append( SQL_QUERY_FILTER_LAST_UPDATE.replace( "${days}", days.toString( ) ) );
+        }
+        if ( !identityChangeTypes.isEmpty( ) )
+        {
+            if ( days != null )
+            {
+                // AND ih.modification_date > (NOW() - INTERVAL '100' DAY)
+                sqlBuilder.append( " AND " ).append( SQL_QUERY_FILTER_IDENTITY_MODIFICATION_DATE.replace( "${days}", days.toString( ) ) );
+            }
+            // AND ih.change_type in (0, 1)
+            sqlBuilder.append( " AND " ).append( SQL_QUERY_FILTER_IDENTITY_CHANGE_TYPE.replace( "${identity_change_type_list}",
+                    identityChangeTypes.stream( ).map( changeType -> String.valueOf( changeType.getValue( ) ) ).collect( Collectors.joining( ", " ) ) ) );
+        }
+        if ( !updatedAttributes.isEmpty( ) )
+        {
+            if ( days != null )
+            {
+                // AND iah.modification_date > (NOW() - INTERVAL '100' DAY)
+                sqlBuilder.append( " AND " ).append( SQL_QUERY_FILTER_ATTRIBUTE_MODIFICATION_DATE.replace( "${days}", days.toString( ) ) );
+            }
+            final List<String> fullAttributesFilters = new ArrayList<>( );
+            for ( final SearchUpdatedAttribute attribute : updatedAttributes )
+            {
+                final List<String> attributeFilters = new ArrayList<>( 2 );
+                if ( StringUtils.isNotBlank( attribute.getAttributeKey( ) ) )
+                {
+                    attributeFilters.add( SQL_QUERY_FILTER_ATTRIBUTE_KEY.replace( "${attribute_key}", attribute.getAttributeKey( ) ) );
+                }
+                if ( !attribute.getAttributeChangeTypes( ).isEmpty( ) )
+                {
+                    attributeFilters.add( SQL_QUERY_FILTER_ATTRIBUTE_CHANGE_TYPE.replace( "${attribute_change_type_list}", attribute.getAttributeChangeTypes( )
+                            .stream( ).map( changeType -> String.valueOf( changeType.getValue( ) ) ).collect( Collectors.joining( ", " ) ) ) );
+                }
+                if ( !attributeFilters.isEmpty( ) )
+                {
+                    fullAttributesFilters.add( attributeFilters.stream( ).collect( Collectors.joining( " AND ", "(", ")" ) ) );
+                }
+            }
+            if ( !fullAttributesFilters.isEmpty( ) )
+            {
+                // AND ( ( iah.change_type IN (0,1) AND iah.attribute_key = 'birthplace' ) OR ( iah.change_type IN (2) AND iah.attribute_key = 'mail' ) )
+                sqlBuilder.append( " AND " ).append( fullAttributesFilters.stream( ).collect( Collectors.joining( " OR ", "(", ")" ) ) );
+            }
+        }
 
-        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( sqlBuilder.toString( ), plugin ) )
         {
             daoUtil.executeQuery( );
             while ( daoUtil.next( ) )
@@ -972,8 +1029,8 @@ public final class IdentityDAO implements IIdentityDAO
                 updatedIdentity.setModificationDate( daoUtil.getTimestamp( nIndex ) );
                 list.add( updatedIdentity );
             }
-            return list;
         }
+        return list;
     }
 
     @Override

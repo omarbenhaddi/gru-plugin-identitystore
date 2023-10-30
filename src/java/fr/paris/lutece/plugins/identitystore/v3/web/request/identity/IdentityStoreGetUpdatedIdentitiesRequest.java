@@ -38,6 +38,7 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
@@ -52,29 +53,29 @@ import java.util.List;
  */
 public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentityStoreRequest
 {
-    private final String _strDays;
+    private final UpdatedIdentitySearchRequest _request;
 
     /**
      * Constructor of IdentityStoreGetRequest
      *
-     * @param strDays
-     *            the number of days
+     * @param updatedIdentitySearchRequest
+     *            the request
      * @param strClientCode
      *            the client application code
      * @param strAuthorType
      * @param strAuthorName
      */
-    public IdentityStoreGetUpdatedIdentitiesRequest( String strDays, String strClientCode, String strAuthorName, String strAuthorType )
-            throws IdentityStoreException
+    public IdentityStoreGetUpdatedIdentitiesRequest( final UpdatedIdentitySearchRequest updatedIdentitySearchRequest, final String strClientCode,
+            final String strAuthorName, final String strAuthorType ) throws IdentityStoreException
     {
         super( strClientCode, strAuthorName, strAuthorType );
-        this._strDays = strDays;
+        this._request = updatedIdentitySearchRequest;
     }
 
     @Override
     protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkDays( this._strDays );
+        IdentityRequestValidator.instance( ).checkUpdatedIdentitySearchRequest( this._request );
     }
 
     /**
@@ -87,7 +88,8 @@ public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentitySt
     public UpdatedIdentitySearchResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final UpdatedIdentitySearchResponse response = new UpdatedIdentitySearchResponse( );
-        final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( Integer.parseInt( _strDays ) );
+        final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( _request.getDays( ), _request.getIdentityChangeTypes( ),
+                _request.getUpdatedAttributes( ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
             response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );

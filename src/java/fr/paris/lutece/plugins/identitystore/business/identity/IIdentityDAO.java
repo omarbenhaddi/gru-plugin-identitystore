@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.business.identity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.ReferenceList;
@@ -305,12 +306,17 @@ public interface IIdentityDAO
 
     /**
      * get identities that have been updated during the previous `days`.
-     * 
+     *
      * @param days
      *            max number of days since the last update
+     * @param identityChangeTypes
+     *            filters on specific change types
+     * @param updatedAttributes
+     *            filters on specific updated attributes
      * @return the list of identities
      */
-    List<UpdatedIdentityDto> selectUpdated( final int days, final Plugin plugin );
+    List<UpdatedIdentityDto> selectUpdated( final Integer days, final List<IdentityChangeType> identityChangeTypes,
+            final List<SearchUpdatedAttribute> updatedAttributes, final Plugin plugin );
 
     /**
      * Search for history entries that matches the following parameters

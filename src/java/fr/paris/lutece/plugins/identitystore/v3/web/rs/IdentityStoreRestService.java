@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRe
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -362,15 +363,15 @@ public final class IdentityStoreRestService
     }
 
     /**
-     * Gives all modified identity CUIDs within the last given number of days
+     * Gives all modified identity CUIDs according to given request.
      *
-     * @param strDays
-     *            max number of days since the last update
+     * @param updatedIdentitySearchRequest
+     *            the request
      * @param strHeaderClientAppCode
      *            client code
      * @return the identity list
      */
-    @GET
+    @POST
     @Path( Constants.UPDATED_IDENTITIES_PATH )
     @Produces( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Gets all modified identity CUIDs within the last given number of days", response = UpdatedIdentitySearchResponse.class )
@@ -379,7 +380,7 @@ public final class IdentityStoreRestService
             @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )
     } )
     public Response getUpdatedIdentities(
-            @ApiParam( name = Constants.PARAM_DAYS, value = "max number of days since the last update" ) @QueryParam( Constants.PARAM_DAYS ) String strDays,
+            @ApiParam( name = "Request body", value = "An Updated Identity Change Request" ) UpdatedIdentitySearchRequest updatedIdentitySearchRequest,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strHeaderClientAppCode,
             @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
             @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
@@ -387,8 +388,8 @@ public final class IdentityStoreRestService
             throws IdentityStoreException
     {
         final String strClientAppCode = IdentityStoreService.getTrustedClientCode( strHeaderClientAppCode, StringUtils.EMPTY, strHeaderAppCode );
-        final IdentityStoreGetUpdatedIdentitiesRequest request = new IdentityStoreGetUpdatedIdentitiesRequest( strDays, strClientAppCode, authorName,
-                authorType );
+        final IdentityStoreGetUpdatedIdentitiesRequest request = new IdentityStoreGetUpdatedIdentitiesRequest( updatedIdentitySearchRequest, strClientAppCode,
+                authorName, authorType );
         final UpdatedIdentitySearchResponse entity = request.doSpecificRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }

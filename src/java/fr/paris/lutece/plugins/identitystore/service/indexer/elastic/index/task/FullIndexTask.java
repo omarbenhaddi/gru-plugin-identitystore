@@ -57,7 +57,7 @@ public class FullIndexTask extends AbstractIndexTask
     private static final String TASK_REINDEX_BATCH_SIZE_PROPERTY = "task.reindex.batch.size";
     private static final String TASK_REINDEX_ACTIVE_PROPERTY = "task.reindex.active";
     private final boolean active = AppPropertiesService.getPropertyBoolean( TASK_REINDEX_ACTIVE_PROPERTY, false );
-    private final static Logger _logger = Logger.getLogger(FullIndexTask.class);
+    private final static Logger _logger = Logger.getLogger( FullIndexTask.class );
     private final IIdentityIndexer _identityIndexer;
 
     public FullIndexTask( IIdentityIndexer _identityIndexer )
@@ -67,14 +67,18 @@ public class FullIndexTask extends AbstractIndexTask
 
     public void run( )
     {
-        if(active) {
-            this.doJob();
-        } else {
-            _logger.info("Full index task is not active.");
+        if ( active )
+        {
+            this.doJob( );
+        }
+        else
+        {
+            _logger.info( "Full index task is not active." );
         }
     }
 
-    private void doJob() {
+    private void doJob( )
+    {
         final StopWatch stopWatch = new StopWatch( );
         stopWatch.start( );
         this.init( );

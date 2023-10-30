@@ -37,6 +37,8 @@ import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedAttribute;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
@@ -527,11 +529,16 @@ public final class IdentityHome
      * 
      * @param days
      *            max number of days since the last update
+     * @param identityChangeTypes
+     *            filters on specific change types
+     * @param updatedAttributes
+     *            filters on specific updated attributes
      * @return the list of identities
      */
-    public static List<UpdatedIdentityDto> findUpdatedIdentities( final int days )
+    public static List<UpdatedIdentityDto> findUpdatedIdentities( final Integer days, final List<IdentityChangeType> identityChangeTypes,
+            final List<SearchUpdatedAttribute> updatedAttributes )
     {
-        return _dao.selectUpdated( days, _plugin );
+        return _dao.selectUpdated( days, identityChangeTypes, updatedAttributes, _plugin );
     }
 
     /**
