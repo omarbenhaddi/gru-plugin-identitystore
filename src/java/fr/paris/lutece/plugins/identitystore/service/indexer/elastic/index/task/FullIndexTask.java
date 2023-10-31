@@ -78,7 +78,6 @@ public class FullIndexTask extends AbstractIndexTask
         }
     }
 
-
     public void doJob( )
     {
         final StopWatch stopWatch = new StopWatch( );
