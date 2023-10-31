@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,12 +85,15 @@ public class IdentityAttributeValidationService
         {
             for ( final AttributeDto attribute : identity.getAttributes( ) )
             {
-                final Pattern validationPattern = _cache.get( attribute.getKey( ) );
-                if ( validationPattern != null )
+                if ( StringUtils.isNotBlank( attribute.getValue( ) ) )
                 {
-                    if ( !validationPattern.matcher( attribute.getValue( ) ).matches( ) )
+                    final Pattern validationPattern = _cache.get( attribute.getKey( ) );
+                    if ( validationPattern != null )
                     {
-                        attrStatusList.add( this.buildAttributeValidationErrorStatus( attribute.getKey( ) ) );
+                        if ( !validationPattern.matcher( attribute.getValue( ) ).matches( ) )
+                        {
+                            attrStatusList.add( this.buildAttributeValidationErrorStatus( attribute.getKey( ) ) );
+                        }
                     }
                 }
             }
