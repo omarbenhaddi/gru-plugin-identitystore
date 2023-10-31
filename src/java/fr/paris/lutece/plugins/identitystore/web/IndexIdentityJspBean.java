@@ -116,7 +116,7 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
         }
         if ( _fullIndexTask.getStatus( ) == null || !_fullIndexTask.getStatus( ).isRunning( ) )
         {
-            new Thread( _fullIndexTask::run ).start( );
+            new Thread( _fullIndexTask::doJob ).start( );
         }
 
         return redirectView( request, VIEW_INDEX_IDENTITIES );

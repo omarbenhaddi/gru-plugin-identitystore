@@ -69,6 +69,7 @@ public class FullIndexTask extends AbstractIndexTask
     {
         if ( active )
         {
+            _logger.info( "Full index task is active." );
             this.doJob( );
         }
         else
@@ -77,7 +78,8 @@ public class FullIndexTask extends AbstractIndexTask
         }
     }
 
-    private void doJob( )
+
+    public void doJob( )
     {
         final StopWatch stopWatch = new StopWatch( );
         stopWatch.start( );
