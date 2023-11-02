@@ -110,7 +110,13 @@ public class DuplicateService implements IDuplicateService
                     if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
                     {
                         matchingRuleCodes.add( ruleCode );
-                        response.getIdentities( ).addAll( identitySearchResult.getQualifiedIdentities( ) );
+                        identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
+                            if ( response.getIdentities( ).stream( )
+                                    .noneMatch( existing -> Objects.equals( existing.getCustomerId( ), identityDto.getCustomerId( ) ) ) )
+                            {
+                                response.getIdentities( ).add( identityDto );
+                            }
+                        } );
                         Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
                     }
                 }
