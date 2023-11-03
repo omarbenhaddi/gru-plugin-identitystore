@@ -1,0 +1,7 @@
+= Export JDD for load tests
+
+Usage
+
+``` sh
+. ./export.sh "psql CORE" 100000 200000
+```
