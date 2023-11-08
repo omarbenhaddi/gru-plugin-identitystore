@@ -106,14 +106,36 @@ public class DuplicateRuleService
     }
 
     /**
-     * Get {@link DuplicateRule} from cache by its name.
+     * Get {@link DuplicateRule} from cache by its code.
      *
      * @param ruleCode
-     * @return
+     *            the rule code
+     * @return DuplicateRule
+     * @throws DuplicateRuleNotFoundException
+     *             if the rule is not found for the provided code
      */
     public DuplicateRule get( final String ruleCode ) throws DuplicateRuleNotFoundException
     {
         return _cache.get( ruleCode );
+    }
+
+    /**
+     * Get {@link DuplicateRule} from cache by its code.
+     *
+     * @param ruleCode
+     *            the rule code
+     * @return {@link DuplicateRule}, or null if the rule is not found for the provided code
+     */
+    public DuplicateRule safeGet( final String ruleCode )
+    {
+        try
+        {
+            return _cache.get( ruleCode );
+        }
+        catch( final DuplicateRuleNotFoundException e )
+        {
+            return null;
+        }
     }
 
     /**

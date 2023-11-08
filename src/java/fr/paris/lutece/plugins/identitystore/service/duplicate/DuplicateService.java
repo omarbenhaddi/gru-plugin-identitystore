@@ -44,6 +44,8 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.utils.Maps;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
@@ -54,6 +56,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,33 +95,26 @@ public class DuplicateService implements IDuplicateService
     {
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
         final List<String> matchingRuleCodes = new ArrayList<>( );
+
         if ( CollectionUtils.isNotEmpty( ruleCodes ) )
         {
-            for ( final String ruleCode : ruleCodes )
+            final List<DuplicateRule> duplicateRules = ruleCodes.stream( ).map( code -> DuplicateRuleService.instance( ).safeGet( code ) )
+                    .filter( Objects::nonNull ).filter( DuplicateRule::isActive ).sorted( Comparator.comparingInt( DuplicateRule::getPriority ) )
+                    .collect( Collectors.toList( ) );
+            for ( final DuplicateRule duplicateRule : duplicateRules )
             {
-                final DuplicateRule duplicateRule = DuplicateRuleService.instance( ).get( ruleCode );
-                if ( duplicateRule == null )
+                final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
+                if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
                 {
-                    final DuplicateSearchResponse errorResponse = new DuplicateSearchResponse( );
-                    errorResponse.setStatus( ResponseStatusFactory.notFound( ).setMessage( "Duplicate rule not found for code " + ruleCode )
-                            .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_FOUND ) );
-                    return errorResponse;
-                }
-                if ( duplicateRule.isActive( ) )
-                {
-                    final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
-                    if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
-                    {
-                        matchingRuleCodes.add( ruleCode );
-                        identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
-                            if ( response.getIdentities( ).stream( )
-                                    .noneMatch( existing -> Objects.equals( existing.getCustomerId( ), identityDto.getCustomerId( ) ) ) )
-                            {
-                                response.getIdentities( ).add( identityDto );
-                            }
-                        } );
-                        Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
-                    }
+                    matchingRuleCodes.add( duplicateRule.getCode( ) );
+                    identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
+                        if ( response.getIdentities( ).stream( )
+                                .noneMatch( existing -> Objects.equals( existing.getCustomerId( ), identityDto.getCustomerId( ) ) ) )
+                        {
+                            response.getIdentities( ).add( identityDto );
+                        }
+                    } );
+                    Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
                 }
             }
         }
@@ -155,6 +151,9 @@ public class DuplicateService implements IDuplicateService
                 try
                 {
                     IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
+                    qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
+                    qualifiedIdentity.getDuplicateDefinition( ).setDuplicateSuspicion( new IdentityDuplicateSuspicion( ) );
+                    qualifiedIdentity.getDuplicateDefinition( ).getDuplicateSuspicion( ).setDuplicateRuleCode( duplicateRule.getCode( ) );
                 }
                 catch( IdentityAttributeNotFoundException e )
                 {
