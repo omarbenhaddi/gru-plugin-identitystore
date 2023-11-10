@@ -519,7 +519,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_PURGE, plugin ) )
         {
-            daoUtil.executeQuery( );
+            daoUtil.executeUpdate( );
         }
     }
 
