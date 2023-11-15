@@ -127,7 +127,7 @@ public class DuplicateService implements IDuplicateService
         else
         {
             response.setStatus(
-                    ResponseStatusFactory.notFound( ).setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) )
+                    ResponseStatusFactory.noResult( ).setMessage( "No potential duplicate found with the rule(s) : " + String.join( ",", ruleCodes ) )
                             .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_POTENTIAL_DUPLICATE_FOUND ) );
             response.setIdentities( Collections.emptyList( ) );
         }

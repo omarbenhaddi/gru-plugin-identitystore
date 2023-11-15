@@ -89,7 +89,7 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
 
         if ( clientApplications == null || CollectionUtils.isEmpty( clientApplications ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CLIENT_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CLIENT_FOUND ) );
         }
         else
         {

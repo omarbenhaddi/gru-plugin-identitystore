@@ -84,7 +84,7 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
 
         if ( refCertificationLevelsList == null || CollectionUtils.isEmpty( refCertificationLevelsList ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_LEVEL_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_LEVEL_FOUND ) );
         }
         else
         {

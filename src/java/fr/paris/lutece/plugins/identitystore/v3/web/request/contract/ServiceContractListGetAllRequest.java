@@ -88,7 +88,7 @@ public class ServiceContractListGetAllRequest extends AbstractIdentityStoreReque
         final List<ServiceContract> serviceContracts = ServiceContractHome.getAllServiceContractsList( );
         if ( CollectionUtils.isEmpty( serviceContracts ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_SERVICE_CONTRACT_FOUND ) );
         }
         else
         {

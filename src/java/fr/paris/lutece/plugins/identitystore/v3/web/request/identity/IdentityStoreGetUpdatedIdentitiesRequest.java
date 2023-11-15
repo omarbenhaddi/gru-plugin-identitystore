@@ -92,7 +92,7 @@ public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentitySt
                 _request.getUpdatedAttributes( ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );
         }
         else
         {

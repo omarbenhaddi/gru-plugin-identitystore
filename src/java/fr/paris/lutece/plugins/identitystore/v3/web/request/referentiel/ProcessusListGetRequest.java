@@ -87,7 +87,7 @@ public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
 
         if ( refAttributeCertificationProcessussList == null || CollectionUtils.isEmpty( refAttributeCertificationProcessussList ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_PROCESSUS_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_CERTIFICATION_PROCESSUS_FOUND ) );
         }
         else
         {

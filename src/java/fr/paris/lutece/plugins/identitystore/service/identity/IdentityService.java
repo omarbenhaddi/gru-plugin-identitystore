@@ -900,12 +900,12 @@ public class IdentityService
             }
             else
             {
-                response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
+                response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
             }
         }
         else
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
         }
     }
 

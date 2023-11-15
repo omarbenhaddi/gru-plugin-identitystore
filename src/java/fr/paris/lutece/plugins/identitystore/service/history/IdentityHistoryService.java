@@ -125,7 +125,7 @@ public class IdentityHistoryService
 
         if ( response.getHistories( ).isEmpty( ) )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_HISTORY_FOUND ) );
+            response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_HISTORY_FOUND ) );
         }
         else
         {
