@@ -84,9 +84,37 @@ public class IdentityAttributeService
         return _instance;
     }
 
+    /**
+     * Get {@link AttributeKey} from its key name.
+     * 
+     * @param keyName
+     *            the key name
+     * @return {@link AttributeKey}
+     * @throws IdentityAttributeNotFoundException
+     *             if no {@link AttributeKey} exists for the provided key name.
+     */
     public AttributeKey getAttributeKey( final String keyName ) throws IdentityAttributeNotFoundException
     {
         return _cache.get( keyName );
+    }
+
+    /**
+     * Get {@link AttributeKey} from its key name.
+     * 
+     * @param keyName
+     *            the key name
+     * @return {@link AttributeKey}, or <code>null</code> if no {@link AttributeKey} exists for the provided key name.
+     */
+    public AttributeKey getAttributeKeySafe( final String keyName )
+    {
+        try
+        {
+            return _cache.get( keyName );
+        }
+        catch( final Exception e )
+        {
+            return null;
+        }
     }
 
     public List<AttributeKey> getCommonAttributeKeys( final String keyName )
@@ -95,16 +123,8 @@ public class IdentityAttributeService
         {
             _cache.refresh( );
         }
-        return _cache.getKeys( ).stream( ).map( key -> {
-            try
-            {
-                return _cache.get( key );
-            }
-            catch( IdentityAttributeNotFoundException e )
-            {
-                throw new RuntimeException( e );
-            }
-        } ).filter( attributeKey -> attributeKey.getCommonSearchKeyName( ) != null && Objects.equals( attributeKey.getCommonSearchKeyName( ), keyName ) )
+        return _cache.getKeys( ).stream( ).map( this::getAttributeKeySafe ).filter( Objects::nonNull )
+                .filter( attributeKey -> attributeKey.getCommonSearchKeyName( ) != null && Objects.equals( attributeKey.getCommonSearchKeyName( ), keyName ) )
                 .collect( Collectors.toList( ) );
     }
 

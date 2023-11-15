@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import fr.paris.lutece.plugins.identitystore.data.TestAttribute;
 import fr.paris.lutece.plugins.identitystore.data.TestDefinition;
 import fr.paris.lutece.plugins.identitystore.data.TestIdentity;
+import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -100,12 +101,12 @@ public abstract class IdentityStoreJsonDataTestCase extends IdentityStoreBDDAndE
                     }
                     else
                     {
-                        throw new RuntimeException( "ERROR " + file.getName( ) + " : JSON is empty" );
+                        throw new AppException( "ERROR " + file.getName( ) + " : JSON is empty" );
                     }
                 }
                 catch( Exception e )
                 {
-                    throw new RuntimeException( e );
+                    throw new AppException( "Unexpected error :: ", e );
                 }
             } );
             System.out.println( "----- Global test Results -----" );

@@ -148,17 +148,10 @@ public class DuplicateService implements IDuplicateService
             result.getQualifiedIdentities( ).removeIf( identity -> ( identity.getMerge( ) != null && identity.getMerge( ).isMerged( ) )
                     || Objects.equals( identity.getCustomerId( ), customerId ) );
             result.getQualifiedIdentities( ).forEach( qualifiedIdentity -> {
-                try
-                {
-                    IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
-                    qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
-                    qualifiedIdentity.getDuplicateDefinition( ).setDuplicateSuspicion( new IdentityDuplicateSuspicion( ) );
-                    qualifiedIdentity.getDuplicateDefinition( ).getDuplicateSuspicion( ).setDuplicateRuleCode( duplicateRule.getCode( ) );
-                }
-                catch( IdentityAttributeNotFoundException e )
-                {
-                    throw new RuntimeException( e );
-                }
+                IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
+                qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
+                qualifiedIdentity.getDuplicateDefinition( ).setDuplicateSuspicion( new IdentityDuplicateSuspicion( ) );
+                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateSuspicion( ).setDuplicateRuleCode( duplicateRule.getCode( ) );
             } );
             return result;
         }

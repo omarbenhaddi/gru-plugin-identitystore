@@ -54,7 +54,6 @@ import java.util.stream.Collectors;
 
 public class IdentityQualityService
 {
-    private static final IdentityAttributeCache _identityAttributeCache = SpringContextService.getBean( "identitystore.identityAttributeCache" );
     private static final QualityBaseCache _qualityBaseCache = SpringContextService.getBean( "identitystore.qualityBaseCache" );
 
     private static IdentityQualityService _instance;
@@ -114,7 +113,7 @@ public class IdentityQualityService
         }
     }
 
-    public void computeQuality( final IdentityDto identity ) throws IdentityAttributeNotFoundException
+    public void computeQuality( final IdentityDto identity )
     {
         if ( identity.getQuality( ) == null )
         {
@@ -127,8 +126,8 @@ public class IdentityQualityService
             {
                 continue;
             }
-            final AttributeKey attributeKey = _identityAttributeCache.get( attribute.getKey( ) );
-            if ( attributeKey.getKeyWeight( ) > 0 )
+            final AttributeKey attributeKey = IdentityAttributeService.instance( ).getAttributeKeySafe( attribute.getKey( ) );
+            if ( attributeKey != null && attributeKey.getKeyWeight( ) > 0 )
             {
                 levels.addAndGet( attributeKey.getKeyWeight( ) * attribute.getCertificationLevel( ) );
             }

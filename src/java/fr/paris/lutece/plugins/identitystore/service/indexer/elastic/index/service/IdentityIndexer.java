@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.busin
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.business.IndexActionType;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
+import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -199,9 +200,9 @@ public class IdentityIndexer implements IIdentityIndexer
                 this._elasticClient.createAlias( newIndex, alias );
             }
         }
-        catch( ElasticClientException e )
+        catch( final ElasticClientException e )
         {
-            throw new RuntimeException( e );
+            throw new AppException( "Unexpected error occured while managing ES alias.", e );
         }
     }
 
