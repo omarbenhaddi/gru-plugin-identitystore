@@ -83,19 +83,6 @@ public interface IIdentityAttributeDAO
     // Finders
 
     /**
-     * Load the data from the table
-     *
-     * @param nIdentityId
-     *            The identity ID
-     * @param nAttributeId
-     *            The Attribute ID
-     * @param plugin
-     *            the Plugin
-     * @return The instance of the identityAttribute
-     */
-    IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin );
-
-    /**
      * Load the data of all the identityAttribute objects and returns them as a list
      *
      * @param nIdentityId

@@ -1063,7 +1063,7 @@ public class IdentityService
         // If identity is connected and service contract doesn't allow unrestricted update, do a bunch of checks
         if ( identity.isConnected( ) && !_serviceContractService.canModifyConnectedIdentity( clientCode ) )
         {
-            connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes, response );
+            this.connectedIdentityUpdateCheck( requestIdentity, identity, existingWritableAttributes, newWritableAttributes, response );
             if ( ResponseStatusFactory.unauthorized( ).equals( response.getStatus( ) ) )
             {
                 return attrStatusList;
@@ -1130,6 +1130,7 @@ public class IdentityService
     private void connectedIdentityUpdateCheck( final IdentityDto requestIdentity, final Identity identity, final List<AttributeDto> existingWritableAttributes,
             final List<AttributeDto> newWritableAttributes, final ChangeResponse response )
     {
+        //TODO refactor to use cache ?
         final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
 

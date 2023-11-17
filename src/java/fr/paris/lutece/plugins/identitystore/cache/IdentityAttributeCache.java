@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
 public class IdentityAttributeCache extends AbstractCacheableService
 {
 
-    private static Logger _logger = Logger.getLogger( IdentityAttributeCache.class );
+    private static final Logger _logger = Logger.getLogger( IdentityAttributeCache.class );
 
     public static final String SERVICE_NAME = "IdentityAttributeCache";
 

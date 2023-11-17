@@ -37,16 +37,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import fr.paris.lutece.portal.business.file.File;
-import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -54,10 +50,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class provides Data Access methods for IdentityAttribute objects
@@ -65,20 +61,19 @@ import java.util.Map;
 public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECT = "SELECT id_identity, id_attribute, attribute_value, id_certification, id_file, lastupdate_date, lastupdate_client FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ? ";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_identity_attribute ( id_identity, id_attribute, attribute_value, id_certification, id_file, lastupdate_client ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ? AND id_attribute = ?";
     private static final String SQL_QUERY_DELETE_ALL_ATTR = "DELETE FROM identitystore_identity_attribute WHERE id_identity = ?";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_identity_attribute SET id_identity = ?, id_attribute = ?, attribute_value = ?, id_certification = ?, id_file = ?, lastupdate_date = CURRENT_TIMESTAMP, lastupdate_client = ? WHERE id_identity = ? AND id_attribute = ? ";
-    private static final String SQL_QUERY_SELECTALL = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
-            + " FROM identitystore_identity_attribute a" + " WHERE a.id_identity = ? ORDER BY a.id_attribute";
-    private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
-            + " FROM identitystore_identity_attribute a , identitystore_ref_attribute b, identitystore_service_contract_attribute_right c, identitystore_client_application d "
-            + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
-
-    private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.id_identity, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client"
-            + " FROM identitystore_identity_attribute a, identitystore_ref_attribute b"
-            + " WHERE a.id_attribute = b.id_attribute AND a.id_identity IN (${list_identity})";
+    private static final String SQL_COMMON_SELECT = "SELECT a.id_attribute as id_attribute, a.id_identity as id_identity, a.attribute_value as attribute_value, a.id_certification as id_certification, a.lastupdate_date as lastupdate_date, a.lastupdate_client as lastupdate_client,"
+            + " c.certifier_code as certifier_code, c.certificate_date as certificate_date, c.expiration_date as expiration_date, "
+            + " r.id_attribute as attribute_key_id, r.key_name as attribute_key_name, r.name as attribute_name, r.description as attribute_description, r.certifiable as certifiable, r.common_search_key as common_search_key, "
+            + " r.key_type as attribute_key_type, r.key_weight as attribute_key_weight, r.mandatory_for_creation as mandatory_for_creation, r.pivot as pivot, r.validation_error_message as validation_error_message, r.validation_regex as validation_regex "
+            + "FROM identitystore_identity_attribute a "
+            + "    LEFT JOIN identitystore_identity_attribute_certificate c ON c.id_attribute_certificate = a.id_certification "
+            + "    LEFT JOIN identitystore_ref_attribute r ON r.id_attribute = a.id_attribute ";
+    private static final String SQL_QUERY_SELECTALL = SQL_COMMON_SELECT + " WHERE a.id_identity = ? ORDER BY a.id_attribute";
+    private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY = SQL_COMMON_SELECT + " WHERE a.id_identity IN (${list_identity})";
 
     // Historical
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_attribute_history  "
@@ -108,53 +103,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             daoUtil.setString( nIndex++, identityAttribute.getLastUpdateClientCode( ) );
 
             daoUtil.executeUpdate( );
-        }
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public IdentityAttribute load( int nIdentityId, int nAttributeId, Plugin plugin )
-    {
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
-        {
-            daoUtil.setInt( 1, nIdentityId );
-            daoUtil.setInt( 2, nAttributeId );
-            daoUtil.executeQuery( );
-
-            IdentityAttribute identityAttribute = null;
-            int nAttributeKey = -1;
-
-            if ( daoUtil.next( ) )
-            {
-                identityAttribute = new IdentityAttribute( );
-
-                int nIndex = 1;
-
-                identityAttribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-                nAttributeKey = daoUtil.getInt( nIndex++ );
-                identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
-                identityAttribute.setIdCertificate( daoUtil.getInt( nIndex++ ) );
-
-                int nIdFile = daoUtil.getInt( nIndex++ );
-
-                if ( nIdFile > 0 )
-                {
-                    identityAttribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
-                }
-
-                identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                identityAttribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
-
-            }
-
-            if ( identityAttribute != null )
-            {
-                identityAttribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttributeKey ) );
-            }
-
-            return identityAttribute;
         }
     }
 
@@ -211,54 +159,8 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
 
             while ( daoUtil.next( ) )
             {
-                IdentityAttribute identityAttribute = new IdentityAttribute( );
-                int nIndex = 1;
-
-                AttributeKey attribute = AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) );
-
-                identityAttribute.setAttributeKey( attribute );
-                identityAttribute.setIdIdentity( nIdentityId );
-                identityAttribute.setValue( daoUtil.getString( nIndex++ ) );
-
-                int nCertificateId = daoUtil.getInt( nIndex++ );
-                AttributeCertificate certificate = null;
-                if ( nCertificateId != 0 )
-                {
-                    certificate = new AttributeCertificate( );
-                    certificate.setId( nCertificateId );
-                }
-                identityAttribute.setCertificate( certificate );
-
-                int nIdFile = daoUtil.getInt( nIndex++ );
-                File attrFile = null;
-                if ( nIdFile > 0 )
-                {
-                    attrFile = new File( );
-                    attrFile.setIdFile( nIdFile );
-                }
-                identityAttribute.setFile( attrFile );
-
-                identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                identityAttribute.setLastUpdateClientCode( daoUtil.getString( nIndex ) );
-
-                attributesMap.put( attribute.getKeyName( ), identityAttribute );
-            }
-
-            for ( IdentityAttribute attribute : attributesMap.values( ) )
-            {
-                if ( attribute.getCertificate( ) != null )
-                {
-                    attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                    if ( isCertificateExpired( attribute ) )
-                    {
-                        attribute.setCertificate( null );
-                    }
-                }
-                if ( attribute.getFile( ) != null )
-                {
-                    attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-                }
+                final IdentityAttribute identityAttribute = this.getIdentityAttribute( daoUtil );
+                attributesMap.put( identityAttribute.getAttributeKey( ).getKeyName( ), identityAttribute );
             }
 
             return attributesMap;
@@ -271,88 +173,23 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     @Override
     public List<IdentityAttribute> selectAllAttributesByIdentityList( List<Identity> listIdentity, Plugin plugin )
     {
-        List<IdentityAttribute> listIdentityAttributes = new ArrayList<>( );
+        final List<IdentityAttribute> listIdentityAttributes = new ArrayList<>( );
 
         if ( listIdentity == null || listIdentity.isEmpty( ) )
         {
             return listIdentityAttributes;
         }
 
-        List<String> listIn = new ArrayList<>( );
-
-        for ( int i = 0; i < listIdentity.size( ); i++ )
-        {
-            listIn.add( "?" );
-        }
-
-        String strSQL = SQL_QUERY_SELECT_BY_LIST_IDENTITY.replace( "${list_identity}", String.join( ", ", listIn ) );
+        final String strSQL = SQL_QUERY_SELECT_BY_LIST_IDENTITY.replace( "${list_identity}",
+                listIdentity.stream( ).map( i -> String.valueOf( i.getId( ) ) ).collect( Collectors.joining( "," ) ) );
 
         try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
         {
-            int nIndex = 1;
-
-            for ( Identity identity : listIdentity )
-            {
-                daoUtil.setInt( nIndex++, identity.getId( ) );
-            }
-
             daoUtil.executeQuery( );
 
             while ( daoUtil.next( ) )
             {
-                IdentityAttribute attribute = new IdentityAttribute( );
-                AttributeKey attributeKey = new AttributeKey( );
-
-                nIndex = 1;
-
-                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setName( daoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-
-                attribute.setAttributeKey( attributeKey );
-                attribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-                attribute.setValue( daoUtil.getString( nIndex++ ) );
-
-                int nCertificateId = daoUtil.getInt( nIndex++ );
-                AttributeCertificate certificate = null;
-                if ( nCertificateId != 0 )
-                {
-                    certificate = new AttributeCertificate( );
-                    certificate.setId( nCertificateId );
-                }
-                attribute.setCertificate( certificate );
-
-                int nIdFile = daoUtil.getInt( nIndex++ );
-                File attrFile = null;
-                if ( nIdFile > 0 )
-                {
-                    attrFile = new File( );
-                    attrFile.setIdFile( nIdFile );
-                }
-                attribute.setFile( attrFile );
-
-                attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                attribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
-                listIdentityAttributes.add( attribute );
-            }
-
-            for ( IdentityAttribute attribute : listIdentityAttributes )
-            {
-                if ( attribute.getCertificate( ) != null )
-                {
-                    attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                    if ( isCertificateExpired( attribute ) )
-                    {
-                        attribute.setCertificate( null );
-                    }
-                }
-                if ( attribute.getFile( ) != null )
-                {
-                    attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-                }
+                listIdentityAttributes.add( this.getIdentityAttribute( daoUtil ) );
             }
 
             return listIdentityAttributes;
@@ -458,6 +295,43 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         {
             throw new IdentityStoreException( e.getMessage( ), e );
         }
+    }
+
+    public IdentityAttribute getIdentityAttribute( final DAOUtil daoUtil )
+    {
+        final IdentityAttribute identityAttribute = new IdentityAttribute( );
+        identityAttribute.setIdIdentity( daoUtil.getInt( "id_identity" ) );
+        identityAttribute.setValue( daoUtil.getString( "attribute_value" ) );
+        identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( "lastupdate_date" ) );
+        identityAttribute.setLastUpdateClientCode( daoUtil.getString( "lastupdate_client" ) );
+
+        final int nCertificateId = daoUtil.getInt( "id_certification" );
+        if ( nCertificateId != 0 )
+        {
+            final AttributeCertificate certificate = new AttributeCertificate( );
+            certificate.setId( nCertificateId );
+            certificate.setCertifierCode( daoUtil.getString( "certifier_code" ) );
+            certificate.setCertifierName( certificate.getCertifierCode( ) );
+            certificate.setCertificateDate( daoUtil.getTimestamp( "certificate_date" ) );
+            certificate.setExpirationDate( daoUtil.getTimestamp( "expiration_date" ) );
+            identityAttribute.setCertificate( certificate );
+        }
+
+        final AttributeKey attributeKey = new AttributeKey( );
+        identityAttribute.setAttributeKey( attributeKey );
+        attributeKey.setId( daoUtil.getInt( "attribute_key_id" ) );
+        attributeKey.setKeyName( daoUtil.getString( "attribute_key_name" ) );
+        attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( "attribute_key_type" ) ) );
+        attributeKey.setKeyWeight( daoUtil.getInt( "attribute_key_weight" ) );
+        attributeKey.setName( daoUtil.getString( "attribute_name" ) );
+        attributeKey.setDescription( daoUtil.getString( "attribute_description" ) );
+        attributeKey.setCommonSearchKeyName( daoUtil.getString( "common_search_key" ) );
+        attributeKey.setValidationErrorMessage( daoUtil.getString( "validation_error_message" ) );
+        attributeKey.setValidationRegex( daoUtil.getString( "validation_regex" ) );
+        attributeKey.setPivot( daoUtil.getBoolean( "pivot" ) );
+        attributeKey.setCertifiable( daoUtil.getBoolean( "certifiable" ) );
+        attributeKey.setMandatoryForCreation( daoUtil.getBoolean( "mandatory_for_creation" ) );
+        return identityAttribute;
     }
 
     public AttributeChange getAttributeChange( final DAOUtil daoUtil ) throws JsonProcessingException
