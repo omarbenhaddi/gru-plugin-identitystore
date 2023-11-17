@@ -36,7 +36,6 @@ package fr.paris.lutece.plugins.identitystore.business.identity;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 import java.util.Map;
@@ -108,59 +107,15 @@ public interface IIdentityAttributeDAO
     Map<String, IdentityAttribute> selectAttributes( int nIdentityId, Plugin plugin );
 
     /**
-     * Load the data of all attributes for a given identity ID which are alowed for the client application provided
-     *
-     * @param nIdentityId
-     *            The identity ID
-     * @param strClientCode
-     *            code of client application
-     * @param plugin
-     *            the Plugin
-     * @return the map which contains the data of all the identityAttribute objects
-     */
-    Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strClientCode, Plugin plugin );
-
-    /**
-     * Load the data of a selection of attributes that are allowed for the client application provided for a list of identity
+     * Load the data of a selection of attributes for a list of identity
      *
      * @param listIdentity
      *            The list of identity
-     * @param listAttributeKeyNames
-     *            The list of attributes to load
-     * @param strClientCode
-     *            code of client application
      * @param plugin
      *            the Plugin
      * @return the list which contains the data of the identityAttribute objects
      */
-    List<IdentityAttribute> selectAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strClientCode,
-            Plugin plugin );
-
     List<IdentityAttribute> selectAllAttributesByIdentityList( List<Identity> listIdentity, Plugin plugin );
-
-    /**
-     * Load the data of all the identityAttribute objects and returns them as a referenceList
-     *
-     * @param plugin
-     *            the Plugin
-     * @return The referenceList which contains the data of all the identityAttribute objects
-     */
-    ReferenceList selectIdentityAttributesReferenceList( Plugin plugin );
-
-    /**
-     * Load the data of an attribute for a given identity ID and attribute key which is allowed for the client application provided
-     *
-     * @param nIdentityId
-     *            The identity ID
-     * @param strClientCode
-     *            code of client application
-     * @param strAttributeKey
-     *            attribute key
-     * @param plugin
-     *            the Plugin
-     * @return the list which contains the data of all the identityAttribute objects
-     */
-    IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strClientCode, Plugin plugin );
 
     /**
      * Delete all attributes matching the provided identityId
@@ -204,16 +159,4 @@ public interface IIdentityAttributeDAO
      */
     List<AttributeChange> getAttributeChangeHistory( String customerId, Plugin plugin ) throws IdentityStoreException;
 
-    /**
-     * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation
-     * 
-     * @param strConnectionId
-     *            connection id of the identity
-     * @param strCertifierCode
-     *            code of the certifier
-     * @param plugin
-     *            plugin
-     * @return id of history
-     */
-    int getLastIdHistory( String strConnectionId, String strCertifierCode, Plugin plugin );
 }

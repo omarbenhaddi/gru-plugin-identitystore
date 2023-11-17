@@ -39,7 +39,6 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 
 import java.util.List;
 import java.util.Map;
@@ -121,38 +120,6 @@ public interface IIdentityDAO
      */
     Identity load( int nKey, Plugin plugin );
 
-    /**
-     * Load the customer id of all the identity objects and returns them as a list
-     *
-     * @param plugin
-     *            the Plugin
-     * @return The list which contains the customer id of all the identity objects
-     */
-    List<String> selectCustomerIdsList( Plugin plugin );
-
-    /**
-     * Load the data of nLimit customerIds from the nStart identity and returns them as a list
-     *
-     * @param nStart
-     *            the count of customerId from where started
-     * @param nLimit
-     *            the max count of customerId to retrieve
-     * @param plugin
-     *            the Plugin
-     *
-     * @return the list which contains nLimit customerId
-     */
-    List<String> selectCustomerIdsList( int nStart, int nLimit, Plugin plugin );
-
-    /**
-     * Load the data of all the identity objects and returns them as a referenceList
-     *
-     * @param plugin
-     *            the Plugin
-     * @return The referenceList which contains the data of all the identity objects
-     */
-    ReferenceList selectIdentitysReferenceList( Plugin plugin );
-
     List<Identity> selectAll( Plugin plugin );
 
     /**
@@ -181,19 +148,6 @@ public interface IIdentityDAO
 
     Identity selectNotMergedByConnectionId( String strCustomerId, Plugin plugin );
 
-    Identity selectNotMergedByCustomerIdAndConnectionID( String strCustomerId, String strConnectionId, Plugin plugin );
-
-    /**
-     * Find an identity ID from the specified connection ID
-     *
-     * @param strConnectionId
-     *            the connection ID
-     * @param plugin
-     *            the plugin
-     * @return The identity ID
-     */
-    int selectIdByConnectionId( String strConnectionId, Plugin plugin );
-
     /**
      * Find an identity ID from the specified customer ID
      *
@@ -204,19 +158,6 @@ public interface IIdentityDAO
      * @return The identity ID
      */
     int selectIdByCustomerId( String strCustomerId, Plugin plugin );
-
-    /**
-     * Find by a given Attribute value
-     *
-     * @param strAttributeId
-     *            The value to match
-     * @param strAttributeValue
-     *            The value to match
-     * @param plugin
-     *            The plugin
-     * @return The identity
-     */
-    List<Identity> selectByAttributeValue( String strAttributeId, String strAttributeValue, Plugin plugin );
 
     /**
      * Find by a combination of Attribute values. Search for identities that match the conditions defined for each of the selected attributes, that is on each
@@ -231,40 +172,6 @@ public interface IIdentityDAO
      * @return The identity
      */
     List<Identity> selectByAttributesValueForApiSearch( Map<String, List<String>> mapAttributes, int maxNbIdentityReturned, Plugin plugin );
-
-    /**
-     * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
-     * search. Otherwise performs an exact search.
-     *
-     * @param strAttributeValue
-     *            The value to match
-     * @param plugin
-     *            The plugin
-     * @return The identity
-     */
-    List<Identity> selectByAllAttributesValue( String strAttributeValue, Plugin plugin );
-
-    /**
-     * Find all identities by customer ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
-     *
-     * @param strCustomerId
-     *            The customer ID
-     * @param plugin
-     *            The plugin
-     * @return A list of Identity
-     */
-    List<Identity> selectAllByCustomerId( String strCustomerId, Plugin plugin );
-
-    /**
-     * Find all identities by connection ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
-     *
-     * @param strConnectionId
-     *            The connection ID
-     * @param plugin
-     *            The plugin
-     * @return A list of Identity
-     */
-    List<Identity> selectAllByConnectionId( String strConnectionId, Plugin plugin );
 
     /**
      * Find all identities that have all attributes specified in the list in parameters.<br/>

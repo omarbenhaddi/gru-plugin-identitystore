@@ -36,7 +36,11 @@ package fr.paris.lutece.plugins.identitystore.business.identity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.paris.lutece.plugins.identitystore.business.attribute.*;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificateHome;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
@@ -44,12 +48,16 @@ import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreExceptio
 import fr.paris.lutece.portal.business.file.File;
 import fr.paris.lutece.portal.business.file.FileHome;
 import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.util.ReferenceList;
 import fr.paris.lutece.util.sql.DAOUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class provides Data Access methods for IdentityAttribute objects
@@ -67,24 +75,17 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     private static final String SQL_QUERY_SELECT_BY_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
             + " FROM identitystore_identity_attribute a , identitystore_ref_attribute b, identitystore_service_contract_attribute_right c, identitystore_client_application d "
             + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1";
-    private static final String SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client "
-            + " FROM identitystore_identity_attribute a , identitystore_ref_attribute b, identitystore_service_contract_attribute_right c, identitystore_client_application d "
-            + " WHERE a.id_identity = ? AND a.id_attribute = b.id_attribute AND c.id_attribute = a.id_attribute AND d.code = ? AND c.id_client_app = d.id_client_app and c.readable = 1 and b.key_name = ?";
-    private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY_AND_LIST_KEY_AND_CLIENT_APP_CODE = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.id_identity, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client"
-            + " FROM identitystore_identity_attribute a, identitystore_ref_attribute b"
-            + " WHERE a.id_attribute = b.id_attribute AND a.id_identity IN (${list_identity}) ${filter_attribute_key_names}";
 
     private static final String SQL_QUERY_SELECT_BY_LIST_IDENTITY = "SELECT a.id_attribute, b.name, b.key_name, b.description, b.key_type, a.id_identity, a.attribute_value, a.id_certification, a.id_file, a.lastupdate_date, a.lastupdate_client"
             + " FROM identitystore_identity_attribute a, identitystore_ref_attribute b"
             + " WHERE a.id_attribute = b.id_attribute AND a.id_identity IN (${list_identity})";
-    private static final String SQL_FILTER_ATTRIBUTE_KEY_NAMES = "AND b.key_name IN (${list_attribute_key_names})";
+
     // Historical
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_attribute_history  "
             + "   (change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date, metadata) "
             + "   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_json(?::json))";
     private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY = "SELECT id_history, change_type, change_satus, change_message, author_type, author_name, client_code, id_identity, attribute_key, attribute_value, certification_process, certification_date, modification_date, metadata::text FROM identitystore_identity_attribute_history WHERE id_identity = ? ORDER BY modification_date DESC";
     private static final String SQL_QUERY_SELECT_ATTRIBUTE_HISTORY_BY_CUSTOMER_ID = "SELECT a.id_history, a.change_type, a.change_satus, a.change_message, a.author_type, a.author_name, a.client_code, a.id_identity, a.attribute_key, a.attribute_value, a.certification_process, a.certification_date, a.modification_date, a.metadata::text FROM identitystore_identity_attribute_history a JOIN identitystore_identity i ON a.id_identity = i.id_identity WHERE i.customer_id = ? ORDER BY a.modification_date DESC";
-    private static final String SQL_QUERY_GRU_CERTIFIER_ID = "SELECT id_history FROM identitystore_identity_attribute_history  WHERE certifier_name = ? AND identity_connection_id = ? ORDER BY modification_date DESC LIMIT 1";
     private static final String SQL_QUERY_DELETE_ALL_HISTORY = "DELETE FROM identitystore_identity_attribute_history  WHERE id_identity = ?";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
@@ -238,7 +239,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
                 identityAttribute.setFile( attrFile );
 
                 identityAttribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                identityAttribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
+                identityAttribute.setLastUpdateClientCode( daoUtil.getString( nIndex ) );
 
                 attributesMap.put( attribute.getKeyName( ), identityAttribute );
             }
@@ -261,198 +262,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             }
 
             return attributesMap;
-        }
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public Map<String, IdentityAttribute> selectAttributes( int nIdentityId, String strClientCode, Plugin plugin )
-    {
-        final Map<String, IdentityAttribute> attributesMap = new HashMap<>( );
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CLIENT_APP_CODE, plugin ) )
-        {
-            daoUtil.setInt( 1, nIdentityId );
-            daoUtil.setString( 2, strClientCode );
-            daoUtil.executeQuery( );
-
-            while ( daoUtil.next( ) )
-            {
-                IdentityAttribute attribute = new IdentityAttribute( );
-                AttributeKey attributeKey = new AttributeKey( );
-
-                int nIndex = 1;
-
-                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setName( daoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-
-                attribute.setAttributeKey( attributeKey );
-                attribute.setIdIdentity( nIdentityId );
-                attribute.setValue( daoUtil.getString( nIndex++ ) );
-
-                int nCertificateId = daoUtil.getInt( nIndex++ );
-                AttributeCertificate certificate = null;
-                if ( nCertificateId != 0 )
-                {
-                    certificate = new AttributeCertificate( );
-                    certificate.setId( nCertificateId );
-                }
-                attribute.setCertificate( certificate );
-
-                int nIdFile = daoUtil.getInt( nIndex++ );
-                File attrFile = null;
-                if ( nIdFile > 0 )
-                {
-                    attrFile = new File( );
-                    attrFile.setIdFile( nIdFile );
-                }
-                attribute.setFile( attrFile );
-
-                attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                attribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
-                attributesMap.put( attributeKey.getKeyName( ), attribute );
-            }
-
-            for ( IdentityAttribute attribute : attributesMap.values( ) )
-            {
-                if ( attribute.getCertificate( ) != null )
-                {
-                    attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                    if ( isCertificateExpired( attribute ) )
-                    {
-                        attribute.setCertificate( null );
-                    }
-                }
-                if ( attribute.getFile( ) != null )
-                {
-                    attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-                }
-            }
-
-            return attributesMap;
-        }
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public List<IdentityAttribute> selectAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strClientCode,
-            Plugin plugin )
-    {
-        List<IdentityAttribute> listIdentityAttributes = new ArrayList<>( );
-
-        if ( listIdentity == null || listIdentity.isEmpty( ) )
-        {
-            return listIdentityAttributes;
-        }
-
-        List<String> listIn = new ArrayList<>( );
-
-        for ( int i = 0; i < listIdentity.size( ); i++ )
-        {
-            listIn.add( "?" );
-        }
-
-        String strSQL = SQL_QUERY_SELECT_BY_LIST_IDENTITY_AND_LIST_KEY_AND_CLIENT_APP_CODE.replace( "${list_identity}", String.join( ", ", listIn ) );
-
-        String strFilterAttributeKeyNames = "";
-        if ( listAttributeKeyNames != null && !listAttributeKeyNames.isEmpty( ) )
-        {
-            listIn = new ArrayList<>( );
-
-            for ( int i = 0; i < listAttributeKeyNames.size( ); i++ )
-            {
-                listIn.add( "?" );
-            }
-
-            strFilterAttributeKeyNames = SQL_FILTER_ATTRIBUTE_KEY_NAMES.replace( "${list_attribute_key_names}", String.join( ", ", listIn ) );
-        }
-
-        strSQL = strSQL.replace( "${filter_attribute_key_names}", strFilterAttributeKeyNames );
-
-        try ( final DAOUtil daoUtil = new DAOUtil( strSQL, plugin ) )
-        {
-            int nIndex = 1;
-
-            for ( Identity identity : listIdentity )
-            {
-                daoUtil.setInt( nIndex++, identity.getId( ) );
-            }
-
-            if ( listAttributeKeyNames != null && !listAttributeKeyNames.isEmpty( ) )
-            {
-                for ( String strAttributeKeyName : listAttributeKeyNames )
-                {
-                    daoUtil.setString( nIndex++, strAttributeKeyName );
-                }
-            }
-
-            daoUtil.executeQuery( );
-
-            while ( daoUtil.next( ) )
-            {
-                IdentityAttribute attribute = new IdentityAttribute( );
-                AttributeKey attributeKey = new AttributeKey( );
-
-                nIndex = 1;
-
-                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
-                attributeKey.setName( daoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
-                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
-
-                attribute.setAttributeKey( attributeKey );
-                attribute.setIdIdentity( daoUtil.getInt( nIndex++ ) );
-                attribute.setValue( daoUtil.getString( nIndex++ ) );
-
-                int nCertificateId = daoUtil.getInt( nIndex++ );
-                AttributeCertificate certificate = null;
-                if ( nCertificateId != 0 )
-                {
-                    certificate = new AttributeCertificate( );
-                    certificate.setId( nCertificateId );
-                }
-                attribute.setCertificate( certificate );
-
-                int nIdFile = daoUtil.getInt( nIndex++ );
-                File attrFile = null;
-                if ( nIdFile > 0 )
-                {
-                    attrFile = new File( );
-                    attrFile.setIdFile( nIdFile );
-                }
-                attribute.setFile( attrFile );
-
-                attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                attribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
-                listIdentityAttributes.add( attribute );
-            }
-
-            for ( IdentityAttribute attribute : listIdentityAttributes )
-            {
-                if ( attribute.getCertificate( ) != null )
-                {
-                    attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( attribute.getCertificate( ).getId( ) ) );
-
-                    if ( isCertificateExpired( attribute ) )
-                    {
-                        attribute.setCertificate( null );
-                    }
-                }
-                if ( attribute.getFile( ) != null )
-                {
-                    attribute.setFile( FileHome.findByPrimaryKey( attribute.getFile( ).getIdFile( ) ) );
-                }
-            }
-
-            return listIdentityAttributes;
         }
     }
 
@@ -560,76 +369,6 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
     {
         return attribute.getCertificate( ) != null && attribute.getCertificate( ).getExpirationDate( ) != null
                 && attribute.getCertificate( ).getExpirationDate( ).before( new Date( ) );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public ReferenceList selectIdentityAttributesReferenceList( Plugin plugin )
-    {
-        ReferenceList identityAttributeList = new ReferenceList( );
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
-        {
-            daoUtil.executeQuery( );
-
-            while ( daoUtil.next( ) )
-            {
-                identityAttributeList.addItem( daoUtil.getInt( 1 ), daoUtil.getString( 2 ) );
-            }
-
-            return identityAttributeList;
-        }
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public IdentityAttribute selectAttribute( int nIdentityId, String strAttributeKey, String strClientCode, Plugin plugin )
-    {
-        IdentityAttribute attribute = null;
-        int nAttrKey = -1, nCertificateId = -1, nIdFile = -1;
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_KEY_AND_CLIENT_APP_CODE, plugin ) )
-        {
-            daoUtil.setInt( 1, nIdentityId );
-            daoUtil.setString( 2, strClientCode );
-            daoUtil.setString( 3, strAttributeKey );
-            daoUtil.executeQuery( );
-
-            if ( daoUtil.next( ) )
-            {
-                attribute = new IdentityAttribute( );
-
-                int nIndex = 1;
-                nAttrKey = daoUtil.getInt( nIndex++ );
-                attribute.setValue( daoUtil.getString( nIndex++ ) );
-                nCertificateId = daoUtil.getInt( nIndex++ );
-                nIdFile = daoUtil.getInt( nIndex++ );
-                attribute.setLastUpdateDate( daoUtil.getTimestamp( nIndex++ ) );
-                attribute.setLastUpdateClientCode( daoUtil.getString( nIndex++ ) );
-                attribute.setIdIdentity( nIdentityId );
-            }
-
-            if ( attribute != null )
-            {
-                attribute.setAttributeKey( AttributeKeyHome.findByPrimaryKey( nAttrKey ) );
-                if ( nCertificateId > 0 )
-                {
-                    attribute.setCertificate( AttributeCertificateHome.findByPrimaryKey( nCertificateId ) );
-                    if ( isCertificateExpired( attribute ) )
-                    {
-                        attribute.setCertificate( null );
-                    }
-                }
-                if ( nIdFile > 0 )
-                {
-                    attribute.setFile( FileHome.findByPrimaryKey( nIdFile ) );
-                }
-            }
-
-            return attribute;
-        }
     }
 
     @Override
@@ -752,26 +491,4 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
         }
         return attributeChange;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getLastIdHistory( String strConnectionId, String strCertifierCode, Plugin plugin )
-    {
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GRU_CERTIFIER_ID, plugin ) )
-        {
-            daoUtil.setString( 1, strCertifierCode );
-            daoUtil.setString( 2, strConnectionId );
-            daoUtil.executeQuery( );
-            int nIdHistory = -1;
-            if ( daoUtil.next( ) )
-            {
-                nIdHistory = daoUtil.getInt( 1 );
-            }
-
-            return nIdHistory;
-        }
-    }
-
 }

@@ -33,17 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.identity;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificateHome;
 import fr.paris.lutece.plugins.identitystore.service.IdentityStorePlugin;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
-import fr.paris.lutece.util.ReferenceList;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,8 +49,8 @@ import java.util.Map;
 public final class IdentityAttributeHome
 {
     // Static variable pointed at the DAO instance
-    private static IIdentityAttributeDAO _dao = SpringContextService.getBean( IIdentityAttributeDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IIdentityAttributeDAO _dao = SpringContextService.getBean( IIdentityAttributeDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -116,63 +112,6 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Returns an instance of a identityAttribute whose identifier is specified in parameter
-     *
-     * @param nIdentityId
-     *            The identity ID
-     * @param nAttributeId
-     *            The Attribute ID
-     * @return an instance of IdentityAttribute
-     */
-    public static IdentityAttribute findByPrimaryKey( int nIdentityId, int nAttributeId )
-    {
-        IdentityAttribute identityAttribute = _dao.load( nIdentityId, nAttributeId, _plugin );
-        AttributeCertificate attributeCertif = null;
-        if ( identityAttribute != null )
-        {
-            if ( identityAttribute.getIdCertificate( ) != 0 )
-            {
-                attributeCertif = AttributeCertificateHome.findByPrimaryKey( identityAttribute.getIdCertificate( ) );
-                if ( attributeCertif != null )
-                {
-                    attributeCertif = setCerificateToNullIfExpired( attributeCertif );
-                }
-            }
-            identityAttribute.setCertificate( attributeCertif );
-        }
-        return identityAttribute;
-    }
-
-    /**
-     * Set the certificate to null if it's expired
-     * 
-     * @param attributeCertifPrev
-     * @return null if certificate is expired else return attributeCertifPrev
-     */
-    private static AttributeCertificate setCerificateToNullIfExpired( AttributeCertificate attributeCertifPrev )
-    {
-        if ( attributeCertifPrev.getExpirationDate( ) != null && attributeCertifPrev.getExpirationDate( ).before( new Date( ) ) )
-        {
-            attributeCertifPrev = null;
-        }
-        return attributeCertifPrev;
-    }
-
-    /**
-     * Load the data of all attributes for a given identity ID which are allowed for the client application provided
-     *
-     * @param nIdentityId
-     *            The identity ID
-     * @param strClientCode
-     *            code of client application
-     * @return the list which contains the data of all the identityAttribute objects
-     */
-    public static Map<String, IdentityAttribute> getAttributes( int nIdentityId, String strClientCode )
-    {
-        return _dao.selectAttributes( nIdentityId, strClientCode, _plugin );
-    }
-
-    /**
      * Load the data of all attributes for a given identity ID which are allowed for the client application provided
      *
      * @param nIdentityId
@@ -185,38 +124,6 @@ public final class IdentityAttributeHome
     }
 
     /**
-     * Load the data of an attribute for a given identity ID and attribute key which is allowed for the client application provided
-     *
-     * @param nIdentityId
-     *            The identity ID
-     * @param strClientCode
-     *            code of client application
-     * @param strAttributeKey
-     *            attribute key
-     * @return the list which contains the data of all the identityAttribute objects
-     */
-    public static IdentityAttribute getAttribute( int nIdentityId, String strAttributeKey, String strClientCode )
-    {
-        return _dao.selectAttribute( nIdentityId, strAttributeKey, strClientCode, _plugin );
-    }
-
-    /**
-     * Load the data of a selection of attributes that are allowed for the client application provided for a list of identity
-     *
-     * @param listIdentity
-     *            The list of identity
-     * @param listAttributeKeyNames
-     *            The list of attributes to load
-     * @param strClientCode
-     *            code of client application
-     * @return the list which contains the data of the identityAttribute objects
-     */
-    public static List<IdentityAttribute> getAttributesByIdentityList( List<Identity> listIdentity, List<String> listAttributeKeyNames, String strClientCode )
-    {
-        return _dao.selectAttributesByIdentityList( listIdentity, listAttributeKeyNames, strClientCode, _plugin );
-    }
-
-    /**
      * Load the data of a selection of attributes that are allowed for the client application provided for a list of identity
      *
      * @param listIdentity
@@ -226,16 +133,6 @@ public final class IdentityAttributeHome
     public static List<IdentityAttribute> getAttributesByIdentityListFullAttributes( List<Identity> listIdentity )
     {
         return _dao.selectAllAttributesByIdentityList( listIdentity, _plugin );
-    }
-
-    /**
-     * Load the data of all the identityAttribute objects and returns them as a referenceList
-     *
-     * @return the referenceList which contains the data of all the identityAttribute objects
-     */
-    public static ReferenceList getIdentityAttributesReferenceList( )
-    {
-        return _dao.selectIdentityAttributesReferenceList( _plugin );
     }
 
     /**
@@ -273,17 +170,4 @@ public final class IdentityAttributeHome
         return _dao.getAttributeChangeHistory( customerId, _plugin );
     }
 
-    /**
-     * return last id of history change for a given connection_id and certifier_name USE for gru_certifier id generation
-     * 
-     * @param strConnectionId
-     *            connection id of the identity
-     * @param strCertifierName
-     *            name of the certifier
-     * @return id of history
-     */
-    public static int getLastIdHistory( String strConnectionId, String strCertifierName )
-    {
-        return _dao.getLastIdHistory( strConnectionId, strCertifierName, _plugin );
-    }
 }

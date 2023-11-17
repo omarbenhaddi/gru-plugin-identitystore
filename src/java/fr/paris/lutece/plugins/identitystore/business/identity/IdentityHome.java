@@ -38,14 +38,11 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityD
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedAttribute;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import fr.paris.lutece.util.ReferenceList;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -59,8 +56,8 @@ public final class IdentityHome
     private static final String PROPERTY_MAX_NB_IDENTITY_RETURNED = "identitystore.search.maxNbIdentityReturned";
 
     // Static variable pointed at the DAO instance
-    private static IIdentityDAO _dao = SpringContextService.getBean( IIdentityDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IIdentityDAO _dao = SpringContextService.getBean( IIdentityDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -130,18 +127,6 @@ public final class IdentityHome
     public static void softRemove( String strCuid )
     {
         _dao.softDelete( strCuid, _plugin );
-    }
-
-    /**
-     * Find an identity ID from the specified connection ID
-     *
-     * @param strConnectionId
-     *            the connection ID
-     * @return the identity ID
-     */
-    public static int findIdByConnectionId( String strConnectionId )
-    {
-        return _dao.selectIdByConnectionId( strConnectionId, _plugin );
     }
 
     /**
@@ -218,62 +203,6 @@ public final class IdentityHome
     }
 
     /**
-     * Find by connection ID
-     *
-     * @param strConnectionId
-     *            The connection ID
-     * @param strClientAppCode
-     *            code of application client which requires infos
-     * @return The Identity
-     */
-    public static Identity findByConnectionId( String strConnectionId, String strClientAppCode )
-    {
-        Identity identity = _dao.selectByConnectionId( strConnectionId, _plugin );
-
-        if ( identity != null )
-        {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ), strClientAppCode ) );
-        }
-
-        return identity;
-    }
-
-    /**
-     * Find all identities by connection ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
-     *
-     * @param strConnectionId
-     *            The connection ID
-     * @return A list of Identity
-     */
-    public static List<Identity> findAllByConnectionId( String strConnectionId )
-    {
-        List<Identity> listIdentity = _dao.selectAllByConnectionId( strConnectionId, _plugin );
-
-        return listIdentity;
-    }
-
-    /**
-     * Find by customer ID
-     *
-     * @param strCustomerId
-     *            The customer ID
-     * @param strClientAppCode
-     *            code of application client which requires infos
-     * @return The Identity
-     */
-    public static Identity findByCustomerId( String strCustomerId, String strClientAppCode )
-    {
-        Identity identity = _dao.selectByCustomerId( strCustomerId, _plugin );
-
-        if ( identity != null )
-        {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ), strClientAppCode ) );
-        }
-
-        return identity;
-    }
-
-    /**
      * Find by customer ID
      *
      * @param strCustomerId
@@ -324,28 +253,6 @@ public final class IdentityHome
     }
 
     /**
-     * Find by customer ID
-     *
-     * @param strCustomerId
-     *            The customer ID
-     * @param strConnectionId
-     *            The customer ID
-     *
-     * @return The Identity
-     */
-    public static Identity findMasterIdentityByCustomerIdAndConnectionID( String strCustomerId, String strConnectionId )
-    {
-        Identity identity = _dao.selectNotMergedByCustomerIdAndConnectionID( strCustomerId, strConnectionId, _plugin );
-
-        if ( identity != null )
-        {
-            identity.setAttributes( IdentityAttributeHome.getAttributes( identity.getId( ) ) );
-        }
-
-        return identity;
-    }
-
-    /**
      * Find by connection ID
      *
      * @param strConnectionId
@@ -376,67 +283,6 @@ public final class IdentityHome
         return _dao.selectNotMergedByConnectionId( strConnectionId, _plugin );
     }
 
-    public static Identity findMasterIdentity( String strCustomerId, String strConnectionId )
-    {
-        Identity identity = null;
-        if ( StringUtils.isNotEmpty( strCustomerId ) && StringUtils.isNotEmpty( strConnectionId ) )
-        {
-            identity = IdentityHome.findMasterIdentityByCustomerIdAndConnectionID( strCustomerId, strConnectionId );
-        }
-        else
-            if ( StringUtils.isNotEmpty( strCustomerId ) )
-            {
-                identity = IdentityHome.findMasterIdentityByCustomerId( strCustomerId );
-            }
-            else
-                if ( StringUtils.isNotEmpty( strConnectionId ) )
-                {
-                    identity = IdentityHome.findMasterIdentityByConnectionId( strConnectionId );
-                }
-        return identity;
-    }
-
-    /**
-     * Find all identities by customer ID. If the provided query string contains a wildcard, it performs a LIKE search. Otherwise performs an exact search.
-     *
-     * @param strCustomerId
-     *            The connection ID
-     * @return A list of Identity
-     */
-    public static List<Identity> findAllByCustomerId( String strCustomerId )
-    {
-        List<Identity> listIdentity = _dao.selectAllByCustomerId( strCustomerId, _plugin );
-
-        return listIdentity;
-    }
-
-    /**
-     * Find by attribute value
-     *
-     * @param strAttributeId
-     *            The attribute identifier
-     * @param strAttributeValue
-     *            The attribute value
-     * @return The Identity
-     */
-    public static List<Identity> findByAttributeValue( String strAttributeId, String strAttributeValue )
-    {
-        return _dao.selectByAttributeValue( strAttributeId, strAttributeValue, _plugin );
-    }
-
-    /**
-     * Find all identities matching the query on all Attributes, connection_id and customer_id fields.. If the query contains a wildcard, it performs a LIKE
-     * search. Otherwise performs an exact search.
-     *
-     * @param strAttributeValue
-     *            The attribute value
-     * @return list of Identity
-     */
-    public static List<Identity> findByAllAttributesValue( String strAttributeValue )
-    {
-        return _dao.selectByAllAttributesValue( strAttributeValue, _plugin );
-    }
-
     /**
      * Find all identities matching one of the values defined on each of the selected Attributes. One value must be found for all selected attributes. Always
      * performs an exact search.
@@ -449,41 +295,6 @@ public final class IdentityHome
     {
         int nMaxNbIdentityReturned = ( max > 0 ) ? max : AppPropertiesService.getPropertyInt( PROPERTY_MAX_NB_IDENTITY_RETURNED, 100 );
         return _dao.selectByAttributesValueForApiSearch( mapAttributes, nMaxNbIdentityReturned, _plugin );
-    }
-
-    /**
-     * Load the data of nLimit customerIds from the nStart identity and returns them as a list If nLimit is set to -1, no limit is used
-     *
-     * @param nStart
-     *            the count of customerId from where started
-     * @param nLimit
-     *            the max count of customerId to retrieve
-     *
-     * @return the list which contains the data of all the identity objects
-     */
-    public static List<String> getCustomerIdList( int nStart, int nLimit )
-    {
-        return _dao.selectCustomerIdsList( nStart, nLimit, _plugin );
-    }
-
-    /**
-     * Load the customer id of all the identity objects and returns them as a list
-     *
-     * @return the list which contains the customer id of all the identity objects
-     */
-    public static List<String> getCustomerIdsList( )
-    {
-        return _dao.selectCustomerIdsList( _plugin );
-    }
-
-    /**
-     * Load the data of all the identity objects and returns them as a referenceList
-     *
-     * @return the referenceList which contains the data of all the identity objects
-     */
-    public static ReferenceList getIdentitysReferenceList( )
-    {
-        return _dao.selectIdentitysReferenceList( _plugin );
     }
 
     /**
