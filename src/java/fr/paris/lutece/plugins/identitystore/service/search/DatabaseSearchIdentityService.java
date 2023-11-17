@@ -47,6 +47,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,31 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
         {
             _logger.error( "An error occurred during database search: ", e );
         }
+        return new QualifiedIdentitySearchResult( );
+    }
+
+    @Override
+    public QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId ) throws IdentityStoreException
+    {
+        try
+        {
+            final Identity identity = IdentityHome.findByCustomerId( customerId );
+            if ( identity != null )
+            {
+                return new QualifiedIdentitySearchResult( this.getEntities( Collections.singletonList( identity ) ) );
+            }
+        }
+        catch( final IdentityStoreException e )
+        {
+            _logger.error( "An error occurred during database search: ", e );
+        }
+        return new QualifiedIdentitySearchResult( );
+    }
+
+    @Override
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds ) throws IdentityStoreException
+    {
+        // not to be used
         return new QualifiedIdentitySearchResult( );
     }
 

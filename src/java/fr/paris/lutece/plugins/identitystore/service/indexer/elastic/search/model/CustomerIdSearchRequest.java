@@ -31,43 +31,36 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.search;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
-import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.Match;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MatchContainer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-public class DefaultSearchIdentityService implements ISearchIdentityService
+public class CustomerIdSearchRequest extends ASearchRequest
 {
-    /**
-     * private constructor
-     */
-    private DefaultSearchIdentityService( )
+    private String customerId;
+
+    public CustomerIdSearchRequest( final String customerId )
     {
+        this.customerId = customerId;
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes,
-            final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected )
+    public InnerSearchRequest body( )
     {
-        return new QualifiedIdentitySearchResult( );
+        final InnerSearchRequest body = new InnerSearchRequest( );
+
+        final Match match = new Match( );
+        match.setName( "customerId" );
+        match.setQuery( this.getCustomerId( ) );
+        final MatchContainer matchContainer = new MatchContainer( match );
+        body.getQuery( ).getBool( ).getMust( ).add( matchContainer );
+        return body;
     }
 
-    @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected )
+    public String getCustomerId( )
     {
-        return new QualifiedIdentitySearchResult( );
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public void checkSearchAttributes( Map<String, List<String>> mapAttributeValues, int nServiceContractId ) throws AppException
-    {
+        return customerId;
     }
 }

@@ -52,6 +52,8 @@ public interface IIdentitySearcher
 
     Response search( final List<SearchAttribute> attributes, final int max, final boolean connected ) throws IdentityStoreException;
 
+    Response search( final String customerId ) throws IdentityStoreException;
+
     default Response emptyResponse( )
     {
         final Response response = new Response( );
@@ -76,4 +78,5 @@ public interface IIdentitySearcher
         return response;
     }
 
+    Response search( List<String> customerId ) throws IdentityStoreException;
 }

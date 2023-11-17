@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.Elas
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ASearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ComplexSearchRequest;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.CustomerIdSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchAction;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchActionType;
@@ -54,10 +55,14 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribut
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,7 +70,6 @@ public class IdentitySearcher implements IIdentitySearcher
 {
 
     public static final String IDENTITYSTORE_SEARCH_OFFSET = "identitystore.search.offset";
-    private static final Logger logger = Logger.getLogger( IdentitySearcher.class );
     private static final String INDEX = "identities-alias";
     final private static int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );
     private final ElasticClient _elasticClient;
@@ -179,6 +183,20 @@ public class IdentitySearcher implements IIdentitySearcher
     {
         final ASearchRequest request = new ComplexSearchRequest( attributes, connected );
         return this.getResponse( request, max );
+    }
+
+    @Override
+    public Response search( final String customerId ) throws IdentityStoreException
+    {
+        final ASearchRequest request = new CustomerIdSearchRequest( customerId );
+        return this.getResponse( request, 0 );
+    }
+
+    @Override
+    public Response search( final List<String> customerId ) throws IdentityStoreException
+    {
+        final List<ASearchRequest> request = customerId.stream( ).map( CustomerIdSearchRequest::new ).collect( Collectors.toList( ) );
+        return this.getResponse( request, 0 );
     }
 
     private Response getResponse( final ASearchRequest request, final int max ) throws IdentityStoreException

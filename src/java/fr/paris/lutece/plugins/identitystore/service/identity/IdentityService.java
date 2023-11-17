@@ -95,7 +95,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.http.SecurityUtil;
 import fr.paris.lutece.util.sql.TransactionManager;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -958,6 +958,63 @@ public class IdentityService
     }
 
     /**
+     * Performs a search of a list of {@link IdentityDto}, providing a list of customer ids
+     * 
+     * @param customerIds
+     *            the customer ids to search for
+     * @return a list of {@link IdentityDto}
+     */
+    private List<IdentityDto> search( final List<String> customerIds )
+    {
+        try
+        {
+            final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( customerIds );
+            if ( result != null && CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
+            {
+                result.getQualifiedIdentities( ).forEach( identityDto -> {
+                    IdentityQualityService.instance( ).computeQuality( identityDto );
+                    identityDto.getQuality( ).setScoring( 1D );
+                    identityDto.getQuality( ).setCoverage( 1 );
+                } );
+                return result.getQualifiedIdentities( );
+            }
+        }
+        catch( final IdentityStoreException e )
+        {
+            // ignore this identity
+        }
+        return new ArrayList<>( );
+    }
+
+    /**
+     * Performs a search of an {@link IdentityDto}, providing its customer id
+     * 
+     * @param customerId
+     *            the customer id to search for
+     * @return an {@link IdentityDto}
+     */
+    private IdentityDto search( final String customerId )
+    {
+        try
+        {
+            final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( customerId );
+            if ( result != null && CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
+            {
+                final IdentityDto identityDto = result.getQualifiedIdentities( ).get( 0 );
+                IdentityQualityService.instance( ).computeQuality( identityDto );
+                identityDto.getQuality( ).setScoring( 1D );
+                identityDto.getQuality( ).setCoverage( 1 );
+                return identityDto;
+            }
+        }
+        catch( final IdentityStoreException e )
+        {
+            // ignore this identity
+        }
+        return null;
+    }
+
+    /**
      * Filter a list of search results over {@link ServiceContract} defined for the given clientCode. Also complete identities with additional information
      * (quality, duplicates, ...).
      * 
@@ -1130,7 +1187,7 @@ public class IdentityService
     private void connectedIdentityUpdateCheck( final IdentityDto requestIdentity, final Identity identity, final List<AttributeDto> existingWritableAttributes,
             final List<AttributeDto> newWritableAttributes, final ChangeResponse response )
     {
-        //TODO refactor to use cache ?
+        // TODO refactor to use cache ?
         final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
 
@@ -1259,21 +1316,12 @@ public class IdentityService
         {
             return Batch.ofSize( Collections.emptyList( ), 0 );
         }
-        return Batch.ofSize( customerIdsList.stream( ).map( this::getQualifiedIdentitySafe ).filter( Objects::nonNull )
-                .sorted( Comparator.comparingDouble( i -> i.getQuality( ).getQuality( ) ) ).collect( Collectors.toList( ) ), batchSize );
-    }
 
-    private IdentityDto getQualifiedIdentitySafe( final String cuid )
-    {
-        try
-        {
-            return getQualifiedIdentity( cuid );
-        }
-        catch( final IdentityStoreException e )
-        {
-            // ignore this identity
-            return null;
-        }
+        final List<IdentityDto> identities = new ArrayList<>( );
+        Batch.ofSize( customerIdsList, batchSize ).forEach( cuids -> identities.addAll( this.search( cuids ) ) );
+
+        return Batch.ofSize( identities.stream( ).filter( Objects::nonNull ).sorted( Comparator.comparingDouble( i -> i.getQuality( ).getQuality( ) ) )
+                .collect( Collectors.toList( ) ), batchSize );
     }
 
     /**

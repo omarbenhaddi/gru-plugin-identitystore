@@ -93,6 +93,22 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
+    @Override
+    public QualifiedIdentitySearchResult getQualifiedIdentities( String customerId ) throws IdentityStoreException
+    {
+        final Response search = _identitySearcher.search( customerId );
+
+        return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
+    }
+
+    @Override
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds ) throws IdentityStoreException
+    {
+        final Response search = _identitySearcher.search( customerIds );
+
+        return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
+    }
+
     private List<IdentityDto> getEntities( Response search )
     {
         final List<IdentityDto> identities = new ArrayList<>( );
