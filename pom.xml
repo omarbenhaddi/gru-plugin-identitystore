@@ -13,6 +13,15 @@
 	<version>3.1.1-SNAPSHOT</version>
 	<name>Lutece identitystore plugin</name>
 
+	<properties>
+		<jiraProjectName>IDENTITY</jiraProjectName>
+		<jiraComponentId>13051</jiraComponentId>
+		<testcontainers.version>1.17.6</testcontainers.version>
+		<flyway.version>9.8.1</flyway.version>
+		<swagger-jaxrs.version>1.6.11</swagger-jaxrs.version>
+		<library-identitybusiness.version>3.1.1-SNAPSHOT</library-identitybusiness.version>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>lutece</id>
@@ -64,7 +73,7 @@
 		<dependency>
 			<groupId>fr.paris.lutece.plugins</groupId>
 			<artifactId>library-identitybusiness</artifactId>
-			<version>[3.1.0-SNAPSHOT,)</version>
+			<version>${library-identitybusiness.version}</version>
 			<type>jar</type>
 			<exclusions>
 				<exclusion>
@@ -89,7 +98,7 @@
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jaxrs</artifactId>
-			<version>1.5.16</version>
+			<version>${swagger-jaxrs.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.fasterxml.jackson</groupId>
@@ -155,13 +164,6 @@
 
 	</dependencies>
 
-	<properties>
-		<jiraProjectName>IDENTITY</jiraProjectName>
-		<jiraComponentId>13051</jiraComponentId>
-		<testcontainers.version>1.17.6</testcontainers.version>
-		<flyway.version>9.8.1</flyway.version>
-	</properties>
-
 	<scm>
 		<connection>scm:git:https://github.com/lutece-secteur-public/gru-plugin-identitystore.git</connection>
 		<developerConnection>scm:git:https://github.com/lutece-secteur-public/gru-plugin-identitystore.git</developerConnection>
@@ -195,7 +197,7 @@
 							<dependency>
 								<groupId>fr.paris.lutece.plugins</groupId>
 								<artifactId>library-identitybusiness</artifactId>
-								<version>3.0.1-SNAPSHOT</version>
+								<version>${library-identitybusiness.version}</version>
 							</dependency>
 						</dependencies>
 						<executions>
