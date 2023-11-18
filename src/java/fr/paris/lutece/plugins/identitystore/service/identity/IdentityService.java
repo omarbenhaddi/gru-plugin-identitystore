@@ -964,7 +964,7 @@ public class IdentityService
      *            the customer ids to search for
      * @return a list of {@link IdentityDto}
      */
-    private List<IdentityDto> search( final List<String> customerIds )
+    public List<IdentityDto> search( final List<String> customerIds )
     {
         try
         {
@@ -993,7 +993,7 @@ public class IdentityService
      *            the customer id to search for
      * @return an {@link IdentityDto}
      */
-    private IdentityDto search( final String customerId )
+    public IdentityDto search( final String customerId )
     {
         try
         {
