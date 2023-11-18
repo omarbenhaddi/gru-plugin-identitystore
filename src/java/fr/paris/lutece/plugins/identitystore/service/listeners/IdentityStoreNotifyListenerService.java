@@ -41,8 +41,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,6 @@ import java.util.concurrent.Executors;
  */
 public final class IdentityStoreNotifyListenerService
 {
-    private static final Logger _logger = Logger.getLogger( IdentityStoreNotifyListenerService.class );
     // singleton
     private static IdentityStoreNotifyListenerService _singleton;
 
@@ -83,7 +82,7 @@ public final class IdentityStoreNotifyListenerService
             sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
 
-        _logger.info( sbLog.toString( ) );
+        AppLogService.info( sbLog.toString( ) );
 
         // init identityChangeListListeners
         _identityChangeListListeners = SpringContextService.getBeansOfType( IdentityChangeListener.class );
@@ -96,7 +95,7 @@ public final class IdentityStoreNotifyListenerService
             sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
 
-        _logger.info( sbLog.toString( ) );
+        AppLogService.info( sbLog.toString( ) );
 
     }
 
@@ -138,7 +137,7 @@ public final class IdentityStoreNotifyListenerService
             }
             catch( Exception e )
             {
-                _logger.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
+                AppLogService.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
             }
         } ).forEach( attributeExecutor::submit );
     }
@@ -171,7 +170,7 @@ public final class IdentityStoreNotifyListenerService
             }
             catch( Exception e )
             {
-                _logger.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
+                AppLogService.error( "An error occurred when notifying listener " + listener.getName( ) + " : " + e.getMessage( ) );
             }
         } ).forEach( identityExecutor::submit );
     }

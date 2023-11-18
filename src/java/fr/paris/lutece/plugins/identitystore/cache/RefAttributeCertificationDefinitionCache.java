@@ -36,15 +36,12 @@ package fr.paris.lutece.plugins.identitystore.cache;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevelHome;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
-import org.apache.log4j.Logger;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.List;
 
 public class RefAttributeCertificationDefinitionCache extends AbstractCacheableService
 {
-
-    private static final Logger _logger = Logger.getLogger( RefAttributeCertificationDefinitionCache.class );
-
     public static final String SERVICE_NAME = "RefAttributeCertificationDefinitionCache";
 
     public RefAttributeCertificationDefinitionCache( )
@@ -54,7 +51,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
 
     public void refresh( )
     {
-        _logger.info( "Init AttributeCertificationLevel cache" );
+        AppLogService.info( "Init AttributeCertificationLevel cache" );
         this.resetCache( );
         final List<RefAttributeCertificationLevel> all = RefAttributeCertificationLevelHome.getRefAttributeCertificationLevelsList( );
         all.forEach( this::put );
@@ -79,7 +76,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
             this.removeKey( key );
         }
         this.putInCache( key, refAttributeCertificationLevel );
-        _logger.info( "AttributeCertificationLevel added to cache: " + key );
+        AppLogService.info( "AttributeCertificationLevel added to cache: " + key );
     }
 
     public void remove( final RefAttributeCertificationLevel refAttributeCertificationLevel )
@@ -89,7 +86,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
         {
             this.removeKey( key );
         }
-        _logger.info( "AttributeCertificationLevel removed from cache: " + key );
+        AppLogService.info( "AttributeCertificationLevel removed from cache: " + key );
     }
 
     public RefAttributeCertificationLevel get( final String processusCode, final String attributeKeyName )
@@ -113,7 +110,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
                 attributeKeyName );
         if ( certificationLevel == null )
         {
-            _logger.error( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
+            AppLogService.error( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
                     + attributeKeyName );
         }
         return certificationLevel;

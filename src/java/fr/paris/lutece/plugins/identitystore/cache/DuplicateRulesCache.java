@@ -38,15 +38,13 @@ import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateR
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.log4j.Logger;
 
 import java.util.Objects;
 
 public class DuplicateRulesCache extends AbstractCacheableService
 {
-
-    private static Logger _logger = Logger.getLogger( DuplicateRulesCache.class );
-
     public static final String SERVICE_NAME = "DuplicateRulesCache";
 
     public DuplicateRulesCache( )
@@ -56,7 +54,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        _logger.info( "Init AttributeKey cache" );
+        AppLogService.info( "Init AttributeKey cache" );
         this.resetCache( );
         DuplicateRuleHome.findAll( ).forEach( this::put );
     }
@@ -68,7 +66,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
             this.removeKey( rule.getCode( ) );
         }
         this.putInCache( rule.getCode( ), rule );
-        _logger.info( "Duplicate rule added to cache: " + rule.getCode( ) );
+        AppLogService.info( "Duplicate rule added to cache: " + rule.getCode( ) );
     }
 
     public void remove( final String ruleCode )
@@ -78,7 +76,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
             this.removeKey( ruleCode );
         }
 
-        _logger.info( "Duplicate rule removed from cache: " + ruleCode );
+        AppLogService.info( "Duplicate rule removed from cache: " + ruleCode );
     }
 
     /**
@@ -99,7 +97,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
             }
             catch( DuplicateRuleNotFoundException e )
             {
-                _logger.error( "Cannot delete service contract with id" + id + " : {}", e );
+                AppLogService.error( "Cannot delete service contract with id" + id + " : {}", e );
             }
         } );
     }

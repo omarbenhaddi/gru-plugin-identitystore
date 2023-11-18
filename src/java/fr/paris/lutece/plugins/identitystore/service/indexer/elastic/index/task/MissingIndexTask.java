@@ -43,18 +43,17 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.servi
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.portal.service.daemon.Daemon;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MissingIndexTask extends Daemon
 {
-    private final static Logger _logger = Logger.getLogger( MissingIndexTask.class );
     private final IIdentityIndexer _identityIndexer = SpringContextService.getBean( "identitystore.elasticsearch.identityIndexer" );
 
     @Override
@@ -67,7 +66,7 @@ public class MissingIndexTask extends Daemon
         final List<BulkAction> bulkActions = new ArrayList<>( );
         if ( _identityIndexer.isAlive( ) )
         {
-            _logger.info( "ES available :: indexing" );
+            AppLogService.info( "ES available :: indexing" );
             final List<IndexAction> indexActions = IndexActionHome.selectAll( );
             for ( final IndexAction indexAction : indexActions )
             {
@@ -85,35 +84,35 @@ public class MissingIndexTask extends Daemon
                         break;
                 }
             }
-            _logger.info( "NB identies to be indexed : " + bulkActions.size( ) );
-            _logger.info( "Size of indexing batches : " + batchSize );
+            AppLogService.info( "NB identies to be indexed : " + bulkActions.size( ) );
+            AppLogService.info( "Size of indexing batches : " + batchSize );
             final Batch<BulkAction> batch = Batch.ofSize( bulkActions, batchSize );
-            _logger.info( "NB of indexing batches : " + batch.size( ) );
+            AppLogService.info( "NB of indexing batches : " + batch.size( ) );
             int batchCounter = 0;
             for ( final List<BulkAction> batchActions : batch )
             {
-                _logger.info( "Processing batch : " + ++batchCounter );
+                AppLogService.info( "Processing batch : " + ++batchCounter );
                 this._identityIndexer.bulk( batchActions, IIdentityIndexer.CURRENT_INDEX_ALIAS );
             }
 
             // Clean processed actions
-            _logger.info( "Indexing over, clean processed actions in database " );
+            AppLogService.info( "Indexing over, clean processed actions in database " );
             indexActions.forEach( IndexActionHome::delete );
         }
         else
         {
-            _logger.info( "[ERROR] ES not available" );
+            AppLogService.info( "[ERROR] ES not available" );
         }
         stopWatch.stop( );
         final String duration = DurationFormatUtils.formatDurationWords( stopWatch.getTime( ), true, true );
 
         if ( CollectionUtils.isNotEmpty( bulkActions ) )
         {
-            _logger.info( "Indexed  " + bulkActions.size( ) + " identities in " + duration );
+            AppLogService.info( "Indexed  " + bulkActions.size( ) + " identities in " + duration );
         }
         else
         {
-            _logger.info( "No missing index to process" );
+            AppLogService.info( "No missing index to process" );
         }
     }
 }

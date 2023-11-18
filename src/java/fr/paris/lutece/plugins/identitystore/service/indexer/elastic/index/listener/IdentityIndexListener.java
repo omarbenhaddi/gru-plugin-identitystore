@@ -40,8 +40,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import org.apache.log4j.Logger;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,11 +48,6 @@ import java.util.stream.Collectors;
 public class IdentityIndexListener implements IdentityChangeListener
 {
     private static final String SERVICE_NAME = "Elastic Search identity change listener";
-    private static final String PROPERTY_LOGGER_NAME = "identitystore.changelistener.logging.loggerName";
-    private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
-    private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME, DEFAULT_LOGGER_NAME );
-    private static final Logger _logger = Logger.getLogger( LOGGER_NAME );
-    private static final String INDEX_IDENTITY_EVENT_CODE = "INDEX_IDENTITY";
 
     private final IIdentityIndexer _identityIndexer;
 
@@ -74,17 +68,17 @@ public class IdentityIndexListener implements IdentityChangeListener
         {
             case CREATE:
             case MERGE_CANCELLED:
-                _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
+                AppLogService.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case UPDATE:
             case CONSOLIDATED:
-                _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
+                AppLogService.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case DELETE:
             case MERGED:
-                _logger.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
+                AppLogService.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case READ:

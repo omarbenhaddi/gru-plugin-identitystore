@@ -37,15 +37,12 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
-import org.apache.log4j.Logger;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.regex.Pattern;
 
 public class IdentityAttributeValidationCache extends AbstractCacheableService
 {
-
-    private static Logger _logger = Logger.getLogger( IdentityAttributeValidationCache.class );
-
     public static final String SERVICE_NAME = "IdentityAttributeValidationCache";
 
     public IdentityAttributeValidationCache( )
@@ -55,7 +52,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        _logger.info( "Init Attribute Validation cache" );
+        AppLogService.info( "Init Attribute Validation cache" );
         this.resetCache( );
         AttributeKeyHome.getAttributeKeysList( )
                 .forEach( attributeKey -> this.put( attributeKey.getKeyName( ), Pattern.compile( attributeKey.getValidationRegex( ) ) ) );
@@ -68,7 +65,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
         this.putInCache( keyName, validationPattern );
-        _logger.info( "Validation Pattern added to cache: " + keyName );
+        AppLogService.info( "Validation Pattern added to cache: " + keyName );
     }
 
     public void remove( final String keyName )
@@ -78,7 +75,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
 
-        _logger.info( "Validation Pattern removed from cache: " + keyName );
+        AppLogService.info( "Validation Pattern removed from cache: " + keyName );
     }
 
     public Pattern get( final String keyName ) throws IdentityAttributeNotFoundException

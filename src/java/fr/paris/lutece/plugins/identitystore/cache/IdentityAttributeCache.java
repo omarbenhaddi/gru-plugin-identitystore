@@ -37,13 +37,11 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.log4j.Logger;
 
 public class IdentityAttributeCache extends AbstractCacheableService
 {
-
-    private static final Logger _logger = Logger.getLogger( IdentityAttributeCache.class );
-
     public static final String SERVICE_NAME = "IdentityAttributeCache";
 
     public IdentityAttributeCache( )
@@ -53,7 +51,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        _logger.info( "Init AttributeKey cache" );
+        AppLogService.info( "Init AttributeKey cache" );
         this.resetCache( );
         AttributeKeyHome.getAttributeKeysList( ).forEach( attributeKey -> this.put( attributeKey.getKeyName( ), attributeKey ) );
     }
@@ -65,7 +63,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
         this.putInCache( keyName, attributeKey );
-        _logger.info( "AttributeKey added to cache: " + keyName );
+        AppLogService.info( "AttributeKey added to cache: " + keyName );
     }
 
     public void remove( final String keyName )
@@ -75,7 +73,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
 
-        _logger.info( "AttributeKey removed from cache: " + keyName );
+        AppLogService.info( "AttributeKey removed from cache: " + keyName );
     }
 
     public AttributeKey get( final String keyName ) throws IdentityAttributeNotFoundException

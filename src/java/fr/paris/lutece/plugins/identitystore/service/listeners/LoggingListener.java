@@ -39,8 +39,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatu
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChange;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import org.apache.log4j.Logger;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 /**
  * Logging Listener
@@ -48,10 +47,6 @@ import org.apache.log4j.Logger;
 public class LoggingListener implements AttributeChangeListener
 {
     private static final String SERVICE_NAME = "Logging AttributeChangeListener";
-    private static final String PROPERTY_LOGGER_NAME = "identitystore.changelistener.logging.loggerName";
-    private static final String DEFAULT_LOGGER_NAME = "lutece.identitystore";
-    private static final String LOGGER_NAME = AppPropertiesService.getProperty( PROPERTY_LOGGER_NAME, DEFAULT_LOGGER_NAME );
-    private static final Logger _logger = Logger.getLogger( LOGGER_NAME );
 
     /**
      * {@inheritDoc }
@@ -66,7 +61,7 @@ public class LoggingListener implements AttributeChangeListener
                 + "' New value : '" + change.getAttributeValue( ) + "' With status : '" + change.getChangeSatus( ) + " - " + change.getChangeSatus( )
                 + "' With MetaData : '" + change.getMetadata( ) + " - " + change.getChangeMessage( ) + "'";
 
-        _logger.info( sbLog );
+        AppLogService.info( sbLog );
     }
 
     @Override

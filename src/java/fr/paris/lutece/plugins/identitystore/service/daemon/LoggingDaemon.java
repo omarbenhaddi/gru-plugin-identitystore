@@ -31,53 +31,35 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.cache;
+package fr.paris.lutece.plugins.identitystore.service.daemon;
 
-import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
-import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.daemon.Daemon;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
-public class QualityBaseCache extends AbstractCacheableService
+public abstract class LoggingDaemon extends Daemon
 {
-    public static final String SERVICE_NAME = "QualityBaseCache";
-    public static final String KEY = "QualityBase";
-
-    public QualityBaseCache( )
-    {
-        this.initCache( );
-    }
-
-    public void refresh( )
-    {
-        AppLogService.info( "Init service quality base cache" );
-        this.resetCache( );
-        this.put( KEY, AttributeKeyHome.getQualityBase( ) );
-    }
-
-    public void put( final String key, final Integer qualityBase )
-    {
-        if ( this.getKeys( ).contains( key ) )
-        {
-            this.removeKey( key );
-        }
-        this.putInCache( KEY, qualityBase );
-        AppLogService.info( "Quality base has been updated to : " + qualityBase );
-    }
-
-    public Integer get( )
-    {
-        Integer qualityBase = (Integer) this.getFromCache( KEY );
-        if ( qualityBase == null )
-        {
-            qualityBase = AttributeKeyHome.getQualityBase( );
-            this.put( KEY, qualityBase );
-        }
-        return qualityBase;
-    }
+    private StringBuilder logs;
 
     @Override
-    public String getName( )
+    public void run( )
     {
-        return SERVICE_NAME;
+        this.logs = new StringBuilder( );
+        this.doTask( );
     }
+
+    protected void info( final String log )
+    {
+        AppLogService.info( log );
+        logs.append( log ).append( "\n" );
+        this.setLastRunLogs( logs.toString( ) );
+    }
+
+    protected void error( final String log )
+    {
+        AppLogService.error( log );
+        logs.append( log ).append( "\n" );
+        this.setLastRunLogs( logs.toString( ) );
+    }
+
+    public abstract void doTask( );
 }

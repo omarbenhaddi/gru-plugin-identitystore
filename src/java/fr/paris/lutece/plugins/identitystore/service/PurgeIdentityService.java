@@ -48,6 +48,7 @@ import fr.paris.lutece.plugins.notificationstore.v1.web.service.NotificationStor
 import fr.paris.lutece.portal.service.security.AccessLogService;
 import fr.paris.lutece.portal.service.security.AccessLoggerConstants;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -63,7 +64,6 @@ import static fr.paris.lutece.plugins.identitystore.service.identity.IdentitySer
 
 public final class PurgeIdentityService
 {
-    private static final Logger _logger = Logger.getLogger( PurgeIdentityService.class );
     private static PurgeIdentityService _instance;
 
     private final NotificationStoreService _notificationStoreService = SpringContextService.getBean( "notificationStore.notificationStoreService" );
@@ -83,7 +83,7 @@ public final class PurgeIdentityService
      *
      * @return log {@link StringBuilder}
      */
-    public StringBuilder purge( final RequestAuthor daemonAuthor, final String daemonClientCode, final List<String> excludedAppCodes, final int batchLimit )
+    public String purge( final RequestAuthor daemonAuthor, final String daemonClientCode, final List<String> excludedAppCodes, final int batchLimit )
     {
         final StringBuilder msg = new StringBuilder( );
 
@@ -91,7 +91,7 @@ public final class PurgeIdentityService
         final List<Identity> expiredIdentities = IdentityHome.findExpiredNotMergedAndNotConnectedIdentities( batchLimit );
         final Timestamp now = Timestamp.from( Instant.now( ) );
 
-        msg.append( expiredIdentities.size( ) ).append( " expired identities found" );
+        msg.append( expiredIdentities.size( ) ).append( " expired identities found" ).append( "\n" );
 
         for ( final Identity expiredIdentity : expiredIdentities )
         {
@@ -153,34 +153,35 @@ public final class PurgeIdentityService
                     AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
                             InternalUserService.getInstance( ).getApiUser( daemonAuthor, daemonClientCode ), null, "PURGE_DAEMON" );
 
-                    msg.append( "Identity expiration date updated : [" ).append( expiredIdentity.getCustomerId( ) ).append( "]" );
+                    msg.append( "Identity expiration date updated : [" ).append( expiredIdentity.getCustomerId( ) ).append( "]" ).append( "\n" );
                 }
                 else
                 {
                     // if the peremption date still passed, delete the identity (and children as merged identities,
                     // suspicious, attributes and attributes history, etc ...) EXCEPT the identity history
                     IdentityService.instance( ).delete( expiredIdentity.getCustomerId( ) );
-                    msg.append( "Identity deleted for [" ).append( expiredIdentity.getCustomerId( ) ).append( "]" );
+                    msg.append( "Identity deleted for [" ).append( expiredIdentity.getCustomerId( ) ).append( "]" ).append( "\n" );
 
                     // delete notifications
                     _notificationStoreService.deleteNotificationByCuid( expiredIdentity.getCustomerId( ) );
-                    msg.append( "Notifications deleted for main identity [" ).append( expiredIdentity.getCustomerId( ) ).append( "]" );
+                    msg.append( "Notifications deleted for main identity [" ).append( expiredIdentity.getCustomerId( ) ).append( "]" ).append( "\n" );
                     for ( final Identity mergedIdentity : mergedIdentities )
                     {
                         _notificationStoreService.deleteNotificationByCuid( mergedIdentity.getCustomerId( ) );
-                        msg.append( "Notifications deleted for merged identity [" ).append( mergedIdentity.getCustomerId( ) ).append( "]" );
+                        msg.append( "Notifications deleted for merged identity [" ).append( mergedIdentity.getCustomerId( ) ).append( "]" ).append( "\n" );
                     }
                 }
             }
             catch( final Exception e )
             {
-                msg.append( "Daemon execution error for identity : " ).append( expiredIdentity.getCustomerId( ) ).append( " :: " ).append( e.getMessage( ) );
-                return msg;
+                msg.append( "Daemon execution error for identity : " ).append( expiredIdentity.getCustomerId( ) ).append( " :: " ).append( e.getMessage( ) )
+                        .append( "\n" );
+                return msg.toString( );
             }
         }
 
         // return message for daemons
-        return msg;
+        return msg.toString( );
     }
 
     /**
@@ -235,7 +236,7 @@ public final class PurgeIdentityService
         }
         catch( final Exception e )
         {
-            _logger.error( "Notification Store Service Error", e );
+            AppLogService.error( "Notification Store Service Error", e );
         }
         return foundDemandType;
     }

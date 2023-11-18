@@ -50,8 +50,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDup
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -75,8 +75,6 @@ import java.util.stream.Collectors;
  */
 public class IdentityDtoCache extends AbstractCacheableService
 {
-
-    private static Logger _logger = Logger.getLogger( IdentityDtoCache.class );
     public static final String SERVICE_NAME = "IdentityCache";
 
     public IdentityDtoCache( )
@@ -86,7 +84,7 @@ public class IdentityDtoCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        _logger.info( "Init Identity cache" );
+        AppLogService.info( "Init Identity cache" );
         this.resetCache( );
     }
 
@@ -98,7 +96,7 @@ public class IdentityDtoCache extends AbstractCacheableService
             this.removeKey( cacheKey );
         }
         this.putInCache( cacheKey, identity );
-        _logger.info( "Identity added to cache: " + cacheKey );
+        AppLogService.info( "Identity added to cache: " + cacheKey );
     }
 
     public void remove( final String cacheKey )
@@ -107,7 +105,7 @@ public class IdentityDtoCache extends AbstractCacheableService
         {
             this.removeKey( cacheKey );
         }
-        _logger.info( "Identity removed from cache: " + cacheKey );
+        AppLogService.info( "Identity removed from cache: " + cacheKey );
     }
 
     public IdentityDto get( final String cuid, final String connectionId, final ServiceContract serviceContract ) throws IdentityStoreException

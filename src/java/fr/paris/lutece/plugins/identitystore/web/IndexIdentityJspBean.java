@@ -41,11 +41,11 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.security.SecurityTokenService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -57,8 +57,6 @@ import java.util.Map;
 @Controller( controllerJsp = "IndexIdentities.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class IndexIdentityJspBean extends ManageIdentitiesJspBean
 {
-    private final static Logger _logger = Logger.getLogger( IndexIdentityJspBean.class );
-
     /**
      * 
      */
@@ -157,7 +155,7 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
         }
         catch( JsonProcessingException e )
         {
-            _logger.error( "Unable to serialize index status", e );
+            AppLogService.error( "Unable to serialize index status", e );
             return StringUtils.EMPTY;
         }
     }

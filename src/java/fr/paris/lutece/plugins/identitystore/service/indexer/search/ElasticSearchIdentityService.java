@@ -46,7 +46,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
-import org.apache.log4j.Logger;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,6 @@ import java.util.stream.Collectors;
 
 public class ElasticSearchIdentityService implements ISearchIdentityService
 {
-    private final static Logger _logger = Logger.getLogger( ElasticSearchIdentityService.class );
     private final IIdentitySearcher _identitySearcher;
 
     /**
@@ -122,7 +121,7 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
                 }
                 catch( IdentityAttributeNotFoundException | RefAttributeCertificationDefinitionNotFoundException e )
                 {
-                    _logger.error( "An error occurred during search: ", e );
+                    AppLogService.error( "An error occurred during search: ", e );
                 }
             } );
         }

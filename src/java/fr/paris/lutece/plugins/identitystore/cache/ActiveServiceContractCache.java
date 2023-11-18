@@ -39,16 +39,14 @@ import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
 
 public class ActiveServiceContractCache extends AbstractCacheableService
 {
-
-    private static final Logger _logger = Logger.getLogger( ActiveServiceContractCache.class );
 
     public static final String SERVICE_NAME = "ActiveServiceContractCache";
 
@@ -59,7 +57,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        _logger.info( "Init service contract cache" );
+        AppLogService.info( "Init service contract cache" );
         this.resetCache( );
         final List<ClientApplication> clientApplications = ClientApplicationHome.selectApplicationList( );
         clientApplications.forEach( clientApplication -> {
@@ -70,7 +68,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
             }
             catch( ServiceContractNotFoundException e )
             {
-                _logger.warn( "An error occurred during service contract cache refreshing : {} ", e );
+                AppLogService.error( "An error occurred during service contract cache refreshing : {} ", e );
             }
         } );
     }
@@ -82,7 +80,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
             this.removeKey( clientCode );
         }
         this.putInCache( clientCode, serviceContract );
-        _logger.info( "An active service contract has been added for client application with code : " + clientCode );
+        AppLogService.info( "An active service contract has been added for client application with code : " + clientCode );
     }
 
     /**
@@ -103,7 +101,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
             }
             catch( ServiceContractNotFoundException e )
             {
-                _logger.error( "Cannot delete service contract with id" + id + " : {}", e );
+                AppLogService.error( "Cannot delete service contract with id" + id + " : {}", e );
             }
         } );
     }

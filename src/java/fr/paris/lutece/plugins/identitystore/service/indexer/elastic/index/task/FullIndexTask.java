@@ -39,13 +39,13 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityObjectHome;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,6 @@ public class FullIndexTask extends AbstractIndexTask
     private static final String TASK_REINDEX_BATCH_SIZE_PROPERTY = "task.reindex.batch.size";
     private static final String TASK_REINDEX_ACTIVE_PROPERTY = "task.reindex.active";
     private final boolean active = AppPropertiesService.getPropertyBoolean( TASK_REINDEX_ACTIVE_PROPERTY, false );
-    private final static Logger _logger = Logger.getLogger( FullIndexTask.class );
     private final IIdentityIndexer _identityIndexer;
 
     public FullIndexTask( IIdentityIndexer _identityIndexer )
@@ -69,12 +68,12 @@ public class FullIndexTask extends AbstractIndexTask
     {
         if ( active )
         {
-            _logger.info( "Full index task is active." );
+            AppLogService.info( "Full index task is active." );
             this.doJob( );
         }
         else
         {
-            _logger.info( "Full index task is not active." );
+            AppLogService.info( "Full index task is not active." );
         }
     }
 

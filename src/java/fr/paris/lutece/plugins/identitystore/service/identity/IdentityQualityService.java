@@ -37,7 +37,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
 import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
@@ -48,7 +47,11 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -63,7 +66,7 @@ public class IdentityQualityService
         if ( _instance == null )
         {
             _instance = new IdentityQualityService( );
-            _instance._qualityBaseCache.refresh( );
+            _qualityBaseCache.refresh( );
         }
         return _instance;
     }
@@ -75,8 +78,8 @@ public class IdentityQualityService
     /**
      * Compute the {@link IdentityDto} coverage of the {@link ServiceContract} requirements.
      *
-     * @param identity
-     * @param serviceContract
+     * @param identity the identity to qualify
+     * @param serviceContract the base service contract
      */
     public void computeCoverage( final IdentityDto identity, final ServiceContract serviceContract )
     {
@@ -105,7 +108,7 @@ public class IdentityQualityService
                 final int attributeLevel = certifiedAttribute.getCertificationLevel( ) != null ? certifiedAttribute.getCertificationLevel( ) : 0;
                 final int minLevel = ( requirement != null && requirement.getRefCertificationLevel( ) != null
                         && requirement.getRefCertificationLevel( ).getLevel( ) != null )
-                                ? Integer.valueOf( requirement.getRefCertificationLevel( ).getLevel( ) )
+                                ? Integer.parseInt( requirement.getRefCertificationLevel( ).getLevel( ) )
                                 : 0;
                 return minLevel > attributeLevel;
             } );
@@ -158,7 +161,7 @@ public class IdentityQualityService
             }
             if ( refKey != null )
             {
-                attributesToProcess.put( searchAttribute, Arrays.asList( refKey ) );
+                attributesToProcess.put( searchAttribute, Collections.singletonList(refKey));
             }
             else
             {
@@ -175,13 +178,13 @@ public class IdentityQualityService
                 final AttributeDto attributeDto = identity.getAttributes( ).stream( )
                         .filter( attribute -> Objects.equals( attribute.getKey( ), attributeKey.getKeyName( ) ) ).findFirst( ).orElse( null );
                 base.addAndGet( attributeKey.getKeyWeight( ) );
-                if ( attributeDto.getValue( ).equals( entry.getKey( ).getValue( ) ) )
+                if ( attributeDto != null && attributeDto.getValue( ).equals( entry.getKey( ).getValue( ) ) )
                 {
                     levels.addAndGet( attributeKey.getKeyWeight( ) );
                 }
                 else
                 {
-                    final Double penalty = Double.valueOf( AppPropertiesService.getProperty( "identitystore.identity.scoring.penalty", "0.3" ) );
+                    final double penalty = Double.parseDouble(AppPropertiesService.getProperty("identitystore.identity.scoring.penalty", "0.3"));
                     levels.addAndGet( attributeKey.getKeyWeight( ) - ( attributeKey.getKeyWeight( ) * penalty ) );
                 }
             }
