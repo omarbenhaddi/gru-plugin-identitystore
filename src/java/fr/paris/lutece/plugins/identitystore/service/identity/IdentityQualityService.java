@@ -85,11 +85,12 @@ public class IdentityQualityService
     {
     }
 
-    public void enrich(final List<SearchAttribute> searchAttributes, final IdentityDto identity, final ServiceContract serviceContract, final Identity bean) {
+    public void enrich( final List<SearchAttribute> searchAttributes, final IdentityDto identity, final ServiceContract serviceContract, final Identity bean )
+    {
         /* Compute Quality Definition */
-        IdentityQualityService.instance( ).computeCoverage(identity, serviceContract);
-        IdentityQualityService.instance( ).computeQuality(identity);
-        IdentityQualityService.instance( ).computeMatchScore(identity, searchAttributes);
+        IdentityQualityService.instance( ).computeCoverage( identity, serviceContract );
+        IdentityQualityService.instance( ).computeQuality( identity );
+        IdentityQualityService.instance( ).computeMatchScore( identity, searchAttributes );
 
         /* Filter client readable attributes */
         final List<AttributeDto> filteredAttributeValues = identity.getAttributes( ).stream( )
@@ -118,7 +119,7 @@ public class IdentityQualityService
             {
                 identity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
             }
-            identity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map(excludedIdentities -> {
+            identity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
                 final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
                 exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
                 exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
@@ -131,7 +132,8 @@ public class IdentityQualityService
             } ).collect( Collectors.toList( ) ) );
         }
 
-        if(bean != null) {
+        if ( bean != null )
+        {
             final List<Identity> mergedIdentities = IdentityHome.findMergedIdentities( bean.getId( ) );
             if ( !mergedIdentities.isEmpty( ) )
             {
@@ -220,9 +222,12 @@ public class IdentityQualityService
             identity.setQuality( new QualityDefinition( ) );
         }
 
-        if(CollectionUtils.isEmpty(searchAttributes)) {
+        if ( CollectionUtils.isEmpty( searchAttributes ) )
+        {
             identity.getQuality( ).setScoring( 1.0 );
-        } else {
+        }
+        else
+        {
             final AtomicDouble levels = new AtomicDouble( );
             final AtomicDouble base = new AtomicDouble( );
             final Map<SearchAttribute, List<AttributeKey>> attributesToProcess = new HashMap<>( );

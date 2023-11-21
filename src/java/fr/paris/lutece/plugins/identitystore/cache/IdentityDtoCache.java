@@ -149,7 +149,7 @@ public class IdentityDtoCache extends AbstractCacheableService
     private IdentityDto convertAndEnrich( final Identity identity, final ServiceContract serviceContract ) throws IdentityStoreException
     {
         final IdentityDto identityDto = DtoConverter.convertIdentityToDto( identity );
-        IdentityQualityService.instance().enrich(null, identityDto, serviceContract, identity);
+        IdentityQualityService.instance( ).enrich( null, identityDto, serviceContract, identity );
         return identityDto;
     }
 

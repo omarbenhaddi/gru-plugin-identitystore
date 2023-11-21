@@ -882,7 +882,8 @@ public class IdentityService
                 request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
         {
-            final List<IdentityDto> filteredIdentities = this.getEnrichedIdentities( request.getSearch().getAttributes(), clientCode, result.getQualifiedIdentities( ) );
+            final List<IdentityDto> filteredIdentities = this.getEnrichedIdentities( request.getSearch( ).getAttributes( ), clientCode,
+                    result.getQualifiedIdentities( ) );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
@@ -1030,12 +1031,16 @@ public class IdentityService
      * @throws ServiceContractNotFoundException
      *             in case of error
      */
-    private List<IdentityDto> getEnrichedIdentities(final List<SearchAttribute> searchAttributes, final String clientCode, final List<IdentityDto> identities ) throws ServiceContractNotFoundException {
+    private List<IdentityDto> getEnrichedIdentities( final List<SearchAttribute> searchAttributes, final String clientCode, final List<IdentityDto> identities )
+            throws ServiceContractNotFoundException
+    {
         final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( clientCode );
         final Comparator<QualityDefinition> qualityComparator = Comparator.comparing( QualityDefinition::getScoring )
                 .thenComparingDouble( QualityDefinition::getQuality ).reversed( );
         final Comparator<IdentityDto> identityComparator = Comparator.comparing( IdentityDto::getQuality, qualityComparator );
-        return identities.stream().filter(IdentityDto::isNotMerged).peek(identity -> IdentityQualityService.instance().enrich(searchAttributes, identity, serviceContract, null)).sorted(identityComparator).collect(Collectors.toList());
+        return identities.stream( ).filter( IdentityDto::isNotMerged )
+                .peek( identity -> IdentityQualityService.instance( ).enrich( searchAttributes, identity, serviceContract, null ) ).sorted( identityComparator )
+                .collect( Collectors.toList( ) );
     }
 
     private List<AttributeStatus> updateIdentity( final IdentityDto requestIdentity, final String clientCode, final ChangeResponse response,
