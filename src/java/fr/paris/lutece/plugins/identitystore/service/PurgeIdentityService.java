@@ -236,7 +236,7 @@ public final class PurgeIdentityService
         }
         catch( final Exception e )
         {
-            AppLogService.error( "Notification Store Service Error", e );
+            AppLogService.debug( "Notification Store Service Error", e );
         }
         return foundDemandType;
     }

@@ -84,7 +84,7 @@ public class IdentityDtoCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        AppLogService.info( "Init Identity cache" );
+        AppLogService.debug( "Init Identity cache" );
         this.resetCache( );
     }
 
@@ -96,7 +96,7 @@ public class IdentityDtoCache extends AbstractCacheableService
             this.removeKey( cacheKey );
         }
         this.putInCache( cacheKey, identity );
-        AppLogService.info( "Identity added to cache: " + cacheKey );
+        AppLogService.debug( "Identity added to cache: " + cacheKey );
     }
 
     public void remove( final String cacheKey )
@@ -105,7 +105,7 @@ public class IdentityDtoCache extends AbstractCacheableService
         {
             this.removeKey( cacheKey );
         }
-        AppLogService.info( "Identity removed from cache: " + cacheKey );
+        AppLogService.debug( "Identity removed from cache: " + cacheKey );
     }
 
     public IdentityDto get( final String cuid, final String connectionId, final ServiceContract serviceContract ) throws IdentityStoreException

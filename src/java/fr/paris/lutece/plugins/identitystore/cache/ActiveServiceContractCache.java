@@ -57,7 +57,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        AppLogService.info( "Init service contract cache" );
+        AppLogService.debug( "Init service contract cache" );
         this.resetCache( );
         final List<ClientApplication> clientApplications = ClientApplicationHome.selectApplicationList( );
         clientApplications.forEach( clientApplication -> {
@@ -80,7 +80,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
             this.removeKey( clientCode );
         }
         this.putInCache( clientCode, serviceContract );
-        AppLogService.info( "An active service contract has been added for client application with code : " + clientCode );
+        AppLogService.debug( "An active service contract has been added for client application with code : " + clientCode );
     }
 
     /**

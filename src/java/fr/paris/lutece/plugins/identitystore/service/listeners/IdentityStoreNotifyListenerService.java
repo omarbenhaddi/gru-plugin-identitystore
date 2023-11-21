@@ -82,7 +82,7 @@ public final class IdentityStoreNotifyListenerService
             sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
 
-        AppLogService.info( sbLog.toString( ) );
+        AppLogService.debug( sbLog.toString( ) );
 
         // init identityChangeListListeners
         _identityChangeListListeners = SpringContextService.getBeansOfType( IdentityChangeListener.class );
@@ -95,7 +95,7 @@ public final class IdentityStoreNotifyListenerService
             sbLog.append( "\n\t\t\t\t - " ).append( listener.getName( ) );
         }
 
-        AppLogService.info( sbLog.toString( ) );
+        AppLogService.debug( sbLog.toString( ) );
 
     }
 

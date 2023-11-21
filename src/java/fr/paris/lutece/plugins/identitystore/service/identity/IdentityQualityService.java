@@ -78,8 +78,10 @@ public class IdentityQualityService
     /**
      * Compute the {@link IdentityDto} coverage of the {@link ServiceContract} requirements.
      *
-     * @param identity the identity to qualify
-     * @param serviceContract the base service contract
+     * @param identity
+     *            the identity to qualify
+     * @param serviceContract
+     *            the base service contract
      */
     public void computeCoverage( final IdentityDto identity, final ServiceContract serviceContract )
     {
@@ -161,7 +163,7 @@ public class IdentityQualityService
             }
             if ( refKey != null )
             {
-                attributesToProcess.put( searchAttribute, Collections.singletonList(refKey));
+                attributesToProcess.put( searchAttribute, Collections.singletonList( refKey ) );
             }
             else
             {
@@ -184,7 +186,7 @@ public class IdentityQualityService
                 }
                 else
                 {
-                    final double penalty = Double.parseDouble(AppPropertiesService.getProperty("identitystore.identity.scoring.penalty", "0.3"));
+                    final double penalty = Double.parseDouble( AppPropertiesService.getProperty( "identitystore.identity.scoring.penalty", "0.3" ) );
                     levels.addAndGet( attributeKey.getKeyWeight( ) - ( attributeKey.getKeyWeight( ) * penalty ) );
                 }
             }

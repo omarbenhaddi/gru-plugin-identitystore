@@ -54,7 +54,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        AppLogService.info( "Init AttributeKey cache" );
+        AppLogService.debug( "Init AttributeKey cache" );
         this.resetCache( );
         DuplicateRuleHome.findAll( ).forEach( this::put );
     }
@@ -66,7 +66,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
             this.removeKey( rule.getCode( ) );
         }
         this.putInCache( rule.getCode( ), rule );
-        AppLogService.info( "Duplicate rule added to cache: " + rule.getCode( ) );
+        AppLogService.debug( "Duplicate rule added to cache: " + rule.getCode( ) );
     }
 
     public void remove( final String ruleCode )
@@ -76,7 +76,7 @@ public class DuplicateRulesCache extends AbstractCacheableService
             this.removeKey( ruleCode );
         }
 
-        AppLogService.info( "Duplicate rule removed from cache: " + ruleCode );
+        AppLogService.debug( "Duplicate rule removed from cache: " + ruleCode );
     }
 
     /**

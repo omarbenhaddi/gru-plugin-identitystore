@@ -66,7 +66,7 @@ public class MissingIndexTask extends Daemon
         final List<BulkAction> bulkActions = new ArrayList<>( );
         if ( _identityIndexer.isAlive( ) )
         {
-            AppLogService.info( "ES available :: indexing" );
+            AppLogService.debug( "ES available :: indexing" );
             final List<IndexAction> indexActions = IndexActionHome.selectAll( );
             for ( final IndexAction indexAction : indexActions )
             {
@@ -84,35 +84,35 @@ public class MissingIndexTask extends Daemon
                         break;
                 }
             }
-            AppLogService.info( "NB identies to be indexed : " + bulkActions.size( ) );
-            AppLogService.info( "Size of indexing batches : " + batchSize );
+            AppLogService.debug( "NB identies to be indexed : " + bulkActions.size( ) );
+            AppLogService.debug( "Size of indexing batches : " + batchSize );
             final Batch<BulkAction> batch = Batch.ofSize( bulkActions, batchSize );
-            AppLogService.info( "NB of indexing batches : " + batch.size( ) );
+            AppLogService.debug( "NB of indexing batches : " + batch.size( ) );
             int batchCounter = 0;
             for ( final List<BulkAction> batchActions : batch )
             {
-                AppLogService.info( "Processing batch : " + ++batchCounter );
+                AppLogService.debug( "Processing batch : " + ++batchCounter );
                 this._identityIndexer.bulk( batchActions, IIdentityIndexer.CURRENT_INDEX_ALIAS );
             }
 
             // Clean processed actions
-            AppLogService.info( "Indexing over, clean processed actions in database " );
+            AppLogService.debug( "Indexing over, clean processed actions in database " );
             indexActions.forEach( IndexActionHome::delete );
         }
         else
         {
-            AppLogService.info( "[ERROR] ES not available" );
+            AppLogService.error( "[ERROR] ES not available" );
         }
         stopWatch.stop( );
         final String duration = DurationFormatUtils.formatDurationWords( stopWatch.getTime( ), true, true );
 
         if ( CollectionUtils.isNotEmpty( bulkActions ) )
         {
-            AppLogService.info( "Indexed  " + bulkActions.size( ) + " identities in " + duration );
+            AppLogService.debug( "Indexed  " + bulkActions.size( ) + " identities in " + duration );
         }
         else
         {
-            AppLogService.info( "No missing index to process" );
+            AppLogService.debug( "No missing index to process" );
         }
     }
 }

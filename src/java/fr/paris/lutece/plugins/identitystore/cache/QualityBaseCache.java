@@ -49,7 +49,7 @@ public class QualityBaseCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        AppLogService.info( "Init service quality base cache" );
+        AppLogService.debug( "Init service quality base cache" );
         this.resetCache( );
         this.put( KEY, AttributeKeyHome.getQualityBase( ) );
     }
@@ -61,7 +61,7 @@ public class QualityBaseCache extends AbstractCacheableService
             this.removeKey( key );
         }
         this.putInCache( KEY, qualityBase );
-        AppLogService.info( "Quality base has been updated to : " + qualityBase );
+        AppLogService.debug( "Quality base has been updated to : " + qualityBase );
     }
 
     public Integer get( )

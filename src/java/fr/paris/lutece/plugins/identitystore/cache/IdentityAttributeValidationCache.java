@@ -52,7 +52,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        AppLogService.info( "Init Attribute Validation cache" );
+        AppLogService.debug( "Init Attribute Validation cache" );
         this.resetCache( );
         AttributeKeyHome.getAttributeKeysList( )
                 .forEach( attributeKey -> this.put( attributeKey.getKeyName( ), Pattern.compile( attributeKey.getValidationRegex( ) ) ) );
@@ -65,7 +65,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
         this.putInCache( keyName, validationPattern );
-        AppLogService.info( "Validation Pattern added to cache: " + keyName );
+        AppLogService.debug( "Validation Pattern added to cache: " + keyName );
     }
 
     public void remove( final String keyName )
@@ -75,7 +75,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
 
-        AppLogService.info( "Validation Pattern removed from cache: " + keyName );
+        AppLogService.debug( "Validation Pattern removed from cache: " + keyName );
     }
 
     public Pattern get( final String keyName ) throws IdentityAttributeNotFoundException

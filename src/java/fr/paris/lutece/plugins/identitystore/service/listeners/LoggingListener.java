@@ -61,7 +61,7 @@ public class LoggingListener implements AttributeChangeListener
                 + "' New value : '" + change.getAttributeValue( ) + "' With status : '" + change.getChangeSatus( ) + " - " + change.getChangeSatus( )
                 + "' With MetaData : '" + change.getMetadata( ) + " - " + change.getChangeMessage( ) + "'";
 
-        AppLogService.info( sbLog );
+        AppLogService.debug( sbLog );
     }
 
     @Override

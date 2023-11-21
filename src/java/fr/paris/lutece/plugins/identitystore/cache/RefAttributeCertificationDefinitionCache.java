@@ -51,7 +51,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
 
     public void refresh( )
     {
-        AppLogService.info( "Init AttributeCertificationLevel cache" );
+        AppLogService.debug( "Init AttributeCertificationLevel cache" );
         this.resetCache( );
         final List<RefAttributeCertificationLevel> all = RefAttributeCertificationLevelHome.getRefAttributeCertificationLevelsList( );
         all.forEach( this::put );
@@ -76,7 +76,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
             this.removeKey( key );
         }
         this.putInCache( key, refAttributeCertificationLevel );
-        AppLogService.info( "AttributeCertificationLevel added to cache: " + key );
+        AppLogService.debug( "AttributeCertificationLevel added to cache: " + key );
     }
 
     public void remove( final RefAttributeCertificationLevel refAttributeCertificationLevel )
@@ -86,7 +86,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
         {
             this.removeKey( key );
         }
-        AppLogService.info( "AttributeCertificationLevel removed from cache: " + key );
+        AppLogService.debug( "AttributeCertificationLevel removed from cache: " + key );
     }
 
     public RefAttributeCertificationLevel get( final String processusCode, final String attributeKeyName )
@@ -110,7 +110,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
                 attributeKeyName );
         if ( certificationLevel == null )
         {
-            AppLogService.error( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
+            AppLogService.info( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
                     + attributeKeyName );
         }
         return certificationLevel;

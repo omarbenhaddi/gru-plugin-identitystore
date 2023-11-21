@@ -51,7 +51,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
 
     public void refresh( )
     {
-        AppLogService.info( "Init AttributeKey cache" );
+        AppLogService.debug( "Init AttributeKey cache" );
         this.resetCache( );
         AttributeKeyHome.getAttributeKeysList( ).forEach( attributeKey -> this.put( attributeKey.getKeyName( ), attributeKey ) );
     }
@@ -63,7 +63,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
         this.putInCache( keyName, attributeKey );
-        AppLogService.info( "AttributeKey added to cache: " + keyName );
+        AppLogService.debug( "AttributeKey added to cache: " + keyName );
     }
 
     public void remove( final String keyName )
@@ -73,7 +73,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
             this.removeKey( keyName );
         }
 
-        AppLogService.info( "AttributeKey removed from cache: " + keyName );
+        AppLogService.debug( "AttributeKey removed from cache: " + keyName );
     }
 
     public AttributeKey get( final String keyName ) throws IdentityAttributeNotFoundException

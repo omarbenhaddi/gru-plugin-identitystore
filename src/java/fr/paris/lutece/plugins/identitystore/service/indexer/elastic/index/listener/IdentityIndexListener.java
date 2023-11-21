@@ -68,17 +68,17 @@ public class IdentityIndexListener implements IdentityChangeListener
         {
             case CREATE:
             case MERGE_CANCELLED:
-                AppLogService.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
+                AppLogService.debug( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case UPDATE:
             case CONSOLIDATED:
-                AppLogService.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
+                AppLogService.debug( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case DELETE:
             case MERGED:
-                AppLogService.info( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
+                AppLogService.debug( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
                 this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 break;
             case READ:
