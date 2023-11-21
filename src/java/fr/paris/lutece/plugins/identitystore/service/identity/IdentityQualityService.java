@@ -180,7 +180,7 @@ public class IdentityQualityService
                 final AttributeDto attributeDto = identity.getAttributes( ).stream( )
                         .filter( attribute -> Objects.equals( attribute.getKey( ), attributeKey.getKeyName( ) ) ).findFirst( ).orElse( null );
                 base.addAndGet( attributeKey.getKeyWeight( ) );
-                if ( attributeDto != null && attributeDto.getValue( ).equals( entry.getKey( ).getValue( ) ) )
+                if ( attributeDto != null && attributeDto.getValue( ).equalsIgnoreCase( entry.getKey( ).getValue( ) ) )
                 {
                     levels.addAndGet( attributeKey.getKeyWeight( ) );
                 }
