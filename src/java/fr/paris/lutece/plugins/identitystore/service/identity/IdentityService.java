@@ -63,6 +63,7 @@ import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
@@ -430,7 +431,7 @@ public class IdentityService
             response.setLastUpdateDate( identity.getLastUpdateDate( ) );
 
             final boolean allAttributesCreatedOrUpdated = attrStatusList.stream( ).map( AttributeStatus::getStatus )
-                    .allMatch( status -> AttributeChangeStatus.getSuccessStatuses( ).contains( status ) );
+                    .allMatch( status -> status.getType( ) == AttributeChangeStatusType.SUCCESS );
             final ResponseStatus status = allAttributesCreatedOrUpdated ? ResponseStatusFactory.success( ) : ResponseStatusFactory.incompleteSuccess( );
 
             final String msgKey;
@@ -590,7 +591,7 @@ public class IdentityService
             response.setLastUpdateDate( primaryIdentity.getLastUpdateDate( ) );
 
             final boolean allAttributesCreatedOrUpdated = attrStatusList.stream( ).map( AttributeStatus::getStatus )
-                    .allMatch( status -> AttributeChangeStatus.getSuccessStatuses( ).contains( status ) );
+                    .allMatch( status -> status.getType( ) == AttributeChangeStatusType.SUCCESS );
             final ResponseStatus status = allAttributesCreatedOrUpdated ? ResponseStatusFactory.success( ) : ResponseStatusFactory.incompleteSuccess( );
 
             final String msgKey;
