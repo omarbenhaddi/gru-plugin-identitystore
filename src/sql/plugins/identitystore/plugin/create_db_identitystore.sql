@@ -43,6 +43,7 @@ CREATE TABLE identitystore_identity
 CREATE INDEX identitystore_identity_connection_id ON identitystore_identity (connection_id);
 CREATE INDEX identitystore_identity_customer_id ON identitystore_identity (customer_id);
 CREATE INDEX identitystore_identity_master_id ON identitystore_identity (id_master_identity);
+CREATE INDEX identitystore_identity_expiration_date ON identitystore_identity (expiration_date);
 
 --
 -- Structure for table identitystore_attribute
