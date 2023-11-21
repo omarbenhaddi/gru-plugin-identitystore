@@ -34,28 +34,18 @@
 package fr.paris.lutece.plugins.identitystore.cache;
 
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
-import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.ExcludedIdentities;
-import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentity;
-import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ConsolidateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * cache sur les requêtes d'identité (par CUID ou GUID), qui cache :<br/>
@@ -159,63 +149,7 @@ public class IdentityDtoCache extends AbstractCacheableService
     private IdentityDto convertAndEnrich( final Identity identity, final ServiceContract serviceContract ) throws IdentityStoreException
     {
         final IdentityDto identityDto = DtoConverter.convertIdentityToDto( identity );
-
-        IdentityQualityService.instance( ).computeCoverage( identityDto, serviceContract );
-        IdentityQualityService.instance( ).computeQuality( identityDto );
-        identityDto.getQuality( ).setScoring( 1.0 );
-
-        final List<AttributeDto> readableAttributes = identityDto.getAttributes( ).stream( )
-                .filter( certifiedAttribute -> serviceContract.getAttributeRights( ).stream( )
-                        .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) )
-                                && attributeRight.isReadable( ) ) )
-                .collect( Collectors.toList( ) );
-        identityDto.getAttributes( ).clear( );
-        identityDto.getAttributes( ).addAll( readableAttributes );
-
-        final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( identityDto.getCustomerId( ) );
-        if ( suspiciousIdentity != null )
-        {
-            identityDto.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
-            final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
-            duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
-            duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
-            identityDto.getDuplicateDefinition( ).setDuplicateSuspicion( duplicateSuspicion );
-        }
-
-        final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( identityDto.getCustomerId( ) );
-        if ( excludedIdentitiesList != null && !excludedIdentitiesList.isEmpty( ) )
-        {
-            if ( identityDto.getDuplicateDefinition( ) == null )
-            {
-                identityDto.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
-            }
-            identityDto.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
-                final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
-                exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
-                exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
-                exclusion.setAuthorType( excludedIdentities.getAuthorType( ) );
-                final String excludedCustomerId = Objects.equals( excludedIdentities.getFirstCustomerId( ), identityDto.getCustomerId( ) )
-                        ? excludedIdentities.getSecondCustomerId( )
-                        : excludedIdentities.getFirstCustomerId( );
-                exclusion.setExcludedCustomerId( excludedCustomerId );
-                return exclusion;
-            } ).collect( Collectors.toList( ) ) );
-        }
-
-        final List<Identity> mergedIdentities = IdentityHome.findMergedIdentities( identity.getId( ) );
-        if ( !mergedIdentities.isEmpty( ) )
-        {
-            final ConsolidateDefinition consolidateDefinition = new ConsolidateDefinition( );
-            for ( final Identity mergedIdentity : mergedIdentities )
-            {
-                final IdentityDto mergedDto = new IdentityDto( );
-                mergedDto.setCustomerId( mergedIdentity.getCustomerId( ) );
-                mergedDto.setConnectionId( mergedIdentity.getConnectionId( ) );
-                consolidateDefinition.getMergedIdentities( ).add( mergedDto );
-            }
-            identityDto.setConsolidate( consolidateDefinition );
-        }
-
+        IdentityQualityService.instance().enrich(null, identityDto, serviceContract, identity);
         return identityDto;
     }
 

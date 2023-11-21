@@ -37,14 +37,24 @@ import com.google.common.util.concurrent.AtomicDouble;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.ExcludedIdentities;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentity;
+import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ConsolidateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
@@ -75,6 +85,69 @@ public class IdentityQualityService
     {
     }
 
+    public void enrich(final List<SearchAttribute> searchAttributes, final IdentityDto identity, final ServiceContract serviceContract, final Identity bean) {
+        /* Compute Quality Definition */
+        IdentityQualityService.instance( ).computeCoverage(identity, serviceContract);
+        IdentityQualityService.instance( ).computeQuality(identity);
+        IdentityQualityService.instance( ).computeMatchScore(identity, searchAttributes);
+
+        /* Filter client readable attributes */
+        final List<AttributeDto> filteredAttributeValues = identity.getAttributes( ).stream( )
+                .filter( certifiedAttribute -> serviceContract.getAttributeRights( ).stream( )
+                        .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) )
+                                && attributeRight.isReadable( ) ) )
+                .collect( Collectors.toList( ) );
+        identity.getAttributes( ).clear( );
+        identity.getAttributes( ).addAll( filteredAttributeValues );
+
+        /* Compute Duplicate Definition */
+        final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( identity.getCustomerId( ) );
+        if ( suspiciousIdentity != null )
+        {
+            identity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
+            final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
+            identity.getDuplicateDefinition( ).setDuplicateSuspicion( duplicateSuspicion );
+            duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
+            duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
+        }
+
+        final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( identity.getCustomerId( ) );
+        if ( CollectionUtils.isNotEmpty( excludedIdentitiesList ) )
+        {
+            if ( identity.getDuplicateDefinition( ) == null )
+            {
+                identity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
+            }
+            identity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map(excludedIdentities -> {
+                final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
+                exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
+                exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
+                exclusion.setAuthorType( excludedIdentities.getAuthorType( ) );
+                final String excludedCustomerId = Objects.equals( excludedIdentities.getFirstCustomerId( ), identity.getCustomerId( ) )
+                        ? excludedIdentities.getSecondCustomerId( )
+                        : excludedIdentities.getFirstCustomerId( );
+                exclusion.setExcludedCustomerId( excludedCustomerId );
+                return exclusion;
+            } ).collect( Collectors.toList( ) ) );
+        }
+
+        if(bean != null) {
+            final List<Identity> mergedIdentities = IdentityHome.findMergedIdentities( bean.getId( ) );
+            if ( !mergedIdentities.isEmpty( ) )
+            {
+                final ConsolidateDefinition consolidateDefinition = new ConsolidateDefinition( );
+                for ( final Identity mergedIdentity : mergedIdentities )
+                {
+                    final IdentityDto mergedDto = new IdentityDto( );
+                    mergedDto.setCustomerId( mergedIdentity.getCustomerId( ) );
+                    mergedDto.setConnectionId( mergedIdentity.getConnectionId( ) );
+                    consolidateDefinition.getMergedIdentities( ).add( mergedDto );
+                }
+                identity.setConsolidate( consolidateDefinition );
+            }
+        }
+    }
+
     /**
      * Compute the {@link IdentityDto} coverage of the {@link ServiceContract} requirements.
      *
@@ -83,7 +156,7 @@ public class IdentityQualityService
      * @param serviceContract
      *            the base service contract
      */
-    public void computeCoverage( final IdentityDto identity, final ServiceContract serviceContract )
+    private void computeCoverage( final IdentityDto identity, final ServiceContract serviceContract )
     {
         // Check that all attributes required by the contract are present in the identity
         final List<String> reqKeys = serviceContract.getAttributeRequirements( ).stream( )
@@ -140,58 +213,63 @@ public class IdentityQualityService
         identity.getQuality( ).setQuality( levels.doubleValue( ) / _qualityBaseCache.get( ) );
     }
 
-    public void computeMatchScore( final IdentityDto identity, final List<SearchAttribute> searchAttributes )
+    private void computeMatchScore( final IdentityDto identity, final List<SearchAttribute> searchAttributes )
     {
         if ( identity.getQuality( ) == null )
         {
             identity.setQuality( new QualityDefinition( ) );
         }
 
-        final AtomicDouble levels = new AtomicDouble( );
-        final AtomicDouble base = new AtomicDouble( );
-        final Map<SearchAttribute, List<AttributeKey>> attributesToProcess = new HashMap<>( );
-        for ( final SearchAttribute searchAttribute : searchAttributes )
-        {
-            AttributeKey refKey = null;
-            try
+        if(CollectionUtils.isEmpty(searchAttributes)) {
+            identity.getQuality( ).setScoring( 1.0 );
+        } else {
+            final AtomicDouble levels = new AtomicDouble( );
+            final AtomicDouble base = new AtomicDouble( );
+            final Map<SearchAttribute, List<AttributeKey>> attributesToProcess = new HashMap<>( );
+            for ( final SearchAttribute searchAttribute : searchAttributes )
             {
-                refKey = IdentityAttributeService.instance( ).getAttributeKey( searchAttribute.getKey( ) );
-            }
-            catch( IdentityAttributeNotFoundException e )
-            {
-                // do nothing, we check if attribute exists
-            }
-            if ( refKey != null )
-            {
-                attributesToProcess.put( searchAttribute, Collections.singletonList( refKey ) );
-            }
-            else
-            {
-                // In this case we have a common search key in the request, so retrieve the attribute
-                final List<AttributeKey> commonAttributes = IdentityAttributeService.instance( ).getCommonAttributeKeys( searchAttribute.getKey( ) );
-                attributesToProcess.put( searchAttribute, commonAttributes );
-            }
-        }
-
-        for ( final Map.Entry<SearchAttribute, List<AttributeKey>> entry : attributesToProcess.entrySet( ) )
-        {
-            for ( final AttributeKey attributeKey : entry.getValue( ) )
-            {
-                final AttributeDto attributeDto = identity.getAttributes( ).stream( )
-                        .filter( attribute -> Objects.equals( attribute.getKey( ), attributeKey.getKeyName( ) ) ).findFirst( ).orElse( null );
-                base.addAndGet( attributeKey.getKeyWeight( ) );
-                if ( attributeDto != null && attributeDto.getValue( ).equalsIgnoreCase( entry.getKey( ).getValue( ) ) )
+                AttributeKey refKey = null;
+                try
                 {
-                    levels.addAndGet( attributeKey.getKeyWeight( ) );
+                    refKey = IdentityAttributeService.instance( ).getAttributeKey( searchAttribute.getKey( ) );
+                }
+                catch( IdentityAttributeNotFoundException e )
+                {
+                    // do nothing, we check if attribute exists
+                }
+                if ( refKey != null )
+                {
+                    attributesToProcess.put( searchAttribute, Collections.singletonList( refKey ) );
                 }
                 else
                 {
-                    final double penalty = Double.parseDouble( AppPropertiesService.getProperty( "identitystore.identity.scoring.penalty", "0.3" ) );
-                    levels.addAndGet( attributeKey.getKeyWeight( ) - ( attributeKey.getKeyWeight( ) * penalty ) );
+                    // In this case we have a common search key in the request, so retrieve the attribute
+                    final List<AttributeKey> commonAttributes = IdentityAttributeService.instance( ).getCommonAttributeKeys( searchAttribute.getKey( ) );
+                    attributesToProcess.put( searchAttribute, commonAttributes );
                 }
             }
+
+            for ( final Map.Entry<SearchAttribute, List<AttributeKey>> entry : attributesToProcess.entrySet( ) )
+            {
+                for ( final AttributeKey attributeKey : entry.getValue( ) )
+                {
+                    final AttributeDto attributeDto = identity.getAttributes( ).stream( )
+                            .filter( attribute -> Objects.equals( attribute.getKey( ), attributeKey.getKeyName( ) ) ).findFirst( ).orElse( null );
+                    base.addAndGet( attributeKey.getKeyWeight( ) );
+                    if ( attributeDto != null && attributeDto.getValue( ).equalsIgnoreCase( entry.getKey( ).getValue( ) ) )
+                    {
+                        levels.addAndGet( attributeKey.getKeyWeight( ) );
+                    }
+                    else
+                    {
+                        final double penalty = Double.parseDouble( AppPropertiesService.getProperty( "identitystore.identity.scoring.penalty", "0.3" ) );
+                        levels.addAndGet( attributeKey.getKeyWeight( ) - ( attributeKey.getKeyWeight( ) * penalty ) );
+                    }
+                }
+            }
+
+            identity.getQuality( ).setScoring( levels.doubleValue( ) / base.doubleValue( ) );
         }
 
-        identity.getQuality( ).setScoring( levels.doubleValue( ) / base.doubleValue( ) );
     }
 }

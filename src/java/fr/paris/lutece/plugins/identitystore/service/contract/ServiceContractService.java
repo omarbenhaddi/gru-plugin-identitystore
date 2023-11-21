@@ -77,7 +77,7 @@ import java.util.stream.Stream;
 public class ServiceContractService
 {
 
-    private ActiveServiceContractCache _cache = SpringContextService.getBean( "identitystore.activeServiceContractCache" );
+    private final ActiveServiceContractCache _cache = SpringContextService.getBean( "identitystore.activeServiceContractCache" );
     private static ServiceContractService _instance;
 
     public static ServiceContractService instance( )

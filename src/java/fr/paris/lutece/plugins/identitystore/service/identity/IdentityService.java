@@ -68,6 +68,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ConsolidateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
@@ -881,7 +882,7 @@ public class IdentityService
                 request.isConnected( ) );
         if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
         {
-            final List<IdentityDto> filteredIdentities = this.getFilteredQualifiedIdentities( request, clientCode, result.getQualifiedIdentities( ) );
+            final List<IdentityDto> filteredIdentities = this.getEnrichedIdentities( request.getSearch().getAttributes(), clientCode, result.getQualifiedIdentities( ) );
             response.setIdentities( filteredIdentities );
             if ( CollectionUtils.isNotEmpty( response.getIdentities( ) ) )
             {
@@ -1019,90 +1020,22 @@ public class IdentityService
      * Filter a list of search results over {@link ServiceContract} defined for the given clientCode. Also complete identities with additional information
      * (quality, duplicates, ...).
      * 
-     * @param identitySearchRequest
-     *            la requête de recherche
+     * @param searchAttributes
+     *            la requête de recherche si existante
      * @param clientCode
      *            le code client du demandeur
-     * @param qualifiedIdentities
+     * @param identities
      *            la liste de résultats à traiter
      * @return the list of filtered and completed {@link IdentityDto}
      * @throws ServiceContractNotFoundException
      *             in case of error
-     * @throws IdentityAttributeNotFoundException
-     *             in case of errorj
      */
-    private List<IdentityDto> getFilteredQualifiedIdentities( IdentitySearchRequest identitySearchRequest, String clientCode,
-            List<IdentityDto> qualifiedIdentities ) throws ServiceContractNotFoundException, IdentityAttributeNotFoundException
-    {
+    private List<IdentityDto> getEnrichedIdentities(final List<SearchAttribute> searchAttributes, final String clientCode, final List<IdentityDto> identities ) throws ServiceContractNotFoundException {
         final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( clientCode );
         final Comparator<QualityDefinition> qualityComparator = Comparator.comparing( QualityDefinition::getScoring )
                 .thenComparingDouble( QualityDefinition::getQuality ).reversed( );
         final Comparator<IdentityDto> identityComparator = Comparator.comparing( IdentityDto::getQuality, qualityComparator );
-
-        final List<IdentityDto> filteredIdentities = new ArrayList<>( );
-        for ( final IdentityDto qualifiedIdentity : qualifiedIdentities )
-        {
-            final boolean identityIsMerged = qualifiedIdentity.getMerge( ) != null && qualifiedIdentity.getMerge( ).isMerged( );
-            if ( /* CollectionUtils.isNotEmpty( qualifiedIdentity.getAttributes( ) ) && */ !identityIsMerged )
-            {
-                IdentityQualityService.instance( ).computeCoverage( qualifiedIdentity, serviceContract );
-                // TODO gérer la qualité max dans la requête ?
-                if ( identitySearchRequest != null )
-                {
-                    IdentityQualityService.instance( ).computeMatchScore( qualifiedIdentity, identitySearchRequest.getSearch( ).getAttributes( ) );
-                }
-                else
-                {
-                    if ( qualifiedIdentity.getQuality( ) == null )
-                    {
-                        qualifiedIdentity.setQuality( new QualityDefinition( ) );
-                    }
-                    qualifiedIdentity.getQuality( ).setScoring( 1.0 );
-                }
-                IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
-                final List<AttributeDto> filteredAttributeValues = qualifiedIdentity.getAttributes( ).stream( )
-                        .filter( certifiedAttribute -> serviceContract.getAttributeRights( ).stream( )
-                                .anyMatch( attributeRight -> StringUtils.equals( attributeRight.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) )
-                                        && attributeRight.isReadable( ) ) )
-                        .collect( Collectors.toList( ) );
-                qualifiedIdentity.getAttributes( ).clear( );
-                qualifiedIdentity.getAttributes( ).addAll( filteredAttributeValues );
-                filteredIdentities.add( qualifiedIdentity );
-            }
-
-            final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( qualifiedIdentity.getCustomerId( ) );
-            if ( suspiciousIdentity != null )
-            {
-                qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
-                final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
-                qualifiedIdentity.getDuplicateDefinition( ).setDuplicateSuspicion( duplicateSuspicion );
-                duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
-                duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
-            }
-
-            final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( qualifiedIdentity.getCustomerId( ) );
-            if ( CollectionUtils.isNotEmpty( excludedIdentitiesList ) )
-            {
-                if ( qualifiedIdentity.getDuplicateDefinition( ) == null )
-                {
-                    qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
-                }
-                qualifiedIdentity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
-                    final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
-                    exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
-                    exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
-                    exclusion.setAuthorType( excludedIdentities.getAuthorType( ) );
-                    final String excludedCustomerId = Objects.equals( excludedIdentities.getFirstCustomerId( ), qualifiedIdentity.getCustomerId( ) )
-                            ? excludedIdentities.getSecondCustomerId( )
-                            : excludedIdentities.getFirstCustomerId( );
-                    exclusion.setExcludedCustomerId( excludedCustomerId );
-                    return exclusion;
-                } ).collect( Collectors.toList( ) ) );
-            }
-
-        }
-        filteredIdentities.sort( identityComparator );
-        return filteredIdentities;
+        return identities.stream().filter(IdentityDto::isNotMerged).peek(identity -> IdentityQualityService.instance().enrich(searchAttributes, identity, serviceContract, null)).sorted(identityComparator).collect(Collectors.toList());
     }
 
     private List<AttributeStatus> updateIdentity( final IdentityDto requestIdentity, final String clientCode, final ChangeResponse response,
