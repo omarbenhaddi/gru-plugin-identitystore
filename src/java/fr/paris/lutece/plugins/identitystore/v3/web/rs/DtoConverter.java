@@ -192,14 +192,7 @@ public final class DtoConverter
 
         for ( final AttributeRight attributeRight : serviceContract.getAttributeRights( ) )
         {
-            final AttributeDefinitionDto attributeDefinitionDto = new AttributeDefinitionDto( );
-            attributeDefinitionDto.setName( attributeRight.getAttributeKey( ).getName( ) );
-            attributeDefinitionDto.setKeyName( attributeRight.getAttributeKey( ).getKeyName( ) );
-            attributeDefinitionDto.setDescription( attributeRight.getAttributeKey( ).getDescription( ) );
-            attributeDefinitionDto.setType( AttributeType.valueOf( attributeRight.getAttributeKey( ).getKeyType( ).name( ) ) );
-            attributeDefinitionDto.setCertifiable( attributeRight.getAttributeKey( ).getCertifiable( ) );
-            attributeDefinitionDto.setPivot( attributeRight.getAttributeKey( ).getPivot( ) );
-            attributeDefinitionDto.setKeyWeight( attributeRight.getAttributeKey( ).getKeyWeight( ) );
+            final AttributeDefinitionDto attributeDefinitionDto = extractAttributeDefinition( attributeRight.getAttributeKey( ) );
             attributeDefinitionDto.setAttributeRight( new AttributeRightDto( ) );
             attributeDefinitionDto.getAttributeRight( ).setMandatory( attributeRight.isMandatory( ) );
             attributeDefinitionDto.getAttributeRight( ).setReadable( attributeRight.isReadable( ) );
@@ -215,18 +208,11 @@ public final class DtoConverter
                     .findFirst( ).orElse( null );
             if ( current == null )
             {
-                current = new AttributeDefinitionDto( );
-                current.setName( attributeCertification.getAttributeKey( ).getName( ) );
-                current.setKeyName( attributeCertification.getAttributeKey( ).getKeyName( ) );
-                current.setDescription( attributeCertification.getAttributeKey( ).getDescription( ) );
-                current.setType( AttributeType.valueOf( attributeCertification.getAttributeKey( ).getKeyType( ).name( ) ) );
-                current.setCertifiable( attributeCertification.getAttributeKey( ).getCertifiable( ) );
-                current.setPivot( attributeCertification.getAttributeKey( ).getPivot( ) );
-                current.setKeyWeight( attributeCertification.getAttributeKey( ).getKeyWeight( ) );
+                current = extractAttributeDefinition( attributeCertification.getAttributeKey( ) );
                 attributeDefinitions.add( current );
             }
 
-            final List<CertificationProcessusDto> certificationProcessuses = attributeCertification.getRefAttributeCertificationProcessus( ).stream( )
+            final List<CertificationProcessusDto> certificationProcesses = attributeCertification.getRefAttributeCertificationProcessus( ).stream( )
                     .map( ref -> {
                         final CertificationProcessusDto certificationProcessus = new CertificationProcessusDto( );
                         certificationProcessus.setCode( ref.getCode( ) );
@@ -234,7 +220,7 @@ public final class DtoConverter
                         certificationProcessus.setLevel( ref.getLevel( ).getRefCertificationLevel( ).getLevel( ) );
                         return certificationProcessus;
                     } ).collect( Collectors.toList( ) );
-            current.getAttributeCertifications( ).addAll( certificationProcessuses );
+            current.getAttributeCertifications( ).addAll( certificationProcesses );
         }
 
         // TODO améliorer car la remontée n'est pas optimale pour ce UC
@@ -247,17 +233,10 @@ public final class DtoConverter
                     .findFirst( ).orElse( null );
             if ( current == null )
             {
-                current = new AttributeDefinitionDto( );
-                current.setName( attributeRequirement.getAttributeKey( ).getName( ) );
-                current.setKeyName( attributeRequirement.getAttributeKey( ).getKeyName( ) );
-                current.setDescription( attributeRequirement.getAttributeKey( ).getDescription( ) );
-                current.setType( AttributeType.valueOf( attributeRequirement.getAttributeKey( ).getKeyType( ).name( ) ) );
-                current.setCertifiable( attributeRequirement.getAttributeKey( ).getCertifiable( ) );
-                current.setPivot( attributeRequirement.getAttributeKey( ).getPivot( ) );
-                current.setKeyWeight( attributeRequirement.getAttributeKey( ).getKeyWeight( ) );
+                current = extractAttributeDefinition( attributeRequirement.getAttributeKey( ) );
                 attributeDefinitions.add( current );
             }
-            AttributeRequirementDto requirement = new AttributeRequirementDto( );
+            final AttributeRequirementDto requirement = new AttributeRequirementDto( );
             requirement.setLevel( attributeRequirement.getRefCertificationLevel( ).getLevel( ) );
             requirement.setName( attributeRequirement.getRefCertificationLevel( ).getName( ) );
             requirement.setDescription( attributeRequirement.getRefCertificationLevel( ).getDescription( ) );
@@ -267,6 +246,23 @@ public final class DtoConverter
         serviceContractDto.getAttributeDefinitions( ).addAll( attributeDefinitions );
 
         return serviceContractDto;
+    }
+
+    private static AttributeDefinitionDto extractAttributeDefinition( final AttributeKey attributeRight )
+    {
+        final AttributeDefinitionDto attributeDefinitionDto = new AttributeDefinitionDto( );
+        attributeDefinitionDto.setName( attributeRight.getName( ) );
+        attributeDefinitionDto.setKeyName( attributeRight.getKeyName( ) );
+        attributeDefinitionDto.setDescription( attributeRight.getDescription( ) );
+        attributeDefinitionDto.setType( AttributeType.valueOf( attributeRight.getKeyType( ).name( ) ) );
+        attributeDefinitionDto.setCertifiable( attributeRight.getCertifiable( ) );
+        attributeDefinitionDto.setPivot( attributeRight.getPivot( ) );
+        attributeDefinitionDto.setKeyWeight( attributeRight.getKeyWeight( ) );
+        attributeDefinitionDto.setMandatoryForCreation( attributeRight.isMandatoryForCreation( ) );
+        attributeDefinitionDto.setValidationRegex( attributeRight.getValidationRegex( ) );
+        attributeDefinitionDto.setValidationErrorMessage( attributeRight.getValidationErrorMessage( ) );
+        attributeDefinitionDto.setValidationErrorMessageKey( attributeRight.getValidationErrorMessageKey( ) );
+        return attributeDefinitionDto;
     }
 
     /**

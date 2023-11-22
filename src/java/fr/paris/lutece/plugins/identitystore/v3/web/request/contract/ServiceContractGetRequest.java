@@ -98,6 +98,9 @@ public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
         else
         {
             final ServiceContract serviceContract = result.get( );
+            serviceContract.setAttributeRights( ServiceContractHome.selectApplicationRights( serviceContract ) );
+            serviceContract.setAttributeCertifications( ServiceContractHome.selectAttributeCertifications( serviceContract ) );
+            serviceContract.setAttributeRequirements( ServiceContractHome.selectAttributeRequirements( serviceContract ) );
             // TODO amélioration générale à mener sur ce point
             for ( final AttributeCertification certification : serviceContract.getAttributeCertifications( ) )
             {

@@ -50,7 +50,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
     private static final String SQL_QUERY_DELETE_ALL_BY_SERVICE_CONTRACT = "DELETE FROM identitystore_service_contract_attribute_right WHERE id_service_contract = ? ";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_service_contract_attribute_right ( id_attribute, id_service_contract, searchable, readable, writable, mandatory ) VALUES ( ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_service_contract_attribute_right SET readable = ? , writable = ?, searchable = ?, mandatory = ? WHERE id_attribute = ? AND id_service_contract = ?";
-    private static final String SQL_QUERY_SELECT_ALL_BY_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, a.pivot, b.searchable, b.readable, b.writable, b.mandatory FROM identitystore_ref_attribute a LEFT JOIN  identitystore_service_contract_attribute_right b ON  a.id_attribute = b.id_attribute AND id_service_contract = ? ";
+    private static final String SQL_QUERY_SELECT_ALL_BY_CONTRACT = "SELECT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, a.pivot, a.mandatory_for_creation, a.validation_regex, a.validation_error_message, a.validation_error_message_key, b.searchable, b.readable, b.writable, b.mandatory FROM identitystore_ref_attribute a LEFT JOIN  identitystore_service_contract_attribute_right b ON  a.id_attribute = b.id_attribute AND id_service_contract = ? ";
     private static final int CONST_INT_TRUE = 1;
     private static final int CONST_INT_FALSE = 0;
 
@@ -123,6 +123,10 @@ public final class AttributeRightDAO implements IAttributeRightDAO
                 attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
                 attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
                 attributeKey.setPivot( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessageKey( daoUtil.getString( nIndex++ ) );
 
                 attributeRight.setAttributeKey( attributeKey );
                 attributeRight.setSearchable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );

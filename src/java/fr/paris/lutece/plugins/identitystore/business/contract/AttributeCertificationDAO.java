@@ -60,7 +60,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_attribute_certification FROM identitystore_service_contract_attribute_certification";
     private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_attribute_certification, FROM identitystore_service_contract_attribute_certification WHERE id_attribute_certification IN (  ";
 
-    private static final String SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT = "SELECT DISTINCT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type"
+    private static final String SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT = "SELECT DISTINCT a.id_attribute, a.name, a.key_name, a.common_search_key, a.description, a.key_type, a.mandatory_for_creation, a.validation_regex, a.validation_error_message, a.validation_error_message_key"
             + " FROM identitystore_ref_attribute a"
             + " LEFT JOIN  identitystore_service_contract_attribute_certification b ON  a.id_attribute = b.id_attribute AND id_service_contract = ?"
             + " LEFT JOIN  identitystore_ref_certification_processus c ON  c.id_ref_attribute_certification_processus = b.id_ref_attribute_certification_processus";
@@ -270,24 +270,28 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
     {
         List<AttributeCertification> attributeCertifications = new ArrayList<>( );
 
-        try ( final DAOUtil attributesDaoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_BY_SERVICE_CONTRACT, plugin ) )
         {
-            attributesDaoUtil.setInt( 1, servicecontract.getId( ) );
-            attributesDaoUtil.executeQuery( );
+            daoUtil.setInt( 1, servicecontract.getId( ) );
+            daoUtil.executeQuery( );
 
-            while ( attributesDaoUtil.next( ) )
+            while ( daoUtil.next( ) )
             {
                 AttributeCertification attributeCertification = new AttributeCertification( );
                 AttributeKey attributeKey = new AttributeKey( );
 
                 int nIndex = 1;
 
-                attributeKey.setId( attributesDaoUtil.getInt( nIndex++ ) );
-                attributeKey.setName( attributesDaoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyName( attributesDaoUtil.getString( nIndex++ ) );
-                attributeKey.setCommonSearchKeyName( attributesDaoUtil.getString( nIndex++ ) );
-                attributeKey.setDescription( attributesDaoUtil.getString( nIndex++ ) );
-                attributeKey.setKeyType( KeyType.valueOf( attributesDaoUtil.getInt( nIndex++ ) ) );
+                attributeKey.setId( daoUtil.getInt( nIndex++ ) );
+                attributeKey.setName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setCommonSearchKeyName( daoUtil.getString( nIndex++ ) );
+                attributeKey.setDescription( daoUtil.getString( nIndex++ ) );
+                attributeKey.setKeyType( KeyType.valueOf( daoUtil.getInt( nIndex++ ) ) );
+                attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
+                attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessageKey( daoUtil.getString( nIndex++ ) );
 
                 attributeCertification.setAttributeKey( attributeKey );
 
