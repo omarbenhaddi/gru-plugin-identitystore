@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 public class DuplicateRuleService
 {
 
-    private DuplicateRulesCache _cache = SpringContextService.getBean( "identitystore.duplicateRulesCache" );
+    private final DuplicateRulesCache _cache = SpringContextService.getBean( "identitystore.duplicateRulesCache" );
     private static DuplicateRuleService _instance;
 
     public static DuplicateRuleService instance( )

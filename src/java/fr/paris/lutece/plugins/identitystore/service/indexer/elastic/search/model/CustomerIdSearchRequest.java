@@ -39,7 +39,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 
 public class CustomerIdSearchRequest extends ASearchRequest
 {
-    private String customerId;
+    private final String customerId;
 
     public CustomerIdSearchRequest( final String customerId )
     {

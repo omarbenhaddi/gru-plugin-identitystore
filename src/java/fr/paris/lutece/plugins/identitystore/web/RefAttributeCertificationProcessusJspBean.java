@@ -50,7 +50,11 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -110,7 +114,6 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
 
     // Session variable to store working values
     private RefAttributeCertificationProcessus _refattributecertificationprocessus;
-    private List<Integer> _listIdRefAttributeCertificationProcessuss;
 
     /**
      * Build the Manage View
@@ -147,14 +150,6 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
         // keep original order
         return listRefAttributeCertificationProcessus.stream( ).sorted( Comparator.comparingInt( notif -> listIds.indexOf( notif.getId( ) ) ) )
                 .collect( Collectors.toList( ) );
-    }
-
-    /**
-     * reset the _listIdRefAttributeCertificationProcessuss list
-     */
-    public void resetListId( )
-    {
-        _listIdRefAttributeCertificationProcessuss = new ArrayList<>( );
     }
 
     /**
@@ -211,7 +206,6 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
                 refAttributeCertificationLevelList.stream( ).filter( certif -> certif.getRefCertificationLevel( ) != null ).collect( Collectors.toList( ) ) );
 
         addInfo( INFO_REFATTRIBUTECERTIFICATIONPROCESSUS_CREATED, getLocale( ) );
-        resetListId( );
 
         return redirectView( request, VIEW_MANAGE_REFATTRIBUTECERTIFICATIONPROCESSUSS );
     }
@@ -252,7 +246,6 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
         AttributeCertificationDefinitionService.instance( ).removeRefAttributeCertificationLevels( processus );
         RefAttributeCertificationProcessusHome.remove( nId );
         addInfo( INFO_REFATTRIBUTECERTIFICATIONPROCESSUS_REMOVED, getLocale( ) );
-        resetListId( );
 
         return redirectView( request, VIEW_MANAGE_REFATTRIBUTECERTIFICATIONPROCESSUSS );
     }
@@ -323,7 +316,6 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
                 refAttributeCertificationLevelList.stream( ).filter( certif -> certif.getRefCertificationLevel( ) != null ).collect( Collectors.toList( ) ) );
 
         addInfo( INFO_REFATTRIBUTECERTIFICATIONPROCESSUS_UPDATED, getLocale( ) );
-        resetListId( );
 
         return redirectView( request, VIEW_MANAGE_REFATTRIBUTECERTIFICATIONPROCESSUSS );
     }

@@ -47,8 +47,8 @@ import java.util.List;
 public final class AttributeKeyHome
 {
     // Static variable pointed at the DAO instance
-    private static IAttributeKeyDAO _dao = SpringContextService.getBean( IAttributeKeyDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IAttributeKeyDAO _dao = SpringContextService.getBean( IAttributeKeyDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated

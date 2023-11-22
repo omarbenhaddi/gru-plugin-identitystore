@@ -38,7 +38,7 @@ public enum MultiSearchActionType
     INDEX( "index" ),
     QUERY( "query" );
 
-    protected String code;
+    private final String code;
 
     MultiSearchActionType( String code )
     {

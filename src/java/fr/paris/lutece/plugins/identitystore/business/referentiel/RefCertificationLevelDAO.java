@@ -66,7 +66,7 @@ public final class RefCertificationLevelDAO implements IRefCertificationLevelDAO
             int nIndex = 1;
             daoUtil.setString( nIndex++, refCertificationLevel.getName( ) );
             daoUtil.setString( nIndex++, refCertificationLevel.getDescription( ) );
-            daoUtil.setString( nIndex++, refCertificationLevel.getLevel( ) );
+            daoUtil.setString( nIndex, refCertificationLevel.getLevel( ) );
 
             daoUtil.executeUpdate( );
             if ( daoUtil.nextGeneratedKey( ) )

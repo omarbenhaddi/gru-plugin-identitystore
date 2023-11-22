@@ -47,8 +47,6 @@ public interface IIdentityInfoExternalProvider
      * @param strConnectionId
      *            the connection id
      * @return the identity
-     * @throws IdentityNotFoundException
-     *             if no identity can be retrieve from external source
      */
-    IdentityChangeDto getIdentityInfo( String strConnectionId ) throws IdentityNotFoundException;
+    IdentityChangeDto getIdentityInfo( String strConnectionId );
 }

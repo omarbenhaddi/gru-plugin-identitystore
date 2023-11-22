@@ -315,7 +315,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
 
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_LEVEL_MAX, plugin ) )
         {
-            Integer base = 0;
+            int base = 0;
             daoUtil.executeQuery( );
 
             while ( daoUtil.next( ) )

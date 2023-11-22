@@ -76,11 +76,9 @@ public class IdentityStoreGetRequest extends IdentityStoreRequest
     /**
      * Valid the get request
      *
-     * @throws IdentityStoreException
-     *             if there is an exception during the treatment
      */
     @Override
-    protected void validRequest( ) throws IdentityStoreException
+    protected void validRequest( )
     {
         IdentityRequestValidator.instance( ).checkIdentity( _strConnectionId, _strCustomerId );
         IdentityRequestValidator.instance( ).checkClientApplication( _strClientAppCode );

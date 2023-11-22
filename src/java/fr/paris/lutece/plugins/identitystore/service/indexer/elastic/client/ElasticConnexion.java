@@ -44,7 +44,7 @@ import fr.paris.lutece.util.signrequest.RequestAuthenticator;
 public final class ElasticConnexion
 {
     /** The _client. */
-    private HttpAccess _clientHttp = new HttpAccess( );
+    private final HttpAccess _clientHttp = new HttpAccess( );
     private RequestAuthenticator _authenticator;
 
     /**

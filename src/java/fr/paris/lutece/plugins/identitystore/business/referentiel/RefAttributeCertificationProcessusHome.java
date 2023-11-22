@@ -46,11 +46,11 @@ import java.util.List;
 public final class RefAttributeCertificationProcessusHome
 {
     // Static variable pointed at the DAO instance
-    private static IRefAttributeCertificationProcessusDAO _dao = SpringContextService.getBean( "identitystore.refAttributeCertificationProcessusDAO" );
-    private static IRefAttributeCertificationLevelDAO iRefAttributeCertificationLevelDAO = SpringContextService
+    private static final IRefAttributeCertificationProcessusDAO _dao = SpringContextService.getBean( "identitystore.refAttributeCertificationProcessusDAO" );
+    private static final IRefAttributeCertificationLevelDAO iRefAttributeCertificationLevelDAO = SpringContextService
             .getBean( "identitystore.refAttributeCertificationLevelDAO" );
-    private static IRefCertificationLevelDAO iRefCertificationLevelDAO = SpringContextService.getBean( "identitystore.refCertificationLevelDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
+    private static final IRefCertificationLevelDAO iRefCertificationLevelDAO = SpringContextService.getBean( "identitystore.refCertificationLevelDAO" );
+    private static final Plugin _plugin = PluginService.getPlugin( "identitystore" );
 
     /**
      * Private constructor - this class need not be instantiated

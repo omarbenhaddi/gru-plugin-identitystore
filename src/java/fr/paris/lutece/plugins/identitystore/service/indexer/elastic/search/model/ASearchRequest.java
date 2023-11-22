@@ -33,17 +33,15 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model;
 
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.*;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreatmentType;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.InnerSearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class ASearchRequest
 {
-    protected List<SearchAttribute> searchAttributes = new ArrayList<>( );
+    protected final List<SearchAttribute> searchAttributes = new ArrayList<>( );
 
     public abstract InnerSearchRequest body( );
 

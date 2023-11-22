@@ -114,9 +114,8 @@ public class InternalUser implements Principal, Serializable, Cloneable, User
     {
         try
         {
-            InternalUser clone = (InternalUser) super.clone( );
             // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
+            return (InternalUser) super.clone( );
         }
         catch( CloneNotSupportedException e )
         {

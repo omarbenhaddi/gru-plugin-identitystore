@@ -334,9 +334,12 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                 return getViewIdentity( request );
             }
         }
-        final String filteredCustomerId = SecurityUtil.logForgingProtect( _identity.getCustomerId( ) );
-        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_HISTORY_EVENT_CODE, getUser( ), filteredCustomerId,
-                IdentityService.SPECIFIC_ORIGIN );
+        if ( _identity != null )
+        {
+            final String filteredCustomerId = SecurityUtil.logForgingProtect( _identity.getCustomerId( ) );
+            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, DISPLAY_IDENTITY_HISTORY_EVENT_CODE, getUser( ), filteredCustomerId,
+                    IdentityService.SPECIFIC_ORIGIN );
+        }
 
         final Map<String, Object> model = getModel( );
         model.put( MARK_IDENTITY_CHANGE_LIST, identityChangeList );

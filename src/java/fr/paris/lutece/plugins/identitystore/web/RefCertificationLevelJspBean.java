@@ -105,7 +105,6 @@ public class RefCertificationLevelJspBean extends AbstractManageProcessusRefJspB
 
     // Session variable to store working values
     private RefCertificationLevel _refcertificationlevel;
-    private List<Integer> _listIdRefCertificationLevels;
 
     /**
      * Build the Manage View
@@ -139,14 +138,6 @@ public class RefCertificationLevelJspBean extends AbstractManageProcessusRefJspB
         // keep original order
         return listRefCertificationLevel.stream( ).sorted( Comparator.comparingInt( notif -> listIds.indexOf( notif.getId( ) ) ) )
                 .collect( Collectors.toList( ) );
-    }
-
-    /**
-     * reset the _listIdRefCertificationLevels list
-     */
-    public void resetListId( )
-    {
-        _listIdRefCertificationLevels = new ArrayList<>( );
     }
 
     /**
@@ -194,7 +185,6 @@ public class RefCertificationLevelJspBean extends AbstractManageProcessusRefJspB
 
         RefCertificationLevelHome.create( _refcertificationlevel );
         addInfo( INFO_REFCERTIFICATIONLEVEL_CREATED, getLocale( ) );
-        resetListId( );
 
         return redirectView( request, VIEW_MANAGE_REFCERTIFICATIONLEVELS );
     }
@@ -241,7 +231,6 @@ public class RefCertificationLevelJspBean extends AbstractManageProcessusRefJspB
             return redirectView( request, VIEW_MANAGE_REFCERTIFICATIONLEVELS );
         }
         addInfo( INFO_REFCERTIFICATIONLEVEL_REMOVED, getLocale( ) );
-        resetListId( );
 
         return redirectView( request, VIEW_MANAGE_REFCERTIFICATIONLEVELS );
     }
@@ -300,7 +289,6 @@ public class RefCertificationLevelJspBean extends AbstractManageProcessusRefJspB
 
         RefCertificationLevelHome.update( _refcertificationlevel );
         addInfo( INFO_REFCERTIFICATIONLEVEL_UPDATED, getLocale( ) );
-        resetListId( );
 
         return redirectView( request, VIEW_MANAGE_REFCERTIFICATIONLEVELS );
     }

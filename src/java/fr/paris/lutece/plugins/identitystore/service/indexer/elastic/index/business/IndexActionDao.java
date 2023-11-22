@@ -62,7 +62,7 @@ public class IndexActionDao implements IIndexActionDao
             daoUtil.setInt( nIndex++, indexAction.getId( ) );
             daoUtil.setString( nIndex++, indexAction.getCustomerId( ) );
             daoUtil.setString( nIndex++, indexAction.getActionType( ).name( ) );
-            daoUtil.setTimestamp( nIndex++, new Timestamp( new Date( ).getTime( ) ) );
+            daoUtil.setTimestamp( nIndex, new Timestamp( new Date( ).getTime( ) ) );
             daoUtil.executeUpdate( );
         }
     }
@@ -94,7 +94,7 @@ public class IndexActionDao implements IIndexActionDao
                 indexAction.setId( daoUtil.getInt( nIndex++ ) );
                 indexAction.setCustomerId( daoUtil.getString( nIndex++ ) );
                 indexAction.setActionType( IndexActionType.valueOf( daoUtil.getString( nIndex++ ) ) );
-                indexAction.setDateIndex( daoUtil.getDate( nIndex++ ) );
+                indexAction.setDateIndex( daoUtil.getDate( nIndex ) );
                 actions.add( indexAction );
             }
 
@@ -118,7 +118,7 @@ public class IndexActionDao implements IIndexActionDao
                 indexAction.setId( daoUtil.getInt( nIndex++ ) );
                 indexAction.setCustomerId( daoUtil.getString( nIndex++ ) );
                 indexAction.setActionType( IndexActionType.valueOf( daoUtil.getString( nIndex++ ) ) );
-                indexAction.setDateIndex( daoUtil.getDate( nIndex++ ) );
+                indexAction.setDateIndex( daoUtil.getDate( nIndex ) );
                 actions.add( indexAction );
             }
 

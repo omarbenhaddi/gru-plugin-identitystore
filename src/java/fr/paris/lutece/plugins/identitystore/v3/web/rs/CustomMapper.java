@@ -50,8 +50,6 @@ public class CustomMapper implements ContextResolver<ObjectMapper>
     {
         this.mapper = new ObjectMapper( );
         this.mapper.enable( SerializationFeature.INDENT_OUTPUT );
-        // this.mapper.enable( SerializationFeature.WRAP_ROOT_VALUE );
-        // this.mapper.enable( DeserializationFeature.UNWRAP_ROOT_VALUE );
         this.mapper.disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
     }
 

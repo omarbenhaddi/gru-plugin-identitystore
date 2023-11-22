@@ -43,8 +43,8 @@ import java.util.List;
 public final class IdentitySearchRuleHome
 {
 
-    private static IdentitySearchRuleDAO _dao = SpringContextService.getBean( IdentitySearchRuleDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IdentitySearchRuleDAO _dao = SpringContextService.getBean( IdentitySearchRuleDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated

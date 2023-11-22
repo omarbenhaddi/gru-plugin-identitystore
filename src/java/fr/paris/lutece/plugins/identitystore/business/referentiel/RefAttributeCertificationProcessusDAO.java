@@ -65,7 +65,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
         {
             int nIndex = 1;
             daoUtil.setString( nIndex++, refAttributeCertificationProcessus.getLabel( ) );
-            daoUtil.setString( nIndex++, refAttributeCertificationProcessus.getCode( ) );
+            daoUtil.setString( nIndex, refAttributeCertificationProcessus.getCode( ) );
             daoUtil.executeUpdate( );
             if ( daoUtil.nextGeneratedKey( ) )
             {
@@ -94,7 +94,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
 
                 refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
                 refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
-                refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex++ ) );
+                refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex ) );
             }
 
             return refAttributeCertificationProcessus;
@@ -150,7 +150,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
 
                 refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
                 refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
-                refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex++ ) );
+                refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex ) );
 
                 refAttributeCertificationProcessusList.add( refAttributeCertificationProcessus );
             }
@@ -235,7 +235,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
 
                     refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
                     refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
-                    refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex++ ) );
+                    refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex ) );
 
                     refAttributeCertificationProcessusList.add( refAttributeCertificationProcessus );
                 }

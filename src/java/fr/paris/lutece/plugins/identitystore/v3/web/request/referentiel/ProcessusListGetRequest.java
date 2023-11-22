@@ -68,7 +68,7 @@ public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
     }
 
     @Override
-    protected void validateSpecificRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( )
     {
     }
 
@@ -79,7 +79,7 @@ public class ProcessusListGetRequest extends AbstractIdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    public ProcessusSearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public ProcessusSearchResponse doSpecificRequest( )
     {
         final ProcessusSearchResponse response = new ProcessusSearchResponse( );
         final List<RefAttributeCertificationProcessus> refAttributeCertificationProcessussList = RefAttributeCertificationProcessusHome

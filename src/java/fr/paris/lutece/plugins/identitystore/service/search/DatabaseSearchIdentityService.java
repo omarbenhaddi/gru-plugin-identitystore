@@ -86,7 +86,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId ) throws IdentityStoreException
+    public QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId )
     {
         try
         {
@@ -104,7 +104,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds ) throws IdentityStoreException
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds )
     {
         // not to be used
         return new QualifiedIdentitySearchResult( );

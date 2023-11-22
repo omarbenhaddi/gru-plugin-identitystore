@@ -81,7 +81,7 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    public ClientsSearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public ClientsSearchResponse doSpecificRequest( )
     {
         final ClientsSearchResponse response = new ClientsSearchResponse( );
 

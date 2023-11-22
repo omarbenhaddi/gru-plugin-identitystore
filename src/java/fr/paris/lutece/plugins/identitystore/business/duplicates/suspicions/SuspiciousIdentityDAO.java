@@ -101,7 +101,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
         {
             int nIndex = 1;
             daoUtil.setString( nIndex++, suspiciousIdentity.getCustomerId( ) );
-            daoUtil.setInt( nIndex++,
+            daoUtil.setInt( nIndex,
                     suspiciousIdentity.getIdDuplicateRule( ) != null ? suspiciousIdentity.getIdDuplicateRule( ) : Constants.MANUAL_SUSPICIOUS_RULE_ID );
 
             daoUtil.executeUpdate( );
@@ -153,7 +153,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 {
                     lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
                     lock.setAuthorType( daoUtil.getString( nIndex++ ) );
-                    lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                    lock.setAuthorName( daoUtil.getString( nIndex ) );
                 }
                 else
                 {
@@ -193,7 +193,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 {
                     lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
                     lock.setAuthorType( daoUtil.getString( nIndex++ ) );
-                    lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                    lock.setAuthorName( daoUtil.getString( nIndex ) );
                 }
                 else
                 {
@@ -340,7 +340,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 {
                     lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
                     lock.setAuthorType( daoUtil.getString( nIndex++ ) );
-                    lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                    lock.setAuthorName( daoUtil.getString( nIndex ) );
                 }
                 else
                 {
@@ -375,7 +375,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 excludedIdentities.setSecondCustomerId( daoUtil.getString( nIndex++ ) );
                 excludedIdentities.setExclusionDate( daoUtil.getTimestamp( nIndex++ ) );
                 excludedIdentities.setAuthorType( daoUtil.getString( nIndex++ ) );
-                excludedIdentities.setAuthorName( daoUtil.getString( nIndex++ ) );
+                excludedIdentities.setAuthorName( daoUtil.getString( nIndex ) );
                 excludedIdentitiesList.add( excludedIdentities );
             }
 
@@ -403,7 +403,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                 excludedIdentities.setSecondCustomerId( daoUtil.getString( nIndex++ ) );
                 excludedIdentities.setExclusionDate( daoUtil.getTimestamp( nIndex++ ) );
                 excludedIdentities.setAuthorType( daoUtil.getString( nIndex++ ) );
-                excludedIdentities.setAuthorName( daoUtil.getString( nIndex++ ) );
+                excludedIdentities.setAuthorName( daoUtil.getString( nIndex ) );
                 excludedIdentitiesList.add( excludedIdentities );
             }
 
@@ -497,7 +497,7 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
                     {
                         lock.setLocked( daoUtil.getBoolean( nIndex++ ) );
                         lock.setAuthorType( daoUtil.getString( nIndex++ ) );
-                        lock.setAuthorName( daoUtil.getString( nIndex++ ) );
+                        lock.setAuthorName( daoUtil.getString( nIndex ) );
                     }
                     else
                     {
@@ -590,8 +590,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
     @Override
     public boolean checkIfContainsSuspicious( final List<String> customerIds, final Plugin plugin )
     {
-        final String query = SQL_QUERY_CHECK_SUSPICIOUS
-                + String.join( ",", customerIds.stream( ).map( s -> String.format( "'%s'", s ) ).collect( Collectors.toList( ) ) ) + ")";
+        final String query = SQL_QUERY_CHECK_SUSPICIOUS + customerIds.stream( ).map( s -> String.format( "'%s'", s ) ).collect( Collectors.joining( "," ) )
+                + ")";
         try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
         {
             daoUtil.executeQuery( );

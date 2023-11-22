@@ -125,11 +125,9 @@ public abstract class IdentityStoreJsonDataTestCase extends IdentityStoreBDDAndE
             testDefinition.getInputs( ).stream( ).filter( input -> input.equals( testIdentity ) ).forEach( input -> testIdentity.setName( input.getName( ) ) );
         } );
         testDefinition.getExpected( ).forEach( testIdentity -> testIdentity.getAttributes( ).sort( Comparator.comparing( TestAttribute::getKey ) ) );
-        String message = "Liste des inputs : "
-                + String.join( ", ", testDefinition.getInputs( ).stream( ).map( TestIdentity::getName ).collect( Collectors.toList( ) ) );
-        message += "\nListe des expected : "
-                + String.join( ", ", testDefinition.getExpected( ).stream( ).map( TestIdentity::getName ).collect( Collectors.toList( ) ) );
-        message += "\nListe des résultats : " + String.join( ", ", result.stream( ).map( TestIdentity::getName ).collect( Collectors.toList( ) ) );
+        String message = "Liste des inputs : " + testDefinition.getInputs( ).stream( ).map( TestIdentity::getName ).collect( Collectors.joining( ", " ) );
+        message += "\nListe des expected : " + testDefinition.getExpected( ).stream( ).map( TestIdentity::getName ).collect( Collectors.joining( ", " ) );
+        message += "\nListe des résultats : " + result.stream( ).map( TestIdentity::getName ).collect( Collectors.joining( ", " ) );
         if ( result.size( ) > testDefinition.getExpected( ).size( ) )
         {
             result.removeAll( testDefinition.getExpected( ) );
@@ -167,7 +165,7 @@ public abstract class IdentityStoreJsonDataTestCase extends IdentityStoreBDDAndE
             }
     }
 
-    protected abstract void runDefinition( TestDefinition testDefinition ) throws Exception;
+    protected abstract void runDefinition( TestDefinition testDefinition );
 
-    protected abstract void clearData( ) throws Exception;
+    protected abstract void clearData( );
 }

@@ -52,9 +52,9 @@ public interface IIdentityIndexer
 
     void delete( final String documentId, final String index );
 
-    void createOrUpdateAlias( String oldIndex, String newIndex, String alias ) throws ElasticClientException;
+    void createOrUpdateAlias( String oldIndex, String newIndex, String alias );
 
-    String getIndexBehindAlias( String alias ) throws ElasticClientException;
+    String getIndexBehindAlias( String alias );
 
     /* Cluster API */
     boolean isAlive( );

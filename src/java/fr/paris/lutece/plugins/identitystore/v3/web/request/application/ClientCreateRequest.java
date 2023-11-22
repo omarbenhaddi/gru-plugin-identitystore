@@ -67,7 +67,7 @@ public class ClientCreateRequest extends AbstractIdentityStoreRequest
     }
 
     @Override
-    public ClientChangeResponse doSpecificRequest( ) throws IdentityStoreException
+    public ClientChangeResponse doSpecificRequest( )
     {
         final ClientChangeResponse response = new ClientChangeResponse( );
         ClientApplicationService.instance( ).create( _clientApplicationDto, response );

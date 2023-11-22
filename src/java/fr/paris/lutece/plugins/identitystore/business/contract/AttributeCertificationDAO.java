@@ -82,7 +82,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
                 int nIndex = 1;
                 daoUtil.setInt( nIndex++, attributeCertification.getAttributeKey( ).getId( ) );
                 daoUtil.setInt( nIndex++, processus.getId( ) );
-                daoUtil.setInt( nIndex++, serviceContractId );
+                daoUtil.setInt( nIndex, serviceContractId );
                 daoUtil.executeUpdate( );
             }
         }
@@ -106,7 +106,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
                 attributeCertification = new AttributeCertification( );
                 int nIndex = 1;
 
-                attributeCertification.setId( daoUtil.getInt( nIndex++ ) );
+                attributeCertification.setId( daoUtil.getInt( nIndex ) );
             }
 
             return Optional.ofNullable( attributeCertification );
@@ -172,7 +172,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
                 AttributeCertification attributeCertification = new AttributeCertification( );
                 int nIndex = 1;
 
-                attributeCertification.setId( daoUtil.getInt( nIndex++ ) );
+                attributeCertification.setId( daoUtil.getInt( nIndex ) );
 
                 attributeCertificationList.add( attributeCertification );
             }
@@ -255,7 +255,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
                     AttributeCertification attributeCertification = new AttributeCertification( );
                     int nIndex = 1;
 
-                    attributeCertification.setId( daoUtil.getInt( nIndex++ ) );
+                    attributeCertification.setId( daoUtil.getInt( nIndex ) );
 
                     attributeCertificationList.add( attributeCertification );
                 }
@@ -291,7 +291,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
                 attributeKey.setMandatoryForCreation( daoUtil.getBoolean( nIndex++ ) );
                 attributeKey.setValidationRegex( daoUtil.getString( nIndex++ ) );
                 attributeKey.setValidationErrorMessage( daoUtil.getString( nIndex++ ) );
-                attributeKey.setValidationErrorMessageKey( daoUtil.getString( nIndex++ ) );
+                attributeKey.setValidationErrorMessageKey( daoUtil.getString( nIndex ) );
 
                 attributeCertification.setAttributeKey( attributeKey );
 
@@ -316,7 +316,7 @@ public final class AttributeCertificationDAO implements IAttributeCertificationD
 
                     refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
                     refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
-                    refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex++ ) );
+                    refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex ) );
 
                     attributeCertification.getRefAttributeCertificationProcessus( ).add( refAttributeCertificationProcessus );
                 }

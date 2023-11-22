@@ -55,8 +55,8 @@ import java.util.Optional;
 public final class SuspiciousIdentityHome
 {
     // Static variable pointed at the DAO instance
-    private static ISuspiciousIdentityDAO _dao = SpringContextService.getBean( "identitystore-quality.suspiciousIdentityDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "identitystore-quality" );
+    private static final ISuspiciousIdentityDAO _dao = SpringContextService.getBean( "identitystore-quality.suspiciousIdentityDAO" );
+    private static final Plugin _plugin = PluginService.getPlugin( "identitystore-quality" );
 
     /**
      * Private constructor - this class need not be instantiated

@@ -127,10 +127,9 @@ public final class IdentityStoreService
      */
     public static SecureMode getSecureMode( )
     {
-        switch( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_SECURE_MODE, StringUtils.EMPTY ) )
+        if ( AppPropertiesService.getProperty( IdentityConstants.PROPERTY_SECURE_MODE, StringUtils.EMPTY ).equals( "jwt" ) )
         {
-            case "jwt":
-                return SecureMode.JWT;
+            return SecureMode.JWT;
         }
         return SecureMode.NONE;
 

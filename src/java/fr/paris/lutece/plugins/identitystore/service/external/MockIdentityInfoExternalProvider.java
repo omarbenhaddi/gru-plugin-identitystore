@@ -58,7 +58,7 @@ public class MockIdentityInfoExternalProvider implements IIdentityInfoExternalPr
      * {@inheritDoc}
      */
     @Override
-    public IdentityChangeDto getIdentityInfo( String strConnectionId ) throws IdentityNotFoundException
+    public IdentityChangeDto getIdentityInfo( String strConnectionId )
     {
         IdentityChangeDto identityChangeDto = new IdentityChangeDto( );
 

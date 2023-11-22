@@ -72,10 +72,8 @@ public class IdentitystoreTestUtils
 
     public static Identity createIdentityInDatabase( )
     {
-        Identity identity = createIdentity( );
-        identity = IdentityHome.create( identity, 36 );
-
-        return identity;
+        final Identity identity = createIdentity( );
+        return IdentityHome.create( identity, 36 );
     }
 
     public static Identity createIdentity( )

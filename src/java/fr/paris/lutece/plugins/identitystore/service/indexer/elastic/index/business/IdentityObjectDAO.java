@@ -114,7 +114,7 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
         attribute.setCertifierCode( daoUtil.getString( nIndex++ ) );
         attribute.setCertifierName( daoUtil.getString( nIndex++ ) );
         attribute.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-        attribute.setCertificateExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
+        attribute.setCertificateExpirationDate( daoUtil.getTimestamp( nIndex ) );
         return attribute;
     }
 

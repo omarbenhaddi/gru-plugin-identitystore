@@ -139,7 +139,7 @@ public final class IdentityStoreRestService
     @Path( Constants.SEARCH_IDENTITIES_PATH )
     @Consumes( MediaType.APPLICATION_JSON )
     @Produces( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Search an identity by a set of attributes", notes = "", response = IdentitySearchResponse.class )
+    @ApiOperation( value = "Search an identity by a set of attributes", response = IdentitySearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_IDENTITY_FOUND )

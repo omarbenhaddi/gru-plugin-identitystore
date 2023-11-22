@@ -37,5 +37,5 @@ public enum IndexActionType
 {
     CREATE,
     UPDATE,
-    DELETE;
+    DELETE
 }

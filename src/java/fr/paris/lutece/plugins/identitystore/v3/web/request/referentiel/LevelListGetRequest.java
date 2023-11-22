@@ -65,7 +65,7 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
     }
 
     @Override
-    protected void validateSpecificRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( )
     {
     }
 
@@ -76,7 +76,7 @@ public class LevelListGetRequest extends AbstractIdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    public LevelSearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public LevelSearchResponse doSpecificRequest( )
     {
         final LevelSearchResponse response = new LevelSearchResponse( );
 

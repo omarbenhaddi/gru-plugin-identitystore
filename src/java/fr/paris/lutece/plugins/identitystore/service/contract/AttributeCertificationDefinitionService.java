@@ -43,7 +43,7 @@ import java.util.List;
 
 public class AttributeCertificationDefinitionService
 {
-    private RefAttributeCertificationDefinitionCache _cache = SpringContextService.getBean( "identitystore.refAttributeCertificationDefinitionCache" );
+    private final RefAttributeCertificationDefinitionCache _cache = SpringContextService.getBean( "identitystore.refAttributeCertificationDefinitionCache" );
 
     private static AttributeCertificationDefinitionService _instance;
 
@@ -66,12 +66,12 @@ public class AttributeCertificationDefinitionService
         return _cache.get( processusCode, attributeKeyName );
     }
 
-    public Integer getLevelAsInteger( final String processusCode, final String attributeKeyName ) throws RefAttributeCertificationDefinitionNotFoundException
+    public Integer getLevelAsInteger( final String processusCode, final String attributeKeyName )
     {
         return Integer.valueOf( this.getLevelAsString( processusCode, attributeKeyName ) );
     }
 
-    public String getLevelAsString( final String processusCode, final String attributeKeyName ) throws RefAttributeCertificationDefinitionNotFoundException
+    public String getLevelAsString( final String processusCode, final String attributeKeyName )
     {
         final RefAttributeCertificationLevel refAttributeCertificationLevel = this.get( processusCode, attributeKeyName );
         if ( refAttributeCertificationLevel != null )

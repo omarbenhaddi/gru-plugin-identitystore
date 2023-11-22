@@ -60,7 +60,7 @@ public final class IdentityStoreRestService
     private static final String ERROR_NO_IDENTITY_FOUND = "No identity found";
     private static final String ERROR_NO_IDENTITY_TO_UPDATE = "no identity to update";
     private static final String ERROR_DURING_TREATMENT = "An error occurred during the treatment.";
-    private ObjectMapper _objectMapper;
+    private final ObjectMapper _objectMapper;
 
     /**
      * private constructor
@@ -117,8 +117,8 @@ public final class IdentityStoreRestService
     private Response getErrorResponse( Exception e )
     {
         // For security purpose, send a generic message
-        String strMessage = null;
-        Response.StatusType status = null;
+        String strMessage;
+        Response.StatusType status;
 
         AppLogService.error( "IdentityStoreRestService getErrorResponse : " + e, e );
 

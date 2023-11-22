@@ -100,7 +100,7 @@ public final class IdentityAttributeDAO implements IIdentityAttributeDAO
             daoUtil.setString( nIndex++, identityAttribute.getValue( ) );
             daoUtil.setInt( nIndex++, identityAttribute.getIdCertificate( ) );
             daoUtil.setInt( nIndex++, ( identityAttribute.getFile( ) != null ) ? identityAttribute.getFile( ).getIdFile( ) : 0 );
-            daoUtil.setString( nIndex++, identityAttribute.getLastUpdateClientCode( ) );
+            daoUtil.setString( nIndex, identityAttribute.getLastUpdateClientCode( ) );
 
             daoUtil.executeUpdate( );
         }

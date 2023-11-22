@@ -70,7 +70,7 @@ public class ServiceContractListGetAllRequest extends AbstractIdentityStoreReque
     }
 
     @Override
-    protected void validateSpecificRequest( ) throws IdentityStoreException
+    protected void validateSpecificRequest( )
     {
     }
 
@@ -81,7 +81,7 @@ public class ServiceContractListGetAllRequest extends AbstractIdentityStoreReque
      *             if there is an exception during the treatment
      */
     @Override
-    public ServiceContractsSearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public ServiceContractsSearchResponse doSpecificRequest( )
     {
         final ServiceContractsSearchResponse response = new ServiceContractsSearchResponse( );
 

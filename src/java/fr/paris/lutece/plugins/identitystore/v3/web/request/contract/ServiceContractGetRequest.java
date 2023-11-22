@@ -85,7 +85,7 @@ public class ServiceContractGetRequest extends AbstractIdentityStoreRequest
      *             if there is an exception during the treatment
      */
     @Override
-    public ServiceContractSearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public ServiceContractSearchResponse doSpecificRequest( )
     {
         final ServiceContractSearchResponse response = new ServiceContractSearchResponse( );
 

@@ -55,16 +55,16 @@ import java.util.stream.Collectors;
 public final class ServiceContractHome
 {
     // Static variable pointed at the DAO instance
-    private static IServiceContractDAO _serviceContractDAO = SpringContextService.getBean( IServiceContractDAO.BEAN_NAME );
-    private static IRefCertificationLevelDAO _refCertificationLevelDAO = SpringContextService.getBean( "identitystore.refCertificationLevelDAO" );
-    private static IRefAttributeCertificationProcessusDAO _refAttributeCertificationProcessusDAO = SpringContextService
+    private static final IServiceContractDAO _serviceContractDAO = SpringContextService.getBean( IServiceContractDAO.BEAN_NAME );
+    private static final IRefCertificationLevelDAO _refCertificationLevelDAO = SpringContextService.getBean( "identitystore.refCertificationLevelDAO" );
+    private static final IRefAttributeCertificationProcessusDAO _refAttributeCertificationProcessusDAO = SpringContextService
             .getBean( "identitystore.refAttributeCertificationProcessusDAO" );
-    private static IRefAttributeCertificationLevelDAO _refAttributeCertificationLevelDAO = SpringContextService
+    private static final IRefAttributeCertificationLevelDAO _refAttributeCertificationLevelDAO = SpringContextService
             .getBean( "identitystore.refAttributeCertificationLevelDAO" );
-    private static IAttributeRequirementDAO _attributeRequirementDAO = SpringContextService.getBean( "identitystore.attributeRequirementDAO" );
-    private static IAttributeCertificationDAO _attributeCertificationDAO = SpringContextService.getBean( "identitystore.attributeCertificationDAO" );
-    private static IAttributeRightDAO _attributeRightDAO = SpringContextService.getBean( IAttributeRightDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IAttributeRequirementDAO _attributeRequirementDAO = SpringContextService.getBean( "identitystore.attributeRequirementDAO" );
+    private static final IAttributeCertificationDAO _attributeCertificationDAO = SpringContextService.getBean( "identitystore.attributeCertificationDAO" );
+    private static final IAttributeRightDAO _attributeRightDAO = SpringContextService.getBean( IAttributeRightDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated
@@ -252,21 +252,13 @@ public final class ServiceContractHome
                 .setAttributeKey( attributeRight.getAttributeKey( ) ).setServiceContract( serviceContract ) ) );
 
         attributeCertifications.forEach( attributeCertification -> {
-            ServiceContractAttributeDefinitionDto temp = dtos.stream( )
-                    .filter( dto -> dto.getAttributeKey( ).getId( ) == attributeCertification.getAttributeKey( ).getId( ) ).findFirst( ).orElse( null );
-            if ( temp != null )
-            {
-                temp.setRefAttributeCertificationProcessus( attributeCertification.getRefAttributeCertificationProcessus( ) );
-            }
+            dtos.stream( ).filter( dto -> dto.getAttributeKey( ).getId( ) == attributeCertification.getAttributeKey( ).getId( ) ).findFirst( )
+                    .ifPresent( temp -> temp.setRefAttributeCertificationProcessus( attributeCertification.getRefAttributeCertificationProcessus( ) ) );
         } );
 
         attributeRequirements.forEach( attributeCertification -> {
-            ServiceContractAttributeDefinitionDto temp = dtos.stream( )
-                    .filter( dto -> dto.getAttributeKey( ).getId( ) == attributeCertification.getAttributeKey( ).getId( ) ).findFirst( ).orElse( null );
-            if ( temp != null )
-            {
-                temp.setRefCertificationLevel( attributeCertification.getRefCertificationLevel( ) );
-            }
+            dtos.stream( ).filter( dto -> dto.getAttributeKey( ).getId( ) == attributeCertification.getAttributeKey( ).getId( ) ).findFirst( )
+                    .ifPresent( temp -> temp.setRefCertificationLevel( attributeCertification.getRefCertificationLevel( ) ) );
         } );
 
         dtos.forEach( dto -> {

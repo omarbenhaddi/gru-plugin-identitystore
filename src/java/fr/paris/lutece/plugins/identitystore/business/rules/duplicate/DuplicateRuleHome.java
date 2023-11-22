@@ -45,8 +45,8 @@ import java.util.List;
  */
 public final class DuplicateRuleHome
 {
-    private static DuplicateRuleDAO _dao = SpringContextService.getBean( DuplicateRuleDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final DuplicateRuleDAO _dao = SpringContextService.getBean( DuplicateRuleDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated

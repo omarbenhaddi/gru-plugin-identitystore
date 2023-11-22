@@ -520,7 +520,7 @@ public class ServiceContractService
      * @param clientApplication
      */
     private void validateContractDefinition( final ServiceContract serviceContract, final ClientApplication clientApplication )
-            throws ServiceContractDefinitionException, RefAttributeCertificationDefinitionNotFoundException
+            throws ServiceContractDefinitionException
     {
         final List<ServiceContract> serviceContracts = ClientApplicationHome.selectServiceContracts( clientApplication );
         if ( serviceContracts == null || serviceContracts.isEmpty( ) )

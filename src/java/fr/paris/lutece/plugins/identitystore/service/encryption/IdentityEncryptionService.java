@@ -129,6 +129,6 @@ public final class IdentityEncryptionService
      */
     private static class IdentityEncryptionServiceHolder
     {
-        private static IdentityEncryptionService _instance = new IdentityEncryptionService( );
+        private static final IdentityEncryptionService _instance = new IdentityEncryptionService( );
     }
 }

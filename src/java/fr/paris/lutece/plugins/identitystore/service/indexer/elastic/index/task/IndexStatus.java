@@ -41,7 +41,7 @@ public class IndexStatus implements Serializable
     protected int _nCurrentNbIndexedIdentities = 0;
     protected int _nNbTotalIdentities = 0;
     protected StringBuilder _sbLogs;
-    protected AtomicBoolean _bIsRunning = new AtomicBoolean( );
+    protected final AtomicBoolean _bIsRunning = new AtomicBoolean( );
 
     public int getCurrentNbIndexedIdentities( )
     {

@@ -94,7 +94,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             daoUtil.setInt( nIndex++, clientApplication.getId( ) );
             daoUtil.setString( nIndex++, clientApplication.getName( ) );
             daoUtil.setString( nIndex++, clientApplication.getClientCode( ) );
-            daoUtil.setString( nIndex++, clientApplication.getApplicationCode( ) );
+            daoUtil.setString( nIndex, clientApplication.getApplicationCode( ) );
             daoUtil.executeUpdate( );
         }
     }
@@ -121,7 +121,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
                 clientApplication.setId( daoUtil.getInt( nIndex++ ) );
                 clientApplication.setName( daoUtil.getString( nIndex++ ) );
                 clientApplication.setClientCode( daoUtil.getString( nIndex++ ) );
-                clientApplication.setApplicationCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setApplicationCode( daoUtil.getString( nIndex ) );
 
             }
 
@@ -151,7 +151,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
                 clientApplication.setId( daoUtil.getInt( nIndex++ ) );
                 clientApplication.setName( daoUtil.getString( nIndex++ ) );
                 clientApplication.setClientCode( daoUtil.getString( nIndex++ ) );
-                clientApplication.setApplicationCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setApplicationCode( daoUtil.getString( nIndex ) );
 
             }
 
@@ -212,7 +212,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
                 clientApplication.setId( daoUtil.getInt( nIndex++ ) );
                 clientApplication.setName( daoUtil.getString( nIndex++ ) );
                 clientApplication.setClientCode( daoUtil.getString( nIndex++ ) );
-                clientApplication.setApplicationCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setApplicationCode( daoUtil.getString( nIndex ) );
 
                 clientApplicationList.add( clientApplication );
             }
@@ -285,7 +285,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
                 clientApplication.setId( daoUtil.getInt( nIndex++ ) );
                 clientApplication.setName( daoUtil.getString( nIndex++ ) );
                 clientApplication.setClientCode( daoUtil.getString( nIndex++ ) );
-                clientApplication.setApplicationCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setApplicationCode( daoUtil.getString( nIndex ) );
 
             }
 
@@ -305,7 +305,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
             daoUtil.executeQuery( );
 
             List<ClientApplication> listClientApplications = new ArrayList<>( );
-            ClientApplication clientApplication = null;
+            ClientApplication clientApplication;
 
             while ( daoUtil.next( ) )
             {
@@ -316,7 +316,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
                 clientApplication.setId( daoUtil.getInt( nIndex++ ) );
                 clientApplication.setName( daoUtil.getString( nIndex++ ) );
                 clientApplication.setClientCode( daoUtil.getString( nIndex++ ) );
-                clientApplication.setApplicationCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setApplicationCode( daoUtil.getString( nIndex ) );
 
                 listClientApplications.add( clientApplication );
             }
@@ -342,7 +342,7 @@ public final class ClientApplicationDAO implements IClientApplicationDAO
                 clientApplication.setId( daoUtil.getInt( nIndex++ ) );
                 clientApplication.setName( daoUtil.getString( nIndex++ ) );
                 clientApplication.setClientCode( daoUtil.getString( nIndex++ ) );
-                clientApplication.setApplicationCode( daoUtil.getString( nIndex++ ) );
+                clientApplication.setApplicationCode( daoUtil.getString( nIndex ) );
                 clientApplications.add( clientApplication );
 
             }

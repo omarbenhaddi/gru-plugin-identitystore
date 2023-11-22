@@ -139,7 +139,7 @@ public class IdentityService
     private final InternalUserService _internalUserService = InternalUserService.getInstance( );
     private final IDuplicateService _duplicateServiceDatabase = SpringContextService.getBean( "identitystore.duplicateService.database" );
     private final IDuplicateService _duplicateServiceElasticSearch = SpringContextService.getBean( "identitystore.duplicateService.elasticsearch" );
-    protected ISearchIdentityService _elasticSearchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
+    private final ISearchIdentityService _elasticSearchIdentityService = SpringContextService.getBean( "identitystore.searchIdentityService.elasticsearch" );
 
     // CACHE
     private final IdentityDtoCache _identityDtoCache = SpringContextService.getBean( "identitystore.identityDtoCache" );
@@ -494,7 +494,6 @@ public class IdentityService
      */
     // TODO: récupérer la plus haute date d'expiration des deux identités
     public Identity merge( final IdentityMergeRequest request, final RequestAuthor author, final String clientCode, final IdentityMergeResponse response )
-            throws IdentityStoreException
     {
         final Identity primaryIdentity = IdentityHome.findByCustomerId( request.getPrimaryCuid( ) );
         if ( primaryIdentity == null )
@@ -1364,7 +1363,6 @@ public class IdentityService
      * @see IdentityAttributeService#uncertifyAttribute
      */
     public IdentityChangeResponse uncertifyIdentity( final String strCustomerId, final String strClientCode, final RequestAuthor author )
-            throws IdentityStoreException
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
 

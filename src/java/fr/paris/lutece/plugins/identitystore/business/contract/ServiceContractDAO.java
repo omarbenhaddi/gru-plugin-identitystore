@@ -104,7 +104,7 @@ public final class ServiceContractDAO implements IServiceContractDAO
             daoUtil.setBoolean( nIndex++, serviceContract.getAuthorizedImport( ) );
             daoUtil.setBoolean( nIndex++, serviceContract.getAuthorizedExport( ) );
             daoUtil.setBoolean( nIndex++, serviceContract.getAuthorizedDecertification( ) );
-            daoUtil.setBoolean( nIndex++, serviceContract.getAuthorizedAgentHistoryRead( ) );
+            daoUtil.setBoolean( nIndex, serviceContract.getAuthorizedAgentHistoryRead( ) );
 
             daoUtil.executeUpdate( );
             if ( daoUtil.nextGeneratedKey( ) )

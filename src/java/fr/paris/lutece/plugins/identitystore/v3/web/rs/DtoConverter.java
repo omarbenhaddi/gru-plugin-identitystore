@@ -170,7 +170,7 @@ public final class DtoConverter
         return identity;
     }
 
-    private static AttributeDto convertAttributeToDto( final IdentityAttribute attribute ) throws RefAttributeCertificationDefinitionNotFoundException
+    private static AttributeDto convertAttributeToDto( final IdentityAttribute attribute )
     {
         final AttributeKey attributeKey = attribute.getAttributeKey( );
 

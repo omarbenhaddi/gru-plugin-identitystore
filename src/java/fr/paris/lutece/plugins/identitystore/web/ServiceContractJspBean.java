@@ -617,13 +617,8 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             return false;
         }
         // TODO traiter le cas où il existe un contrat sans date de fin => soit on interdit soit on ferme le contrat automatiquement
-        if ( filteredServiceContracts.stream( )
-                .anyMatch( contract -> contract.getEndingDate( ) == null && contract.getStartingDate( ).before( serviceContract.getStartingDate( ) ) ) )
-        {
-            return false;
-        }
-
-        return true;
+        return filteredServiceContracts.stream( )
+                .noneMatch( contract -> contract.getEndingDate( ) == null && contract.getStartingDate( ).before( serviceContract.getStartingDate( ) ) );
     }
 
     private void sortAttributeRequirementList( final List<ServiceContractAttributeDefinitionDto> attributeRequirementList )

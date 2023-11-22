@@ -67,7 +67,7 @@ public class ClientUpdateRequest extends AbstractIdentityStoreRequest
     }
 
     @Override
-    public ClientChangeResponse doSpecificRequest( ) throws IdentityStoreException
+    public ClientChangeResponse doSpecificRequest( )
     {
         final ClientChangeResponse response = new ClientChangeResponse( );
         ClientApplicationService.instance( ).update( _clientApplicationDto, response );

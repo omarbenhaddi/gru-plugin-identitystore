@@ -47,8 +47,8 @@ import java.util.Optional;
 public final class RefAttributeCertificationLevelHome
 {
     // Static variable pointed at the DAO instance
-    private static IRefAttributeCertificationLevelDAO _dao = SpringContextService.getBean( "identitystore.refAttributeCertificationLevelDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
+    private static final IRefAttributeCertificationLevelDAO _dao = SpringContextService.getBean( "identitystore.refAttributeCertificationLevelDAO" );
+    private static final Plugin _plugin = PluginService.getPlugin( "identitystore" );
 
     /**
      * Private constructor - this class need not be instantiated

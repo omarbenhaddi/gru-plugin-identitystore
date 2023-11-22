@@ -36,5 +36,5 @@ package fr.paris.lutece.plugins.identitystore.business.security;
 public enum SecureMode
 {
     NONE,
-    JWT;
+    JWT
 }

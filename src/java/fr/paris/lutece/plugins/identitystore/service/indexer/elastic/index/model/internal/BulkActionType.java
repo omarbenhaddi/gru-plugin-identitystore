@@ -40,8 +40,8 @@ public enum BulkActionType
     CREATE( "create", true ),
     UPDATE( "update", true );
 
-    protected String code;
-    protected boolean hasDocument;
+    private final String code;
+    private final boolean hasDocument;
 
     BulkActionType( String code, boolean hasDocument )
     {

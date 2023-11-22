@@ -45,8 +45,8 @@ import java.util.List;
 public class IdentityObjectHome
 {
 
-    private static IIdentityObjectDAO _dao = SpringContextService.getBean( IIdentityObjectDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IIdentityObjectDAO _dao = SpringContextService.getBean( IIdentityObjectDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Load the customer id of all the identity objects and returns them as a list

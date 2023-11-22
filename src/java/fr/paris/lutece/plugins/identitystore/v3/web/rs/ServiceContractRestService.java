@@ -102,6 +102,7 @@ public class ServiceContractRestService
             @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
             throws IdentityStoreException
     {
+        // TODO paginer l'appel
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY, strHeaderAppCode );
         final ServiceContractListGetAllRequest request = new ServiceContractListGetAllRequest( trustedClientCode, authorName, authorType );
         final ServiceContractsSearchResponse entity = (ServiceContractsSearchResponse) request.doRequest( );

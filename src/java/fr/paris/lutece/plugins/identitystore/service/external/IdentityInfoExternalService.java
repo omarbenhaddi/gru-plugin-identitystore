@@ -76,11 +76,9 @@ public final class IdentityInfoExternalService
      * @param strConnectionId
      *            the connection id
      * @return the identity
-     * @throws IdentityNotFoundException
-     *             if no identity can be retrieve from external source
      */
-    public IdentityChangeDto getIdentityInfo( String strConnectionId ) throws IdentityNotFoundException
+    public IdentityChangeDto getIdentityInfo( String strConnectionId )
     {
-        return (IdentityChangeDto) _identityInfoExternalProvider.getIdentityInfo( strConnectionId );
+        return _identityInfoExternalProvider.getIdentityInfo( strConnectionId );
     }
 }

@@ -176,24 +176,4 @@ public class AttributeCertificate implements Serializable
     {
         _strCertifierName = strCertifierName;
     }
-
-    /**
-     * Get the Icon URL
-     * 
-     * @return the Icon URL
-     */
-    public String getCertifierIconUrl( )
-    {
-        // try
-        // {
-        // AbstractCertifier certifier = CertifierRegistry.instance( ).getCertifier( _strCertifierCode );
-        // TODO gérer la map des certifiers return certifier.getIconUrl( );
-        return "";
-        // }
-        // catch( CertifierNotFoundException ex )
-        // {
-        // return "";
-        // }
-
-    }
 }

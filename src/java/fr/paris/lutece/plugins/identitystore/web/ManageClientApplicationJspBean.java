@@ -168,7 +168,7 @@ public class ManageClientApplicationJspBean extends ManageIdentitiesJspBean
      *            The HTTP request
      * @return The page
      */
-    @View( value = VIEW_DISPLAY_CLIENTAPPLICATIONS, defaultView = false )
+    @View( value = VIEW_DISPLAY_CLIENTAPPLICATIONS )
     public String getDisplayClientApplications( HttpServletRequest request )
     {
         _clientApplication = null;

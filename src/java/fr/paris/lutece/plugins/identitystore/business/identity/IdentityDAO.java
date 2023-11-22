@@ -560,7 +560,7 @@ public final class IdentityDAO implements IIdentityDAO
                 }
             }
 
-            daoUtil.setInt( nIndex++, queueAttributeId.size( ) );
+            daoUtil.setInt( nIndex, queueAttributeId.size( ) );
 
             daoUtil.executeQuery( );
 

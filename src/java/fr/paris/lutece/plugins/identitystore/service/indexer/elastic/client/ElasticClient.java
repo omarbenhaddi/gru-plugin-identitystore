@@ -47,9 +47,9 @@ import java.util.List;
 
 public class ElasticClient
 {
-    private static ObjectMapper _mapper = new ObjectMapper( );
-    private ElasticConnexion _connexion;
-    private String _strServerUrl;
+    private static final ObjectMapper _mapper = new ObjectMapper( );
+    private final ElasticConnexion _connexion;
+    private final String _strServerUrl;
 
     /**
      * Constructor
@@ -153,8 +153,8 @@ public class ElasticClient
             final StringBuilder requestBuilder = new StringBuilder( );
             for ( final BulkAction action : bulkActions )
             {
-                requestBuilder.append(
-                        "{ \"" + action.getType( ).getCode( ) + "\" : { \"_index\" : \"" + strIndex + "\", \"_id\" : \"" + action.getKey( ) + "\" } }" );
+                requestBuilder.append( "{ \"" ).append( action.getType( ).getCode( ) ).append( "\" : { \"_index\" : \"" ).append( strIndex )
+                        .append( "\", \"_id\" : \"" ).append( action.getKey( ) ).append( "\" } }" );
                 requestBuilder.append( "\n" );
                 if ( action.getType( ).hasDocument( ) && action.getDocument( ) != null )
                 {
@@ -449,82 +449,21 @@ public class ElasticClient
     }
 
     /**
-     * suggest a list of document of given type into a given index The suggest is done with a _search request with size set to 0 to avoid fetch in 'hits' so be
-     * careful with the JSON result
-     *
-     * @param strIndex
-     *            The index
-     * @param suggest
-     *            suggest request
-     * @return The JSON response from Elastic
-     * @throws ElasticClientException
-     *             If a problem occurs connecting Elastic
-     */
-    // public String suggest( String strIndex, AbstractSuggestRequest suggest ) throws ElasticClientException
-    // {
-    // String strResponse = StringUtils.EMPTY;
-    // try
-    // {
-    // SearchRequest search = new SearchRequest( );
-    // search.setSize( 0 );
-    // search.setSearchQuery( suggest );
-    // String strJSON = _mapper.writeValueAsString( search.mapToNode( ) );
-    // String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
-    // strResponse = _connexion.POST( strURI, strJSON );
-    // }
-    // catch( JsonProcessingException | HttpAccessException ex )
-    // {
-    // throw new ElasticClientException( "ElasticLibrary : Error suggesting object : " + ex.getMessage( ), ex );
-    // }
-    // return strResponse;
-    // }
-
-    /**
-     * suggest a list of document of given type into a given index The suggest is done with a _search request with size set to 0 to avoid fetch in 'hits' so be
-     * careful with the JSON result
-     *
-     * @param strIndex
-     *            The index
-     * @param strJSON
-     *            suggest request
-     * @return The JSON response from Elastic
-     * @throws ElasticClientException
-     *             If a problem occurs connecting Elastic
-     */
-    public String suggest( final String strIndex, final String strJSON ) throws ElasticClientException
-    {
-        String strResponse;
-        try
-        {
-            final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
-            strResponse = _connexion.POST( strURI, strJSON );
-        }
-        catch( final HttpAccessException ex )
-        {
-            throw new ElasticClientException( "ElasticLibrary : Error suggesting object : " + ex.getMessage( ), ex );
-        }
-        return strResponse;
-    }
-
-    /**
      * @param strIndex
      * @param strJsonMappings
-     * @return
      * @throws ElasticClientException
      */
-    public String createMappings( final String strIndex, final String strJsonMappings ) throws ElasticClientException
+    public void createMappings( final String strIndex, final String strJsonMappings ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex );
-            strResponse = _connexion.PUT( strURI, strJsonMappings );
+            _connexion.PUT( strURI, strJsonMappings );
         }
         catch( final HttpAccessException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error creating mappings : " + ex.getMessage( ), ex );
         }
-        return strResponse;
 
     }
 
@@ -632,24 +571,6 @@ public class ElasticClient
         }
 
         return strURI;
-    }
-
-    /**
-     * Build Json to partial update
-     *
-     * @param strJson
-     *            The json
-     * @return json
-     */
-    private String buildJsonToPartialUpdate( String strJson )
-    {
-
-        StringBuilder sbuilder = new StringBuilder( );
-        sbuilder.append( "{ \"doc\" : " );
-        sbuilder.append( strJson );
-        sbuilder.append( "}" );
-
-        return sbuilder.toString( );
     }
 
     public boolean isAlive( )

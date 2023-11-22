@@ -49,7 +49,7 @@ public abstract class IdentityStoreRequest
      * @throws AppException
      *             if request not valid
      */
-    protected abstract void validRequest( ) throws IdentityStoreException;
+    protected abstract void validRequest( );
 
     /**
      * Specific action for the request

@@ -47,8 +47,8 @@ import java.util.Optional;
 public final class AttributeCertificationHome
 {
     // Static variable pointed at the DAO instance
-    private static IAttributeCertificationDAO _dao = SpringContextService.getBean( "identitystore.attributeCertificationDAO" );
-    private static Plugin _plugin = PluginService.getPlugin( "identitystore" );
+    private static final IAttributeCertificationDAO _dao = SpringContextService.getBean( "identitystore.attributeCertificationDAO" );
+    private static final Plugin _plugin = PluginService.getPlugin( "identitystore" );
 
     /**
      * Private constructor - this class need not be instantiated

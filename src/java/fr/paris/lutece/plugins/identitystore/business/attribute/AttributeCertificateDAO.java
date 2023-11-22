@@ -68,7 +68,7 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
 
             daoUtil.setString( nIndex++, attributeCertificate.getCertifierCode( ) );
             daoUtil.setTimestamp( nIndex++, attributeCertificate.getCertificateDate( ) );
-            daoUtil.setTimestamp( nIndex++, attributeCertificate.getExpirationDate( ) );
+            daoUtil.setTimestamp( nIndex, attributeCertificate.getExpirationDate( ) );
 
             daoUtil.executeUpdate( );
 
@@ -101,7 +101,7 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
                 attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
                 attributeCertificate.setCertifierCode( daoUtil.getString( nIndex++ ) );
                 attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-                attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
+                attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
             }
 
             return attributeCertificate;
@@ -160,7 +160,7 @@ public final class AttributeCertificateDAO implements IAttributeCertificateDAO
                 attributeCertificate.setId( daoUtil.getInt( nIndex++ ) );
                 attributeCertificate.setCertifierCode( daoUtil.getString( nIndex++ ) );
                 attributeCertificate.setCertificateDate( daoUtil.getTimestamp( nIndex++ ) );
-                attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex++ ) );
+                attributeCertificate.setExpirationDate( daoUtil.getTimestamp( nIndex ) );
 
                 attributeCertificateList.add( attributeCertificate );
             }

@@ -42,8 +42,8 @@ import java.util.List;
 
 public class IndexActionHome
 {
-    private static IIndexActionDao _dao = SpringContextService.getBean( IIndexActionDao.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IIndexActionDao _dao = SpringContextService.getBean( IIndexActionDao.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     private IndexActionHome( )
     {

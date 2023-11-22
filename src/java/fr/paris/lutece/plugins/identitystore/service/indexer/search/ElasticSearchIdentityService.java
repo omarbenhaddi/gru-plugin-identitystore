@@ -115,21 +115,13 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         if ( search != null )
         {
             search.getResult( ).getHits( ).forEach( hit -> {
-                try
-                {
-                    identities.add( this.toQualifiedIdentity( hit.getSource( ) ) );
-                }
-                catch( IdentityAttributeNotFoundException | RefAttributeCertificationDefinitionNotFoundException e )
-                {
-                    AppLogService.error( "An error occurred during search: ", e );
-                }
+                identities.add( this.toQualifiedIdentity( hit.getSource( ) ) );
             } );
         }
         return identities;
     }
 
     private IdentityDto toQualifiedIdentity( final IdentityObject identityObject )
-            throws IdentityAttributeNotFoundException, RefAttributeCertificationDefinitionNotFoundException
     {
         final IdentityDto identity = new IdentityDto( );
         identity.setConnectionId( identityObject.getConnectionId( ) );

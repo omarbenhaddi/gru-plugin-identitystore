@@ -51,7 +51,7 @@ public class ServiceContractAttributeDefinitionDto
     private RefCertificationLevel refCertificationLevel;
     private List<RefAttributeCertificationProcessus> refAttributeCertificationProcessus = new ArrayList<>( );
 
-    private List<RefAttributeCertificationProcessus> compatibleProcessus = new ArrayList<>( );
+    private final List<RefAttributeCertificationProcessus> compatibleProcessus = new ArrayList<>( );
 
     public String getDisplayProcessus( )
     {

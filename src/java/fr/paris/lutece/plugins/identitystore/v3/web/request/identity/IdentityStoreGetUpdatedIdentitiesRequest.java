@@ -85,7 +85,7 @@ public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentitySt
      *             if there is an exception during the treatment
      */
     @Override
-    public UpdatedIdentitySearchResponse doSpecificRequest( ) throws IdentityStoreException
+    public UpdatedIdentitySearchResponse doSpecificRequest( )
     {
         final UpdatedIdentitySearchResponse response = new UpdatedIdentitySearchResponse( );
         final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( _request.getDays( ), _request.getIdentityChangeTypes( ),

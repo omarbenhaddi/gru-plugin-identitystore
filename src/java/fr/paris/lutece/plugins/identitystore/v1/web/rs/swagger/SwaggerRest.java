@@ -36,10 +36,10 @@ package fr.paris.lutece.plugins.identitystore.v1.web.rs.swagger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.util.json.ErrorJsonResponse;
 import fr.paris.lutece.util.json.JsonUtil;
-import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -65,7 +65,6 @@ public class SwaggerRest
     private static final String BASE_INFOS_SCHEMES = "schemes";
     private static final String BASE_INFOS_HOST = "host";
     private static final String BASE_INFOS_BASE_PATH = "basePath";
-    private final Logger _logger = Logger.getLogger( RestConstants.REST_LOGGER );
 
     /**
      * Get Swagger.json
@@ -105,7 +104,7 @@ public class SwaggerRest
             String strSwaggerJson = mapper.writerWithDefaultPrettyPrinter( ).writeValueAsString( objectNode );
             return Response.status( Response.Status.OK ).entity( strSwaggerJson ).build( );
         }
-        _logger.error( Constants.ERROR_NOT_FOUND_RESOURCE );
+        AppLogService.error( Constants.ERROR_NOT_FOUND_RESOURCE );
         return Response.status( Response.Status.NOT_FOUND )
                 .entity( JsonUtil.buildJsonResponse( new ErrorJsonResponse( Response.Status.NOT_FOUND.name( ), Constants.ERROR_NOT_FOUND_RESOURCE ) ) )
                 .build( );

@@ -43,7 +43,7 @@ import java.util.List;
 
 public class ComplexSearchRequest extends ASearchRequest
 {
-    private boolean connected = false;
+    private final boolean connected;
 
     public ComplexSearchRequest( final List<SearchAttribute> attributes, final boolean connected )
     {

@@ -48,8 +48,8 @@ import java.util.List;
 public final class AttributeCertificateHome
 {
     // Static variable pointed at the DAO instance
-    private static IAttributeCertificateDAO _dao = SpringContextService.getBean( IAttributeCertificateDAO.BEAN_NAME );
-    private static Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
+    private static final IAttributeCertificateDAO _dao = SpringContextService.getBean( IAttributeCertificateDAO.BEAN_NAME );
+    private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
      * Private constructor - this class need not be instantiated

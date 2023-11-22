@@ -69,7 +69,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
             daoUtil.setInt( nIndex++, attributeRight.isReadable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
             daoUtil.setInt( nIndex++, attributeRight.isWritable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
-            daoUtil.setInt( nIndex++, attributeRight.isMandatory( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
+            daoUtil.setInt( nIndex, attributeRight.isMandatory( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
 
             daoUtil.executeUpdate( );
         }
@@ -90,7 +90,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
             daoUtil.setInt( nIndex++, attributeRight.isSearchable( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
             daoUtil.setInt( nIndex++, attributeRight.isMandatory( ) ? CONST_INT_TRUE : CONST_INT_FALSE );
             daoUtil.setInt( nIndex++, attributeRight.getAttributeKey( ).getId( ) );
-            daoUtil.setInt( nIndex++, serviceContractId );
+            daoUtil.setInt( nIndex, serviceContractId );
 
             daoUtil.executeUpdate( );
         }
@@ -132,7 +132,7 @@ public final class AttributeRightDAO implements IAttributeRightDAO
                 attributeRight.setSearchable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
                 attributeRight.setReadable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
                 attributeRight.setWritable( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
-                attributeRight.setMandatory( daoUtil.getInt( nIndex++ ) == CONST_INT_TRUE );
+                attributeRight.setMandatory( daoUtil.getInt( nIndex ) == CONST_INT_TRUE );
 
                 lstAttributeRights.add( attributeRight );
             }
