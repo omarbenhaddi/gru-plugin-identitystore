@@ -34,7 +34,9 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeCertificate;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
@@ -69,6 +71,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -132,28 +135,85 @@ public final class DtoConverter
         {
             for ( final IdentityAttribute attribute : identity.getAttributes( ).values( ) )
             {
-                final AttributeKey attributeKey = attribute.getAttributeKey( );
-
-                final AttributeDto attributeDto = new AttributeDto( );
-                attributeDto.setKey( attributeKey.getKeyName( ) );
-                attributeDto.setValue( attribute.getValue( ) );
-                attributeDto.setType( attributeKey.getKeyType( ).getCode( ) );
-                attributeDto.setLastUpdateClientCode( attribute.getLastUpdateClientCode( ) );
-                attributeDto.setLastUpdateDate( attribute.getLastUpdateDate( ) );
-
-                if ( attribute.getCertificate( ) != null )
-                {
-                    attributeDto.setCertifier( attribute.getCertificate( ).getCertifierCode( ) );
-                    attributeDto.setCertificationLevel( AttributeCertificationDefinitionService.instance( )
-                            .getLevelAsInteger( attribute.getCertificate( ).getCertifierCode( ), attributeKey.getKeyName( ) ) );
-                    attributeDto.setCertificationDate( attribute.getCertificate( ).getCertificateDate( ) );
-
-                }
-                identityDto.getAttributes( ).add( attributeDto );
+                identityDto.getAttributes( ).add( convertAttributeToDto( attribute ) );
             }
         }
 
         return identityDto;
+    }
+
+    public static Identity convertDtoToIdentity( final IdentityDto dto )
+    {
+        final Identity identity = new Identity( );
+        identity.setConnectionId( dto.getConnectionId( ) );
+        identity.setCustomerId( dto.getCustomerId( ) );
+        identity.setLastUpdateDate( dto.getLastUpdateDate( ) );
+        identity.setMonParisActive( dto.isMonParisActive( ) );
+        identity.setCreationDate( dto.getCreationDate( ) );
+
+        if ( dto.getExpiration( ) != null )
+        {
+            identity.setDeleted( dto.getExpiration( ).isDeleted( ) );
+            identity.setExpirationDate( dto.getExpiration( ).getExpirationDate( ) );
+            identity.setDeleteDate( dto.getExpiration( ).getDeleteDate( ) );
+        }
+
+        if ( dto.getMerge( ) != null )
+        {
+            identity.setMerged( dto.isMerged( ) );
+            identity.setMergeDate( dto.getMerge( ).getMergeDate( ) );
+        }
+
+        identity.getAttributes( ).putAll( dto.getAttributes( ).stream( ).map( DtoConverter::convertDtoToAttribute )
+                .collect( Collectors.toMap( o -> o.getAttributeKey( ).getKeyName( ), o -> o ) ) );
+
+        return identity;
+    }
+
+    private static AttributeDto convertAttributeToDto( final IdentityAttribute attribute ) throws RefAttributeCertificationDefinitionNotFoundException
+    {
+        final AttributeKey attributeKey = attribute.getAttributeKey( );
+
+        final AttributeDto attributeDto = new AttributeDto( );
+        attributeDto.setKey( attributeKey.getKeyName( ) );
+        attributeDto.setValue( attribute.getValue( ) );
+        attributeDto.setType( attributeKey.getKeyType( ).getCode( ) );
+        attributeDto.setLastUpdateClientCode( attribute.getLastUpdateClientCode( ) );
+        attributeDto.setLastUpdateDate( attribute.getLastUpdateDate( ) );
+
+        if ( attribute.getCertificate( ) != null )
+        {
+            attributeDto.setCertifier( attribute.getCertificate( ).getCertifierCode( ) );
+            attributeDto.setCertificationLevel( AttributeCertificationDefinitionService.instance( )
+                    .getLevelAsInteger( attribute.getCertificate( ).getCertifierCode( ), attributeKey.getKeyName( ) ) );
+            attributeDto.setCertificationDate( attribute.getCertificate( ).getCertificateDate( ) );
+
+        }
+        return attributeDto;
+    }
+
+    private static IdentityAttribute convertDtoToAttribute( final AttributeDto dto )
+    {
+        final IdentityAttribute attribute = new IdentityAttribute( );
+        attribute.setValue( dto.getValue( ) );
+        attribute.setLastUpdateClientCode( dto.getLastUpdateClientCode( ) );
+        attribute.setLastUpdateDate( dto.getLastUpdateDate( ) );
+
+        final AttributeKey attributeKey = new AttributeKey( );
+        attributeKey.setKeyName( dto.getKey( ) );
+        attributeKey.setKeyType( KeyType.valueByCode( dto.getType( ) ) );
+        attribute.setAttributeKey( attributeKey );
+
+        if ( dto.getCertificationDate( ) != null )
+        {
+            final AttributeCertificate certificate = new AttributeCertificate( );
+            certificate.setCertificateDate( Timestamp.from( dto.getCertificationDate( ).toInstant( ) ) );
+            certificate.setCertifierName( dto.getCertifier( ) );
+            certificate.setCertifierCode( dto.getCertifier( ) );
+            attribute.setCertificate( certificate );
+        }
+
+        return attribute;
     }
 
     /**

@@ -61,23 +61,18 @@ import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityServi
 import fr.paris.lutece.plugins.identitystore.service.user.InternalUserService;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityMapper;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AuthorType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ConsolidateDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.QualityDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateDefinition;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateExclusion;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.duplicate.IdentityDuplicateSuspicion;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.AttributeChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
@@ -896,8 +891,9 @@ public class IdentityService
                     if ( author.getType( ).equals( AuthorType.agent ) )
                     {
                         /* Indexation et historique */
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, IdentityMapper.toBean( identity ),
-                                response.getStatus( ).getType( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ,
+                                DtoConverter.convertDtoToIdentity( identity ), response.getStatus( ).getType( ).name( ), response.getStatus( ).getMessage( ),
+                                author, clientCode, new HashMap<>( ) );
                     }
                 }
             }
@@ -953,9 +949,8 @@ public class IdentityService
             if ( author != null && author.getType( ).equals( AuthorType.agent ) )
             {
                 /* Indexation et historique */
-                _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ,
-                        IdentityHome.findMasterIdentityByCustomerIdNoAttributes( identityDto.getCustomerId( ) ), response.getStatus( ).getType( ).name( ),
-                        response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
+                _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, DtoConverter.convertDtoToIdentity( identityDto ),
+                        response.getStatus( ).getType( ).name( ), response.getStatus( ).getMessage( ), author, clientCode, new HashMap<>( ) );
             }
         }
     }
