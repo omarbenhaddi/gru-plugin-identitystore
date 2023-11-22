@@ -296,7 +296,8 @@ public final class SuspiciousIdentityDAO implements ISuspiciousIdentityDAO
 
         if ( CollectionUtils.isNotEmpty( attributes ) )
         {
-            query.append( attributes.stream( ).map( attr -> "(r.key_name = '" + attr.getKey( ) + "' AND a.attribute_value = '" + attr.getValue( ) + "')" )
+            query.append( attributes.stream( )
+                    .map( attr -> "(r.key_name = '" + attr.getKey( ) + "' AND LOWER(a.attribute_value) = '" + attr.getValue( ).toLowerCase( ) + "')" )
                     .collect( Collectors.joining( " OR ", "AND ( ", " ) " ) ) )
                     .append( SQL_GROUPBY_HAVING_SELECTALL_ATTRIBUTE_FILTER.replace( "${filter_count}", String.valueOf( attributes.size( ) ) ) );
         }
