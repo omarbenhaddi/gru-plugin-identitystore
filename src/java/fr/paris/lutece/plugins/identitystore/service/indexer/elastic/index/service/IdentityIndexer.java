@@ -44,8 +44,8 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.busin
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
 import fr.paris.lutece.portal.service.util.AppException;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -59,8 +59,7 @@ import java.util.stream.Collectors;
 public class IdentityIndexer implements IIdentityIndexer
 {
 
-    private static Logger logger = Logger.getLogger( IdentityIndexer.class );
-    private ElasticClient _elasticClient;
+    private final ElasticClient _elasticClient;
 
     public IdentityIndexer( final String strServerUrl, final String strLogin, final String strPassword )
     {
@@ -85,12 +84,12 @@ public class IdentityIndexer implements IIdentityIndexer
             }
 
             final String response = this._elasticClient.create( IIdentityIndexer.CURRENT_INDEX_ALIAS, identity.getCustomerId( ), identity );
-            logger.info( "Indexed document: " + response );
+            AppLogService.debug( "Indexed document: " + response );
         }
         catch( final ElasticClientException e )
         {
             this.handleError( identity.getCustomerId( ), IndexActionType.CREATE );
-            logger.error( "Failed to index", e );
+            AppLogService.error( "Failed to index", e );
         }
     }
 
@@ -100,11 +99,11 @@ public class IdentityIndexer implements IIdentityIndexer
         try
         {
             final String response = this._elasticClient.indexByBulk( index, bulkActions );
-            logger.info( "Indexed document: " + response );
+            AppLogService.debug( "Indexed document: " + response );
         }
         catch( final ElasticClientException e )
         {
-            logger.error( "Failed to bulk index ", e );
+            AppLogService.error( "Failed to bulk index ", e );
         }
     }
 
@@ -121,12 +120,12 @@ public class IdentityIndexer implements IIdentityIndexer
             }
 
             final String response = this._elasticClient.update( IIdentityIndexer.CURRENT_INDEX_ALIAS, identity.getCustomerId( ), identity );
-            logger.info( "Indexed document: " + response );
+            AppLogService.debug( "Indexed document: " + response );
         }
         catch( final ElasticClientException e )
         {
             this.handleError( identity.getCustomerId( ), IndexActionType.UPDATE );
-            logger.error( "Failed to index ", e );
+            AppLogService.error( "Failed to index ", e );
         }
     }
 
@@ -136,12 +135,12 @@ public class IdentityIndexer implements IIdentityIndexer
         try
         {
             final String response = this._elasticClient.deleteDocument( IIdentityIndexer.CURRENT_INDEX_ALIAS, documentId );
-            logger.info( "Removed document: " + response );
+            AppLogService.debug( "Removed document: " + response );
         }
         catch( final ElasticClientException e )
         {
             this.handleError( documentId, IndexActionType.DELETE );
-            logger.error( "Failed to remove document ", e );
+            AppLogService.error( "Failed to remove document ", e );
         }
     }
 
@@ -176,9 +175,8 @@ public class IdentityIndexer implements IIdentityIndexer
         {
             aliasExists = this._elasticClient.getAlias( alias ) != null;
         }
-        catch( final ElasticClientException e )
+        catch( final ElasticClientException ignored )
         {
-            aliasExists = false;
         }
 
         try
