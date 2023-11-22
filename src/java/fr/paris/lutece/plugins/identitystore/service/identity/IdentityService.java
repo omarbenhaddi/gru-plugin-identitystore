@@ -391,7 +391,7 @@ public class IdentityService
          * response.setMessage( duplicates.getMessage( ) ); // response.setDuplicates( duplicates ); //TODO voir si on renvoie le CUID return null; }
          */
 
-        // If GUID is updated, check if the new GUID does not exists in database
+        // If GUID is updated, check if the new GUID does not exist in database
         TransactionManager.beginTransaction( null );
         try
         {
