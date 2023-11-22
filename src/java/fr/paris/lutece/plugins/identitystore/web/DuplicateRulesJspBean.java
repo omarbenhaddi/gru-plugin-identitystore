@@ -52,7 +52,11 @@ import fr.paris.lutece.util.html.AbstractPaginator;
 import fr.paris.lutece.util.url.UrlItem;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -155,15 +159,10 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
     public String getDisplayDuplicateRules( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_DUPLICATERULES ) );
-        _duplicateRule = null;
-
-        if ( _duplicateRule == null || ( _duplicateRule.getId( ) != nId ) )
+        _duplicateRule = DuplicateRuleHome.find( nId );
+        if ( _duplicateRule == null )
         {
-            _duplicateRule = DuplicateRuleHome.find( nId );
-            if ( _duplicateRule == null )
-            {
-                throw new AppException( ERROR_RESOURCE_NOT_FOUND );
-            }
+            throw new AppException( ERROR_RESOURCE_NOT_FOUND );
         }
 
         final Map<String, Object> model = getModel( );
