@@ -33,6 +33,8 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task;
 
+import fr.paris.lutece.portal.service.util.AppLogService;
+
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -104,5 +106,6 @@ public class IndexStatus implements Serializable
             _sbLogs = new StringBuilder( );
         }
         _sbLogs.append( message ).append( "\n" );
+        AppLogService.debug( message );
     }
 }

@@ -34,14 +34,15 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task;
 
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkActionType;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IIdentityIndexer;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityIndexer;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service.IdentityObjectHome;
 import fr.paris.lutece.plugins.identitystore.utils.Batch;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -54,9 +55,11 @@ import java.util.stream.Collectors;
 
 public class FullIndexTask extends AbstractIndexTask
 {
-    private static final String TASK_REINDEX_BATCH_SIZE_PROPERTY = "task.reindex.batch.size";
-    private static final String TASK_REINDEX_ACTIVE_PROPERTY = "task.reindex.active";
-    private final boolean active = AppPropertiesService.getPropertyBoolean( TASK_REINDEX_ACTIVE_PROPERTY, false );
+    private final int BATCH_SIZE = AppPropertiesService.getPropertyInt( "identitystore.task.reindex.batch.size", 1000 );
+    private final boolean ACTIVE = AppPropertiesService.getPropertyBoolean( "identitystore.task.reindex.active", false );
+    private final String ELASTIC_URL = AppPropertiesService.getProperty( "elasticsearch.url" );
+    private final String ELASTIC_USER = AppPropertiesService.getProperty( "elasticsearch.user", "" );
+    private final String ELASTIC_PWD = AppPropertiesService.getProperty( "elasticsearch.pwd", "" );
     private final IIdentityIndexer _identityIndexer;
 
     public FullIndexTask( IIdentityIndexer _identityIndexer )
@@ -66,7 +69,7 @@ public class FullIndexTask extends AbstractIndexTask
 
     public void run( )
     {
-        if ( active )
+        if ( ACTIVE )
         {
             AppLogService.info( "Full index task is active." );
             this.doJob( );
@@ -83,8 +86,6 @@ public class FullIndexTask extends AbstractIndexTask
         stopWatch.start( );
         this.init( );
         this.getStatus( ).log( "Starting identities full reindex at " + DateFormatUtils.format( stopWatch.getStartTime( ), "dd-MM-yyyy'T'HH:mm:ss" ) );
-        final int batchSize = AppPropertiesService.getPropertyInt( TASK_REINDEX_BATCH_SIZE_PROPERTY, 1000 );
-        final List<String> customerIdsList = new ArrayList<>( );
         if ( _identityIndexer.isAlive( ) )
         {
             final String newIndex = "identities-" + UUID.randomUUID( );
@@ -104,20 +105,13 @@ public class FullIndexTask extends AbstractIndexTask
                     this._identityIndexer.createOrUpdateAlias( "", newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 }
 
-                final List<String> eligibleCustomerIdsListForIndex = IdentityObjectHome.getEligibleCustomerIdsListForIndex( );
-                customerIdsList.addAll( eligibleCustomerIdsListForIndex );
-                this.getStatus( ).setNbTotalIdentities( customerIdsList.size( ) );
+                final List<Integer> identityIdsList = new ArrayList<>( IdentityObjectHome.getEligibleIdListForIndex( ) );
+                this.getStatus( ).setNbTotalIdentities( identityIdsList.size( ) );
                 this.getStatus( ).log( "NB identities to be indexed : " + this.getStatus( ).getNbTotalIdentities( ) );
-                this.getStatus( ).log( "Size of indexing batches : " + batchSize );
-                final Batch<String> batch = Batch.ofSize( customerIdsList, batchSize );
+                this.getStatus( ).log( "Size of indexing batches : " + BATCH_SIZE );
+                final Batch<Integer> batch = Batch.ofSize( identityIdsList, BATCH_SIZE );
                 this.getStatus( ).log( "NB of indexing batches : " + batch.size( ) );
-                batch.stream( ).parallel( ).forEach( customerIds -> {
-                    final List<BulkAction> actions = customerIds.stream( ).map( IdentityObjectHome::findByCustomerId )
-                            .map( identityObject -> new BulkAction( identityObject.getCustomerId( ), identityObject, BulkActionType.INDEX ) )
-                            .collect( Collectors.toList( ) );
-                    _identityIndexer.bulk( actions, newIndex );
-                    this.getStatus( ).incrementCurrentNbIndexedIdentities( customerIds.size( ) );
-                } );
+                batch.stream( ).parallel( ).forEach( identityIdList -> this.process( identityIdList, newIndex ) );
                 this.getStatus( ).log( "All batches processed, now switch alias to publish new index.." );
                 final String oldIndex = this._identityIndexer.getIndexBehindAlias( IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 if ( !StringUtils.equals( oldIndex, newIndex ) )
@@ -145,9 +139,9 @@ public class FullIndexTask extends AbstractIndexTask
         stopWatch.stop( );
         final String duration = DurationFormatUtils.formatDurationWords( stopWatch.getTime( ), true, true );
 
-        if ( CollectionUtils.isNotEmpty( customerIdsList ) )
+        if ( this.getStatus( ).getNbTotalIdentities( ) > 0 )
         {
-            this.getStatus( ).log( "Re-indexed  " + customerIdsList.size( ) + " identities in " + duration );
+            this.getStatus( ).log( "Re-indexed  " + this.getStatus( ).getNbTotalIdentities( ) + " identities in " + duration );
         }
         else
         {
@@ -156,4 +150,27 @@ public class FullIndexTask extends AbstractIndexTask
         this.close( );
     }
 
+    private void process( final List<Integer> identityIdList, String newIndex )
+    {
+        final List<IdentityObject> identityObjects = IdentityObjectHome.loadEligibleIdentitiesForIndex( identityIdList );
+        final List<BulkAction> actions = identityObjects.stream( )
+                .map( identityObject -> new BulkAction( identityObject.getCustomerId( ), identityObject, BulkActionType.INDEX ) )
+                .collect( Collectors.toList( ) );
+        this.createIdentityIndexer( ).bulk( actions, newIndex );
+        this.getStatus( ).incrementCurrentNbIndexedIdentities( identityObjects.size( ) );
+    }
+
+    public IIdentityIndexer createIdentityIndexer( )
+    {
+        if ( StringUtils.isAnyBlank( ELASTIC_USER, ELASTIC_PWD ) )
+        {
+            AppLogService.debug( "Creating elastic connection without authentification" );
+            return new IdentityIndexer( ELASTIC_URL );
+        }
+        else
+        {
+            AppLogService.debug( "Creating elastic connection with authentification" );
+            return new IdentityIndexer( ELASTIC_URL, ELASTIC_USER, ELASTIC_PWD );
+        }
+    }
 }

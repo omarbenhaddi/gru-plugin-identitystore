@@ -49,17 +49,38 @@ public class IdentityObjectHome
     private static final Plugin _plugin = PluginService.getPlugin( IdentityStorePlugin.PLUGIN_NAME );
 
     /**
-     * Load the customer id of all the identity objects and returns them as a list
-     *
-     * @return the list which contains the customer id of all the identity objects
+     * Get the list of identity ids that are eligible to indexing process
+     * 
+     * @return the list of identity ids
      */
-    public static List<String> getEligibleCustomerIdsListForIndex( )
+    public static List<Integer> getEligibleIdListForIndex( )
     {
-        return _dao.selectEligibleCustomerIdsListForIndex( _plugin );
+        return _dao.getEligibleIdListForIndex( _plugin );
     }
 
+    /**
+     * Get an identity by its customer ID
+     *
+     * @param customerId
+     *            The identifier of the identity
+     * @return The instance of the identity
+     */
     public static IdentityObject findByCustomerId( final String customerId )
     {
         return _dao.loadFull( customerId, _plugin );
+    }
+
+    /**
+     * Load the identity objects that are eligible to indexing process and returns them as a list
+     * 
+     * @param limit
+     *            the limit size of the stream
+     * @param offset
+     *            the offset of the stream
+     * @return The list which contains the identity objects
+     */
+    public static List<IdentityObject> loadEligibleIdentitiesForIndex( final List<Integer> idList )
+    {
+        return _dao.loadEligibleIdentitiesForIndex( idList, _plugin );
     }
 }

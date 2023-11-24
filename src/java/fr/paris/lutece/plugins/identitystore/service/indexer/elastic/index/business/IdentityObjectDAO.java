@@ -40,6 +40,8 @@ import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This class provides Data Access methods for Identity objects
@@ -47,10 +49,9 @@ import java.util.List;
 public final class IdentityObjectDAO implements IIdentityObjectDAO
 {
     // Constants
-    private static final String SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX = "SELECT customer_id FROM identitystore_identity identity "
-            + " WHERE is_deleted = 0 AND is_merged = 0 AND exists( select id_attribute from identitystore_identity_attribute attribute "
-            + " where identity.id_identity = attribute.id_identity )";
-    private static final String SQL_QUERY_LOAD_IDENTITY = "SELECT "
+    private static final String LIST_IDS = "%{list_ids}";
+    private static final String SQL_QUERY_GET_ELIGIBLE_ID_FOR_INDEX = "SELECT i.id_identity FROM identitystore_identity i WHERE is_deleted = 0 AND is_merged = 0 AND exists(SELECT a.id_attribute FROM identitystore_identity_attribute a WHERE i.id_identity = a.id_identity)";
+    private static final String SQL_QUERY_LOAD_IDENTITY_BY_CUSTOMER_ID = "SELECT "
             + "    identity.connection_id, identity.customer_id, identity.date_create, identity.last_update_date, identity.is_mon_paris_active,"
             + "    attributeKey.name, attributeKey.key_name, attributeKey.key_type, attributeKey.description, attributeKey.pivot, "
             + "    attribute.attribute_value, attribute.lastupdate_client, "
@@ -60,6 +61,16 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
             + "    LEFT JOIN identitystore_ref_attribute attributeKey ON attribute.id_attribute = attributeKey.id_attribute "
             + "    LEFT JOIN identitystore_identity_attribute_certificate certificate on attribute.id_certification = certificate.id_attribute_certificate "
             + " WHERE identity.customer_id = ? ";
+    private static final String SQL_QUERY_SELECT_IDENTITIES_BY_IDS = "SELECT "
+            + "    identity.connection_id as connection_id, identity.customer_id as customer_id, identity.date_create as date_create, identity.last_update_date as last_update_date, identity.is_mon_paris_active as is_mon_paris_active, "
+            + "    attribute_key.name as  attribute_key_name,  attribute_key.key_name as  attribute_key_key_name,  attribute_key.key_type as  attribute_key_key_type,  attribute_key.description as  attribute_key_description,  attribute_key.pivot as  attribute_key_pivot, "
+            + "    attribute.attribute_value as  attribute_attribute_value,  attribute.lastupdate_client as  attribute_lastupdate_client, "
+            + "    certificate.certifier_code as  certificate_certifier_code,  certificate.certifier_code as  certificate_certifier_code,  certificate.certificate_date as  certificate_certificate_date,  certificate.expiration_date as  certificate_expiration_date "
+            + "FROM identitystore_identity identity "
+            + "         LEFT JOIN identitystore_identity_attribute attribute ON identity.id_identity = attribute.id_identity "
+            + "         LEFT JOIN identitystore_ref_attribute attribute_key ON attribute.id_attribute = attribute_key.id_attribute "
+            + "         LEFT JOIN identitystore_identity_attribute_certificate certificate on attribute.id_certification = certificate.id_attribute_certificate "
+            + "WHERE identity.id_identity IN ( " + LIST_IDS + " );";
 
     /**
      * {@inheritDoc }
@@ -67,7 +78,7 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
     @Override
     public IdentityObject loadFull( String customerId, Plugin plugin )
     {
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_LOAD_IDENTITY, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_LOAD_IDENTITY_BY_CUSTOMER_ID, plugin ) )
         {
             daoUtil.setString( 1, customerId );
             daoUtil.executeQuery( );
@@ -122,20 +133,71 @@ public final class IdentityObjectDAO implements IIdentityObjectDAO
      * {@inheritDoc }
      */
     @Override
-    public List<String> selectEligibleCustomerIdsListForIndex( Plugin plugin )
+    public List<Integer> getEligibleIdListForIndex( Plugin plugin )
     {
-        final List<String> listIds = new ArrayList<>( );
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_CUSTOMER_IDS_FOR_INDEX, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_GET_ELIGIBLE_ID_FOR_INDEX, plugin ) )
         {
+            final List<Integer> eligibleIdListForIndex = new ArrayList<>( );
             daoUtil.executeQuery( );
 
             while ( daoUtil.next( ) )
             {
-                String identity = daoUtil.getString( 1 );
-                listIds.add( identity );
+                eligibleIdListForIndex.add( daoUtil.getInt( 1 ) );
             }
 
-            return listIds;
+            return eligibleIdListForIndex;
         }
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public List<IdentityObject> loadEligibleIdentitiesForIndex( final List<Integer> idList, Plugin plugin )
+    {
+        final List<IdentityObject> identityObjects = new ArrayList<>( );
+        final String query = SQL_QUERY_SELECT_IDENTITIES_BY_IDS.replace( LIST_IDS,
+                idList.stream( ).map( String::valueOf ).collect( Collectors.joining( "," ) ) );
+        try ( final DAOUtil daoUtil = new DAOUtil( query, plugin ) )
+        {
+            daoUtil.executeQuery( );
+            while ( daoUtil.next( ) )
+            {
+                final String customerId = daoUtil.getString( "customer_id" );
+                final Optional<IdentityObject> first = identityObjects.stream( )
+                        .filter( identityObject -> identityObject.getCustomerId( ).equals( customerId ) ).findFirst( );
+
+                IdentityObject identity;
+                if ( first.isPresent( ) )
+                {
+                    identity = first.get( );
+                }
+                else
+                {
+                    identity = new IdentityObject( );
+                    identity.setConnectionId( daoUtil.getString( "connection_id" ) );
+                    identity.setCustomerId( customerId );
+                    identity.setCreationDate( daoUtil.getTimestamp( "date_create" ) );
+                    identity.setLastUpdateDate( daoUtil.getTimestamp( "last_update_date" ) );
+                    identity.setMonParisActive( daoUtil.getBoolean( "is_mon_paris_active" ) );
+                    identityObjects.add( identity );
+                }
+
+                final AttributeObject attribute = new AttributeObject( );
+                attribute.setName( daoUtil.getString( "attribute_key_name" ) );
+                attribute.setKey( daoUtil.getString( "attribute_key_key_name" ) );
+                attribute.setType( daoUtil.getString( "attribute_key_key_type" ) );
+                attribute.setDescription( daoUtil.getString( "attribute_key_description" ) );
+                attribute.setPivot( daoUtil.getBoolean( "attribute_key_pivot" ) );
+                attribute.setValue( daoUtil.getString( "attribute_attribute_value" ) );
+                attribute.setLastUpdateClientCode( daoUtil.getString( "attribute_lastupdate_client" ) );
+                attribute.setCertifierCode( daoUtil.getString( "certificate_certifier_code" ) );
+                attribute.setCertifierName( daoUtil.getString( "certificate_certifier_code" ) );
+                attribute.setCertificateDate( daoUtil.getTimestamp( "certificate_certificate_date" ) );
+                attribute.setCertificateExpirationDate( daoUtil.getTimestamp( "certificate_expiration_date" ) );
+                identity.getAttributes( ).put( attribute.getKey( ), attribute );
+            }
+        }
+        return identityObjects;
     }
 }

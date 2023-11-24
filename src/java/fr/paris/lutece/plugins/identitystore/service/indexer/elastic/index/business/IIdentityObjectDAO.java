@@ -57,12 +57,22 @@ public interface IIdentityObjectDAO
     IdentityObject loadFull( String customerId, Plugin plugin );
 
     /**
-     * Load the customer id of all the identity objects that are eligible to indexing process and returns them as a list
+     * Get the list of identity ids that are eligible to indexing process
      *
      * @param plugin
-     *            the Plugin
-     * @return The list which contains the customer id of all the identity objects
+     *            the plugin
+     * @return the list of identity ids
      */
-    List<String> selectEligibleCustomerIdsListForIndex( Plugin plugin );
+    List<Integer> getEligibleIdListForIndex( Plugin plugin );
 
+    /**
+     * Load the identity objects that are eligible to indexing process and returns them as a list
+     *
+     * @param idList
+     *            the list of identity ids to be loaded
+     * @param plugin
+     *            the Plugin
+     * @return The list which contains the identity objects
+     */
+    List<IdentityObject> loadEligibleIdentitiesForIndex( final List<Integer> idList, final Plugin plugin );
 }
