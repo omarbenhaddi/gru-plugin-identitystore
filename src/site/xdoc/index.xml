@@ -41,9 +41,7 @@
                     <div class="source">
                         <pre>
 &lt;!-- Schedule full E/S identities reindexing --&gt;
-&lt;bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" &gt;
-    &lt;constructor-arg name="_identityIndexer" ref="identitystore.elasticsearch.identityIndexer"/&gt;
-&lt;/bean&gt;
+&lt;bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" &gt;&lt;/bean&gt;
 &lt;task:scheduler id="identitystore.fullIndexerScheduler" /&gt;
 &lt;task:scheduled-tasks scheduler="identitystore.fullIndexerScheduler"&gt;
     &lt;task:scheduled ref="identitystore.fullIndexer" method="run" cron="${identitystore.index.full.cron}"/&gt;

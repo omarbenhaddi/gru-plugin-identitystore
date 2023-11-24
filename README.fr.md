@@ -39,9 +39,7 @@ Un configuration particulière peut-être trouvée dans le ficher `identitystore
 ```
 
     <!-- Schedule full E/S identities reindexing -->
-    <bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" >
-    <constructor-arg name="_identityIndexer" ref="identitystore.elasticsearch.identityIndexer"/>
-    </bean>
+    <bean id="identitystore.fullIndexer" class="fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask" />
     <task:scheduler id="identitystore.fullIndexerScheduler" />
     <task:scheduled-tasks scheduler="identitystore.fullIndexerScheduler">
     <task:scheduled ref="identitystore.fullIndexer" method="run" cron="${identitystore.index.full.cron}"/>

@@ -60,11 +60,9 @@ public class FullIndexTask extends AbstractIndexTask
     private final String ELASTIC_URL = AppPropertiesService.getProperty( "elasticsearch.url" );
     private final String ELASTIC_USER = AppPropertiesService.getProperty( "elasticsearch.user", "" );
     private final String ELASTIC_PWD = AppPropertiesService.getProperty( "elasticsearch.pwd", "" );
-    private final IIdentityIndexer _identityIndexer;
 
-    public FullIndexTask( IIdentityIndexer _identityIndexer )
+    public FullIndexTask( )
     {
-        this._identityIndexer = _identityIndexer;
     }
 
     public void run( )
@@ -86,23 +84,24 @@ public class FullIndexTask extends AbstractIndexTask
         stopWatch.start( );
         this.init( );
         this.getStatus( ).log( "Starting identities full reindex at " + DateFormatUtils.format( stopWatch.getStartTime( ), "dd-MM-yyyy'T'HH:mm:ss" ) );
-        if ( _identityIndexer.isAlive( ) )
+        final IIdentityIndexer identityIndexer = this.createIdentityIndexer();
+        if ( identityIndexer.isAlive( ) )
         {
             final String newIndex = "identities-" + UUID.randomUUID( );
             this.getStatus( ).log( "ES available :: indexing" );
             try
             {
                 this.getStatus( ).log( "Creating new index : " + newIndex );
-                this._identityIndexer.initIndex( newIndex );
+                 identityIndexer.initIndex( newIndex );
 
-                if ( this._identityIndexer.indexExists( IIdentityIndexer.CURRENT_INDEX_ALIAS ) )
+                if (  identityIndexer.indexExists( IIdentityIndexer.CURRENT_INDEX_ALIAS ) )
                 {
                     this.getStatus( ).log( "Set current index READ-ONLY" );
-                    this._identityIndexer.makeIndexReadOnly( IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                     identityIndexer.makeIndexReadOnly( IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 }
                 else
                 {
-                    this._identityIndexer.createOrUpdateAlias( "", newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                     identityIndexer.createOrUpdateAlias( "", newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 }
 
                 final List<Integer> identityIdsList = new ArrayList<>( IdentityObjectHome.getEligibleIdListForIndex( ) );
@@ -113,15 +112,15 @@ public class FullIndexTask extends AbstractIndexTask
                 this.getStatus( ).log( "NB of indexing batches : " + batch.size( ) );
                 batch.stream( ).parallel( ).forEach( identityIdList -> this.process( identityIdList, newIndex ) );
                 this.getStatus( ).log( "All batches processed, now switch alias to publish new index.." );
-                final String oldIndex = this._identityIndexer.getIndexBehindAlias( IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                final String oldIndex =  identityIndexer.getIndexBehindAlias( IIdentityIndexer.CURRENT_INDEX_ALIAS );
                 if ( !StringUtils.equals( oldIndex, newIndex ) )
                 {
                     this.getStatus( ).log( "Old index id: " + oldIndex );
-                    this._identityIndexer.createOrUpdateAlias( oldIndex, newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                     identityIndexer.createOrUpdateAlias( oldIndex, newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
                     if ( oldIndex != null )
                     {
                         this.getStatus( ).log( "Delete old index : " + oldIndex );
-                        this._identityIndexer.deleteIndex( oldIndex );
+                         identityIndexer.deleteIndex( oldIndex );
                     }
                 }
             }
