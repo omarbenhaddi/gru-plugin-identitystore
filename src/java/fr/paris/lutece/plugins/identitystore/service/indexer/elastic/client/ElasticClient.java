@@ -33,16 +33,13 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.Constants;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchAction;
-import fr.paris.lutece.util.httpaccess.HttpAccessException;
-import fr.paris.lutece.util.httpaccess.InvalidResponseStatus;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.core5.http.HttpStatus;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ElasticClient
@@ -127,7 +124,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
             strResponse = _connexion.POST( strURI, strJSON );
         }
-        catch( final JsonProcessingException | HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error creating object : " + ex.getMessage( ), ex );
         }
@@ -174,7 +171,7 @@ public class ElasticClient
             }
             strResponse = _connexion.POST( strURI, requestBuilder.toString( ) );
         }
-        catch( final JsonProcessingException | HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error processing bulking request : " + ex.getMessage( ), ex );
         }
@@ -198,7 +195,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex );
             strResponse = _connexion.DELETE( strURI );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting index : " + ex.getMessage( ), ex );
         }
@@ -224,7 +221,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
             strResponse = _connexion.DELETE( strURI );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting document : " + ex.getMessage( ), ex );
         }
@@ -250,7 +247,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_DELETE_BY_QUERY;
             strResponse = _connexion.POST( strURI, strQuery );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting by query : " + ex.getMessage( ), ex );
         }
@@ -289,7 +286,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
             strResponse = _connexion.POST( strURI, strJSON );
         }
-        catch( final JsonProcessingException | HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error updating: " + ex.getMessage( ), ex );
         }
@@ -315,7 +312,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
             strResponse = _connexion.GET( strURI );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
         }
@@ -338,15 +335,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex );
             _connexion.GET( strURI );
         }
-        catch( final InvalidResponseStatus ex )
-        {
-            if ( ex.getResponseStatus( ) == HttpStatus.SC_NOT_FOUND )
-            {
-                return false;
-            }
-            throw new ElasticClientException( "ElasticLibrary : Error getting index : " + ex.getMessage( ), ex );
-        }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error getting index : " + ex.getMessage( ), ex );
         }
@@ -373,7 +362,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
             strResponse = _connexion.POST( strURI, strJSON );
         }
-        catch( final JsonProcessingException | HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
         }
@@ -399,7 +388,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
             strResponse = _connexion.POST( strURI, searchRequest );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
         }
@@ -441,7 +430,7 @@ public class ElasticClient
             }
             strResponse = _connexion.POST( strURI, requestBuilder.toString( ) );
         }
-        catch( final JsonProcessingException | HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error processing multi search request : " + ex.getMessage( ), ex );
         }
@@ -460,7 +449,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex );
             _connexion.PUT( strURI, strJsonMappings );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error creating mappings : " + ex.getMessage( ), ex );
         }
@@ -481,7 +470,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_settings";
             strResponse = _connexion.PUT( strURI, strJsonSettings );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error updating settings : " + ex.getMessage( ), ex );
         }
@@ -503,7 +492,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_alias" + Constants.URL_PATH_SEPARATOR + alias;
             strResponse = _connexion.POST( strURI, "" );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error creating alias : " + ex.getMessage( ), ex );
         }
@@ -546,7 +535,7 @@ public class ElasticClient
             final String strURI = getURI( strIndex ) + "_alias" + Constants.URL_PATH_SEPARATOR + alias;
             strResponse = _connexion.DELETE( strURI );
         }
-        catch( final HttpAccessException ex )
+        catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting alias : " + ex.getMessage( ), ex );
         }

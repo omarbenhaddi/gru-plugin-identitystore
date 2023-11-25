@@ -33,10 +33,27 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
-import fr.paris.lutece.util.httpaccess.HttpAccess;
-import fr.paris.lutece.util.httpaccess.HttpAccessException;
-import fr.paris.lutece.util.signrequest.BasicAuthorizationAuthenticator;
-import fr.paris.lutece.util.signrequest.RequestAuthenticator;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.impl.classic.AbstractHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.utils.Base64;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * The Class ElasticConnexion.
@@ -44,20 +61,23 @@ import fr.paris.lutece.util.signrequest.RequestAuthenticator;
 public final class ElasticConnexion
 {
     /** The _client. */
-    private final HttpAccess _clientHttp = new HttpAccess( );
-    private RequestAuthenticator _authenticator;
+    private final CloseableHttpClient _httpClient = buildHttpClient( );
+    private final AbstractHttpClientResponseHandler<String> _responseHandler = buildResponseHandler( );
+    private String _userLogin;
+    private String _userPassword;
 
     /**
      * Basic Authentification constructor
      *
-     * @param strServerLogin
+     * @param userLogin
      *            Login
-     * @param strServerPwd
+     * @param userPassword
      *            Password
      */
-    public ElasticConnexion( final String strServerLogin, final String strServerPwd )
+    public ElasticConnexion( final String userLogin, final String userPassword )
     {
-        _authenticator = getAuthenticator( strServerLogin, strServerPwd );
+        _userLogin = userLogin;
+        _userPassword = userPassword;
     }
 
     /**
@@ -73,11 +93,12 @@ public final class ElasticConnexion
      * @param strURI
      *            The URI
      * @return The response
-     * @throws HttpAccessException
      */
-    public String GET( final String strURI ) throws HttpAccessException
+    public String GET( final String strURI ) throws IOException
     {
-        return _clientHttp.doGet( strURI, _authenticator, null );
+        final HttpGet request = new HttpGet( strURI );
+        this.buildAuthHeader( request );
+        return _httpClient.execute( request, _responseHandler );
     }
 
     /**
@@ -88,12 +109,13 @@ public final class ElasticConnexion
      * @param strJSON
      *            the json
      * @return the string
-     * @throws HttpAccessException
-     *             http access exception
      */
-    public String PUT( final String strURI, final String strJSON ) throws HttpAccessException
+    public String PUT( final String strURI, final String strJSON ) throws IOException
     {
-        return _clientHttp.doPutJSON( strURI, strJSON, _authenticator, null, null, null );
+        final HttpPut request = new HttpPut( strURI );
+        request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+        this.buildAuthHeader( request );
+        return _httpClient.execute( request, _responseHandler );
     }
 
     /**
@@ -103,13 +125,14 @@ public final class ElasticConnexion
      *            the uri
      * @param strJSON
      *            the json
-     * @throws HttpAccessException
-     *             http access exception
      * @return the string
      */
-    public String POST( final String strURI, final String strJSON ) throws HttpAccessException
+    public String POST( final String strURI, final String strJSON ) throws IOException
     {
-        return _clientHttp.doPostJSON( strURI, strJSON, _authenticator, null, null, null );
+        final HttpPost request = new HttpPost( strURI );
+        request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+        this.buildAuthHeader( request );
+        return _httpClient.execute( request, _responseHandler );
     }
 
     /**
@@ -117,27 +140,50 @@ public final class ElasticConnexion
      *
      * @param strURI
      *            the uri
-     * @throws HttpAccessException
-     *             http access exception
      * @return the string
      */
-    public String DELETE( final String strURI ) throws HttpAccessException
+    public String DELETE( final String strURI ) throws IOException
     {
-        return _clientHttp.doDelete( strURI, _authenticator, null, null, null );
+        final HttpDelete request = new HttpDelete( strURI );
+        this.buildAuthHeader( request );
+        return _httpClient.execute( request, _responseHandler );
     }
 
-    /**
-     * Build an authenticathor to access the site repository.
-     *
-     * @param strLogin
-     *            the str login
-     * @param strPassword
-     *            the str password
-     * @return The authenticator
-     */
-    private static RequestAuthenticator getAuthenticator( final String strLogin, final String strPassword )
+    private void buildAuthHeader( HttpRequest request )
     {
-        return new BasicAuthorizationAuthenticator( strLogin, strPassword );
+        if ( StringUtils.isNoneEmpty( _userLogin, _userPassword ) )
+        {
+            final String auth = _userLogin + ":" + _userPassword;
+            final byte [ ] encodedAuth = Base64.encodeBase64( auth.getBytes( StandardCharsets.ISO_8859_1 ) );
+            final String authHeader = "Basic " + new String( encodedAuth );
+            request.setHeader( HttpHeaders.AUTHORIZATION, authHeader );
+        }
     }
 
+    private static AbstractHttpClientResponseHandler<String> buildResponseHandler( )
+    {
+        return new AbstractHttpClientResponseHandler<String>( )
+        {
+            @Override
+            public String handleEntity( HttpEntity httpEntity ) throws IOException
+            {
+
+                try
+                {
+                    final String response = EntityUtils.toString( httpEntity );
+                    EntityUtils.consume( httpEntity );
+                    return response;
+                }
+                catch( ParseException var3 )
+                {
+                    throw new ClientProtocolException( var3 );
+                }
+            }
+        };
+    }
+
+    private static CloseableHttpClient buildHttpClient( )
+    {
+        return HttpClients.custom( ).setConnectionManager( new PoolingHttpClientConnectionManager( ) ).setConnectionManagerShared( true ).build( );
+    }
 }
