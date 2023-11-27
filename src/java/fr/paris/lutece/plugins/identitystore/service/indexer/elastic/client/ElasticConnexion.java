@@ -33,35 +33,45 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.AbstractHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.util.Timeout;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * The Class ElasticConnexion.
  */
 public final class ElasticConnexion
 {
-    /** The _client. */
-    private final CloseableHttpClient _httpClient = buildHttpClient( );
+    private static final int CONNECTION_POOL_MAX_PER_ROUTE = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connection.pool.max.per.route",
+            20 );
+    private static final int CONNECTION_POOL_MAX_TOTAL = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connection.pool.max.total", 20 );
+    private static final long RESPONSE_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.response.timeout", 30 );
+    private static final long CONNECT_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connect.timeout", 30 );
+    private final CloseableHttpClient _httpClient;
     private final AbstractHttpClientResponseHandler<String> _responseHandler = buildResponseHandler( );
     private String _userLogin;
     private String _userPassword;
@@ -78,6 +88,7 @@ public final class ElasticConnexion
     {
         _userLogin = userLogin;
         _userPassword = userPassword;
+        _httpClient = buildHttpClient( );
     }
 
     /**
@@ -85,6 +96,7 @@ public final class ElasticConnexion
      */
     public ElasticConnexion( )
     {
+        _httpClient = buildHttpClient( );
     }
 
     /**
@@ -96,9 +108,7 @@ public final class ElasticConnexion
      */
     public String GET( final String strURI ) throws IOException
     {
-        final HttpGet request = new HttpGet( strURI );
-        this.buildAuthHeader( request );
-        return _httpClient.execute( request, _responseHandler );
+        return _httpClient.execute( new HttpGet( strURI ), _responseHandler );
     }
 
     /**
@@ -114,7 +124,6 @@ public final class ElasticConnexion
     {
         final HttpPut request = new HttpPut( strURI );
         request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
-        this.buildAuthHeader( request );
         return _httpClient.execute( request, _responseHandler );
     }
 
@@ -131,7 +140,6 @@ public final class ElasticConnexion
     {
         final HttpPost request = new HttpPost( strURI );
         request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
-        this.buildAuthHeader( request );
         return _httpClient.execute( request, _responseHandler );
     }
 
@@ -144,20 +152,7 @@ public final class ElasticConnexion
      */
     public String DELETE( final String strURI ) throws IOException
     {
-        final HttpDelete request = new HttpDelete( strURI );
-        this.buildAuthHeader( request );
-        return _httpClient.execute( request, _responseHandler );
-    }
-
-    private void buildAuthHeader( HttpRequest request )
-    {
-        if ( StringUtils.isNoneEmpty( _userLogin, _userPassword ) )
-        {
-            final String auth = _userLogin + ":" + _userPassword;
-            final byte [ ] encodedAuth = Base64.getEncoder( ).encode( auth.getBytes( StandardCharsets.ISO_8859_1 ) );
-            final String authHeader = "Basic " + new String( encodedAuth );
-            request.setHeader( HttpHeaders.AUTHORIZATION, authHeader );
-        }
+        return _httpClient.execute( new HttpDelete( strURI ), _responseHandler );
     }
 
     private static AbstractHttpClientResponseHandler<String> buildResponseHandler( )
@@ -182,8 +177,27 @@ public final class ElasticConnexion
         };
     }
 
-    private static CloseableHttpClient buildHttpClient( )
+    private CloseableHttpClient buildHttpClient( )
     {
-        return HttpClients.custom( ).setConnectionManager( new PoolingHttpClientConnectionManager( ) ).setConnectionManagerShared( true ).build( );
+        final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager( );
+        connManager.setDefaultMaxPerRoute( CONNECTION_POOL_MAX_PER_ROUTE );
+        connManager.setMaxTotal( CONNECTION_POOL_MAX_TOTAL );
+        final RequestConfig requestConfig = RequestConfig.custom( ).setResponseTimeout( Timeout.ofSeconds( RESPONSE_TIMEOUT ) )
+                .setConnectTimeout( Timeout.ofSeconds( CONNECT_TIMEOUT ) ).setConnectionRequestTimeout( Timeout.ofSeconds( CONNECT_TIMEOUT ) ).build( );
+        return HttpClients.custom( ).setConnectionManager( connManager ).setConnectionManagerShared( true ).setDefaultHeaders( this.buildDefaultHeaders( ) )
+                .setDefaultRequestConfig( requestConfig ).build( );
+    }
+
+    private List<Header> buildDefaultHeaders( )
+    {
+        final List<Header> defaultHeaders = new ArrayList<>( );
+        if ( StringUtils.isNoneEmpty( _userLogin, _userPassword ) )
+        {
+            final String auth = _userLogin + ":" + _userPassword;
+            final byte [ ] encodedAuth = Base64.getEncoder( ).encode( auth.getBytes( StandardCharsets.ISO_8859_1 ) );
+            final String authHeader = "Basic " + new String( encodedAuth );
+            defaultHeaders.add( new BasicHeader( HttpHeaders.AUTHORIZATION, authHeader ) );
+        }
+        return defaultHeaders;
     }
 }
