@@ -43,7 +43,6 @@ import org.apache.hc.client5.http.impl.classic.AbstractHttpClientResponseHandler
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.apache.hc.client5.http.utils.Base64;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -54,6 +53,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * The Class ElasticConnexion.
@@ -154,7 +154,7 @@ public final class ElasticConnexion
         if ( StringUtils.isNoneEmpty( _userLogin, _userPassword ) )
         {
             final String auth = _userLogin + ":" + _userPassword;
-            final byte [ ] encodedAuth = Base64.encodeBase64( auth.getBytes( StandardCharsets.ISO_8859_1 ) );
+            final byte [ ] encodedAuth = Base64.getEncoder( ).encode( auth.getBytes( StandardCharsets.ISO_8859_1 ) );
             final String authHeader = "Basic " + new String( encodedAuth );
             request.setHeader( HttpHeaders.AUTHORIZATION, authHeader );
         }

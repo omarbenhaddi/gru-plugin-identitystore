@@ -121,18 +121,6 @@
 			<artifactId>library-notificationstore</artifactId>
 			<version>[1.0.0-SNAPSHOT,)</version>
 			<type>jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.httpcomponents.client5</groupId>
-					<artifactId>httpclient5</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents.client5</groupId>
-			<artifactId>httpclient5</artifactId>
-			<version>5.2</version>
 		</dependency>
 
 		<!-- TEST -->

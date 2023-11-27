@@ -110,7 +110,7 @@ public class RefAttributeCertificationDefinitionCache extends AbstractCacheableS
                 attributeKeyName );
         if ( certificationLevel == null )
         {
-            AppLogService.info( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
+            AppLogService.debug( "No attribute certification level could be found for processus with code " + processusCode + " and attribute with key "
                     + attributeKeyName );
         }
         return certificationLevel;
