@@ -13,9 +13,9 @@ from identitystore_identity i
                    on birthdate.id_identity = i.id_identity and birthdate.id_attribute = 5
          left join identitystore_identity_attribute email
                    on email.id_identity = i.id_identity and email.id_attribute = 12
-where i.customer_id is not null
-  and i.connection_id is not null
-  and family_name.attribute_value is not null
-  and first_name.attribute_value is not null
-  and birthdate.attribute_value is not null
-  and email.attribute_value is not null
+where i.customer_id is not null and i.customer_id != ''
+  and i.connection_id is not null and i.connection_id != ''
+  and family_name.attribute_value is not null and family_name.attribute_value != ''
+  and first_name.attribute_value is not null and first_name.attribute_value != ''
+  and birthdate.attribute_value is not null and birthdate.attribute_value != ''
+  and email.attribute_value is not null and email.attribute_value != ''
