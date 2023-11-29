@@ -250,7 +250,7 @@ public final class IdentityDAO implements IIdentityDAO
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REFRESH_LAST_UPDATE_DATE, plugin ) )
         {
             daoUtil.setInt( 1, identity.getMasterIdentityId( ) );
-            daoUtil.executeQuery( );
+            daoUtil.executeUpdate( );
         }
     }
 
@@ -265,7 +265,7 @@ public final class IdentityDAO implements IIdentityDAO
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_REFRESH_LAST_UPDATE_DATE, plugin ) )
         {
             daoUtil.setInt( 1, identity.getMasterIdentityId( ) );
-            daoUtil.executeQuery( );
+            daoUtil.executeUpdate( );
         }
     }
 
