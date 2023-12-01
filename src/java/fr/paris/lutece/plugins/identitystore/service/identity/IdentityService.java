@@ -130,6 +130,7 @@ public class IdentityService
     private static final String PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION = "identitystore.identity.duplicates.import.rules.suspicion";
     private static final String PROPERTY_DUPLICATES_IMPORT_RULES_STRICT = "identitystore.identity.duplicates.import.rules.strict";
     private static final String PROPERTY_DUPLICATES_CREATION_RULES = "identitystore.identity.duplicates.creation.rules";
+    private static final String PROPERTY_DUPLICATES_UPDATE_RULES = "identitystore.identity.duplicates.update.rules";
     private static final String PROPERTY_DUPLICATES_CHECK_DATABASE_ACTIVATED = "identitystore.identity.duplicates.check.database";
 
     // SERVICES
@@ -374,17 +375,27 @@ public class IdentityService
             return null;
         }
 
-        // check if update does not create duplicates
-        // TODO : check only "strict siblings" rule, faire un update virtuel de l'identité dans un objet tampon et chercher des doublons à partir de cet objet
-        // (identituqe creta pour la config)
-        /*
-         * final Map<String, String> attributes = identityChangeRequest.getIdentity( ).getAttributes( ).stream( ) .collect( Collectors.toMap(
-         * CertifiedAttribute::getKey, CertifiedAttribute::getValue ) ); identity.getAttributes().forEach((key, value) -> attributes.putIfAbsent(key,
-         * value.getValue())); final DuplicateDto duplicates = _duplicateServiceUpdate.findDuplicates( attributes ); if ( duplicates != null ) { // remove the
-         * processed identity duplicates.getIdentities( ).removeIf( qualifiedIdentity -> StringUtils.equals( qualifiedIdentity.getCustomerId( ), customerId ) );
-         * } if ( duplicates != null && CollectionUtils.isNotEmpty( duplicates.getIdentities( ) ) ) { response.setStatus( ResponseStatusType.CONFLICT );
-         * response.setMessage( duplicates.getMessage( ) ); // response.setDuplicates( duplicates ); //TODO voir si on renvoie le CUID return null; }
-         */
+        // check if update would create duplicates
+        if ( doesRequestContainsAttributeValueChanges( request, identity ) )
+        {
+            // collect all non blank attributes from request
+            final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
+                    .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
+            // add other existing identity attributes
+            identity.getAttributes( ).forEach( ( key, attr ) -> attributes.putIfAbsent( key, attr.getValue( ) ) );
+            // remove attributes that have blank values in the request
+            request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isBlank( a.getValue( ) ) )
+                    .forEach( a -> attributes.remove( a.getKey( ) ) );
+
+            // search for potential duplicates with those attributes
+            final DuplicateSearchResponse duplicateSearchResponse = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_UPDATE_RULES, customerId );
+            if ( duplicateSearchResponse != null && !duplicateSearchResponse.getIdentities( ).isEmpty( ) )
+            {
+                response.setStatus( ResponseStatusFactory.conflict( ).setMessage( duplicateSearchResponse.getStatus( ).getMessage( ) )
+                        .setMessageKey( duplicateSearchResponse.getStatus( ).getMessageKey( ) ) );
+                return null;
+            }
+        }
 
         // If GUID is updated, check if the new GUID does not exist in database
         TransactionManager.beginTransaction( null );
@@ -464,6 +475,30 @@ public class IdentityService
         }
 
         return identity;
+    }
+
+    /**
+     * Returns <code>true</code> if the request aims to add new attributes, remove existing attributes, or modify existing attribute's value.<br/>
+     * Returns <code>false</code> otherwise.
+     * 
+     * @param request
+     *            the request
+     * @param identity
+     *            the identity
+     */
+    private boolean doesRequestContainsAttributeValueChanges( final IdentityChangeRequest request, final Identity identity )
+    {
+        return request.getIdentity( ).getAttributes( ).stream( ).anyMatch( a -> {
+            if ( StringUtils.isNotBlank( a.getValue( ) ) )
+            {
+                return !identity.getAttributes( ).containsKey( a.getKey( ) )
+                        || !Objects.equals( identity.getAttributes( ).get( a.getKey( ) ).getValue( ), a.getValue( ) );
+            }
+            else
+            {
+                return identity.getAttributes( ).containsKey( a.getKey( ) );
+            }
+        } );
     }
 
     /**
