@@ -76,8 +76,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -361,8 +363,9 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     {
         try
         {
-            _identities.forEach( identityDto -> identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) ) );
-            final Batch<IdentityDto> batches = Batch.ofSize( _identities, BATCH_PARTITION_SIZE );
+            final List<IdentityDto> identitiesToProcess = _identities.stream( ).filter( this::validateMinimumAttributes )
+                    .peek( identityDto -> identityDto.setExternalCustomerId( UUID.randomUUID( ).toString( ) ) ).collect( Collectors.toList( ) );
+            final Batch<IdentityDto> batches = Batch.ofSize( identitiesToProcess, BATCH_PARTITION_SIZE );
 
             final ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
             final ZipOutputStream zipOut = new ZipOutputStream( outputStream );
@@ -385,6 +388,18 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
             addError( e.getMessage( ) );
             redirectView( request, VIEW_MANAGE_IDENTITIES );
         }
+    }
+
+    private boolean validateMinimumAttributes( final IdentityDto identity )
+    {
+        return this.checkAttributeExists( identity, Constants.PARAM_FAMILY_NAME ) && this.checkAttributeExists( identity, Constants.PARAM_FIRST_NAME )
+                && this.checkAttributeExists( identity, Constants.PARAM_BIRTH_DATE );
+    }
+
+    private boolean checkAttributeExists( final IdentityDto identity, final String attributeKey )
+    {
+        return identity.getAttributes( ).stream( )
+                .anyMatch( attributeDto -> Objects.equals( attributeDto.getKey( ), attributeKey ) && StringUtils.isNotBlank( attributeDto.getValue( ) ) );
     }
 
     /**
