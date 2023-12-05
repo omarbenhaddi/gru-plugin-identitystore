@@ -106,11 +106,11 @@ public class DuplicateService implements IDuplicateService
                 final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
                 if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
                 {
-                    matchingRuleCodes.add( duplicateRule.getCode( ) );
                     identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
                         if ( response.getIdentities( ).stream( )
                                 .noneMatch( existing -> Objects.equals( existing.getCustomerId( ), identityDto.getCustomerId( ) ) ) )
                         {
+                            matchingRuleCodes.add( duplicateRule.getCode( ) );
                             response.getIdentities( ).add( identityDto );
                         }
                     } );
