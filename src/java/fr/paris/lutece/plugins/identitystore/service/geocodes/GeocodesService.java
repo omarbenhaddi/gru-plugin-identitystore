@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.geocodes.business.City;
 import fr.paris.lutece.plugins.geocodes.business.Country;
 import fr.paris.lutece.plugins.geocodes.service.GeoCodesService;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
@@ -46,8 +47,12 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class GeocodesService
@@ -96,7 +101,7 @@ public class GeocodesService
         // Country code to CREATE
         if ( countryCodeToCreate != null )
         {
-            final Country country = GeoCodesService.getCountryByCode( countryCodeToCreate.getValue( ) ).orElse( null );
+            final Country country = GeoCodesService.getInstance( ).getCountryByCode( countryCodeToCreate.getValue( ) ).orElse( null );
             if ( country == null )
             {
                 // Country doesn't exist in Geocodes for provided code
@@ -193,7 +198,7 @@ public class GeocodesService
                 }
                 else
                 {
-                    final Country country = GeoCodesService.getCountryByCode( countryCodeToUpdate.getValue( ) ).orElse( null );
+                    final Country country = GeoCodesService.getInstance( ).getCountryByCode( countryCodeToUpdate.getValue( ) ).orElse( null );
                     if ( country == null )
                     {
                         // Country doesn't exist in Geocodes for provided code
@@ -273,7 +278,7 @@ public class GeocodesService
             {
                 if ( countryLabelToCreate != null )
                 {
-                    final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToCreate.getValue( ) );
+                    final List<Country> countries = GeoCodesService.getInstance( ).getCountriesListByName( countryLabelToCreate.getValue( ) );
                     if ( CollectionUtils.isEmpty( countries ) )
                     {
                         // Country doesn't exist in Geocodes for provided label
@@ -349,7 +354,7 @@ public class GeocodesService
                         }
                         else
                         {
-                            final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToUpdate.getValue( ) );
+                            final List<Country> countries = GeoCodesService.getInstance( ).getCountriesListByName( countryLabelToUpdate.getValue( ) );
                             if ( CollectionUtils.isEmpty( countries ) )
                             {
                                 // Country doesn't exist in Geocodes for provided label
@@ -449,10 +454,33 @@ public class GeocodesService
             attrToUpdate.remove( cityLabelToUpdate );
         }
 
+        Date birthdate;
+        final IdentityAttribute birthdateAttr = identity.getAttributes( ).get( Constants.PARAM_BIRTH_DATE );
+        try
+        {
+            if ( birthdateAttr == null )
+            {
+                final AttributeDto bdToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_DATE ) ).findFirst( )
+                        .orElse( null );
+                birthdate = bdToCreate != null ? DateUtils.parseDate( bdToCreate.getValue( ), "dd/MM/yyyy" ) : null;
+            }
+            else
+            {
+                final AttributeDto bdToUpdate = attrToUpdate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_DATE ) ).findFirst( )
+                        .orElse( null );
+                birthdate = DateUtils.parseDate( bdToUpdate != null ? bdToUpdate.getValue( ) : birthdateAttr.getValue( ), "dd/MM/yyyy" );
+            }
+        }
+        catch( final ParseException e )
+        {
+            birthdate = null;
+        }
+
         // City code to CREATE
         if ( cityCodeToCreate != null )
         {
-            final City city = GeoCodesService.getCityByCode( cityCodeToCreate.getValue( ) ).orElse( null );
+            final City city = birthdate != null ? GeoCodesService.getInstance( ).getCityByDateAndCode( birthdate, cityCodeToCreate.getValue( ) ).orElse( null )
+                    : GeoCodesService.getInstance( ).getCityByCode( cityCodeToCreate.getValue( ) ).orElse( null );
             if ( city == null )
             {
                 // city doesn't exist in Geocodes for provided code
@@ -549,7 +577,9 @@ public class GeocodesService
                 }
                 else
                 {
-                    final City city = GeoCodesService.getCityByCode( cityCodeToUpdate.getValue( ) ).orElse( null );
+                    final City city = birthdate != null
+                            ? GeoCodesService.getInstance( ).getCityByDateAndCode( birthdate, cityCodeToUpdate.getValue( ) ).orElse( null )
+                            : GeoCodesService.getInstance( ).getCityByCode( cityCodeToUpdate.getValue( ) ).orElse( null );
                     if ( city == null )
                     {
                         // city doesn't exist in Geocodes for provided code
@@ -627,7 +657,9 @@ public class GeocodesService
             {
                 if ( cityLabelToCreate != null )
                 {
-                    final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToCreate.getValue( ) );
+                    final List<City> cities = birthdate != null
+                            ? GeoCodesService.getInstance( ).getCitiesListByNameAndDate( cityLabelToCreate.getValue( ), birthdate )
+                            : GeoCodesService.getInstance( ).getCitiesListByName( cityLabelToCreate.getValue( ) );
                     if ( CollectionUtils.isEmpty( cities ) )
                     {
                         // city doesn't exist in Geocodes for provided label
@@ -703,7 +735,9 @@ public class GeocodesService
                         }
                         else
                         {
-                            final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToUpdate.getValue( ) );
+                            final List<City> cities = birthdate != null
+                                    ? GeoCodesService.getInstance( ).getCitiesListByNameAndDate( cityLabelToUpdate.getValue( ), birthdate )
+                                    : GeoCodesService.getInstance( ).getCitiesListByName( cityLabelToUpdate.getValue( ) );
                             if ( CollectionUtils.isEmpty( cities ) )
                             {
                                 // city doesn't exist in Geocodes for provided label
@@ -769,7 +803,6 @@ public class GeocodesService
      * @param identity
      * @param attrToCreate
      * @param clientCode
-     * @param response
      * @throws IdentityAttributeNotFoundException
      */
     public static List<AttributeStatus> processCountryForCreate( final Identity identity, final List<AttributeDto> attrToCreate, final String clientCode )
@@ -792,7 +825,7 @@ public class GeocodesService
         // Country code to CREATE
         if ( countryCodeToCreate != null )
         {
-            final Country country = GeoCodesService.getCountryByCode( countryCodeToCreate.getValue( ) ).orElse( null );
+            final Country country = GeoCodesService.getInstance( ).getCountryByCode( countryCodeToCreate.getValue( ) ).orElse( null );
             if ( country == null )
             {
                 // Country doesn't exist in Geocodes for provided code
@@ -844,7 +877,7 @@ public class GeocodesService
         {
             if ( countryLabelToCreate != null )
             {
-                final List<Country> countries = GeoCodesService.getCountriesListByName( countryLabelToCreate.getValue( ) );
+                final List<Country> countries = GeoCodesService.getInstance( ).getCountriesListByName( countryLabelToCreate.getValue( ) );
                 if ( CollectionUtils.isEmpty( countries ) )
                 {
                     // Country doesn't exist in Geocodes for provided label
@@ -893,7 +926,6 @@ public class GeocodesService
      * @param identity
      * @param attrToCreate
      * @param clientCode
-     * @param response
      * @throws IdentityAttributeNotFoundException
      */
     public static List<AttributeStatus> processCityForCreate( final Identity identity, final List<AttributeDto> attrToCreate, final String clientCode )
@@ -912,10 +944,22 @@ public class GeocodesService
             attrToCreate.remove( cityLabelToCreate );
         }
 
+        Date birthdate;
+        try
+        {
+            final AttributeDto bdToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_DATE ) ).findFirst( ).orElse( null );
+            birthdate = bdToCreate != null ? DateUtils.parseDate( bdToCreate.getValue( ), "dd/MM/yyyy" ) : null;
+        }
+        catch( final ParseException e )
+        {
+            birthdate = null;
+        }
+
         // City code to CREATE
         if ( cityCodeToCreate != null )
         {
-            final City city = GeoCodesService.getCityByCode( cityCodeToCreate.getValue( ) ).orElse( null );
+            final City city = birthdate != null ? GeoCodesService.getInstance( ).getCityByDateAndCode( birthdate, cityCodeToCreate.getValue( ) ).orElse( null )
+                    : GeoCodesService.getInstance( ).getCityByCode( cityCodeToCreate.getValue( ) ).orElse( null );
             if ( city == null )
             {
                 // city doesn't exist in Geocodes for provided code
@@ -967,7 +1011,9 @@ public class GeocodesService
         {
             if ( cityLabelToCreate != null )
             {
-                final List<City> cities = GeoCodesService.getCitiesListByName( cityLabelToCreate.getValue( ) );
+                final List<City> cities = birthdate != null
+                        ? GeoCodesService.getInstance( ).getCitiesListByNameAndDate( cityLabelToCreate.getValue( ), birthdate )
+                        : GeoCodesService.getInstance( ).getCitiesListByName( cityLabelToCreate.getValue( ) );
                 if ( CollectionUtils.isEmpty( cities ) )
                 {
                     // city doesn't exist in Geocodes for provided label
