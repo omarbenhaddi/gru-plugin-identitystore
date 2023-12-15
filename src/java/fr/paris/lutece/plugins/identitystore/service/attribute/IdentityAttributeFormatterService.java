@@ -40,11 +40,13 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class used to format attribute values in requests
@@ -55,6 +57,9 @@ public class IdentityAttributeFormatterService
     private static IdentityAttributeFormatterService _instance;
     private static final List<String> PHONE_ATTR_KEYS = Arrays.asList( "mobile_phone", "fixed_phone" );
     private static final List<String> DATE_ATTR_KEYS = Collections.singletonList( "birthdate" );
+    private static final List<String> FIRSTNAME_ATTR_KEYS = Collections.singletonList( "first_name" );
+    private static final List<String> UPPERCASE_ATTR_KEYS = Arrays.asList( "address_city", "birthplace", "birthcountry", "family_name", "preferred_username" );
+    private static final List<String> LOWERCASE_ATTR_KEYS = Arrays.asList( "login", "email" );
 
     public static IdentityAttributeFormatterService instance( )
     {
@@ -116,8 +121,24 @@ public class IdentityAttributeFormatterService
      * <li>Put a leading zero in day and month parts if they contain only one character</li>
      * </ul>
      * </li>
+     * <li>For first name attributes :
+     * <ul>
+     * <li>Replace comas (,) by a single whitespace</li>
+     * <li>Force the first character of each group (space-separated) to be uppercase, the rest is forced to lowercase</li>
      * </ul>
-     * 
+     * </li>
+     * <li>For city/country labels, family name and prefered name attributes :
+     * <ul>
+     * <li>force to uppercase</li>
+     * </ul>
+     * </li>
+     * <li>For login and email attributes :
+     * <ul>
+     * <li>force to lowercase</li>
+     * </ul>
+     * </li>
+     * </ul>
+     *
      * @param identity
      *            identity containing attributes to format
      * @return FORMATTED_VALUE statuses for attributes whose value has changed after the formatting.
@@ -139,6 +160,18 @@ public class IdentityAttributeFormatterService
             if ( DATE_ATTR_KEYS.contains( attribute.getKey( ) ) )
             {
                 formattedValue = formatDateValue( formattedValue );
+            }
+            if ( FIRSTNAME_ATTR_KEYS.contains( attribute.getKey( ) ) )
+            {
+                formattedValue = formatFirstnameValue( formattedValue );
+            }
+            if ( UPPERCASE_ATTR_KEYS.contains( attribute.getKey( ) ) )
+            {
+                formattedValue = StringUtils.upperCase( formattedValue );
+            }
+            if ( LOWERCASE_ATTR_KEYS.contains( attribute.getKey( ) ) )
+            {
+                formattedValue = StringUtils.lowerCase( formattedValue );
             }
 
             // Si la valeur a été modifiée, on renvoit un status
@@ -198,9 +231,7 @@ public class IdentityAttributeFormatterService
             {
                 sb.append( "0" );
             }
-            sb.append( month ).append( "/" );
-
-            sb.append( splittedDate [2] );
+            sb.append( month ).append( "/" ).append( splittedDate [2] );
 
             return sb.toString( );
         }
@@ -208,6 +239,26 @@ public class IdentityAttributeFormatterService
         {
             return value;
         }
+    }
+
+    /**
+     * <ul>
+     * <li>Replace comas (,) by a single whitespace</li>
+     * <li>Force the first character of each group (space-separated) to be uppercase, the rest is forced to lowercase</li>
+     * </ul>
+     * 
+     * @param value
+     *            the value to format
+     * @return the formatted value
+     */
+    private String formatFirstnameValue( final String value )
+    {
+        if ( StringUtils.isBlank( value ) )
+        {
+            return value;
+        }
+        return Arrays.stream( value.replace( ",", " " ).trim( ).split( " " ) ).filter( StringUtils::isNotBlank ).map( String::trim )
+                .map( firstname -> firstname.substring( 0, 1 ).toUpperCase( ) + firstname.substring( 1 ).toLowerCase( ) ).collect( Collectors.joining( " " ) );
     }
 
     /**
