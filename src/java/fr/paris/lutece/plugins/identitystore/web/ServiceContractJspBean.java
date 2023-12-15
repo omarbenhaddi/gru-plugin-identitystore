@@ -35,8 +35,13 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplication;
 import fr.paris.lutece.plugins.identitystore.business.application.ClientApplicationHome;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
-import fr.paris.lutece.plugins.identitystore.business.contract.*;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeCertification;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContractHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationProcessusHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefCertificationLevelHome;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
@@ -55,7 +60,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -127,6 +140,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
 
     private static final String ERROR_SERVICECONTRACT_NO_DATE = "identitystore.error.servicecontract.nostartingdate";
     private static final String ERROR_SERVICECONTRACT_INVALID_DATE = "identitystore.error.servicecontract.validatedate";
+    private static final String ERROR_SERVICECONTRACT_INVALID_MANDATORY_ATTRIBUTE = "identitystore.error.servicecontract.validate.mandatory.attribute";
 
     // Session variable to store working values
     private ServiceContract _servicecontract;
@@ -308,6 +322,16 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             return attributeRight != null && attributeRight.isWritable( );
         } ).collect( Collectors.toList( ) ) );
 
+        final boolean validMandatoryConfig = _servicecontract.getAttributeRights( ).stream( ).filter( AttributeRight::isMandatory )
+                .allMatch( attributeRight -> _servicecontract.getAttributeRequirements( ).stream( )
+                        .anyMatch( req -> Objects.equals( req.getAttributeKey( ).getKeyName( ), attributeRight.getAttributeKey( ).getKeyName( ) )
+                                && req.getRefCertificationLevel( ) != null && req.getRefCertificationLevel( ).getLevel( ) != null ) );
+        if ( !validMandatoryConfig )
+        {
+            this.addError( ERROR_SERVICECONTRACT_INVALID_MANDATORY_ATTRIBUTE, getLocale( ) );
+            return redirect( request, VIEW_CREATE_SERVICECONTRACT, PARAMETER_ID_CLIENTAPPLICATION, selectedClientAppId );
+        }
+
         try
         {
             ServiceContractService.instance( ).create( _servicecontract, selectedClientAppId );
@@ -459,6 +483,16 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
                     .findFirst( ).orElse( null );
             return attributeRight != null && attributeRight.isWritable( );
         } ).collect( Collectors.toList( ) ) );
+
+        final boolean validMandatoryConfig = _servicecontract.getAttributeRights( ).stream( ).filter( AttributeRight::isMandatory )
+                .allMatch( attributeRight -> _servicecontract.getAttributeRequirements( ).stream( )
+                        .anyMatch( req -> Objects.equals( req.getAttributeKey( ).getKeyName( ), attributeRight.getAttributeKey( ).getKeyName( ) )
+                                && req.getRefCertificationLevel( ) != null && req.getRefCertificationLevel( ).getLevel( ) != null ) );
+        if ( !validMandatoryConfig )
+        {
+            this.addError( ERROR_SERVICECONTRACT_INVALID_MANDATORY_ATTRIBUTE, getLocale( ) );
+            return redirect( request, VIEW_MODIFY_SERVICECONTRACT, PARAMETER_ID_SERVICECONTRACT, _servicecontract.getId( ) );
+        }
 
         try
         {

@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.identitystore.service.identity;
 import com.google.common.util.concurrent.AtomicDouble;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRequirement;
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.ExcludedIdentities;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentity;
@@ -62,6 +63,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -151,8 +153,16 @@ public class IdentityQualityService
     }
 
     /**
-     * Compute the {@link IdentityDto} coverage of the {@link ServiceContract} requirements.
-     *
+     * Compute the {@link IdentityDto} coverage of the {@link ServiceContract} requirements. <br>
+     * Rule:<br>
+     * The coverage is set to 1 when
+     * <ul>
+     * <li>All mandatory keys defined in CS must be present in identity and match the defined minimum level</li>
+     * <li>Optional keys (not mandatory but with a minimum level defined in CS) can be absent in identity, but if present must match the defined minimum
+     * level</li>
+     * </ul>
+     * Otherwise, the coverage is set to 0
+     * 
      * @param identity
      *            the identity to qualify
      * @param serviceContract
@@ -160,26 +170,24 @@ public class IdentityQualityService
      */
     private void computeCoverage( final IdentityDto identity, final ServiceContract serviceContract )
     {
-        // Check that all attributes required by the contract are present in the identity
-        final List<String> reqKeys = serviceContract.getAttributeRequirements( ).stream( )
-                .filter( req -> req.getRefCertificationLevel( ) != null && StringUtils.isNotEmpty( req.getRefCertificationLevel( ).getLevel( ) ) )
-                .map( AttributeRequirement::getAttributeKey ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
-        final List<String> identityKeys = identity.getAttributes( ).stream( ).map( AttributeDto::getKey ).collect( Collectors.toList( ) );
-        reqKeys.removeAll( identityKeys );
+        final Set<String> mandatoryKeys = serviceContract.getAttributeRights( ).stream( ).filter( AttributeRight::isMandatory )
+                .map( AttributeRight::getAttributeKey ).map( AttributeKey::getKeyName ).collect( Collectors.toSet( ) );
+        final Set<String> identityKeys = identity.getAttributes( ).stream( ).map( AttributeDto::getKey ).collect( Collectors.toSet( ) );
 
         if ( identity.getQuality( ) == null )
         {
             identity.setQuality( new QualityDefinition( ) );
         }
 
-        if ( !reqKeys.isEmpty( ) )
+        if ( !identityKeys.containsAll( mandatoryKeys ) )
         {
+            // Some mandatory attributes are missing
             identity.getQuality( ).setCoverage( 0 );
         }
         else
         {
-            // Check that no attribute of the identity has its certification level lower than the minimum defined in the contract
-            boolean noneMatch = identity.getAttributes( ).stream( ).noneMatch( certifiedAttribute -> {
+            // All mandatory attributes are present, check all present attributes match the minimum certification level if defined in CS
+            boolean coverageMatches = identity.getAttributes( ).stream( ).noneMatch( certifiedAttribute -> {
                 final AttributeRequirement requirement = serviceContract.getAttributeRequirements( ).stream( )
                         .filter( req -> Objects.equals( req.getAttributeKey( ).getKeyName( ), certifiedAttribute.getKey( ) ) ).findFirst( ).orElse( null );
                 final int attributeLevel = certifiedAttribute.getCertificationLevel( ) != null ? certifiedAttribute.getCertificationLevel( ) : 0;
@@ -189,7 +197,7 @@ public class IdentityQualityService
                                 : 0;
                 return minLevel > attributeLevel;
             } );
-            identity.getQuality( ).setCoverage( noneMatch ? 1 : 0 );
+            identity.getQuality( ).setCoverage( coverageMatches ? 1 : 0 );
         }
     }
 
