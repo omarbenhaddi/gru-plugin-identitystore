@@ -55,8 +55,8 @@
                     <select class="search-field form-select select-gender" id="gender" name="gender" value="${gender!''}" >
                         <option value="">Aucun</option>
                         <option value="0" <#if gender! == "0"> selected="selected"</#if>>0:Non défini</option>
-                        <option value="1" <#if gender! == "1"> selected="selected"</#if>>1:Homme</option>
-                        <option value="2" <#if gender! == "2"> selected="selected"</#if>>2:Femme</option>
+                        <option value="1" <#if gender! == "1"> selected="selected"</#if>>1:Femme</option>
+                        <option value="2" <#if gender! == "2"> selected="selected"</#if>>2:Homme</option>
                     </select>
                 </td>
                 <td>
@@ -123,8 +123,8 @@
             <td>
                 <#list identity.attributes?filter(a -> a.key == "gender") as attr>
                     <#if attr.value == "0">Non défini</#if>
-                    <#if attr.value == "1">Homme</#if>
-                    <#if attr.value == "2">Femme</#if>
+                    <#if attr.value == "1">Femme</#if>
+                    <#if attr.value == "2">Homme</#if>
                 </#list>
             </td>
             <td>
