@@ -335,7 +335,7 @@ public class IdentityService
             return null;
         }
 
-        // check if identity hasn't been updated between when the user retreived the identity, and this request
+        // check if identity hasn't been updated between when the user retrieved the identity, and this request
         if ( !Objects.equals( identity.getLastUpdateDate( ), request.getIdentity( ).getLastUpdateDate( ) ) )
         {
             response.setStatus(

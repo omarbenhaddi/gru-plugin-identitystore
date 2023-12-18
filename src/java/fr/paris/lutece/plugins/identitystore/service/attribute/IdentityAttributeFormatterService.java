@@ -145,10 +145,8 @@ public class IdentityAttributeFormatterService
      */
     private List<AttributeStatus> formatIdentityAttributeValues( final IdentityDto identity )
     {
-        final List<AttributeDto> formattedAttributes = new ArrayList<>( );
         final List<AttributeStatus> statuses = new ArrayList<>( );
-        for ( final AttributeDto attribute : identity.getAttributes( ) )
-        {
+        identity.getAttributes( ).stream( ).filter( attributeDto -> StringUtils.isNotBlank( attributeDto.getValue( ) ) ).forEach( attribute -> {
             // Suppression espaces avant et après, et uniformisation des espacements (tab, space, nbsp, successions d'espaces, ...) en les remplaçant tous par
             // un espace
             String formattedValue = attribute.getValue( ).trim( ).replaceAll( "\\s+", " " );
@@ -174,15 +172,13 @@ public class IdentityAttributeFormatterService
                 formattedValue = StringUtils.lowerCase( formattedValue );
             }
 
-            // Si la valeur a été modifiée, on renvoit un status
+            // Si la valeur a été modifiée, on renvoie un status
             if ( !formattedValue.equals( attribute.getValue( ) ) )
             {
                 statuses.add( buildAttributeValueFormattedStatus( attribute.getKey( ), attribute.getValue( ), formattedValue ) );
             }
             attribute.setValue( formattedValue );
-            formattedAttributes.add( attribute );
-        }
-        identity.setAttributes( formattedAttributes );
+        } );
         return statuses;
     }
 
