@@ -58,7 +58,7 @@ public class IdentityAttributeFormatterService
     private static final List<String> PHONE_ATTR_KEYS = Arrays.asList( "mobile_phone", "fixed_phone" );
     private static final List<String> DATE_ATTR_KEYS = Collections.singletonList( "birthdate" );
     private static final List<String> FIRSTNAME_ATTR_KEYS = Collections.singletonList( "first_name" );
-    private static final List<String> UPPERCASE_ATTR_KEYS = Arrays.asList( "address_city", "birthplace", "birthcountry", "family_name", "preferred_username" );
+    private static final List<String> UPPERCASE_ATTR_KEYS = Arrays.asList( "birthcountry", "family_name", "preferred_username" );
     private static final List<String> LOWERCASE_ATTR_KEYS = Arrays.asList( "login", "email" );
 
     public static IdentityAttributeFormatterService instance( )
