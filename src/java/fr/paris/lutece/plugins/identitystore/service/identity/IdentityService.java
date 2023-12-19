@@ -241,10 +241,7 @@ public class IdentityService
             IdentityHome.create( identity, _serviceContractService.getDataRetentionPeriodInMonths( clientCode ) );
 
             final List<AttributeDto> attributesToCreate = request.getIdentity( ).getAttributes( );
-            final List<AttributeStatus> attrStatusList = new ArrayList<>( );
-            attrStatusList.addAll( GeocodesService.processCountryForCreate( identity, attributesToCreate, clientCode ) );
-            attrStatusList.addAll( GeocodesService.processCityForCreate( identity, attributesToCreate, clientCode ) );
-
+            final List<AttributeStatus> attrStatusList = GeocodesService.processCountryAndCityForCreate( identity, attributesToCreate, clientCode );
             for ( final AttributeDto attributeDto : attributesToCreate )
             {
                 // TODO vérifier que la clef d'attribut existe dans le référentiel
@@ -1095,8 +1092,8 @@ public class IdentityService
             }
         }
 
-        attrStatusList.addAll( GeocodesService.processCountryForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode ) );
-        attrStatusList.addAll( GeocodesService.processCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode ) );
+        /* Create or Update birth country and city */
+        attrStatusList.addAll( GeocodesService.processCountryAndCityForUpdate( identity, newWritableAttributes, existingWritableAttributes, clientCode ) );
 
         /* Create new attributes */
         for ( final AttributeDto attributeToWrite : newWritableAttributes )
