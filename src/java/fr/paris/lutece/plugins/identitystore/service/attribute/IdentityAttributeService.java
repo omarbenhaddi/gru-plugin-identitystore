@@ -42,7 +42,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttributeHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
-import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache;
+import fr.paris.lutece.plugins.identitystore.cache.AttributeKeyCache;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
@@ -68,7 +68,7 @@ public class IdentityAttributeService
 {
     private static final String UNCERTIFY_PROCESSUS = "identitystore.identity.uncertify.processus";
 
-    private final IdentityAttributeCache _cache = SpringContextService.getBean( "identitystore.identityAttributeCache" );
+    private final AttributeKeyCache _cache = SpringContextService.getBean( "identitystore.attributeKeyCache" );
     private final AttributeCertificationDefinitionService _attributeCertificationDefinitionService = AttributeCertificationDefinitionService.instance( );
     private final ServiceContractService _serviceContractService = ServiceContractService.instance( );
 
@@ -82,6 +82,17 @@ public class IdentityAttributeService
             _instance._cache.refresh( );
         }
         return _instance;
+    }
+
+    /**
+     * Get all attributes
+     * 
+     * @return
+     * @throws IdentityAttributeNotFoundException
+     */
+    public List<AttributeKey> getAllAtributeKeys( ) throws IdentityAttributeNotFoundException
+    {
+        return _cache.getAll( );
     }
 
     /**

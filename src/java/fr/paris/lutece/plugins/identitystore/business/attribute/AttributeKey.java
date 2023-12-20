@@ -36,6 +36,8 @@ package fr.paris.lutece.plugins.identitystore.business.attribute;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the business class for the object AttributeKey
@@ -65,6 +67,7 @@ public class AttributeKey implements Serializable
     private String _strValidationRegex;
     private String _strValidationErrorMessage;
     private String _strValidationErrorMessageKey;
+    private List<AttributeValue> _listAttributeValues = new ArrayList<>( );
 
     /**
      * Returns the Id
@@ -324,5 +327,23 @@ public class AttributeKey implements Serializable
     public void setValidationErrorMessageKey( final String _strValidationErrorMessageKey )
     {
         this._strValidationErrorMessageKey = _strValidationErrorMessageKey;
+    }
+
+    /**
+     * Get the possible values for the attribute
+     * 
+     * @return a list of values and labels
+     */
+    public List<AttributeValue> getAttributeValues( )
+    {
+        return _listAttributeValues;
+    }
+
+    /**
+     * Set the possible values for the attribute
+     */
+    public void setAttributeValues( List<AttributeValue> _listAttributeValues )
+    {
+        this._listAttributeValues = _listAttributeValues;
     }
 }

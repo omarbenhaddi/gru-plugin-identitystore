@@ -175,7 +175,7 @@ public final class RefAttributeCertificationLevelDAO implements IRefAttributeCer
                 RefAttributeCertificationLevel refAttributeCertificationLevel = new RefAttributeCertificationLevel( );
                 int nIndex = 1;
 
-                refAttributeCertificationLevel.setAttributeKey( AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) ) );
+                refAttributeCertificationLevel.setAttributeKey( AttributeKeyHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ), false ) );
                 refAttributeCertificationLevel
                         .setRefAttributeCertificationProcessus( RefAttributeCertificationProcessusHome.findByPrimaryKey( daoUtil.getInt( nIndex++ ) ) );
                 refAttributeCertificationLevel.setRefCertificationLevel( RefCertificationLevelHome.findByPrimaryKey( daoUtil.getInt( nIndex ) ) );

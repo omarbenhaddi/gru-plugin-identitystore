@@ -200,7 +200,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         model.put( MARK_SELECTED_CHECKED_ATTRIBUTES, new ArrayList<>( ) );
         model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.valuesForRules( ) );
         model.put( MARK_ACTION, "action_createDuplicateRule" );
-        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( false ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_DUPLICATERULES ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_DUPLICATERULES, TEMPLATE_CREATE_DUPLICATERULES, model );
@@ -315,7 +315,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
                 _duplicateRule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) ) );
         model.put( MARK_AVAILABLE_ATTRIBUTE_TREATMENT_TYPES, AttributeTreatmentType.valuesForRules( ) );
         model.put( MARK_ACTION, "action_modifyDuplicateRule" );
-        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( false ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_DUPLICATERULES ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_DUPLICATERULES, TEMPLATE_MODIFY_DUPLICATERULES, model );
@@ -371,7 +371,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         final String [ ] selectedAttributes = request.getParameterValues( PARAMETER_SELECTED_CHECKED_ATTRIBUTES );
         if ( selectedAttributes != null )
         {
-            return Arrays.stream( selectedAttributes ).map( AttributeKeyHome::findByKey ).collect( Collectors.toList( ) );
+            return Arrays.stream( selectedAttributes ).map( key -> AttributeKeyHome.findByKey( key, false ) ).collect( Collectors.toList( ) );
         }
         return new ArrayList<>( );
     }
@@ -381,7 +381,7 @@ public class DuplicateRulesJspBean extends ManageIdentitiesJspBean
         final List<DuplicateRuleAttributeTreatment> treatments = new ArrayList<>( );
         request.getParameterMap( ).entrySet( ).stream( )
                 .filter( stringEntry -> stringEntry.getKey( ).startsWith( PARAMETER_SELECTED_ATTRIBUTE_TREATMENTS_KEYS ) ).forEach( stringEntry -> {
-                    final List<AttributeKey> attributeKeys = Arrays.stream( stringEntry.getValue( ) ).map( AttributeKeyHome::findByKey )
+                    final List<AttributeKey> attributeKeys = Arrays.stream( stringEntry.getValue( ) ).map( key -> AttributeKeyHome.findByKey( key, false ) )
                             .collect( Collectors.toList( ) );
                     final String index = stringEntry.getKey( ).replace( PARAMETER_SELECTED_ATTRIBUTE_TREATMENTS_KEYS, "" );
                     final String [ ] type = request.getParameterValues( PARAMETER_SELECTED_ATTRIBUTE_TREATMENTS_TYPE + index );

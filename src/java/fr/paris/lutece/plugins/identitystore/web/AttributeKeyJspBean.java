@@ -122,7 +122,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     {
         _attributekey = null;
 
-        final List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( );
+        final List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( true );
         listAttributeKeys.sort( Comparator.comparing( AttributeKey::getId ) );
         Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys, JSP_MANAGE_ATTRIBUTEKEYS );
 
@@ -170,7 +170,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         final KeyType keyType = KeyType.valueOf( nKeyType );
         _attributekey.setKeyType( keyType );
 
-        if ( AttributeKeyHome.findByKey( _attributekey.getKeyName( ) ) != null )
+        if ( AttributeKeyHome.findByKey( _attributekey.getKeyName( ), false ) != null )
         {
             addError( PROPERTY_MANAGE_ATTRIBUTEKEYS_DUPLICATE_ERROR_MESSAGE, getLocale( ) );
             return redirectView( request, VIEW_CREATE_ATTRIBUTEKEY );
@@ -227,7 +227,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String doRemoveAttributeKey( HttpServletRequest request )
     {
         int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_ATTRIBUTEKEY ) );
-        final AttributeKey attributeKey = AttributeKeyHome.findByPrimaryKey( nId );
+        final AttributeKey attributeKey = AttributeKeyHome.findByPrimaryKey( nId, false );
         if ( attributeKey == null )
         {
             return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_CANNOT_REMOVE_REFERENCE_ATTRIBUTE_EXISTS, AdminMessage.TYPE_ERROR ) );
@@ -260,7 +260,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
 
         if ( ( _attributekey == null ) || ( _attributekey.getId( ) != nId ) )
         {
-            _attributekey = AttributeKeyHome.findByPrimaryKey( nId );
+            _attributekey = AttributeKeyHome.findByPrimaryKey( nId, true );
         }
 
         Map<String, Object> model = getModel( );
@@ -327,7 +327,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     @View( VIEW_APP_RIGHT_ATTRIBUTES )
     public String getApplicationRight( HttpServletRequest request )
     {
-        List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( );
+        List<AttributeKey> listAttributeKeys = AttributeKeyHome.getAttributeKeysList( false );
         Map<String, Object> model = getPaginatedListModel( request, MARK_ATTRIBUTEKEY_LIST, listAttributeKeys,
                 JSP_MANAGE_ATTRIBUTEKEYS + "?view=" + VIEW_APP_RIGHT_ATTRIBUTES );
 

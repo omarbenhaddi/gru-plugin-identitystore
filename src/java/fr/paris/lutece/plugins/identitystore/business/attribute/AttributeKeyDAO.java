@@ -56,6 +56,7 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     private static final String SQL_QUERY_SELECT_NB_ATTRIBUTE_ID_USED = "SELECT count(*) FROM identitystore_ref_attribute WHERE id_attribute = ? AND ( EXISTS( SELECT id_attribute FROM identitystore_service_contract_attribute_right WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_identity_attribute WHERE id_attribute = ? ) OR EXISTS( SELECT id_attribute FROM identitystore_identity_attribute_history  WHERE attribute_key IN  ( SELECT key_name FROM identitystore_ref_attribute WHERE id_attribute = ? ) ) )";
     private static final String SQL_QUERY_SELECT_LEVEL_MAX = "WITH attributes AS ( SELECT ia.key_name, ia.key_weight, max(cast(ircl.level AS NUMERIC)) as max_level FROM identitystore_ref_attribute ia JOIN identitystore_ref_certification_attribute_level iracl ON ia.id_attribute = iracl.id_attribute JOIN identitystore_ref_certification_level ircl ON iracl.id_ref_certification_level = ircl.id_ref_certification_level WHERE ia.key_weight != 0 GROUP BY ia.key_name, ia.key_weight ) SELECT SUM(attributes.max_level * attributes.key_weight) FROM attributes";
     private static final String SQL_QUERY_SELECTALL_MANDATORY = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message, validation_error_message_key FROM identitystore_ref_attribute WHERE mandatory_for_creation = 1";
+    private static final String SQL_QUERY_SELECTALL_ATTRIBUTE_VALUES = "SELECT id_attribute, value, label FROM identitystore_ref_attribute_values WHERE id_attribute = ?";
 
     /**
      * Generates a new primary key
@@ -360,6 +361,29 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             }
 
             return attributeKeyList;
+        }
+    }
+
+    @Override
+    public List<AttributeValue> loadAttributeValues( int nKey, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ATTRIBUTE_VALUES, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeQuery( );
+            final List<AttributeValue> attributeValues = new ArrayList<>( );
+            while ( daoUtil.next( ) )
+            {
+                final AttributeValue attributeValue = new AttributeValue( );
+                int nIndex = 1;
+
+                attributeValue.setAttributeId( daoUtil.getInt( nIndex++ ) );
+                attributeValue.setValue( daoUtil.getString( nIndex++ ) );
+                attributeValue.setLabel( daoUtil.getString( nIndex++ ) );
+                attributeValues.add( attributeValue );
+            }
+
+            return attributeValues;
         }
     }
 }

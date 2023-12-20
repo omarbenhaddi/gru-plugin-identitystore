@@ -54,7 +54,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
     {
         AppLogService.debug( "Init Attribute Validation cache" );
         this.resetCache( );
-        AttributeKeyHome.getAttributeKeysList( )
+        AttributeKeyHome.getAttributeKeysList( false )
                 .forEach( attributeKey -> this.put( attributeKey.getKeyName( ), Pattern.compile( attributeKey.getValidationRegex( ) ) ) );
     }
 
@@ -91,7 +91,7 @@ public class IdentityAttributeValidationCache extends AbstractCacheableService
 
     public Pattern getFromDatabase( final String keyName ) throws IdentityAttributeNotFoundException
     {
-        final AttributeKey attributeKey = AttributeKeyHome.findByKey( keyName );
+        final AttributeKey attributeKey = AttributeKeyHome.findByKey( keyName, false );
         if ( attributeKey == null )
         {
             throw new IdentityAttributeNotFoundException( "No attribute key could be found with key " + keyName );

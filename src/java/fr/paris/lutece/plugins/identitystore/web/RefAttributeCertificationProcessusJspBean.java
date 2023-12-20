@@ -340,7 +340,7 @@ public class RefAttributeCertificationProcessusJspBean extends AbstractManagePro
             if ( strIdAttribute != null && strIdAttribute.contains( "," ) )
             {
                 String [ ] keyAndLevel = strIdAttribute.split( "," );
-                refAttributeCertificationLevel.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( keyAndLevel [0] ) ) );
+                refAttributeCertificationLevel.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( keyAndLevel [0] ), false ) );
                 refAttributeCertificationLevel.setRefCertificationLevel( RefCertificationLevelHome.findByPrimaryKey( Integer.parseInt( keyAndLevel [1] ) ) );
             }
             mapAttributesRights.put( strIdAttribute, refAttributeCertificationLevel );

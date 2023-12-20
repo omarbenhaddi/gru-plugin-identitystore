@@ -396,3 +396,16 @@ CREATE TABLE identitystore_quality_suspicious_identity_excluded
     author_type        VARCHAR(255) NOT NULL,
     author_name        VARCHAR(255) NOT NULL
 );
+
+--
+-- Structure for table identitystore_ref_attribute_values
+--
+DROP TABLE IF EXISTS identitystore_ref_attribute_values;
+CREATE TABLE identitystore_ref_attribute_values
+(
+    id_attribute INTEGER,
+    value        VARCHAR(50),
+    label        VARCHAR(255)
+);
+ALTER TABLE identitystore_ref_attribute_values
+    ADD CONSTRAINT fk_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);

@@ -1153,7 +1153,7 @@ public class IdentityService
             final List<AttributeDto> newWritableAttributes, final ChangeResponse response )
     {
         // TODO refactor to use cache ?
-        final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( ).stream( )
+        final Map<String, AttributeKey> allAttributesByKey = AttributeKeyHome.getAttributeKeysList( false ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, a -> a ) );
 
         // - Authorise update on "PIVOT" attributes only

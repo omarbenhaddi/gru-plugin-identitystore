@@ -103,9 +103,14 @@ public final class AttributeKeyHome
      *            The attributeKey primary key
      * @return an instance of AttributeKey
      */
-    public static AttributeKey findByPrimaryKey( int nKey )
+    public static AttributeKey findByPrimaryKey( int nKey, final boolean loadValues )
     {
-        return _dao.load( nKey, _plugin );
+        final AttributeKey attributeKey = _dao.load( nKey, _plugin );
+        if ( loadValues )
+        {
+            attributeKey.getAttributeValues( ).addAll( _dao.loadAttributeValues( nKey, _plugin ) );
+        }
+        return attributeKey;
     }
 
     /**
@@ -115,9 +120,14 @@ public final class AttributeKeyHome
      *            The key The key
      * @return the AttributeKey
      */
-    public static AttributeKey findByKey( String strKey )
+    public static AttributeKey findByKey( String strKey, final boolean loadValues )
     {
-        return _dao.selectByKey( strKey, _plugin );
+        final AttributeKey attributeKey = _dao.selectByKey( strKey, _plugin );
+        if ( loadValues )
+        {
+            attributeKey.getAttributeValues( ).addAll( _dao.loadAttributeValues( attributeKey.getId( ), _plugin ) );
+        }
+        return attributeKey;
     }
 
     /**
@@ -125,19 +135,14 @@ public final class AttributeKeyHome
      *
      * @return the list which contains the data of all the attributeKey objects
      */
-    public static List<AttributeKey> getAttributeKeysList( )
+    public static List<AttributeKey> getAttributeKeysList( final boolean loadValues )
     {
-        return _dao.selectAttributeKeysList( _plugin );
-    }
-
-    /**
-     * Load the data of all the attributeKey objects and returns them as a referenceList
-     *
-     * @return the referenceList which contains the data of all the attributeKey objects
-     */
-    public static ReferenceList getAttributeKeysReferenceList( )
-    {
-        return _dao.selectAttributeKeysReferenceList( _plugin );
+        final List<AttributeKey> attributeKeys = _dao.selectAttributeKeysList( _plugin );
+        if ( loadValues )
+        {
+            attributeKeys.forEach( attributeKey -> attributeKey.getAttributeValues( ).addAll( _dao.loadAttributeValues( attributeKey.getId( ), _plugin ) ) );
+        }
+        return attributeKeys;
     }
 
     /**

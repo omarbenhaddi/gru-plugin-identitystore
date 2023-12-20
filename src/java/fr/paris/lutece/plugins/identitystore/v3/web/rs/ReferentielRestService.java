@@ -34,8 +34,10 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.rs;
 
 import fr.paris.lutece.plugins.identitystore.service.IdentityStoreService;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.AttributeKeyListGetRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.LevelListGetRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.referentiel.ProcessusListGetRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.LevelSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.ProcessusSearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.swagger.SwaggerConstants;
@@ -101,7 +103,7 @@ public class ReferentielRestService
     @Path( Constants.REFERENTIAL_LEVEL_PATH )
     @GET
     @Produces( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Get the active service contract associated to the given application client code", response = LevelSearchResponse.class )
+    @ApiOperation( value = "Get all levels existing in the identity store referential", response = LevelSearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
@@ -116,6 +118,32 @@ public class ReferentielRestService
         final String trustedClientCode = IdentityStoreService.getTrustedClientCode( strClientCode, StringUtils.EMPTY, strHeaderAppCode );
         final LevelListGetRequest request = new LevelListGetRequest( trustedClientCode, authorName, authorType );
         final LevelSearchResponse entity = (LevelSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+    }
+
+    /**
+     * Get Levels
+     *
+     * @return the Client
+     */
+    @Path( Constants.REFERENTIAL_ATTRIBUTE_KEYS_PATH )
+    @GET
+    @Produces( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Get all attributes existing in the identity store referential", response = LevelSearchResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
+    } )
+    public Response getAllAttributeKeys(
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String strClientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
+            @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
+            throws IdentityStoreException
+    {
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( strClientCode, StringUtils.EMPTY, strHeaderAppCode );
+        final AttributeKeyListGetRequest request = new AttributeKeyListGetRequest( trustedClientCode, authorName, authorType );
+        final AttributeSearchResponse entity = (AttributeSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
 

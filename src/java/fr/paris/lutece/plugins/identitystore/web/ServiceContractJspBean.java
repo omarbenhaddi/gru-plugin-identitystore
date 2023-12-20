@@ -530,7 +530,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             final String strIdAttribute = tabIdSearchables [nCpt];
             final AttributeRight attributeRight = new AttributeRight( );
             attributeRight.setSearchable( true );
-            attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
+            attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ), false ) );
             mapAttributesRights.put( strIdAttribute, attributeRight );
         }
 
@@ -546,7 +546,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             {
                 final AttributeRight attributeRight = new AttributeRight( );
                 attributeRight.setMandatory( true );
-                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
+                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ), false ) );
                 mapAttributesRights.put( strIdAttribute, attributeRight );
             }
         }
@@ -563,7 +563,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             {
                 AttributeRight attributeRight = new AttributeRight( );
                 attributeRight.setReadable( true );
-                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
+                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ), false ) );
                 mapAttributesRights.put( strIdAttribute, attributeRight );
             }
         }
@@ -580,7 +580,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             {
                 AttributeRight attributeRight = new AttributeRight( );
                 attributeRight.setWritable( true );
-                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ) ) );
+                attributeRight.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( strIdAttribute ), false ) );
                 mapAttributesRights.put( strIdAttribute, attributeRight );
             }
         }
@@ -598,7 +598,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
                     .collect( Collectors.groupingBy( s -> s [0], Collectors.mapping( s -> s [1], Collectors.toList( ) ) ) )
                     .forEach( ( attributeId, processusIds ) -> {
                         final AttributeCertification attributeCertification = new AttributeCertification( );
-                        attributeCertification.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( attributeId ) ) );
+                        attributeCertification.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( attributeId ), false ) );
                         processusIds.forEach( processusId -> attributeCertification.getRefAttributeCertificationProcessus( )
                                 .add( RefAttributeCertificationProcessusHome.findByPrimaryKey( Integer.parseInt( processusId ) ) ) );
                         attributeCertifications.add( attributeCertification );
@@ -620,7 +620,7 @@ public class ServiceContractJspBean extends ManageServiceContractJspBean<Integer
             if ( strIdAttribute != null && strIdAttribute.contains( "," ) )
             {
                 String [ ] keyAndLevel = strIdAttribute.split( "," );
-                attributeRequirement.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( keyAndLevel [0] ) ) );
+                attributeRequirement.setAttributeKey( AttributeKeyHome.findByPrimaryKey( Integer.parseInt( keyAndLevel [0] ), false ) );
                 attributeRequirement.setRefCertificationLevel( RefCertificationLevelHome.findByPrimaryKey( Integer.parseInt( keyAndLevel [1] ) ) );
             }
             mapAttributesRights.put( strIdAttribute, attributeRequirement );

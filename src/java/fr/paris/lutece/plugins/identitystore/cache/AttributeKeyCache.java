@@ -38,13 +38,15 @@ import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.portal.service.cache.AbstractCacheableService;
 import fr.paris.lutece.portal.service.util.AppLogService;
-import org.apache.log4j.Logger;
 
-public class IdentityAttributeCache extends AbstractCacheableService
+import java.util.ArrayList;
+import java.util.List;
+
+public class AttributeKeyCache extends AbstractCacheableService
 {
-    public static final String SERVICE_NAME = "IdentityAttributeCache";
+    public static final String SERVICE_NAME = "AttributeKeyCache";
 
-    public IdentityAttributeCache( )
+    public AttributeKeyCache( )
     {
         this.initCache( );
     }
@@ -53,7 +55,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
     {
         AppLogService.debug( "Init AttributeKey cache" );
         this.resetCache( );
-        AttributeKeyHome.getAttributeKeysList( ).forEach( attributeKey -> this.put( attributeKey.getKeyName( ), attributeKey ) );
+        AttributeKeyHome.getAttributeKeysList( true ).forEach( attributeKey -> this.put( attributeKey.getKeyName( ), attributeKey ) );
     }
 
     public void put( final String keyName, final AttributeKey attributeKey )
@@ -76,6 +78,25 @@ public class IdentityAttributeCache extends AbstractCacheableService
         AppLogService.debug( "AttributeKey removed from cache: " + keyName );
     }
 
+    public List<AttributeKey> getAll( ) throws IdentityAttributeNotFoundException
+    {
+        final List<AttributeKey> allAttributeKeys = new ArrayList<>( );
+        if ( this.getKeys( ).isEmpty( ) )
+        {
+            this.refresh( );
+        }
+        for ( final String key : this.getKeys( ) )
+        {
+            allAttributeKeys.add( this.get( key ) );
+        }
+        // If cache is not activated, get from db
+        if ( allAttributeKeys.isEmpty( ) )
+        {
+            allAttributeKeys.addAll( AttributeKeyHome.getAttributeKeysList( true ) );
+        }
+        return allAttributeKeys;
+    }
+
     public AttributeKey get( final String keyName ) throws IdentityAttributeNotFoundException
     {
         AttributeKey attributeKey = (AttributeKey) this.getFromCache( keyName );
@@ -89,7 +110,7 @@ public class IdentityAttributeCache extends AbstractCacheableService
 
     public AttributeKey getFromDatabase( final String keyName ) throws IdentityAttributeNotFoundException
     {
-        final AttributeKey attributeKey = AttributeKeyHome.findByKey( keyName );
+        final AttributeKey attributeKey = AttributeKeyHome.findByKey( keyName, true );
         if ( attributeKey == null )
         {
             throw new IdentityAttributeNotFoundException( "No attribute key could be found with key " + keyName );

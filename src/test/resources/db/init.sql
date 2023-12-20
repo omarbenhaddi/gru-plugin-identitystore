@@ -1825,7 +1825,7 @@ INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.daemo
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.plugins.status.swaggerui.pool', 'portal');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.activeServiceContractCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.qualityBaseCache.enabled', '0');
-INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.identityAttributeCache.enabled', '0');
+INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.attributeKeyCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.refAttributeCertificationDefinitionCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.identitystore.ActiveServiceContractCache.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.PageCachingFilter(CAUTION:NEVERUSEWITHUSERDYNAMICDATA).enabled', '0');
@@ -1836,7 +1836,7 @@ INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.PortletCacheService.enabled', '0');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.BaseUserPreferencesCacheService.enabled', '1');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.ActiveServiceContractCache.enabled', '1');
-INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.IdentityAttributeCache.enabled', '1');
+INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.AttributeKeyCache.enabled', '1');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.cache.status.RefAttributeCertificationDefinitionCache.enabled', '1');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.templates.currentCommonsInclude', 'Boostrap5Tabler');
 INSERT INTO public.core_datastore (entity_key, entity_value) VALUES ('core.daemon.mailSender.onStartUp', 'true');

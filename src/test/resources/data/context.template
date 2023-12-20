@@ -23,7 +23,7 @@
     <!-- Cache -->
     <bean id="identitystore.activeServiceContractCache"  class="fr.paris.lutece.plugins.identitystore.cache.ActiveServiceContractCache"/>
     <bean id="identitystore.qualityBaseCache"  class="fr.paris.lutece.plugins.identitystore.cache.QualityBaseCache"/>
-    <bean id="identitystore.identityAttributeCache"  class="fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeCache"/>
+    <bean id="identitystore.attributeKeyCache"  class="fr.paris.lutece.plugins.identitystore.cache.AttributeKeyCache"/>
     <bean id="identitystore.identityAttributeValidationCache"  class="fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache"/>
     <bean id="identitystore.refAttributeCertificationDefinitionCache"  class="fr.paris.lutece.plugins.identitystore.cache.RefAttributeCertificationDefinitionCache"/>
 

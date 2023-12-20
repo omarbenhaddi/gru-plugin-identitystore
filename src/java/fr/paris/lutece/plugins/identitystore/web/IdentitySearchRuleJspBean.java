@@ -158,7 +158,7 @@ public class IdentitySearchRuleJspBean extends ManageIdentitiesJspBean
         model.put( MARK_SELECTED_ATTRIBUTES, new ArrayList<>( ) );
         model.put( MARK_AVAILABLE_RULE_TYPES, SearchRuleType.values( ) );
         model.put( MARK_ACTION, "action_createIdentitySearchRule" );
-        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( false ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_CREATE_IDENTITYSEARCHRULE ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_IDENTITYSEARCHRULE, TEMPLATE_CREATE_IDENTITYSEARCHRULE, model );
@@ -211,7 +211,7 @@ public class IdentitySearchRuleJspBean extends ManageIdentitiesJspBean
         final String [ ] selectedAttributes = request.getParameterValues( PARAMETER_SELECTED_ATTRIBUTES );
         if ( selectedAttributes != null )
         {
-            return Arrays.stream( selectedAttributes ).map( AttributeKeyHome::findByKey ).collect( Collectors.toList( ) );
+            return Arrays.stream( selectedAttributes ).map( key -> AttributeKeyHome.findByKey( key, false ) ).collect( Collectors.toList( ) );
         }
         return new ArrayList<>( );
     }
@@ -281,7 +281,7 @@ public class IdentitySearchRuleJspBean extends ManageIdentitiesJspBean
         model.put( MARK_SELECTED_ATTRIBUTES, _identitySearchRule.getAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) ) );
         model.put( MARK_AVAILABLE_RULE_TYPES, SearchRuleType.values( ) );
         model.put( MARK_ACTION, "action_modifyIdentitySearchRule" );
-        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( ) );
+        model.put( MARK_AVAILABLE_ATTRIBUTES, AttributeKeyHome.getAttributeKeysList( false ) );
         model.put( SecurityTokenService.MARK_TOKEN, SecurityTokenService.getInstance( ).getToken( request, ACTION_MODIFY_IDENTITYSEARCHRULE ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_IDENTITYSEARCHRULE, TEMPLATE_MODIFY_IDENTITYSEARCHRULE, model );

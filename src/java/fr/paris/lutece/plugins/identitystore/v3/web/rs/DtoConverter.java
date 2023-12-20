@@ -54,13 +54,15 @@ import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertifica
 import fr.paris.lutece.plugins.identitystore.service.contract.RefAttributeCertificationDefinitionNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.application.ClientApplicationDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeKeyDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeType;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeValueDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ExpirationDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.MergeDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeDefinitionDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRequirementDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeRightDto;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.AttributeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.CertificationProcessusDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.referentiel.AttributeCertificationLevelDto;
@@ -455,6 +457,34 @@ public final class DtoConverter
                 dto.getAttributeCertificationLevels( ).add( levelDto );
             }
         }
+        return dto;
+    }
+
+    public static List<AttributeKeyDto> convertRefAttributesToListDto( List<AttributeKey> allAtributeKeys )
+    {
+        return allAtributeKeys.stream( ).map( DtoConverter::convertRefAttributeToDto ).collect( Collectors.toList( ) );
+    }
+
+    public static AttributeKeyDto convertRefAttributeToDto( AttributeKey attributeKey )
+    {
+        final AttributeKeyDto dto = new AttributeKeyDto( );
+        dto.setCertifiable( attributeKey.getCertifiable( ) );
+        dto.setDescription( attributeKey.getDescription( ) );
+        dto.setKeyName( attributeKey.getKeyName( ) );
+        dto.setName( attributeKey.getName( ) );
+        dto.setKeyWeight( attributeKey.getKeyWeight( ) );
+        dto.setPivot( attributeKey.getPivot( ) );
+        dto.setType( AttributeType.valueOf( attributeKey.getKeyType( ).name( ) ) );
+        dto.setValidationRegex( attributeKey.getValidationRegex( ) );
+        dto.setMandatoryForCreation( attributeKey.isMandatoryForCreation( ) );
+        dto.setValidationErrorMessage( attributeKey.getValidationErrorMessage( ) );
+        dto.setValidationErrorMessageKey( attributeKey.getValidationErrorMessageKey( ) );
+        dto.setValues( attributeKey.getAttributeValues( ).stream( ).map( attributeValue -> {
+            final AttributeValueDto valueDto = new AttributeValueDto( );
+            valueDto.setValue( attributeValue.getValue( ) );
+            valueDto.setLabel( attributeValue.getLabel( ) );
+            return valueDto;
+        } ).collect( Collectors.toList( ) ) );
         return dto;
     }
 }
