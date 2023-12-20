@@ -49,6 +49,8 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
     private static final String SQL_QUERY_NEW_PK = "SELECT max( id_attribute ) FROM identitystore_ref_attribute";
     private static final String SQL_QUERY_SELECT = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message, validation_error_message_key FROM identitystore_ref_attribute WHERE id_attribute = ?";
     private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_ref_attribute ( id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, validation_regex, validation_error_message, validation_error_message_key ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT_VALUE = "INSERT INTO identitystore_ref_attribute_values(id_attribute, value, label) VALUES (?,?,?)";
+    private static final String SQL_QUERY_DELETE_VALUES = "DELETE FROM identitystore_ref_attribute_values WHERE id_attribute = ?";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_ref_attribute WHERE id_attribute = ? ";
     private static final String SQL_QUERY_UPDATE = "UPDATE identitystore_ref_attribute SET id_attribute = ?, name = ?, key_name = ?, common_search_key = ?, description = ?, key_type = ?, certifiable = ?, pivot = ?, key_weight = ?, mandatory_for_creation = ?, validation_regex = ?, validation_error_message = ?, validation_error_message_key = ? WHERE id_attribute = ?";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_attribute, name, key_name, common_search_key, description, key_type, certifiable, pivot, key_weight, mandatory_for_creation, validation_regex, validation_error_message, validation_error_message_key FROM identitystore_ref_attribute";
@@ -384,6 +386,29 @@ public final class AttributeKeyDAO implements IAttributeKeyDAO
             }
 
             return attributeValues;
+        }
+    }
+
+    @Override
+    public void insertAttributeValues( int nKey, AttributeValue attributeValue, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT_VALUE, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.setString( 2, attributeValue.getValue( ) );
+            daoUtil.setString( 3, attributeValue.getLabel( ) );
+
+            daoUtil.executeUpdate( );
+        }
+    }
+
+    @Override
+    public void removeAttributeValues( int nKey, Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE_VALUES, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeUpdate( );
         }
     }
 }

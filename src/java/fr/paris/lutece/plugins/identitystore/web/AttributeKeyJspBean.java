@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.identitystore.web;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeValue;
 import fr.paris.lutece.plugins.identitystore.business.attribute.KeyType;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
@@ -48,6 +49,7 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.util.url.UrlItem;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -61,12 +63,14 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     // Templates
     private static final String TEMPLATE_MANAGE_ATTRIBUTEKEYS = "/admin/plugins/identitystore/manage_attributekeys.html";
     private static final String TEMPLATE_CREATE_ATTRIBUTEKEY = "/admin/plugins/identitystore/create_attributekey.html";
-    private static final String TEMPLATE_MODIFY_ATTRIBUTEKEY = "/admin/plugins/identitystore/modify_attributekey.html";
+    private static final String TEMPLATE_MODIFY_ATTRIBUTEKEY = "/admin/plugins/identitystore/create_attributekey.html";
     private static final String TEMPLATE_APP_RIGHT_ATTRIBUTES = "/admin/plugins/identitystore/view_apprightattributes.html";
 
     // Parameters
     private static final String PARAMETER_ID_ATTRIBUTEKEY = "id";
     private static final String PARAMETER_ID_KEY_TYPE = "id_keytype";
+    private static final String PARAMETER_ATTRIBUTE_VALUES_VALUE = "attribute_value_value";
+    private static final String PARAMETER_ATTRIBUTE_VALUES_LABEL = "attribute_value_label";
 
     // Properties for page titles
     private static final String PROPERTY_PAGE_TITLE_MANAGE_ATTRIBUTEKEYS = "identitystore.manage_attributekeys.pageTitle";
@@ -81,6 +85,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     private static final String MARK_KEYTYPE_LIST = "keytype_list";
     private static final String MARK_WEBAPP_URL = "webapp_url";
     private static final String MARK_LOCALE = "locale";
+    private static final String MARK_ACTION = "action";
     private static final String JSP_MANAGE_ATTRIBUTEKEYS = "jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp";
 
     // Properties
@@ -139,7 +144,9 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     @View( VIEW_CREATE_ATTRIBUTEKEY )
     public String getCreateAttributeKey( HttpServletRequest request )
     {
+        _attributekey = new AttributeKey( );
         final Map<String, Object> model = getModel( );
+        model.put( MARK_ACTION, "action_createAttributeKey" );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
         model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale( ) ) );
         storeRichText( request, model );
@@ -158,6 +165,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String doCreateAttributeKey( HttpServletRequest request )
     {
         populate( _attributekey, request );
+        _attributekey.getAttributeValues( ).addAll( this.extractAttributeValues( request ) );
 
         // Check constraints
         if ( !validateBean( _attributekey, VALIDATION_ATTRIBUTES_PREFIX ) )
@@ -264,6 +272,7 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         }
 
         Map<String, Object> model = getModel( );
+        model.put( MARK_ACTION, "action_modifyAttributeKey" );
         model.put( MARK_ATTRIBUTEKEY, _attributekey );
         model.put( MARK_KEYTYPE_LIST, KeyType.getReferenceList( request.getLocale( ) ) );
         storeRichText( request, model );
@@ -282,6 +291,8 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
     public String doModifyAttributeKey( HttpServletRequest request )
     {
         populate( _attributekey, request );
+        _attributekey.getAttributeValues( ).clear( );
+        _attributekey.getAttributeValues( ).addAll( this.extractAttributeValues( request ) );
 
         // Check constraints
         if ( !validateBean( _attributekey, VALIDATION_ATTRIBUTES_PREFIX ) )
@@ -336,5 +347,27 @@ public class AttributeKeyJspBean extends AdminIdentitiesJspBean
         // model.put( MARK_ATTRIBUTE_APPS_RIGHT_MAP, mapAttributeApplicationsRight );
 
         return getPage( PROPERTY_PAGE_TITLE_APP_RIGHT_ATTRIBUTES, TEMPLATE_APP_RIGHT_ATTRIBUTES, model );
+    }
+
+    private List<AttributeValue> extractAttributeValues( final HttpServletRequest request )
+    {
+        final List<AttributeValue> values = new ArrayList<>( );
+        request.getParameterMap( ).entrySet( ).stream( ).filter( stringEntry -> stringEntry.getKey( ).startsWith( PARAMETER_ATTRIBUTE_VALUES_VALUE ) )
+                .forEach( stringEntry -> {
+                    final String index = stringEntry.getKey( ).replace( PARAMETER_ATTRIBUTE_VALUES_VALUE, "" );
+                    final String value = request.getParameter( PARAMETER_ATTRIBUTE_VALUES_VALUE + index );
+                    final String label = request.getParameter( PARAMETER_ATTRIBUTE_VALUES_LABEL + index );
+                    final AttributeValue attributeValue = new AttributeValue( );
+                    final String id = request.getParameter( PARAMETER_ID_ATTRIBUTEKEY );
+                    if ( id != null && !id.isEmpty( ) )
+                    {
+                        attributeValue.setAttributeId( Integer.parseInt( id ) );
+                    }
+                    attributeValue.setValue( value );
+                    attributeValue.setLabel( label );
+                    values.add( attributeValue );
+                } );
+
+        return values;
     }
 }

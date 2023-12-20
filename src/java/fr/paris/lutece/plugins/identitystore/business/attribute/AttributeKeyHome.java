@@ -67,7 +67,7 @@ public final class AttributeKeyHome
     public static AttributeKey create( AttributeKey attributeKey )
     {
         _dao.insert( attributeKey, _plugin );
-
+        attributeKey.getAttributeValues( ).forEach( attributeValue -> _dao.insertAttributeValues( attributeKey.getId( ), attributeValue, _plugin ) );
         return attributeKey;
     }
 
@@ -81,7 +81,8 @@ public final class AttributeKeyHome
     public static AttributeKey update( AttributeKey attributeKey )
     {
         _dao.store( attributeKey, _plugin );
-
+        _dao.removeAttributeValues( attributeKey.getId( ), _plugin );
+        attributeKey.getAttributeValues( ).forEach( attributeValue -> _dao.insertAttributeValues( attributeKey.getId( ), attributeValue, _plugin ) );
         return attributeKey;
     }
 
@@ -94,6 +95,7 @@ public final class AttributeKeyHome
     public static void remove( int nKey )
     {
         _dao.delete( nKey, _plugin );
+        _dao.removeAttributeValues( nKey, _plugin );
     }
 
     /**

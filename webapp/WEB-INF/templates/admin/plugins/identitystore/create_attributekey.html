@@ -2,10 +2,46 @@
 <#include "/admin/util/editor/editor.html" />
 <@tabs tab="attributekey" />
 
+<div id="template-row" style="display: none">
+	<div class="row template-child my-2">
+		<div class="col-5">
+			<input type="text" name="attribute_value_value_" class="attribute-value-value form-control">
+		</div>
+		<div class="col-6">
+			<input type="text" name="attribute_value_label_" class="attribute-value-label form-control">
+		</div>
+		<div class="col-1">
+			<a class="btn btn-default btn-delete-row">
+				Supp
+			</a>
+		</div>
+	</div>
+</div>
+<script type="module">
+	$('#btn-add-attribute-value-row').click(function () {
+		const nbRows = $('.attribute-values-definition-row').length;
+		let clone = $('#template-row').clone();
+		let attributeValue = clone.find(".attribute-value-value");
+		attributeValue.attr("name", "attribute_value_value" + nbRows);
+		attributeValue.attr("id", "attribute_value_value_" + nbRows);
+		let attributeLabel = clone.find(".attribute-value-label");
+		attributeLabel.attr("name", "attribute_value_label_" + nbRows);
+		attributeLabel.attr("id", "attribute_value_label_" + nbRows);
+		let firstRow = clone.find(".template-child");
+		firstRow.addClass("attribute-values-definition-row")
+		firstRow.removeClass("template-child")
+		$('#attribute_values_definition').append(clone.children());
+	});
+
+	$(document).on('click', '.btn-delete-row', function() {
+		$(this).parents(".attribute-values-definition-row").remove();
+	});
+</script>
+
 <@rowBoxHeader i18nTitleKey="identitystore.create_attributekey.title">
     <form class="form-horizontal" method="post" name="create_attributekey" action="jsp/admin/plugins/identitystore/ManageAttributeKeys.jsp">
         <@messages errors=errors />
-        <input type="hidden" id="id" name="id"/>
+		<input type="hidden" id="id" name="id" value="${attributekey.id!''}"/>
         
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelName" inputName="name" maxlength=100 mandatory=true value="${attributekey.name!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelName.help" />
         <@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelKeyName" inputName="key_name" maxlength=100 mandatory=true value="${attributekey.keyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelKeyName.help" />
@@ -27,7 +63,31 @@
 		<@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelCommonSearchKey" inputName="common_search_key_name" maxlength=100 mandatory=false value="${attributekey.commonSearchKeyName!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelCommonSearchKey.help" />
 		<@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelValidationRegex" inputName="validation_regex" maxlength=510 mandatory=false value="${attributekey.validationRegex!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelValidationRegex.help" />
 		<@fieldInputText i18nLabelKey="identitystore.create_attributekey.labelValidationErrorMessage" inputName="validation_error_message" maxlength=255 mandatory=false value="${attributekey.validationErrorMessage!''}" i18nHelpBlockKey="identitystore.create_attributekey.labelValidationErrorMessage.help" />
-		<@actionButtons button1Name="action_createAttributeKey" button2Name="view_manageAttributeKeys"/>
+
+		<@formGroup labelKey='#i18n{identitystore.create_attributekey.labelAttributeValues}' mandatory=false>
+			<a id="btn-add-attribute-value-row" class="btn btn-default">
+				Ajouter une valeur
+			</a>
+			<div id="attribute_values_definition" class="col-12">
+				<#list attributekey.attributeValues as attributeValue>
+					<div class="row attribute-values-definition-row my-2">
+						<div class="col-5">
+							<input type="text" name="attribute_value_value_${attributeValue?index}" value="${attributeValue.value!''}" class="form-control">
+						</div>
+						<div class="col-6">
+							<input type="text" name="attribute_value_label_${attributeValue?index}" value="${attributeValue.label!''}" class="form-control">
+						</div>
+						<div class="col-1">
+							<a class="btn btn-default btn-delete-row">
+								Supp
+							</a>
+						</div>
+					</div>
+				</#list>
+			</div>
+		</@formGroup>
+
+		<@actionButtons button1Name="${action}" button2Name="view_manageAttributeKeys"/>
     </form>
 </@rowBoxHeader>
 

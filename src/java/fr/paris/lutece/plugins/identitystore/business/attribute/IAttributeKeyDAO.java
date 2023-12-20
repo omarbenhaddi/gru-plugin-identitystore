@@ -148,4 +148,8 @@ public interface IAttributeKeyDAO
     List<AttributeKey> selectMandatoryForCreationAttributeKeyList( Plugin plugin );
 
     List<AttributeValue> loadAttributeValues( int nKey, Plugin plugin );
+
+    void insertAttributeValues( int nKey, AttributeValue attributeValue, Plugin plugin );
+
+    void removeAttributeValues( int nKey, Plugin plugin );
 }
