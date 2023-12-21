@@ -42,13 +42,19 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.jwt.service.JWTUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * IdentityStoreService
  */
 public final class IdentityStoreService
 {
+    private static final List<String> EXCEPTION_APP_CODES = Arrays
+            .stream( AppPropertiesService.getProperty( "identitystore.header.application.code.verif.exception", "" ).split( "," ) )
+            .collect( Collectors.toList( ) );
+
     /**
      * private constructor
      */
@@ -148,7 +154,7 @@ public final class IdentityStoreService
      */
     private static void verifyClientAndAppCodeCorrelation( final String strTrustedClientCode, final String strHeaderAppCode ) throws IdentityStoreException
     {
-        if ( StringUtils.isBlank( strHeaderAppCode ) )
+        if ( StringUtils.isBlank( strHeaderAppCode ) || EXCEPTION_APP_CODES.contains( strHeaderAppCode ) )
         {
             return;
         }
