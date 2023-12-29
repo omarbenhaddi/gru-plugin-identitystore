@@ -34,7 +34,6 @@
 package fr.paris.lutece.plugins.identitystore.service.attribute;
 
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
@@ -127,7 +126,7 @@ public class IdentityAttributeFormatterService
      * <li>Force the first character of each group (space-separated) to be uppercase, the rest is forced to lowercase</li>
      * </ul>
      * </li>
-     * <li>For city/country labels, family name and prefered name attributes :
+     * <li>For country label, family name and prefered name attributes :
      * <ul>
      * <li>force to uppercase</li>
      * </ul>

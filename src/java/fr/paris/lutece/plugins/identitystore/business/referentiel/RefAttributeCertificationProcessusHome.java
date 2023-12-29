@@ -111,6 +111,18 @@ public final class RefAttributeCertificationProcessusHome
     }
 
     /**
+     * Gets the {@link RefAttributeCertificationProcessus} by its code.
+     * 
+     * @param code
+     *            the code
+     * @return {@link RefAttributeCertificationProcessus}
+     */
+    public static RefAttributeCertificationProcessus getRefAttributeCertificationProcessusByCode( final String code )
+    {
+        return _dao.getRefAttributeCertificationProcessusByCode( _plugin, code );
+    }
+
+    /**
      * Load the data of all the refAttributeCertificationProcessus objects and returns them as a list
      * 
      * @return the list which contains the data of all the refAttributeCertificationProcessus objects

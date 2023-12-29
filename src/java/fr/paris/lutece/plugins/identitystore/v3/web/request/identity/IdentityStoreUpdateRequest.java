@@ -96,12 +96,17 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
             IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
-                IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
-                if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
-                        || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
+                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( _strCustomerId, _identityChangeRequest.getIdentity( ),
+                        response );
+                if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
                 {
-                    // if request is accepted and treatment successfull, add the formatting statuses
-                    response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
+                    IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
+                    if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
+                            || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
+                    {
+                        // if request is accepted and treatment successfull, add the formatting statuses
+                        response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
+                    }
                 }
             }
         }

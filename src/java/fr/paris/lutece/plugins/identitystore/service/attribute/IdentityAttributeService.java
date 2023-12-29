@@ -128,6 +128,16 @@ public class IdentityAttributeService
         }
     }
 
+    /**
+     * Get all {@link AttributeKey} that are flaged as PIVOT.
+     * 
+     * @return {@link List<AttributeKey>}
+     */
+    public List<AttributeKey> getPivotAttributeKeys( ) throws IdentityAttributeNotFoundException
+    {
+        return _cache.getAll( ).stream( ).filter( AttributeKey::getPivot ).collect( Collectors.toList( ) );
+    }
+
     public List<AttributeKey> getCommonAttributeKeys( final String keyName )
     {
         if ( _cache.getKeys( ).isEmpty( ) )

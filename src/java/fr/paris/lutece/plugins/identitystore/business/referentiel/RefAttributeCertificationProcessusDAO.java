@@ -54,6 +54,7 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
     private static final String SQL_QUERY_SELECTALL = "SELECT id_ref_attribute_certification_processus, label, code  FROM identitystore_ref_certification_processus";
     private static final String SQL_QUERY_SELECTALL_ID = "SELECT id_ref_attribute_certification_processus FROM identitystore_ref_certification_processus";
     private static final String SQL_QUERY_SELECTALL_BY_IDS = "SELECT id_ref_attribute_certification_processus, label, code FROM identitystore_ref_certification_processus WHERE id_ref_attribute_certification_processus IN (  ";
+    private static final String SQL_QUERY_SELECT_BY_CODE = "SELECT id_ref_attribute_certification_processus, label, code FROM identitystore_ref_certification_processus WHERE code = ?";
 
     /**
      * {@inheritDoc }
@@ -244,5 +245,31 @@ public final class RefAttributeCertificationProcessusDAO implements IRefAttribut
         }
         return refAttributeCertificationProcessusList;
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RefAttributeCertificationProcessus getRefAttributeCertificationProcessusByCode( final Plugin plugin, final String code )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_CODE, plugin ) )
+        {
+            daoUtil.setString( 1, code );
+            daoUtil.executeQuery( );
+            if ( daoUtil.next( ) )
+            {
+                final RefAttributeCertificationProcessus refAttributeCertificationProcessus = new RefAttributeCertificationProcessus( );
+                int nIndex = 1;
+
+                refAttributeCertificationProcessus.setId( daoUtil.getInt( nIndex++ ) );
+                refAttributeCertificationProcessus.setLabel( daoUtil.getString( nIndex++ ) );
+                refAttributeCertificationProcessus.setCode( daoUtil.getString( nIndex ) );
+
+                return refAttributeCertificationProcessus;
+            }
+
+            return null;
+        }
     }
 }

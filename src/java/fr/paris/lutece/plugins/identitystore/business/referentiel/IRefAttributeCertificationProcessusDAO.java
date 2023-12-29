@@ -124,4 +124,15 @@ public interface IRefAttributeCertificationProcessusDAO
      * @return The list which contains the data of all the avant objects
      */
     List<RefAttributeCertificationProcessus> selectRefAttributeCertificationProcessussListByIds( Plugin _plugin, List<Integer> listIds );
+
+    /**
+     * Gets the {@link RefAttributeCertificationProcessus} by its code.
+     * 
+     * @param plugin
+     *            the plugin
+     * @param code
+     *            the code
+     * @return {@link RefAttributeCertificationProcessus}
+     */
+    RefAttributeCertificationProcessus getRefAttributeCertificationProcessusByCode( Plugin plugin, String code );
 }
