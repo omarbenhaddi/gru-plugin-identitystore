@@ -66,9 +66,9 @@ public class ActiveServiceContractCache extends AbstractCacheableService
                 final ServiceContract activeServiceContract = this.getActiveServiceContractFromDatabase( clientApplication.getClientCode( ) );
                 this.put( clientApplication.getClientCode( ), activeServiceContract );
             }
-            catch( ServiceContractNotFoundException e )
+            catch( final ServiceContractNotFoundException e )
             {
-                AppLogService.error( "An error occurred during service contract cache refreshing : {} ", e );
+                AppLogService.error( "An error occurred during service contract cache refreshing : " + e.getMessage( ) );
             }
         } );
     }
