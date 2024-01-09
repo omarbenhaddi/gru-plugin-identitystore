@@ -157,6 +157,12 @@ public class IdentityAttributeValidationService
                 .collect( Collectors.toList( ) );
         final List<AttributeDto> pivotAttrs = identityRequest.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
                 .collect( Collectors.toList( ) );
+        pivotAttrs.forEach( a -> {
+            if ( a.getCertificationLevel( ) == null && StringUtils.isNotBlank( a.getCertifier( ) ) )
+            {
+                a.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( a.getCertifier( ), a.getKey( ) ) );
+            }
+        } );
         if ( StringUtils.isNotBlank( cuid ) )
         {
             final IdentityDto existingIdentityDto = DtoConverter.convertIdentityToDto( IdentityHome.findByCustomerId( cuid ) );
