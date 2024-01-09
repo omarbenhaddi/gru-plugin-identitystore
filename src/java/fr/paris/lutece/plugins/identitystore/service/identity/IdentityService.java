@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2024, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -955,17 +955,27 @@ public class IdentityService
             final RequestAuthor author ) throws IdentityStoreException
     {
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
-                SecurityUtil.logForgingProtect( customerId != null ? customerId : connectionId ), SPECIFIC_ORIGIN );
+                SecurityUtil.logForgingProtect( StringUtils.isNotBlank( customerId ) ? customerId : connectionId ), SPECIFIC_ORIGIN );
 
         final ServiceContract serviceContract = _serviceContractService.getActiveServiceContract( clientCode );
         if ( serviceContract == null )
         {
             throw new ServiceContractNotFoundException( "No active service contract could be found for clientCode = " + clientCode );
         }
-        final IdentityDto identityDto = _identityDtoCache.get( customerId, connectionId, serviceContract );
+        final IdentityDto identityDto = StringUtils.isNotBlank( customerId ) ? _identityDtoCache.getByCustomerId( customerId, serviceContract )
+                : _identityDtoCache.getByConnectionId( connectionId, serviceContract );
         if ( identityDto == null )
         {
-            response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
+            // #345 : If the identity doesn't exist, make an extra search in the history (only for CUID search).
+            // If there is a record, it means the identity has been deleted => send back a specific message
+            if ( StringUtils.isNotBlank( customerId ) && !IdentityHome.findHistoryByCustomerId( customerId ).isEmpty( ) )
+            {
+                response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_DELETED ) );
+            }
+            else
+            {
+                response.setStatus( ResponseStatusFactory.notFound( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
+            }
         }
         else
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2024, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedA
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -227,7 +228,7 @@ public interface IIdentityDAO
 
     /**
      * Search for history entries that matches the following parameters
-     * 
+     *
      * @param strCustomerId
      *            customer id of the identity
      * @param clientCode
@@ -248,7 +249,7 @@ public interface IIdentityDAO
 
     /**
      * Search for identities that are not connected, and have a past expirationDate.
-     * 
+     *
      * @param limit
      *            the max number of results
      * @param plugin
@@ -259,7 +260,7 @@ public interface IIdentityDAO
 
     /**
      * Search for identities that are merged to the provided identity ID.
-     * 
+     *
      * @param identityId
      *            the 'master' identity ID
      * @param plugin
@@ -270,11 +271,22 @@ public interface IIdentityDAO
 
     /**
      * Delete all attribute history of the identity's provided id.
-     * 
+     *
      * @param identityId
      *            the identity's id
      * @param plugin
      *            the plugin
      */
     void deleteAttributeHistory( int identityId, Plugin plugin );
+
+    /**
+     * Get the identity last update date coresponding to the given customer ID
+     * 
+     * @param customerId
+     *            the customer ID
+     * @param plugin
+     *            the plugin
+     * @return the last update date or null if the identity doesn't exist for the provided CUID
+     */
+    Timestamp getIdentityLastUpdateDate( final String customerId, final Plugin plugin );
 }

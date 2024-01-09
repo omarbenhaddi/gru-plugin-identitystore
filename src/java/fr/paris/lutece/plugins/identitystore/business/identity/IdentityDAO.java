@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2024, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,6 +130,7 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SELECT_MERGED_TO = "SELECT " + COLUMNS
             + " FROM identitystore_identity a WHERE a.is_merged = 1 AND a.id_master_identity = ?";
     private static final String SQL_QUERY_DELETE_ALL_ATTRIBUTE_HISTORY = "DELETE from identitystore_identity_attribute_history WHERE id_identity = ?";
+    private static final String SQL_QUERY_SELECT_LAST_UPDATE_DATE_FROM_CUID = "SELECT last_update_date FROM identitystore_identity WHERE customer_id = ?";
 
     private final ObjectMapper objectMapper = new ObjectMapper( );
 
@@ -831,6 +832,24 @@ public final class IdentityDAO implements IIdentityDAO
         {
             daoUtil.setInt( 1, identityId );
             daoUtil.executeUpdate( );
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Timestamp getIdentityLastUpdateDate( final String customerId, final Plugin plugin )
+    {
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_LAST_UPDATE_DATE_FROM_CUID, plugin ) )
+        {
+            daoUtil.setString( 1, customerId );
+            daoUtil.executeQuery( );
+            if ( daoUtil.next( ) )
+            {
+                return daoUtil.getTimestamp( 1 );
+            }
+            return null;
         }
     }
 

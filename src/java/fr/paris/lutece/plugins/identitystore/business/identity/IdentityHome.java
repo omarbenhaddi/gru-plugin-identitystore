@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2024, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -241,15 +242,16 @@ public final class IdentityHome
     }
 
     /**
-     * Find not merged identity by customer ID, without populating attributes.
-     *
-     * @param strCustomerId
-     *            The customer ID
-     * @return The Identity
+     * Get the master identity last update date coresponding to the given customer ID
+     * 
+     * @param customerId
+     *            the customer ID
+     * @return the last update date or null if the identity doesn't exist for the provided CUID
      */
-    public static Identity findMasterIdentityByCustomerIdNoAttributes( final String strCustomerId )
+    public static Timestamp getMasterIdentityLastUpdateDate( final String customerId )
     {
-        return _dao.selectNotMergedByCustomerId( strCustomerId, _plugin );
+        final Identity identity = _dao.selectNotMergedByCustomerId( customerId, _plugin );
+        return identity != null ? identity.getLastUpdateDate( ) : null;
     }
 
     /**
@@ -272,15 +274,15 @@ public final class IdentityHome
     }
 
     /**
-     * Find by connection ID without attributes
-     *
-     * @param strConnectionId
-     *            The customer ID
-     * @return The Identity
+     * Get the master identity without attributes coresponding to the given connection ID
+     * 
+     * @param connectionId
+     *            the connection ID
+     * @return the identity or null if the identity doesn't exist for the provided connection ID
      */
-    public static Identity findMasterIdentityByConnectionIdNoAttributes( final String strConnectionId )
+    public static Identity getMasterIdentityNoAttributesByConnectionId( final String connectionId )
     {
-        return _dao.selectNotMergedByConnectionId( strConnectionId, _plugin );
+        return _dao.selectNotMergedByConnectionId( connectionId, _plugin );
     }
 
     /**

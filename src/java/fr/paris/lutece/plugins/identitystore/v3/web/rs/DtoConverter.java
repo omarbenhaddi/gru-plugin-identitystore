@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2023, City of Paris
+ * Copyright (c) 2002-2024, City of Paris
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ public final class DtoConverter
      *            business identity to convert
      * @return identityDto initialized from provided identity
      */
-    public static IdentityDto convertIdentityToDto( final Identity identity ) throws RefAttributeCertificationDefinitionNotFoundException
+    public static IdentityDto convertIdentityToDto( final Identity identity )
     {
         final IdentityDto identityDto = new IdentityDto( );
         identityDto.setConnectionId( identity.getConnectionId( ) );
