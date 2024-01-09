@@ -68,7 +68,7 @@ public class ActiveServiceContractCache extends AbstractCacheableService
             }
             catch( final ServiceContractNotFoundException e )
             {
-                AppLogService.error( "An error occurred during service contract cache refreshing : " + e.getMessage( ) );
+                AppLogService.debug( e.getMessage( ) );
             }
         } );
     }
