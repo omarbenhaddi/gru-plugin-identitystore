@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.Page;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UpdatedIdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.UpdatedIdentitySearchResponse;
@@ -88,8 +89,16 @@ public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentitySt
     public UpdatedIdentitySearchResponse doSpecificRequest( )
     {
         final UpdatedIdentitySearchResponse response = new UpdatedIdentitySearchResponse( );
+        if ( _request.getPage( ) != null && _request.getPage( ) < 1 )
+        {
+            response.setStatus( ResponseStatusFactory.badRequest( ) );
+            response.getStatus( ).setMessage( "Pagination should start at index 1" );
+            response.getStatus( ).setMessageKey( Constants.PROPERTY_REST_PAGINATION_START_ERROR );
+            return response;
+        }
+
         final List<UpdatedIdentityDto> updatedIdentities = IdentityHome.findUpdatedIdentities( _request.getDays( ), _request.getIdentityChangeTypes( ),
-                _request.getUpdatedAttributes( ) );
+                _request.getUpdatedAttributes( ), _request.getMax( ) );
         if ( updatedIdentities == null || updatedIdentities.isEmpty( ) )
         {
             response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_UPDATED_IDENTITY_FOUND ) );
@@ -97,7 +106,33 @@ public class IdentityStoreGetUpdatedIdentitiesRequest extends AbstractIdentitySt
         else
         {
             response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
-            response.getUpdatedIdentityList( ).addAll( updatedIdentities );
+            if ( _request.getPage( ) != null && _request.getSize( ) != null )
+            {
+                final int totalRecords = updatedIdentities.size( );
+                final int totalPages = (int) Math.ceil( (double) totalRecords / _request.getSize( ) );
+                if ( _request.getPage( ) > totalPages )
+                {
+                    response.setStatus( ResponseStatusFactory.badRequest( ) );
+                    response.getStatus( ).setMessage( "Pagination index should not exceed total number of pages." );
+                    response.getStatus( ).setMessageKey( Constants.PROPERTY_REST_PAGINATION_END_ERROR );
+                    return response;
+                }
+                final int start = ( _request.getPage( ) - 1 ) * _request.getSize( );
+                final int end = Math.min( start + _request.getSize( ), totalRecords );
+                response.getUpdatedIdentityList( ).addAll( updatedIdentities.subList( start, end ) );
+
+                final Page pagination = new Page( );
+                pagination.setTotalPages( totalPages );
+                pagination.setTotalRecords( totalRecords );
+                pagination.setCurrentPage( _request.getPage( ) );
+                pagination.setNextPage( _request.getPage( ) == totalPages ? null : _request.getPage( ) + 1 );
+                pagination.setPreviousPage( _request.getPage( ) > 1 ? _request.getPage( ) - 1 : null );
+                response.setPagination( pagination );
+            }
+            else
+            {
+                response.getUpdatedIdentityList( ).addAll( updatedIdentities );
+            }
         }
 
         return response;

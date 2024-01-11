@@ -349,9 +349,9 @@ public final class IdentityHome
      * @return the list of identities
      */
     public static List<UpdatedIdentityDto> findUpdatedIdentities( final Integer days, final List<IdentityChangeType> identityChangeTypes,
-            final List<SearchUpdatedAttribute> updatedAttributes )
+            final List<SearchUpdatedAttribute> updatedAttributes, final Integer max )
     {
-        return _dao.selectUpdated( days, identityChangeTypes, updatedAttributes, _plugin );
+        return _dao.selectUpdated( days, identityChangeTypes, updatedAttributes, max, _plugin );
     }
 
     /**

@@ -687,7 +687,7 @@ public final class IdentityDAO implements IIdentityDAO
      */
     @Override
     public List<UpdatedIdentityDto> selectUpdated( final Integer days, final List<IdentityChangeType> identityChangeTypes,
-            final List<SearchUpdatedAttribute> updatedAttributes, final Plugin plugin )
+            final List<SearchUpdatedAttribute> updatedAttributes, final Integer max, final Plugin plugin )
     {
         final List<UpdatedIdentityDto> list = new ArrayList<>( );
         final StringBuilder sqlBuilder = new StringBuilder( SQL_QUERY_SELECT_UPDATED_IDENTITIES );
@@ -737,6 +737,10 @@ public final class IdentityDAO implements IIdentityDAO
                 // AND ( ( iah.change_type IN (0,1) AND iah.attribute_key = 'birthplace' ) OR ( iah.change_type IN (2) AND iah.attribute_key = 'mail' ) )
                 sqlBuilder.append( " AND " ).append( fullAttributesFilters.stream( ).collect( Collectors.joining( " OR ", "(", ")" ) ) );
             }
+        }
+        if ( max != null && max > 0 )
+        {
+            sqlBuilder.append( " LIMIT " ).append( max );
         }
 
         try ( final DAOUtil daoUtil = new DAOUtil( sqlBuilder.toString( ), plugin ) )

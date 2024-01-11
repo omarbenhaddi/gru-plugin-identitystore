@@ -224,7 +224,7 @@ public interface IIdentityDAO
      * @return the list of identities
      */
     List<UpdatedIdentityDto> selectUpdated( final Integer days, final List<IdentityChangeType> identityChangeTypes,
-            final List<SearchUpdatedAttribute> updatedAttributes, final Plugin plugin );
+            final List<SearchUpdatedAttribute> updatedAttributes, final Integer max, final Plugin plugin );
 
     /**
      * Search for history entries that matches the following parameters
