@@ -66,8 +66,8 @@ public class IdentityAttributeValidationService
 {
 
     private final IdentityAttributeValidationCache _cache = SpringContextService.getBean( "identitystore.identityAttributeValidationCache" );
-    private final String pivotCertificationProcessCodeThreshold = AppPropertiesService
-            .getProperty( "identitystore.identity.attribute.pivot.certification.process.threshold" );
+    private final int pivotCertificationLevelThreshold = AppPropertiesService
+            .getPropertyInt( "identitystore.identity.attribute.pivot.certification.level.threshold", 400 );
     private static IdentityAttributeValidationService _instance;
 
     public static IdentityAttributeValidationService instance( )
@@ -178,45 +178,40 @@ public class IdentityAttributeValidationService
         }
 
         final AttributeDto highestCertifiedPivot = pivotAttrs.stream( ).max( Comparator.comparing( AttributeDto::getCertificationLevel ) ).orElse( null );
-        if ( highestCertifiedPivot != null )
+        if ( highestCertifiedPivot != null && highestCertifiedPivot.getCertificationLevel( ) >= pivotCertificationLevelThreshold )
         {
-            final Integer thresholdLevel = AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( pivotCertificationProcessCodeThreshold,
-                    highestCertifiedPivot.getKey( ) );
-            if ( thresholdLevel != null && highestCertifiedPivot.getCertificationLevel( ) >= thresholdLevel )
+            if ( pivotAttrs.stream( ).anyMatch( a -> !a.getCertifier( ).equals( highestCertifiedPivot.getCertifier( ) ) ) )
             {
-                if ( pivotAttrs.stream( ).anyMatch( a -> !a.getCertifier( ).equals( highestCertifiedPivot.getCertifier( ) ) ) )
+                response.setStatus( ResponseStatusFactory.failure( )
+                        .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
+                        .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
+            }
+            else
+                if ( pivotKeys.size( ) != pivotAttrs.size( ) )
                 {
-                    response.setStatus( ResponseStatusFactory.failure( )
-                            .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION ).setMessage(
-                                    "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
-                }
-                else
-                    if ( pivotKeys.size( ) != pivotAttrs.size( ) )
+                    final AttributeDto countryCodeAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
+                            .findFirst( ).orElse( null );
+                    // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
+                    final String franceCode = GeoCodesService.getInstance( ).getCountriesListByName( "FRANCE" ).stream( )
+                            .filter( c -> c.getValue( ).equalsIgnoreCase( "FRANCE" ) ).map( Country::getCode ).findFirst( ).orElse( null );
+                    final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( franceCode );
+                    for ( final String pivotKey : pivotKeys )
                     {
-                        final AttributeDto countryCodeAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
-                                .findFirst( ).orElse( null );
-                        // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
-                        final String franceCode = GeoCodesService.getInstance( ).getCountriesListByName( "FRANCE" ).stream( )
-                                .filter( c -> c.getValue( ).equalsIgnoreCase( "FRANCE" ) ).map( Country::getCode ).findFirst( ).orElse( null );
-                        final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( franceCode );
-                        for ( final String pivotKey : pivotKeys )
+                        if ( acceptNoCityCode && pivotKey.equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
                         {
-                            if ( acceptNoCityCode && pivotKey.equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
-                            {
-                                continue;
-                            }
-                            final AttributeDto pivotAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( pivotKey ) ).findFirst( ).orElse( null );
-                            if ( pivotAttr == null )
-                            {
-                                response.setStatus( ResponseStatusFactory.failure( )
-                                        .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
-                                        .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( )
-                                                + "' certifier" ) );
-                                break;
-                            }
+                            continue;
+                        }
+                        final AttributeDto pivotAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( pivotKey ) ).findFirst( ).orElse( null );
+                        if ( pivotAttr == null )
+                        {
+                            response.setStatus( ResponseStatusFactory.failure( )
+                                    .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
+                                    .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( )
+                                            + "' certifier" ) );
+                            break;
                         }
                     }
-            }
+                }
         }
     }
 
