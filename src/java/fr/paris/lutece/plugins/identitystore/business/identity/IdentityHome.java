@@ -223,6 +223,18 @@ public final class IdentityHome
     }
 
     /**
+     * Find by customer ID. Does not load the attributes.
+     *
+     * @param strCustomerId
+     *            The customer ID
+     * @return The Identity without attributes
+     */
+    public static Identity findByCustomerIdNoAttributes( String strCustomerId )
+    {
+        return _dao.selectByCustomerId( strCustomerId, _plugin );
+    }
+
+    /**
      * Find by customer ID
      *
      * @param strCustomerId

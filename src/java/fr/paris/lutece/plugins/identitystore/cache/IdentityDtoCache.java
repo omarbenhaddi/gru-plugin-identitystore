@@ -99,7 +99,11 @@ public class IdentityDtoCache extends AbstractCacheableService
 
     public IdentityDto getByConnectionId( final String connectionId, final ServiceContract serviceContract )
     {
-        final Identity identity = IdentityHome.getMasterIdentityNoAttributesByConnectionId( connectionId );
+        Identity identity = IdentityHome.findByConnectionId( connectionId );
+        if ( identity != null && identity.isMerged( ) && identity.getMasterIdentityId( ) != null )
+        {
+            identity = IdentityHome.findByPrimaryKey( identity.getMasterIdentityId( ) );
+        }
         if ( identity == null || StringUtils.isBlank( identity.getCustomerId( ) ) || identity.getLastUpdateDate( ) == null )
         {
             return null;
@@ -109,12 +113,16 @@ public class IdentityDtoCache extends AbstractCacheableService
 
     public IdentityDto getByCustomerId( final String customerId, final ServiceContract serviceContract )
     {
-        final Timestamp lastUpdateDateFromDb = IdentityHome.getMasterIdentityLastUpdateDate( customerId );
-        if ( lastUpdateDateFromDb == null )
+        Identity identity = IdentityHome.findByCustomerIdNoAttributes( customerId );
+        if ( identity != null && identity.isMerged( ) && identity.getMasterIdentityId( ) != null )
+        {
+            identity = IdentityHome.findByPrimaryKey( identity.getMasterIdentityId( ) );
+        }
+        if ( identity == null || StringUtils.isBlank( identity.getCustomerId( ) ) || identity.getLastUpdateDate( ) == null )
         {
             return null;
         }
-        return get( customerId, lastUpdateDateFromDb, serviceContract );
+        return get( identity.getCustomerId( ), identity.getLastUpdateDate( ), serviceContract );
     }
 
     private IdentityDto get( final String customerId, final Timestamp lastUpdateDateFromDb, final ServiceContract serviceContract )
@@ -155,16 +163,6 @@ public class IdentityDtoCache extends AbstractCacheableService
     private String computeCacheKey( final String cuid, final int serviceContractId )
     {
         return cuid + "|" + serviceContractId;
-    }
-
-    private String extractCuid( final String cacheKey )
-    {
-        return cacheKey.split( "\\|" ) [0];
-    }
-
-    private int extractServiceContractId( final String cacheKey )
-    {
-        return Integer.parseInt( cacheKey.split( "\\|" ) [1] );
     }
 
     @Override
