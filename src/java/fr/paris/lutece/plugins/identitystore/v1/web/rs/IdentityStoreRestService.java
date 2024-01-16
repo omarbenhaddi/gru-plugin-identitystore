@@ -120,7 +120,7 @@ public final class IdentityStoreRestService
         String strMessage;
         Response.StatusType status;
 
-        AppLogService.error( "IdentityStoreRestService getErrorResponse : " + e, e );
+        AppLogService.debug( "IdentityStoreRestService getErrorResponse : " + e.getMessage( ) );
 
         if ( e instanceof IdentityNotFoundException )
         {
