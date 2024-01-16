@@ -3,7 +3,7 @@
 		<div class="col-2">
 			<select class="form-select selected-attribute-treatment-type" name="selected_attribute_treatment_type_">
 				<#list available_rule_types as rule_type >
-				<option value="${rule_type!''}">${rule_type.label!''}</option>
+				<option value="${rule_type.label!''}">${rule_type.label!''}</option>
 				</#list>
 			</select>
 		</div>
@@ -93,7 +93,7 @@
 				<div class="col-2">
 					<select class="form-select" name="selected_attribute_treatment_type_${attributeTreatment?index}">
 						<#list available_rule_types as rule_type >
-						<option value="${rule_type!''}" <#if rule_type == attributeTreatment.type> selected="selected"</#if>>${rule_type.label!''}</option>
+							<option value="${rule_type.label!''}" <#if rule_type == attributeTreatment.type> selected="selected"</#if>>${rule_type.label!''}</option>
 						</#list>
 					</select>
 				</div>
