@@ -33,8 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.attribute;
 
-import fr.paris.lutece.plugins.geocodes.business.Country;
-import fr.paris.lutece.plugins.geocodes.service.GeoCodesService;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache;
@@ -191,9 +189,7 @@ public class IdentityAttributeValidationService
                     final AttributeDto countryCodeAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
                             .findFirst( ).orElse( null );
                     // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
-                    final String franceCode = GeoCodesService.getInstance( ).getCountriesListByName( "FRANCE" ).stream( )
-                            .filter( c -> c.getValue( ).equalsIgnoreCase( "FRANCE" ) ).map( Country::getCode ).findFirst( ).orElse( null );
-                    final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( franceCode );
+                    final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( "99100" );
                     for ( final String pivotKey : pivotKeys )
                     {
                         if ( acceptNoCityCode && pivotKey.equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
