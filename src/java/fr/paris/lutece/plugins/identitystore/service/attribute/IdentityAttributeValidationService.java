@@ -54,6 +54,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -153,10 +155,9 @@ public class IdentityAttributeValidationService
     {
         final List<String> pivotKeys = IdentityAttributeService.instance( ).getPivotAttributeKeys( ).stream( ).map( AttributeKey::getKeyName )
                 .collect( Collectors.toList( ) );
-        final List<AttributeDto> pivotAttrs = identityRequest.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
-                .collect( Collectors.toList( ) );
-        pivotAttrs.forEach(
-                a -> a.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( a.getCertifier( ), a.getKey( ) ) ) );
+        final Map<String, AttributeDto> pivotAttrs = identityRequest.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
+                .peek( a -> a.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( a.getCertifier( ), a.getKey( ) ) ) )
+                .collect( Collectors.toMap( AttributeDto::getKey, Function.identity( ) ) );
         if ( StringUtils.isNotBlank( cuid ) )
         {
             final IdentityDto existingIdentityDto = DtoConverter.convertIdentityToDto( IdentityHome.findByCustomerId( cuid ) );
@@ -165,19 +166,19 @@ public class IdentityAttributeValidationService
             for ( final AttributeDto existingPivotAttr : existingPivotAttrs )
             {
                 // On prend en priorité l'attribut qui vient de la requête, sauf si l'attribut existant possède un niveau de certif + élevé
-                final AttributeDto requestAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( existingPivotAttr.getKey( ) ) ).findFirst( )
-                        .orElse( null );
+                final AttributeDto requestAttr = pivotAttrs.get( existingPivotAttr.getKey( ) );
                 if ( requestAttr == null || requestAttr.getCertificationLevel( ) < existingPivotAttr.getCertificationLevel( ) )
                 {
-                    pivotAttrs.add( existingPivotAttr );
+                    pivotAttrs.put( existingPivotAttr.getKey( ), existingPivotAttr );
                 }
             }
         }
 
-        final AttributeDto highestCertifiedPivot = pivotAttrs.stream( ).max( Comparator.comparing( AttributeDto::getCertificationLevel ) ).orElse( null );
+        final AttributeDto highestCertifiedPivot = pivotAttrs.values( ).stream( ).max( Comparator.comparing( AttributeDto::getCertificationLevel ) )
+                .orElse( null );
         if ( highestCertifiedPivot != null && highestCertifiedPivot.getCertificationLevel( ) >= pivotCertificationLevelThreshold )
         {
-            if ( pivotAttrs.stream( ).anyMatch( a -> !a.getCertifier( ).equals( highestCertifiedPivot.getCertifier( ) ) ) )
+            if ( pivotAttrs.values( ).stream( ).anyMatch( a -> !a.getCertifier( ).equals( highestCertifiedPivot.getCertifier( ) ) ) )
             {
                 response.setStatus( ResponseStatusFactory.failure( )
                         .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
@@ -186,8 +187,7 @@ public class IdentityAttributeValidationService
             }
             if ( pivotKeys.size( ) != pivotAttrs.size( ) )
             {
-                final AttributeDto countryCodeAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) ).findFirst( )
-                        .orElse( null );
+                final AttributeDto countryCodeAttr = pivotAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE );
                 // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
                 final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( "99100" );
                 for ( final String pivotKey : pivotKeys )
@@ -196,7 +196,7 @@ public class IdentityAttributeValidationService
                     {
                         continue;
                     }
-                    final AttributeDto pivotAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( pivotKey ) ).findFirst( ).orElse( null );
+                    final AttributeDto pivotAttr = pivotAttrs.get( pivotKey );
                     if ( pivotAttr == null )
                     {
                         response.setStatus( ResponseStatusFactory.failure( )
@@ -208,7 +208,7 @@ public class IdentityAttributeValidationService
             }
             // Tout est OK => on vérifie qu'aucun des attributs pivots envoyé n'a de valeur vide
             // Si c'est le cas, on rejete (suppression non autorisée)
-            if ( pivotAttrs.stream( ).anyMatch( a -> StringUtils.isBlank( a.getValue( ) ) ) )
+            if ( pivotAttrs.values( ).stream( ).anyMatch( a -> StringUtils.isBlank( a.getValue( ) ) ) )
             {
                 response.setStatus( ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_FORBIDDEN_PIVOT_ATTRIBUTE_DELETION )
                         .setMessage( "Deleting pivot attribute is forbidden for this identity." ) );
