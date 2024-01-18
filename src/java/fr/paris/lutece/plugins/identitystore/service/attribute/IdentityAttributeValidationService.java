@@ -36,7 +36,9 @@ package fr.paris.lutece.plugins.identitystore.service.attribute;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache;
+import fr.paris.lutece.plugins.identitystore.cache.IdentityDtoCache;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
+import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.DtoConverter;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
@@ -64,7 +66,7 @@ import java.util.stream.Collectors;
  */
 public class IdentityAttributeValidationService
 {
-
+    private final IdentityDtoCache _identityDtoCache = SpringContextService.getBean( "identitystore.identityDtoCache" );
     private final IdentityAttributeValidationCache _cache = SpringContextService.getBean( "identitystore.identityAttributeValidationCache" );
     private final int pivotCertificationLevelThreshold = AppPropertiesService
             .getPropertyInt( "identitystore.identity.attribute.pivot.certification.level.threshold", 400 );
@@ -76,6 +78,7 @@ public class IdentityAttributeValidationService
         {
             _instance = new IdentityAttributeValidationService( );
             _instance._cache.refresh( );
+            _instance._identityDtoCache.refresh( );
         }
         return _instance;
     }
@@ -150,7 +153,7 @@ public class IdentityAttributeValidationService
      * @param response
      *            the response
      */
-    public void validatePivotAttributesIntegrity( final String cuid, final IdentityDto identityRequest, final ChangeResponse response )
+    public void validatePivotAttributesIntegrity( final String cuid, final String clientCode, final IdentityDto identityRequest, final ChangeResponse response )
             throws IdentityStoreException
     {
         final List<String> pivotKeys = IdentityAttributeService.instance( ).getPivotAttributeKeys( ).stream( ).map( AttributeKey::getKeyName )
@@ -160,7 +163,7 @@ public class IdentityAttributeValidationService
                 .collect( Collectors.toMap( AttributeDto::getKey, Function.identity( ) ) );
         if ( StringUtils.isNotBlank( cuid ) )
         {
-            final IdentityDto existingIdentityDto = DtoConverter.convertIdentityToDto( IdentityHome.findByCustomerId( cuid ) );
+            final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( cuid, ServiceContractService.instance( ).getActiveServiceContract( clientCode ) );
             final List<AttributeDto> existingPivotAttrs = existingIdentityDto.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
                     .collect( Collectors.toList( ) );
             for ( final AttributeDto existingPivotAttr : existingPivotAttrs )
@@ -185,11 +188,12 @@ public class IdentityAttributeValidationService
                         .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
                 return;
             }
+
+            // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
+            final boolean acceptNoCityCode = pivotAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE )
+                    && !pivotAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ).equals( "99100" );
             if ( pivotKeys.size( ) != pivotAttrs.size( ) )
             {
-                final AttributeDto countryCodeAttr = pivotAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE );
-                // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
-                final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( "99100" );
                 for ( final String pivotKey : pivotKeys )
                 {
                     if ( acceptNoCityCode && pivotKey.equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
@@ -206,12 +210,23 @@ public class IdentityAttributeValidationService
                     }
                 }
             }
-            // Tout est OK => on vérifie qu'aucun des attributs pivots envoyé n'a de valeur vide
+            // Tout est OK => on vérifie qu'aucun des attributs pivots envoyé n'a de valeur vide (sauf le birthplace_code, dans le cas d'un pays étrager)
             // Si c'est le cas, on rejete (suppression non autorisée)
-            if ( pivotAttrs.values( ).stream( ).anyMatch( a -> StringUtils.isBlank( a.getValue( ) ) ) )
+            final List<AttributeDto> blankPivots = pivotAttrs.values( ).stream( ).filter( a -> StringUtils.isBlank( a.getValue( ) ) )
+                    .collect( Collectors.toList( ) );
+            for ( final AttributeDto blankPivot : blankPivots )
             {
-                response.setStatus( ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_FORBIDDEN_PIVOT_ATTRIBUTE_DELETION )
-                        .setMessage( "Deleting pivot attribute is forbidden for this identity." ) );
+                if ( acceptNoCityCode && blankPivot.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
+                {
+                    continue;
+                }
+                else
+                {
+                    response.setStatus(
+                            ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_FORBIDDEN_PIVOT_ATTRIBUTE_DELETION )
+                                    .setMessage( "Deleting pivot attribute is forbidden for this identity." ) );
+                    return;
+                }
             }
         }
     }

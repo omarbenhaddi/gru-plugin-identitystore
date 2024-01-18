@@ -96,8 +96,8 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
             IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
-                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( _strCustomerId, _identityChangeRequest.getIdentity( ),
-                        response );
+                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( _strCustomerId, _strClientCode,
+                        _identityChangeRequest.getIdentity( ), response );
                 if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
                 {
                     IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );

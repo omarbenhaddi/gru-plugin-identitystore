@@ -87,7 +87,8 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
             IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
             if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
             {
-                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( null, _identityChangeRequest.getIdentity( ), response );
+                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( null, _strClientCode, _identityChangeRequest.getIdentity( ),
+                        response );
                 if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
                 {
                     IdentityService.instance( ).create( _identityChangeRequest, _author, _strClientCode, response );
