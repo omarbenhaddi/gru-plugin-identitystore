@@ -182,31 +182,37 @@ public class IdentityAttributeValidationService
                 response.setStatus( ResponseStatusFactory.failure( )
                         .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
                         .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
+                return;
             }
-            else
-                if ( pivotKeys.size( ) != pivotAttrs.size( ) )
+            if ( pivotKeys.size( ) != pivotAttrs.size( ) )
+            {
+                final AttributeDto countryCodeAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) ).findFirst( )
+                        .orElse( null );
+                // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
+                final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( "99100" );
+                for ( final String pivotKey : pivotKeys )
                 {
-                    final AttributeDto countryCodeAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
-                            .findFirst( ).orElse( null );
-                    // Pays de naissance étranger, on accepte que le code commune de naissance ne soit pas renseigné
-                    final boolean acceptNoCityCode = countryCodeAttr != null && !countryCodeAttr.getValue( ).equals( "99100" );
-                    for ( final String pivotKey : pivotKeys )
+                    if ( acceptNoCityCode && pivotKey.equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
                     {
-                        if ( acceptNoCityCode && pivotKey.equals( Constants.PARAM_BIRTH_PLACE_CODE ) )
-                        {
-                            continue;
-                        }
-                        final AttributeDto pivotAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( pivotKey ) ).findFirst( ).orElse( null );
-                        if ( pivotAttr == null )
-                        {
-                            response.setStatus( ResponseStatusFactory.failure( )
-                                    .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
-                                    .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( )
-                                            + "' certifier" ) );
-                            break;
-                        }
+                        continue;
+                    }
+                    final AttributeDto pivotAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( pivotKey ) ).findFirst( ).orElse( null );
+                    if ( pivotAttr == null )
+                    {
+                        response.setStatus( ResponseStatusFactory.failure( )
+                                .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION ).setMessage(
+                                        "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
+                        return;
                     }
                 }
+            }
+            // Tout est OK => on vérifie qu'aucun des attributs pivots envoyé n'a de valeur vide
+            // Si c'est le cas, on rejete (suppression non autorisée)
+            if ( pivotAttrs.stream( ).anyMatch( a -> StringUtils.isBlank( a.getValue( ) ) ) )
+            {
+                response.setStatus( ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_FORBIDDEN_PIVOT_ATTRIBUTE_DELETION )
+                        .setMessage( "Deleting pivot attribute is forbidden for this identity." ) );
+            }
         }
     }
 
