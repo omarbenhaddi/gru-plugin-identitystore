@@ -180,9 +180,12 @@ public class GeocodesService
                     attributeStatus.setMessageKey( LabelStatusMessageKey );
                     attrStatusList.add( attributeStatus );
                 }
-                // update country label if attribute exists, and value is different from existing
+                // update country label if attribute exists, and value or certif is different from existing
                 else
-                    if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY ).getValue( ).equals( countryGeocodesLabel ) )
+                {
+                    final IdentityAttribute existingBirthcountryAttr = identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY );
+                    if ( !existingBirthcountryAttr.getValue( ).equals( countryGeocodesLabel )
+                            || !existingBirthcountryAttr.getCertificate( ).getCertifierCode( ).equals( countryCodeToCreate.getCertifier( ) ) )
                     {
                         final boolean override = ( countryLabelToUpdate != null && !countryLabelToUpdate.getValue( ).equals( countryGeocodesLabel ) );
                         if ( countryLabelToUpdate == null )
@@ -202,6 +205,7 @@ public class GeocodesService
                         }
                         attrStatusList.add( attributeStatus );
                     }
+                }
             }
         }
         // Country code to UPDATE
@@ -277,10 +281,12 @@ public class GeocodesService
                             attributeStatus.setMessageKey( LabelStatusMessageKey );
                             attrStatusList.add( attributeStatus );
                         }
-                        // update country label if attribute exists, and value is different from existing
+                        // update country label if attribute exists, and value or certif is different from existing
                         else
                         {
-                            if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY ).getValue( ).equals( countryGeocodesLabel ) )
+                            final IdentityAttribute existingBirthCountryAttr = identity.getAttributes( ).get( Constants.PARAM_BIRTH_COUNTRY );
+                            if ( !existingBirthCountryAttr.getValue( ).equals( countryGeocodesLabel )
+                                    || !existingBirthCountryAttr.getCertificate( ).getCertifierCode( ).equals( countryCodeToUpdate.getCertifier( ) ) )
                             {
                                 final boolean override = ( countryLabelToUpdate != null && !countryLabelToUpdate.getValue( ).equals( countryGeocodesLabel ) );
                                 if ( countryLabelToUpdate == null )
@@ -819,9 +825,12 @@ public class GeocodesService
                     attributeStatus.setMessageKey( attrStatusMessageKey );
                     attrStatusList.add( attributeStatus );
                 }
-                // update city label if attribute exists, and value is different from existing
+                // update city label if attribute exists, and value or certif is different from existing
                 else
-                    if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE ).getValue( ).equals( cityGeocodesLabel ) )
+                {
+                    final IdentityAttribute existingBirthplaceAttr = identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE );
+                    if ( !existingBirthplaceAttr.getValue( ).equals( cityGeocodesLabel )
+                            || !existingBirthplaceAttr.getCertificate( ).getCertifierCode( ).equals( cityCodeToCreate.getCertifier( ) ) )
                     {
                         final boolean override = ( cityLabelToUpdate != null && !cityLabelToUpdate.getValue( ).equals( cityGeocodesLabel ) );
                         if ( cityLabelToUpdate == null )
@@ -841,6 +850,7 @@ public class GeocodesService
                         }
                         attrStatusList.add( attributeStatus );
                     }
+                }
             }
         }
         // city code to UPDATE
@@ -918,9 +928,12 @@ public class GeocodesService
                             attributeStatus.setMessageKey( attrStatusMessageKey );
                             attrStatusList.add( attributeStatus );
                         }
-                        // update city label if attribute exists, and value is different from existing
+                        // update city label if attribute exists, and value or certif is different from existing
                         else
-                            if ( !identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE ).getValue( ).equals( cityGeocodesLabel ) )
+                        {
+                            final IdentityAttribute existingBirthplaceAttr = identity.getAttributes( ).get( Constants.PARAM_BIRTH_PLACE );
+                            if ( !existingBirthplaceAttr.getValue( ).equals( cityGeocodesLabel )
+                                    || !existingBirthplaceAttr.getCertificate( ).getCertifierCode( ).equals( cityCodeToUpdate.getCertifier( ) ) )
                             {
                                 final boolean override = ( cityLabelToUpdate != null && !cityLabelToUpdate.getValue( ).equals( cityGeocodesLabel ) );
                                 if ( cityLabelToUpdate == null )
@@ -940,6 +953,7 @@ public class GeocodesService
                                 }
                                 attrStatusList.add( attributeStatus );
                             }
+                        }
                     }
                 }
             }
