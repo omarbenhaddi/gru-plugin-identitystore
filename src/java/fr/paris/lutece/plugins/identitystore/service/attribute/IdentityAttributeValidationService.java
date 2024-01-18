@@ -163,7 +163,8 @@ public class IdentityAttributeValidationService
                 .collect( Collectors.toMap( AttributeDto::getKey, Function.identity( ) ) );
         if ( StringUtils.isNotBlank( cuid ) )
         {
-            final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( cuid, ServiceContractService.instance( ).getActiveServiceContract( clientCode ) );
+            final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( cuid,
+                    ServiceContractService.instance( ).getActiveServiceContract( clientCode ) );
             final List<AttributeDto> existingPivotAttrs = existingIdentityDto.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
                     .collect( Collectors.toList( ) );
             for ( final AttributeDto existingPivotAttr : existingPivotAttrs )
