@@ -170,7 +170,10 @@ public class IdentityAttributeValidationService
                     .collect( Collectors.toList( ) );
             for ( final AttributeDto existingPivotAttr : existingPivotAttrs )
             {
-                if ( !pivotAttrs.contains( existingPivotAttr ) )
+                // On prend en priorité l'attribut qui vient de la requête, sauf si l'attribut existant possède un niveau de certif + élevé
+                final AttributeDto requestAttr = pivotAttrs.stream( ).filter( a -> a.getKey( ).equals( existingPivotAttr.getKey( ) ) ).findFirst( )
+                        .orElse( null );
+                if ( requestAttr == null || requestAttr.getCertificationLevel( ) < existingPivotAttr.getCertificationLevel( ) )
                 {
                     pivotAttrs.add( existingPivotAttr );
                 }
