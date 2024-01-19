@@ -116,7 +116,7 @@ public class ServiceContractRestService
      *            client code
      * @return the ServiceContract
      */
-    @Path( Constants.SERVICECONTRACTS_PATH + "/{" + Constants.PARAM_TARGET_CLIENT_CODE + "}" )
+    @Path( Constants.SERVICECONTRACTS_PATH + "/list/{" + Constants.PARAM_TARGET_CLIENT_CODE + "}" )
     @GET
     @Produces( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Get all service contract associated to the given client code", response = ServiceContractsSearchResponse.class )
@@ -179,7 +179,7 @@ public class ServiceContractRestService
      *            service contract ID
      * @return the ServiceContract
      */
-    @Path( Constants.SERVICECONTRACT_PATH + "/{" + Constants.PARAM_ID_SERVICE_CONTRACT + "}" )
+    @Path( Constants.SERVICECONTRACTS_PATH + "/{" + Constants.PARAM_ID_SERVICE_CONTRACT + "}" )
     @GET
     @Produces( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Get the service contract associated to the given ID and application client code", response = ServiceContractSearchResponse.class )
@@ -212,7 +212,7 @@ public class ServiceContractRestService
      *            the application code in the HTTP header
      * @return http 200 if creation is ok with {@link ServiceContractChangeResponse}
      */
-    @Path( Constants.SERVICECONTRACT_PATH )
+    @Path( Constants.SERVICECONTRACTS_PATH )
     @POST
     @Consumes( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Create a new Service Contract associated with the given client code", response = ServiceContractChangeResponse.class )
@@ -247,7 +247,7 @@ public class ServiceContractRestService
      * @return http 200 if creation is ok with {@link ServiceContractChangeResponse}
      */
     @PUT
-    @Path( Constants.SERVICECONTRACT_PATH + "/{" + Constants.PARAM_ID_SERVICE_CONTRACT + "}" )
+    @Path( Constants.SERVICECONTRACTS_PATH + "/{" + Constants.PARAM_ID_SERVICE_CONTRACT + "}" )
     @Consumes( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Update an existing Service Contract", response = ServiceContractChangeResponse.class )
     @ApiResponses( value = {
@@ -283,7 +283,7 @@ public class ServiceContractRestService
      * @return http 200 if creation is ok with {@link ServiceContractChangeResponse}
      */
     @PUT
-    @Path( Constants.SERVICECONTRACT_PATH + "/{" + Constants.PARAM_ID_SERVICE_CONTRACT + "}" + Constants.SERVICECONTRACT_END_DATE_PATH )
+    @Path( Constants.SERVICECONTRACTS_PATH + "/{" + Constants.PARAM_ID_SERVICE_CONTRACT + "}" + Constants.SERVICECONTRACT_END_DATE_PATH )
     @Consumes( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Patches the end date of the service contract", response = ServiceContractChangeResponse.class )
     @ApiResponses( value = {
