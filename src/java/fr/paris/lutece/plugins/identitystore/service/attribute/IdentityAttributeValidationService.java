@@ -161,6 +161,13 @@ public class IdentityAttributeValidationService
         final Map<String, AttributeDto> pivotAttrs = identityRequest.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
                 .peek( a -> a.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( a.getCertifier( ), a.getKey( ) ) ) )
                 .collect( Collectors.toMap( AttributeDto::getKey, Function.identity( ) ) );
+
+        if ( pivotAttrs.isEmpty( ) )
+        {
+            // On ne fait le contrôle que si la requête contient au moins un attribut pivot
+            return;
+        }
+
         if ( StringUtils.isNotBlank( cuid ) )
         {
             final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( cuid,
