@@ -33,7 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.attribute;
 
+import fr.paris.lutece.plugins.geocodes.business.City;
+import fr.paris.lutece.plugins.geocodes.business.Country;
+import fr.paris.lutece.plugins.geocodes.service.GeoCodesService;
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityAttribute;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityAttributeValidationCache;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityDtoCache;
 import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
@@ -50,14 +54,19 @@ import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreExceptio
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 
 /**
  * Service class used to validate attribute values in requests
@@ -166,6 +175,58 @@ public class IdentityAttributeValidationService
             return;
         }
 
+        // Vérification des codes INSEE.
+        // Si non vides et invalides, on considère qu'ils sont absents de la requète
+     
+        // get birth date
+        Date birthdate;                
+        final AttributeDto birthdateAttr = pivotAttrs.get( Constants.PARAM_BIRTH_DATE );
+        try
+        {
+            birthdate = DateUtils.parseDate( birthdateAttr.getValue( ), "dd/MM/yyyy" );
+        }
+        catch( final ParseException e )
+        {
+            birthdate = null;
+        }
+                
+        final List<AttributeStatus> inseeCodeStatuses = new ArrayList<>( );
+        if ( pivotAttrs.containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) )
+        {
+            final AttributeDto birthPlaceCodeAttr = pivotAttrs.get( Constants.PARAM_BIRTH_PLACE_CODE );
+            if ( StringUtils.isNotBlank( birthPlaceCodeAttr.getValue( ) ) )
+            {
+                final Optional<City> city = GeoCodesService.getInstance( ).getCityByDateAndCode( birthdate, birthPlaceCodeAttr.getValue( ) );
+                if ( city == null || !city.isPresent( ) )
+                {
+                    pivotAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
+                    final AttributeStatus birthplaceCodeStatus = new AttributeStatus( );
+                    birthplaceCodeStatus.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
+                    birthplaceCodeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                    birthplaceCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_VALIDATION_ERROR_UNKNOWN_GEOCODES_CODE );
+                    inseeCodeStatuses.add( birthplaceCodeStatus );
+                }
+            }
+        }
+        if ( pivotAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
+        {
+            final AttributeDto birthcountryCodeAttr = pivotAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE );
+            if ( StringUtils.isNotBlank( birthcountryCodeAttr.getValue( ) ) )
+            {
+            	// TODO : use GeoCodesService.getInstance( ).getCountryByDateAndCode() when available ...
+                final Optional<Country> country = GeoCodesService.getInstance( ).getCountryByCode( birthcountryCodeAttr.getValue( ) );
+                if ( country == null || !country.isPresent( ) )
+                {
+                    pivotAttrs.remove( Constants.PARAM_BIRTH_COUNTRY_CODE );
+                    final AttributeStatus birthcountryCodeStatus = new AttributeStatus( );
+                    birthcountryCodeStatus.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
+                    birthcountryCodeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
+                    birthcountryCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_VALIDATION_ERROR_UNKNOWN_GEOCODES_CODE );
+                    inseeCodeStatuses.add( birthcountryCodeStatus );
+                }
+            }
+        }
+
 
         if ( StringUtils.isNotBlank( cuid ) )
         {
@@ -191,6 +252,7 @@ public class IdentityAttributeValidationService
             pivotKeys.remove( Constants.PARAM_BIRTH_PLACE_CODE );
             pivotAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
         }
+
         final AttributeDto highestCertifiedPivot = pivotAttrs.values( ).stream( ).max( Comparator.comparing( AttributeDto::getCertificationLevel ) )
                 .orElse( null );
         if ( highestCertifiedPivot != null && highestCertifiedPivot.getCertificationLevel( ) >= pivotCertificationLevelThreshold )
@@ -203,6 +265,7 @@ public class IdentityAttributeValidationService
                 response.setStatus( ResponseStatusFactory.failure( )
                         .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
                         .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
+                response.getStatus( ).getAttributeStatuses( ).addAll( inseeCodeStatuses );
                 return;
             }
 
