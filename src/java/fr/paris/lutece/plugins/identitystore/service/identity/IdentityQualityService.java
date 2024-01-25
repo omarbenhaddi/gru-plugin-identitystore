@@ -89,6 +89,12 @@ public class IdentityQualityService
 
     public void enrich( final List<SearchAttribute> searchAttributes, final IdentityDto identity, final ServiceContract serviceContract, final Identity bean )
     {
+        this.enrich( searchAttributes, identity, serviceContract, bean, true );
+    }
+
+    public void enrich( final List<SearchAttribute> searchAttributes, final IdentityDto identity, final ServiceContract serviceContract, final Identity bean,
+            final boolean computeDuplicateDefinition )
+    {
         /* Compute Quality Definition */
         IdentityQualityService.instance( ).computeCoverage( identity, serviceContract );
         IdentityQualityService.instance( ).computeQuality( identity );
@@ -103,35 +109,38 @@ public class IdentityQualityService
         identity.getAttributes( ).clear( );
         identity.getAttributes( ).addAll( filteredAttributeValues );
 
-        /* Compute Duplicate Definition */
-        final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( identity.getCustomerId( ) );
-        if ( suspiciousIdentity != null )
+        if ( computeDuplicateDefinition )
         {
-            identity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
-            final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
-            identity.getDuplicateDefinition( ).setDuplicateSuspicion( duplicateSuspicion );
-            duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
-            duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
-        }
-
-        final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( identity.getCustomerId( ) );
-        if ( CollectionUtils.isNotEmpty( excludedIdentitiesList ) )
-        {
-            if ( identity.getDuplicateDefinition( ) == null )
+            /* Compute Duplicate Definition */
+            final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( identity.getCustomerId( ) );
+            if ( suspiciousIdentity != null )
             {
                 identity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
+                final IdentityDuplicateSuspicion duplicateSuspicion = new IdentityDuplicateSuspicion( );
+                identity.getDuplicateDefinition( ).setDuplicateSuspicion( duplicateSuspicion );
+                duplicateSuspicion.setDuplicateRuleCode( suspiciousIdentity.getDuplicateRuleCode( ) );
+                duplicateSuspicion.setCreationDate( suspiciousIdentity.getCreationDate( ) );
             }
-            identity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
-                final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
-                exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
-                exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
-                exclusion.setAuthorType( excludedIdentities.getAuthorType( ) );
-                final String excludedCustomerId = Objects.equals( excludedIdentities.getFirstCustomerId( ), identity.getCustomerId( ) )
-                        ? excludedIdentities.getSecondCustomerId( )
-                        : excludedIdentities.getFirstCustomerId( );
-                exclusion.setExcludedCustomerId( excludedCustomerId );
-                return exclusion;
-            } ).collect( Collectors.toList( ) ) );
+
+            final List<ExcludedIdentities> excludedIdentitiesList = SuspiciousIdentityHome.getExcludedIdentitiesList( identity.getCustomerId( ) );
+            if ( CollectionUtils.isNotEmpty( excludedIdentitiesList ) )
+            {
+                if ( identity.getDuplicateDefinition( ) == null )
+                {
+                    identity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
+                }
+                identity.getDuplicateDefinition( ).getDuplicateExclusions( ).addAll( excludedIdentitiesList.stream( ).map( excludedIdentities -> {
+                    final IdentityDuplicateExclusion exclusion = new IdentityDuplicateExclusion( );
+                    exclusion.setExclusionDate( excludedIdentities.getExclusionDate( ) );
+                    exclusion.setAuthorName( excludedIdentities.getAuthorName( ) );
+                    exclusion.setAuthorType( excludedIdentities.getAuthorType( ) );
+                    final String excludedCustomerId = Objects.equals( excludedIdentities.getFirstCustomerId( ), identity.getCustomerId( ) )
+                            ? excludedIdentities.getSecondCustomerId( )
+                            : excludedIdentities.getFirstCustomerId( );
+                    exclusion.setExcludedCustomerId( excludedCustomerId );
+                    return exclusion;
+                } ).collect( Collectors.toList( ) ) );
+            }
         }
 
         if ( bean != null )
