@@ -47,6 +47,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevel;
 import fr.paris.lutece.plugins.identitystore.business.referentiel.RefAttributeCertificationLevelHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.IdentitySearchRuleHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.search.SearchRuleType;
@@ -373,7 +374,7 @@ public class IdentityService
         }
 
         // check if update would create duplicates
-        if ( doesRequestContainsAttributeValueChanges( request, identity ) )
+        if ( doesRequestContainsAttributeValueChangesImpactingRules( request, identity, PROPERTY_DUPLICATES_UPDATE_RULES ) )
         {
             // collect all non blank attributes from request
             final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
@@ -475,7 +476,8 @@ public class IdentityService
     }
 
     /**
-     * Returns <code>true</code> if the request aims to add new attributes, remove existing attributes, or modify existing attribute's value.<br/>
+     * Returns <code>true</code> if the request aims to add new attributes, remove existing attributes, or modify existing attribute's value, of attributes
+     * checked by the duplicate rules in parameter.<br/>
      * Returns <code>false</code> otherwise.
      * 
      * @param request
@@ -483,9 +485,13 @@ public class IdentityService
      * @param identity
      *            the identity
      */
-    private boolean doesRequestContainsAttributeValueChanges( final IdentityChangeRequest request, final Identity identity )
+    private boolean doesRequestContainsAttributeValueChangesImpactingRules( final IdentityChangeRequest request, final Identity identity,
+            final String duplicateRulesProperty )
     {
-        return request.getIdentity( ).getAttributes( ).stream( ).anyMatch( a -> {
+        final Set<String> checkedAttributeKeys = Arrays.stream( AppPropertiesService.getProperty( duplicateRulesProperty ).split( "," ) )
+                .map( DuplicateRuleHome::findByCode ).flatMap( rule -> rule.getCheckedAttributes( ).stream( ) ).map( AttributeKey::getKeyName )
+                .collect( Collectors.toSet( ) );
+        return request.getIdentity( ).getAttributes( ).stream( ).filter( a -> checkedAttributeKeys.contains( a.getKey( ) ) ).anyMatch( a -> {
             if ( StringUtils.isNotBlank( a.getValue( ) ) )
             {
                 return !identity.getAttributes( ).containsKey( a.getKey( ) )
