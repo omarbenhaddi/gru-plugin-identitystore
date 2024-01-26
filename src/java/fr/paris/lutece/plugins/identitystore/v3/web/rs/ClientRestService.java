@@ -165,7 +165,7 @@ public class ClientRestService
      * @return http 200 if creation is ok with {@link ClientChangeResponse}
      */
     @PUT
-    @Path( Constants.CLIENT_PATH )
+    @Path( Constants.CLIENT_PATH + "/{" + Constants.PARAM_CLIENT_CODE + "}" )
     @Consumes( MediaType.APPLICATION_JSON )
     @ApiOperation( value = "Update an existing Service Contract", response = ClientChangeResponse.class )
     @ApiResponses( value = {
@@ -179,8 +179,7 @@ public class ClientRestService
             @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
             throws IdentityStoreException
     {
-        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY, strHeaderAppCode );
-        final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, trustedClientCode, authorName, authorType );
+        final ClientUpdateRequest identityStoreRequest = new ClientUpdateRequest( clientDto, clientCode, authorName, authorType );
         final ClientChangeResponse entity = (ClientChangeResponse) identityStoreRequest.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
