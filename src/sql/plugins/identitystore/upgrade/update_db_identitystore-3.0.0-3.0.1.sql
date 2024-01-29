@@ -89,6 +89,8 @@ ALTER TABLE identitystore_duplicate_rule_checked_attributes
 ALTER TABLE identitystore_duplicate_rule_checked_attributes
     ADD CONSTRAINT fk_duplicate_rule_checked_attributes_id_attribute FOREIGN KEY (id_attribute) REFERENCES identitystore_ref_attribute (id_attribute);
 
+ALTER TABLE identitystore_duplicate_rule_checked_attributes add primary key (id_rule,id_attribute);
+
 --
 -- Structure for table identitystore_duplicate_rule_attribute_treatment
 --
