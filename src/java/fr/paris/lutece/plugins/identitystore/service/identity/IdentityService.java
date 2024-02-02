@@ -215,7 +215,7 @@ public class IdentityService
 
         // check if GUID is already in use
         if ( StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) )
-                && IdentityHome.findByCustomerId( request.getIdentity( ).getConnectionId( ) ) != null )
+                && IdentityHome.findByConnectionId( request.getIdentity( ).getConnectionId( ) ) != null )
         {
             throw new IdentityStoreException( "GUID is already in use." );
         }
