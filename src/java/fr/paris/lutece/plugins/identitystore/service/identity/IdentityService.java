@@ -411,6 +411,7 @@ public class IdentityService
                                     "An identity already exists with the given connection ID. The customer ID of that identity is provided in the response." )
                             .setMessageKey( Constants.PROPERTY_REST_ERROR_CONFLICT_CONNECTION_ID ) );
                     response.setCustomerId( byConnectionId.getCustomerId( ) );
+                    TransactionManager.rollBack( null );
                     return null;
                 }
                 else
