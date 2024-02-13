@@ -1249,11 +1249,18 @@ public class GeocodesService
             if ( cityCodeToUpdate != null )
             {
                 attrToUpdate.remove( cityCodeToUpdate );
-                final AttributeStatus cityCodeStatus = new AttributeStatus( );
-                cityCodeStatus.setStatus( AttributeChangeStatus.NOT_UPDATED );
-                cityCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_NOT_UPDATED );
-                cityCodeStatus.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
-                attrStatusList.add( cityCodeStatus );
+                if ( StringUtils.isEmpty( cityCodeToUpdate.getValue( ) ) )
+                {
+                    attrStatusList.add( _identityAttributeService.updateAttribute( cityCodeToUpdate, identity, clientCode ) );
+                }
+                else
+                {
+                    final AttributeStatus cityCodeStatus = new AttributeStatus( );
+                    cityCodeStatus.setStatus( AttributeChangeStatus.NOT_UPDATED );
+                    cityCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_NOT_UPDATED );
+                    cityCodeStatus.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
+                    attrStatusList.add( cityCodeStatus );
+                }
             }
         final AttributeDto cityLabelToCreate = attrToCreate.stream( ).filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( )
                 .orElse( null );
