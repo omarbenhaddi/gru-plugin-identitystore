@@ -38,7 +38,6 @@ import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.Susp
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRuleAttributeTreatment;
-import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityQualityService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.utils.Maps;
@@ -57,10 +56,12 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DuplicateService implements IDuplicateService
@@ -94,7 +95,7 @@ public class DuplicateService implements IDuplicateService
             throws IdentityStoreException
     {
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-        final List<String> matchingRuleCodes = new ArrayList<>( );
+        final Set<String> matchingRuleCodes = new HashSet<>( );
 
         if ( CollectionUtils.isNotEmpty( ruleCodes ) )
         {
@@ -149,9 +150,12 @@ public class DuplicateService implements IDuplicateService
                     || Objects.equals( identity.getCustomerId( ), customerId ) );
             result.getQualifiedIdentities( ).forEach( qualifiedIdentity -> {
                 IdentityQualityService.instance( ).computeQuality( qualifiedIdentity );
+                qualifiedIdentity.setMatchedDuplicateRuleCode( duplicateRule.getCode( ) );
+                // ==== FIXME - remove this block (#420)
                 qualifiedIdentity.setDuplicateDefinition( new IdentityDuplicateDefinition( ) );
                 qualifiedIdentity.getDuplicateDefinition( ).setDuplicateSuspicion( new IdentityDuplicateSuspicion( ) );
                 qualifiedIdentity.getDuplicateDefinition( ).getDuplicateSuspicion( ).setDuplicateRuleCode( duplicateRule.getCode( ) );
+                // ====
             } );
             return result;
         }
