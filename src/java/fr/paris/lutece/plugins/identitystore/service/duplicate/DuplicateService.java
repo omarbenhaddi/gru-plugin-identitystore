@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.duplicate;
 
 import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKey;
+import fr.paris.lutece.plugins.identitystore.business.attribute.AttributeKeyHome;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
@@ -95,28 +96,67 @@ public class DuplicateService implements IDuplicateService
             throws IdentityStoreException
     {
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
-        final Set<String> matchingRuleCodes = new HashSet<>( );
-
-        if ( CollectionUtils.isNotEmpty( ruleCodes ) )
+        if ( CollectionUtils.isEmpty( ruleCodes ) )
         {
-            final List<DuplicateRule> duplicateRules = ruleCodes.stream( ).map( code -> DuplicateRuleService.instance( ).safeGet( code ) )
-                    .filter( Objects::nonNull ).filter( DuplicateRule::isActive ).sorted( Comparator.comparingInt( DuplicateRule::getPriority ) )
-                    .collect( Collectors.toList( ) );
-            for ( final DuplicateRule duplicateRule : duplicateRules )
+            response.setStatus( ResponseStatusFactory.badRequest( ).setMessage( "No duplicate rule code sent." )
+                    .setMessageKey( Constants.PROPERTY_REST_ERROR_NO_DUPLICATE_RULE_CODE_SENT ) );
+            return response;
+        }
+        if ( attributeValues == null || attributeValues.isEmpty( ) )
+        {
+            response.setStatus(
+                    ResponseStatusFactory.badRequest( ).setMessage( "No attribute sent." ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_ATTRIBUTE_SENT ) );
+            return response;
+        }
+
+        // vérification des clés d'attributs envoyées
+        for ( final String attrKey : attributeValues.keySet( ) )
+        {
+            final AttributeKey attribute = AttributeKeyHome.findByKey( attrKey, false );
+            if ( attribute == null )
             {
-                final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
-                if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
-                {
-                    identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
-                        if ( response.getIdentities( ).stream( )
-                                .noneMatch( existing -> Objects.equals( existing.getCustomerId( ), identityDto.getCustomerId( ) ) ) )
-                        {
-                            matchingRuleCodes.add( duplicateRule.getCode( ) );
-                            response.getIdentities( ).add( identityDto );
-                        }
-                    } );
-                    Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
-                }
+                response.setStatus( ResponseStatusFactory.badRequest( ).setMessage( "Unknown attribute key : " + attrKey )
+                        .setMessageKey( Constants.PROPERTY_REST_ERROR_UNKNOWN_ATTRIBUTE_KEY ) );
+                return response;
+            }
+        }
+
+        // récupération des règles de détection de doublon et vérification de leur validité
+        final List<DuplicateRule> duplicateRules = new ArrayList<>( );
+        for ( final String ruleCode : ruleCodes )
+        {
+            final DuplicateRule duplicateRule = DuplicateRuleService.instance( ).safeGet( ruleCode );
+            if ( duplicateRule == null )
+            {
+                response.setStatus( ResponseStatusFactory.badRequest( ).setMessage( "Unknown duplicate rule code : " + ruleCode )
+                        .setMessageKey( Constants.PROPERTY_REST_ERROR_UNKNOWN_DUPLICATE_RULE_CODE ) );
+                return response;
+            }
+            if ( !duplicateRule.isActive( ) )
+            {
+                response.setStatus( ResponseStatusFactory.badRequest( ).setMessage( "Duplicate rule is inactive : " + ruleCode )
+                        .setMessageKey( Constants.PROPERTY_REST_ERROR_INACTIVE_DUPLICATE_RULE ) );
+                return response;
+            }
+            duplicateRules.add( duplicateRule );
+        }
+
+        duplicateRules.sort( Comparator.comparingInt( DuplicateRule::getPriority ) );
+        final Set<String> matchingRuleCodes = new HashSet<>( );
+        for ( final DuplicateRule duplicateRule : duplicateRules )
+        {
+            final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
+            if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
+            {
+                identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
+                    if ( response.getIdentities( ).stream( )
+                            .noneMatch( existing -> Objects.equals( existing.getCustomerId( ), identityDto.getCustomerId( ) ) ) )
+                    {
+                        matchingRuleCodes.add( duplicateRule.getCode( ) );
+                        response.getIdentities( ).add( identityDto );
+                    }
+                } );
+                Maps.mergeStringMap( response.getMetadata( ), identitySearchResult.getMetadata( ) );
             }
         }
 
