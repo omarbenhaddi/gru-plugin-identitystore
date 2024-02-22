@@ -39,8 +39,10 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChang
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchUpdatedAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -270,7 +272,8 @@ public interface IIdentityDAO
      * @return
      */
     List<IdentityChange> selectIdentityHistoryBySearchParameters( String strCustomerId, String clientCode, String authorName, IdentityChangeType changeType,
-            Map<String, String> metadata, Integer nbDaysFrom, Plugin plugin ) throws IdentityStoreException;
+            String changeStatus, Map<String, String> metadata, Integer nbDaysFrom, Pair<Date, Date> modificationDateInterval, Plugin plugin )
+            throws IdentityStoreException;
 
     /**
      * Search for identities that are not connected, and have a past expirationDate.

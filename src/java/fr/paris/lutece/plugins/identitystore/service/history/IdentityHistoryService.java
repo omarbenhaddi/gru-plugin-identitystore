@@ -51,6 +51,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityNotFoundException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -109,7 +110,8 @@ public class IdentityHistoryService
                 .map( ar -> ar.getAttributeKey( ).getKeyName( ) ).collect( Collectors.toSet( ) );
 
         final List<IdentityChange> identityChangeList = IdentityHome.findHistoryBySearchParameters( request.getCustomerId( ), request.getClientCode( ),
-                request.getAuthorName( ), request.getIdentityChangeType( ), request.getMetadata( ), request.getNbDaysFrom( ) );
+                request.getAuthorName( ), request.getIdentityChangeType( ), request.getChangeStatus( ), request.getMetadata( ), request.getNbDaysFrom( ),
+                Pair.of( request.getModificationDateIntervalStart( ), request.getModificationDateIntervalEnd( ) ) );
         if ( !serviceContract.getAuthorizedAgentHistoryRead( ) )
         {
             identityChangeList.removeIf( identityChange -> Objects.equals( identityChange.getChangeType( ), IdentityChangeType.READ ) );

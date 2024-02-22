@@ -43,8 +43,10 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -197,10 +199,12 @@ public final class IdentityHome
      *            The customer ID
      * @return The Identity
      */
-    public static List<IdentityChange> findHistoryBySearchParameters( String strCustomerId, String clientCode, String authorName, IdentityChangeType changeType,
-            Map<String, String> metadata, Integer nbDaysFrom ) throws IdentityStoreException
+    public static List<IdentityChange> findHistoryBySearchParameters( final String strCustomerId, final String clientCode, final String authorName,
+            final IdentityChangeType changeType, final String changeStatus, final Map<String, String> metadata, final Integer nbDaysFrom,
+            final Pair<Date, Date> modificationDateInterval ) throws IdentityStoreException
     {
-        return _dao.selectIdentityHistoryBySearchParameters( strCustomerId, clientCode, authorName, changeType, metadata, nbDaysFrom, _plugin );
+        return _dao.selectIdentityHistoryBySearchParameters( strCustomerId, clientCode, authorName, changeType, changeStatus, metadata, nbDaysFrom,
+                modificationDateInterval, _plugin );
     }
 
     /**
