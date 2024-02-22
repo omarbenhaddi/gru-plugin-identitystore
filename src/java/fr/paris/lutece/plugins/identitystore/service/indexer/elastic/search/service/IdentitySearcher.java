@@ -213,10 +213,9 @@ public class IdentitySearcher implements IIdentitySearcher
             int limit = max == 0 ? total : Math.min( max, total );
             if ( size < limit )
             {
-                int offset = initialRequest.getFrom( );
+                int offset = initialRequest.getFrom( ) + size;
                 while ( offset < limit )
                 {
-                    offset += size;
                     initialRequest.setFrom( offset );
                     final String subResponse = this._elasticClient.search( INDEX, initialRequest );
                     final Response pagedResponse = objectMapper.readValue( subResponse, Response.class );
@@ -225,6 +224,7 @@ public class IdentitySearcher implements IIdentitySearcher
                     {
                         innerResponse.getResult( ).setMaxScore( pagedResponse.getResult( ).getMaxScore( ) );
                     }
+                    offset += size;
                 }
             }
             return innerResponse;
@@ -262,11 +262,10 @@ public class IdentitySearcher implements IIdentitySearcher
                 final int maxTotal = innerResponses.getResponses( ).stream( ).map( r -> r.getResult( ).getTotal( ).getValue( ) ).mapToInt( value -> value )
                         .max( ).orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute total of hits" ) );
                 final int limit = Math.min( max, maxTotal );
-                int offset = searchActions.get( 0 ).getQuery( ).getFrom( );
+                int offset = searchActions.get( 0 ).getQuery( ).getFrom( ) + size;
                 while ( offset < limit )
                 {
-                    offset += size;
-                    int finalOffset = offset;
+                    final int finalOffset = offset;
                     searchActions.forEach( multiSearchAction -> multiSearchAction.getQuery( ).setFrom( finalOffset ) );
                     final String pagedResponse = this._elasticClient.multiSearch( INDEX, searchActions );
                     final Responses pagedResponses = objectMapper.readValue( pagedResponse, Responses.class );
@@ -277,6 +276,7 @@ public class IdentitySearcher implements IIdentitySearcher
                             .orElseThrow( ( ) -> new IdentityStoreException( "Cannot compute max score" ) );
                     globalResponse.getResult( ).setMaxScore( maxScore );
                     this.computeResponseMetadata( globalResponse, pagedResponses, searchActions );
+                    offset += size;
                 }
                 globalResponse.getResult( ).getHits( ).addAll( distinctHits.values( ) );
                 return globalResponse;

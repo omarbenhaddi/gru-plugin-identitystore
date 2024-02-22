@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -42,6 +43,8 @@ public class Shard
     protected Integer successful;
     protected Integer skipped;
     protected Integer failed;
+    @JsonIgnore
+    protected Object failures;
 
     public Integer getTotal( )
     {
@@ -81,5 +84,15 @@ public class Shard
     public void setFailed( Integer failed )
     {
         this.failed = failed;
+    }
+
+    public Object getFailures( )
+    {
+        return failures;
+    }
+
+    public void setFailures( Object failures )
+    {
+        this.failures = failures;
     }
 }
