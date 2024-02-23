@@ -27,6 +27,7 @@
             <th>#i18n{identitystore.manage_attributekeys.columnKeyWeight}</th>
             <th>#i18n{identitystore.manage_attributekeys.columnPivot}</th>
             <th>#i18n{identitystore.manage_attributekeys.columnCertifiable}</th>
+            <th>#i18n{identitystore.manage_attributekeys.columnMandatoryForCreation}</th>
             <th>#i18n{identitystore.manage_attributekeys.columnCommonSearchKey}</th>
             <th>#i18n{portal.util.labelActions}</th>
         </tr>
@@ -64,6 +65,13 @@
             </td>
             <td>
                 <#if attributekey.certifiable = true>
+                    <i class="fas fa-check" aria-hidden="true"></i>
+                <#else>
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </#if>
+            </td>
+            <td>
+                <#if attributekey.mandatoryForCreation = true>
                     <i class="fas fa-check" aria-hidden="true"></i>
                 <#else>
                     <i class="fas fa-times" aria-hidden="true"></i>
