@@ -44,22 +44,17 @@ import java.util.List;
 public class IndexActionDao implements IIndexActionDao
 {
 
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_index_action ( id_index_action, customer_id, action_type, date_index ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_index_action ( customer_id, action_type, date_index ) VALUES ( ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_index_action WHERE id_index_action = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_index_action, customer_id, action_type, date_index FROM identitystore_index_action ORDER BY date_index asc";
     private static final String SQL_QUERY_SELECTALL_WITH_LIMIT = SQL_QUERY_SELECTALL + " LIMIT ?";
-    private static final String SQL_QUERY_NEW_PK = "SELECT max( id_index_action )   FROM identitystore_index_action";
 
     @Override
     public void insert( IndexAction indexAction, Plugin plugin )
     {
         try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
         {
-            indexAction.setId( newPrimaryKey( plugin ) );
-
             int nIndex = 1;
-
-            daoUtil.setInt( nIndex++, indexAction.getId( ) );
             daoUtil.setString( nIndex++, indexAction.getCustomerId( ) );
             daoUtil.setString( nIndex++, indexAction.getActionType( ).name( ) );
             daoUtil.setTimestamp( nIndex, new Timestamp( new Date( ).getTime( ) ) );
@@ -123,30 +118,6 @@ public class IndexActionDao implements IIndexActionDao
             }
 
             return actions;
-        }
-    }
-
-    /**
-     * Generates a new primary key
-     *
-     * @param plugin
-     *            The Plugin
-     * @return The new primary key
-     */
-    private synchronized int newPrimaryKey( Plugin plugin )
-    {
-        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
-        {
-            daoUtil.executeQuery( );
-
-            int nKey = 1;
-
-            if ( daoUtil.next( ) )
-            {
-                nKey = daoUtil.getInt( 1 ) + 1;
-            }
-
-            return nKey;
         }
     }
 }
