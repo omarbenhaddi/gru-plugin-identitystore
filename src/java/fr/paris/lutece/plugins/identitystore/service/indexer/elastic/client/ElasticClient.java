@@ -37,6 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.Constants;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MultiSearchAction;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Responses;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -77,22 +79,6 @@ public class ElasticClient
     }
 
     /**
-     * Create a document of given type into a given index
-     *
-     * @param strIndex
-     *            The index
-     * @param object
-     *            The document
-     * @return The JSON response from Elastic
-     * @throws ElasticClientException
-     *             If a problem occurs connecting Elastic
-     */
-    public String create( final String strIndex, final Object object ) throws ElasticClientException
-    {
-        return create( strIndex, StringUtils.EMPTY, object );
-    }
-
-    /**
      * Create a document of given type into a given index at the given id
      *
      * @param strIndex
@@ -105,7 +91,7 @@ public class ElasticClient
      * @throws ElasticClientException
      *             If a problem occurs connecting Elastic
      */
-    public String create( final String strIndex, final String strId, final Object object ) throws ElasticClientException
+    public void create( final String strIndex, final String strId, final Object object ) throws ElasticClientException
     {
         String strResponse;
         try
@@ -122,13 +108,12 @@ public class ElasticClient
             }
 
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
-            strResponse = _connexion.POST( strURI, strJSON );
+            _connexion.POST( strURI, strJSON );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error creating object : " + ex.getMessage( ), ex );
         }
-        return strResponse;
     }
 
     /**
@@ -141,9 +126,8 @@ public class ElasticClient
      * @return the reponse of Elk server
      * @throws ElasticClientException
      */
-    public String indexByBulk( final String strIndex, final List<BulkAction> bulkActions ) throws ElasticClientException
+    public void indexByBulk( final String strIndex, final List<BulkAction> bulkActions ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_BULK;
@@ -169,13 +153,12 @@ public class ElasticClient
                     requestBuilder.append( "\n" );
                 }
             }
-            strResponse = _connexion.POST( strURI, requestBuilder.toString( ) );
+            this._connexion.POST( strURI, requestBuilder.toString( ) );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error processing bulking request : " + ex.getMessage( ), ex );
         }
-        return strResponse;
     }
 
     /**
@@ -187,19 +170,17 @@ public class ElasticClient
      * @throws ElasticClientException
      *             If a problem occurs connecting Elastic
      */
-    public String deleteIndex( final String strIndex ) throws ElasticClientException
+    public void deleteIndex( final String strIndex ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex );
-            strResponse = _connexion.DELETE( strURI );
+            this._connexion.DELETE( strURI );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting index : " + ex.getMessage( ), ex );
         }
-        return strResponse;
     }
 
     /**
@@ -213,45 +194,17 @@ public class ElasticClient
      * @throws ElasticClientException
      *             If a problem occurs connecting Elastic
      */
-    public String deleteDocument( final String strIndex, final String strId ) throws ElasticClientException
+    public void deleteDocument( final String strIndex, final String strId ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
-            strResponse = _connexion.DELETE( strURI );
+            this._connexion.DELETE( strURI );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting document : " + ex.getMessage( ), ex );
         }
-        return strResponse;
-    }
-
-    /**
-     * Delete a documents by Query
-     *
-     * @param strIndex
-     *            The index
-     * @param strQuery
-     *            The Query
-     * @return The JSON response from Elastic
-     * @throws ElasticClientException
-     *             If a problem occurs connecting Elastic
-     */
-    public String deleteByQuery( final String strIndex, final String strQuery ) throws ElasticClientException
-    {
-        String strResponse;
-        try
-        {
-            final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_DELETE_BY_QUERY;
-            strResponse = _connexion.POST( strURI, strQuery );
-        }
-        catch( final IOException ex )
-        {
-            throw new ElasticClientException( "ElasticLibrary : Error deleting by query : " + ex.getMessage( ), ex );
-        }
-        return strResponse;
     }
 
     /**
@@ -268,9 +221,8 @@ public class ElasticClient
      *             If a problem occurs connecting Elastic
      */
 
-    public String update( final String strIndex, final String strId, final Object object ) throws ElasticClientException
+    public void update( final String strIndex, final String strId, final Object object ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             String strJSON;
@@ -284,39 +236,12 @@ public class ElasticClient
             }
 
             final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
-            strResponse = _connexion.POST( strURI, strJSON );
+            this._connexion.POST( strURI, strJSON );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error updating: " + ex.getMessage( ), ex );
         }
-        return strResponse;
-    }
-
-    /**
-     * Search
-     *
-     * @param strIndex
-     *            The index
-     * @param strId
-     *            the id of the requested document
-     * @return The JSON response from Elastic
-     * @throws ElasticClientException
-     *             If a problem occurs connecting Elastic
-     */
-    public String get( final String strIndex, final String strId ) throws ElasticClientException
-    {
-        String strResponse;
-        try
-        {
-            final String strURI = getURI( strIndex ) + "_doc" + Constants.URL_PATH_SEPARATOR + strId;
-            strResponse = _connexion.GET( strURI );
-        }
-        catch( final IOException ex )
-        {
-            throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
-        }
-        return strResponse;
     }
 
     /**
@@ -353,47 +278,20 @@ public class ElasticClient
      * @throws ElasticClientException
      *             If a problem occurs connecting Elastic
      */
-    public String search( final String strIndex, final Object search ) throws ElasticClientException
+    public Response search(final String strIndex, final Object search ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strJSON = _mapper.writeValueAsString( search );
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
-            strResponse = _connexion.POST( strURI, strJSON );
+            return _connexion.SEARCH( strURI, strJSON );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
         }
-        return strResponse;
     }
 
-    /**
-     * Search
-     *
-     * @param strIndex
-     *            The index
-     * @param searchRequest
-     *            search request
-     * @return The JSON response from Elastic
-     * @throws ElasticClientException
-     *             If a problem occurs connecting Elastic
-     */
-    public String search( final String strIndex, final String searchRequest ) throws ElasticClientException
-    {
-        String strResponse;
-        try
-        {
-            final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_SEARCH;
-            strResponse = _connexion.POST( strURI, searchRequest );
-        }
-        catch( final IOException ex )
-        {
-            throw new ElasticClientException( "ElasticLibrary : Error searching object : " + ex.getMessage( ), ex );
-        }
-        return strResponse;
-    }
 
     /**
      * perform a multi search of documents : used to perform several query with a single http call
@@ -405,9 +303,8 @@ public class ElasticClient
      * @return the reponse of Elk server
      * @throws ElasticClientException
      */
-    public String multiSearch( final String strIndex, final List<MultiSearchAction> searchActions ) throws ElasticClientException
+    public Responses multiSearch(final String strIndex, final List<MultiSearchAction> searchActions ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex ) + Constants.PATH_QUERY_MULTI_SEARCH;
@@ -428,13 +325,12 @@ public class ElasticClient
                         break;
                 }
             }
-            strResponse = _connexion.POST( strURI, requestBuilder.toString( ) );
+            return this._connexion.MSEARCH( strURI, requestBuilder.toString( ) );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error processing multi search request : " + ex.getMessage( ), ex );
         }
-        return strResponse;
     }
 
     /**
@@ -462,19 +358,17 @@ public class ElasticClient
      * @return
      * @throws ElasticClientException
      */
-    public String updateSettings( final String strIndex, final String strJsonSettings ) throws ElasticClientException
+    public void updateSettings( final String strIndex, final String strJsonSettings ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex ) + "_settings";
-            strResponse = _connexion.PUT( strURI, strJsonSettings );
+            this._connexion.PUT( strURI, strJsonSettings );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error updating settings : " + ex.getMessage( ), ex );
         }
-        return strResponse;
 
     }
 
@@ -484,19 +378,18 @@ public class ElasticClient
      * @return
      * @throws ElasticClientException
      */
-    public String createAlias( final String strIndex, final String alias ) throws ElasticClientException
+    public void createAlias( final String strIndex, final String alias ) throws ElasticClientException
     {
         String strResponse;
         try
         {
             final String strURI = getURI( strIndex ) + "_alias" + Constants.URL_PATH_SEPARATOR + alias;
-            strResponse = _connexion.POST( strURI, "" );
+            this._connexion.POST( strURI, "" );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error creating alias : " + ex.getMessage( ), ex );
         }
-        return strResponse;
 
     }
 
@@ -527,19 +420,17 @@ public class ElasticClient
      * @return
      * @throws ElasticClientException
      */
-    public String deleteAlias( final String strIndex, final String alias ) throws ElasticClientException
+    public void deleteAlias( final String strIndex, final String alias ) throws ElasticClientException
     {
-        String strResponse;
         try
         {
             final String strURI = getURI( strIndex ) + "_alias" + Constants.URL_PATH_SEPARATOR + alias;
-            strResponse = _connexion.DELETE( strURI );
+            this._connexion.DELETE( strURI );
         }
         catch( final IOException ex )
         {
             throw new ElasticClientException( "ElasticLibrary : Error deleting alias : " + ex.getMessage( ), ex );
         }
-        return strResponse;
 
     }
 

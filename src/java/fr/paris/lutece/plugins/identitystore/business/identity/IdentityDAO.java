@@ -99,10 +99,10 @@ public final class IdentityDAO implements IIdentityDAO
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now( ), is_mon_paris_active = 0, expiration_date=now( ), last_update_date=now( )  WHERE customer_id = ?";
     private static final String SQL_QUERY_MERGE = "UPDATE identitystore_identity SET is_merged = 1, date_merge = now(), last_update_date = now(), id_master_identity = ? WHERE id_identity = ?";
     private static final String SQL_QUERY_CANCEL_MERGE = "UPDATE identitystore_identity SET is_merged = 0, date_merge = null, last_update_date = now(), id_master_identity = null WHERE id_identity = ?";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT DISTINCT a.customer_id" + " FROM identitystore_identity a"
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTE_EXISTING = "SELECT a.customer_id FROM identitystore_identity a"
             + " JOIN identitystore_identity_attribute b ON a.id_identity = b.id_identity"
             + " WHERE b.id_attribute IN (${id_attribute_list}) AND (${not_merged}) AND (${not_suspicious})"
-            + " GROUP BY a.id_identity HAVING COUNT (DISTINCT b.id_attribute) >= ${count}";
+            + " GROUP BY a.id_identity HAVING COUNT (b.id_attribute) >= ${count}";
     private static final String SQL_QUERY_FILTER_NOT_MERGED = "a.is_merged = 0 AND a.date_merge IS NULL";
     private static final String SQL_QUERY_FILTER_NOT_SUSPICIOUS = "NOT EXISTS (SELECT c.id_suspicious_identity FROM identitystore_quality_suspicious_identity c WHERE c.customer_id = a.customer_id)";
     private static final String SQL_QUERY_INSERT_HISTORY = "INSERT INTO identitystore_identity_history (change_type, change_status, change_message, author_type, author_name, client_code, customer_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, to_json(?::json))";

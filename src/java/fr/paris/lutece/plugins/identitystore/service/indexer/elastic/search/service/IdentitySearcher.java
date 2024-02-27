@@ -33,8 +33,6 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClient;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.ASearchRequest;
@@ -73,7 +71,6 @@ public class IdentitySearcher implements IIdentitySearcher
     private static final String INDEX = "identities-alias";
     final private static int propertySize = AppPropertiesService.getPropertyInt( IDENTITYSTORE_SEARCH_OFFSET, 10 );
     private final ElasticClient _elasticClient;
-    private final ObjectMapper objectMapper = new ObjectMapper( );
 
     public IdentitySearcher( String strServerUrl, String strLogin, String strPassword )
     {
@@ -207,8 +204,7 @@ public class IdentitySearcher implements IIdentitySearcher
             final int size = ( max == 0 ) ? propertySize : Math.min( max, propertySize );
             initialRequest.setFrom( 0 );
             initialRequest.setSize( size );
-            final String response = this._elasticClient.search( INDEX, initialRequest );
-            final Response innerResponse = objectMapper.readValue( response, Response.class );
+            final Response innerResponse = this._elasticClient.search( INDEX, initialRequest );
             int total = innerResponse.getResult( ).getTotal( ).getValue( );
             int limit = max == 0 ? total : Math.min( max, total );
             if ( size < limit )
@@ -217,8 +213,7 @@ public class IdentitySearcher implements IIdentitySearcher
                 while ( offset < limit )
                 {
                     initialRequest.setFrom( offset );
-                    final String subResponse = this._elasticClient.search( INDEX, initialRequest );
-                    final Response pagedResponse = objectMapper.readValue( subResponse, Response.class );
+                    final Response pagedResponse = this._elasticClient.search( INDEX, initialRequest );
                     innerResponse.getResult( ).getHits( ).addAll( pagedResponse.getResult( ).getHits( ) );
                     if ( pagedResponse.getResult( ).getMaxScore( ).compareTo( innerResponse.getResult( ).getMaxScore( ) ) > 0 )
                     {
@@ -229,7 +224,7 @@ public class IdentitySearcher implements IIdentitySearcher
             }
             return innerResponse;
         }
-        catch( ElasticClientException | JsonProcessingException e )
+        catch( ElasticClientException e )
         {
             throw new IdentityStoreException( e.getMessage( ), e );
         }
@@ -248,8 +243,7 @@ public class IdentitySearcher implements IIdentitySearcher
                     innerSearchRequest.setSize( size );
                     return new MultiSearchAction( innerSearchRequest, MultiSearchActionType.QUERY, INDEX );
                 } ).collect( Collectors.toList( ) );
-                final String response = this._elasticClient.multiSearch( INDEX, searchActions );
-                final Responses innerResponses = objectMapper.readValue( response, Responses.class );
+                final Responses innerResponses = this._elasticClient.multiSearch( INDEX, searchActions );
                 final Response globalResponse = new Response( );
                 globalResponse.setResult( new Result( ) );
                 globalResponse.getResult( ).setHits( new ArrayList<>( ) );
@@ -267,8 +261,7 @@ public class IdentitySearcher implements IIdentitySearcher
                 {
                     final int finalOffset = offset;
                     searchActions.forEach( multiSearchAction -> multiSearchAction.getQuery( ).setFrom( finalOffset ) );
-                    final String pagedResponse = this._elasticClient.multiSearch( INDEX, searchActions );
-                    final Responses pagedResponses = objectMapper.readValue( pagedResponse, Responses.class );
+                    final Responses pagedResponses = this._elasticClient.multiSearch( INDEX, searchActions );
                     pagedResponses.getResponses( ).stream( ).flatMap( r -> r.getResult( ).getHits( ).stream( ) ).distinct( )
                             .forEach( hit -> distinctHits.putIfAbsent( hit.getSource( ).getCustomerId( ), hit ) );
                     final BigDecimal maxScore = pagedResponses.getResponses( ).stream( ).filter( r -> r.getResult( ).getMaxScore( ) != null )
@@ -282,7 +275,7 @@ public class IdentitySearcher implements IIdentitySearcher
                 return globalResponse;
             }
         }
-        catch( final ElasticClientException | JsonProcessingException | IdentityStoreException e )
+        catch( final ElasticClientException | IdentityStoreException e )
         {
             throw new IdentityStoreException( e.getMessage( ), e );
         }

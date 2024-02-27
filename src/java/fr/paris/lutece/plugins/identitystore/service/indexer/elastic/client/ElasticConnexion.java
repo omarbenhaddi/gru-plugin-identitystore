@@ -33,6 +33,9 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
+import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Responses;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.ClientProtocolException;
@@ -71,8 +74,11 @@ public final class ElasticConnexion
     private static final int CONNECTION_POOL_MAX_TOTAL = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connection.pool.max.total", 20 );
     private static final long RESPONSE_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.response.timeout", 30 );
     private static final long CONNECT_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connect.timeout", 30 );
+    private static final ObjectMapper _mapper = new ObjectMapper();
     private final CloseableHttpClient _httpClient;
-    private final AbstractHttpClientResponseHandler<String> _responseHandler = buildResponseHandler( );
+    private final AbstractHttpClientResponseHandler<String> _simpleResponseHandler = buildSimpleResponseHandler( );
+    private final AbstractHttpClientResponseHandler<Response> _searchResponseHandler = buildSearchResponseHandler( );
+    private final AbstractHttpClientResponseHandler<Responses> _mSearchResponseHandler = buildSearchesResponseHandler( );
     private String _userLogin;
     private String _userPassword;
 
@@ -108,7 +114,7 @@ public final class ElasticConnexion
      */
     public String GET( final String strURI ) throws IOException
     {
-        return _httpClient.execute( new HttpGet( strURI ), _responseHandler );
+        return _httpClient.execute( new HttpGet( strURI ), _simpleResponseHandler);
     }
 
     /**
@@ -120,11 +126,11 @@ public final class ElasticConnexion
      *            the json
      * @return the string
      */
-    public String PUT( final String strURI, final String strJSON ) throws IOException
+    public void PUT( final String strURI, final String strJSON ) throws IOException
     {
         final HttpPut request = new HttpPut( strURI );
         request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
-        return _httpClient.execute( request, _responseHandler );
+        this._httpClient.execute( request );
     }
 
     /**
@@ -136,11 +142,43 @@ public final class ElasticConnexion
      *            the json
      * @return the string
      */
-    public String POST( final String strURI, final String strJSON ) throws IOException
+    public void POST( final String strURI, final String strJSON ) throws IOException
     {
         final HttpPost request = new HttpPost( strURI );
         request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
-        return _httpClient.execute( request, _responseHandler );
+        this._httpClient.execute( request );
+    }
+
+    /**
+     * Send a POST request to Elastic Search server
+     *
+     * @param strURI
+     *            the uri
+     * @param strJSON
+     *            the json
+     * @return the string
+     */
+    public Response SEARCH( final String strURI, final String strJSON ) throws IOException
+    {
+        final HttpPost request = new HttpPost( strURI );
+        request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+        return this._httpClient.execute( request, _searchResponseHandler);
+    }
+
+    /**
+     * Send a POST request to Elastic Search server
+     *
+     * @param strURI
+     *            the uri
+     * @param strJSON
+     *            the json
+     * @return the string
+     */
+    public Responses MSEARCH( final String strURI, final String strJSON ) throws IOException
+    {
+        final HttpPost request = new HttpPost( strURI );
+        request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+        return this._httpClient.execute( request, _mSearchResponseHandler);
     }
 
     /**
@@ -150,12 +188,12 @@ public final class ElasticConnexion
      *            the uri
      * @return the string
      */
-    public String DELETE( final String strURI ) throws IOException
+    public void DELETE( final String strURI ) throws IOException
     {
-        return _httpClient.execute( new HttpDelete( strURI ), _responseHandler );
+        _httpClient.execute( new HttpDelete( strURI ) );
     }
 
-    private static AbstractHttpClientResponseHandler<String> buildResponseHandler( )
+    private static AbstractHttpClientResponseHandler<String> buildSimpleResponseHandler( )
     {
         return new AbstractHttpClientResponseHandler<String>( )
         {
@@ -173,6 +211,34 @@ public final class ElasticConnexion
                 {
                     throw new ClientProtocolException( var3 );
                 }
+            }
+        };
+    }
+
+    private static AbstractHttpClientResponseHandler<Response> buildSearchResponseHandler( )
+    {
+        return new AbstractHttpClientResponseHandler<Response>( )
+        {
+            @Override
+            public Response handleEntity( HttpEntity httpEntity ) throws IOException
+            {
+                final Response response = _mapper.readValue(httpEntity.getContent(), Response.class);
+                EntityUtils.consume( httpEntity );
+                return response;
+            }
+        };
+    }
+
+    private static AbstractHttpClientResponseHandler<Responses> buildSearchesResponseHandler( )
+    {
+        return new AbstractHttpClientResponseHandler<Responses>( )
+        {
+            @Override
+            public Responses handleEntity( HttpEntity httpEntity ) throws IOException
+            {
+                final Responses response = _mapper.readValue(httpEntity.getContent(), Responses.class);
+                EntityUtils.consume( httpEntity );
+                return response;
             }
         };
     }

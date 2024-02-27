@@ -83,8 +83,8 @@ public class IdentityIndexer implements IIdentityIndexer
                 this.createOrUpdateAlias( "", newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
             }
 
-            final String response = this._elasticClient.create( IIdentityIndexer.CURRENT_INDEX_ALIAS, identity.getCustomerId( ), identity );
-            AppLogService.debug( "Indexed document: " + response );
+            this._elasticClient.create( IIdentityIndexer.CURRENT_INDEX_ALIAS, identity.getCustomerId( ), identity );
+            AppLogService.debug( "Indexed document: " + identity.getCustomerId( ) );
         }
         catch( final ElasticClientException e )
         {
@@ -98,8 +98,7 @@ public class IdentityIndexer implements IIdentityIndexer
     {
         try
         {
-            final String response = this._elasticClient.indexByBulk( index, bulkActions );
-            AppLogService.debug( "Indexed document: " + response );
+            this._elasticClient.indexByBulk( index, bulkActions );
             return true;
         }
         catch( final ElasticClientException e )
@@ -121,8 +120,8 @@ public class IdentityIndexer implements IIdentityIndexer
                 this.createOrUpdateAlias( "", newIndex, IIdentityIndexer.CURRENT_INDEX_ALIAS );
             }
 
-            final String response = this._elasticClient.update( IIdentityIndexer.CURRENT_INDEX_ALIAS, identity.getCustomerId( ), identity );
-            AppLogService.debug( "Indexed document: " + response );
+            this._elasticClient.update( IIdentityIndexer.CURRENT_INDEX_ALIAS, identity.getCustomerId( ), identity );
+            AppLogService.debug( "Indexed document: " + identity.getCustomerId( ) );
         }
         catch( final ElasticClientException e )
         {
@@ -136,8 +135,8 @@ public class IdentityIndexer implements IIdentityIndexer
     {
         try
         {
-            final String response = this._elasticClient.deleteDocument( IIdentityIndexer.CURRENT_INDEX_ALIAS, documentId );
-            AppLogService.debug( "Removed document: " + response );
+            this._elasticClient.deleteDocument( IIdentityIndexer.CURRENT_INDEX_ALIAS, documentId );
+            AppLogService.debug( "Removed document: " + documentId );
         }
         catch( final ElasticClientException e )
         {
