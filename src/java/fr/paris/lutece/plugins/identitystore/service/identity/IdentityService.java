@@ -1432,7 +1432,11 @@ public class IdentityService
                 final AttributeStatus status = _identityAttributeService.uncertifyAttribute( attribute );
                 attrStatusList.add( status );
             }
+            
+            // update identity to set lastupdate_date
+            IdentityHome.update( identity );
 
+            response.setLastUpdateDate( identity.getLastUpdateDate( ) );
             response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( attrStatusList )
                     .setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             TransactionManager.commitTransaction( null );
