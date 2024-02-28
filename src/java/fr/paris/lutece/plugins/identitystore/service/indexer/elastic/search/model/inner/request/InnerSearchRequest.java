@@ -40,7 +40,12 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeTreat
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,6 +58,9 @@ public class InnerSearchRequest
 
     @JsonProperty( "query" )
     protected Query query;
+
+    @JsonProperty( "_source" )
+    protected List<String> sourceFilters = new ArrayList<>( );
 
     public InnerSearchRequest( )
     {
@@ -103,6 +111,16 @@ public class InnerSearchRequest
     public void setMetadata( Map<String, String> metadata )
     {
         this.metadata = metadata;
+    }
+
+    public List<String> getSourceFilters( )
+    {
+        return sourceFilters;
+    }
+
+    public void setSourceFilters( List<String> sourceFilters )
+    {
+        this.sourceFilters = sourceFilters;
     }
 
     public void addMatch( final SearchAttribute attribute, final boolean must )

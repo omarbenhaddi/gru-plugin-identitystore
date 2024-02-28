@@ -278,7 +278,7 @@ public class ElasticClient
      * @throws ElasticClientException
      *             If a problem occurs connecting Elastic
      */
-    public Response search(final String strIndex, final Object search ) throws ElasticClientException
+    public Response search( final String strIndex, final Object search ) throws ElasticClientException
     {
         try
         {
@@ -292,7 +292,6 @@ public class ElasticClient
         }
     }
 
-
     /**
      * perform a multi search of documents : used to perform several query with a single http call
      *
@@ -303,7 +302,7 @@ public class ElasticClient
      * @return the reponse of Elk server
      * @throws ElasticClientException
      */
-    public Responses multiSearch(final String strIndex, final List<MultiSearchAction> searchActions ) throws ElasticClientException
+    public Responses multiSearch( final String strIndex, final List<MultiSearchAction> searchActions ) throws ElasticClientException
     {
         try
         {

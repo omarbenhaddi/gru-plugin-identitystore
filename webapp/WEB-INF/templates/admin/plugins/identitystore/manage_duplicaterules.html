@@ -16,6 +16,7 @@
             <th>#i18n{identitystore.manage_duplicaterules.columnName}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnDescription}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnPriority}</th>
+            <th>#i18n{identitystore.manage_duplicaterules.columnDetectionLimit}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnActive}</th>
             <th>#i18n{identitystore.manage_duplicaterules.columnDaemon}</th>
             <th>#i18n{portal.util.labelActions}</th>
@@ -34,6 +35,13 @@
 			</td>
             <td>
                 ${duplicaterule.priority}
+            </td>
+            <td>
+                <#if duplicaterule.detectionLimit == -1 >
+                    #i18n{identitystore.create_duplicaterule.labelDetectionDeactivated}
+                <#else>
+                    ${duplicaterule.detectionLimit}
+                </#if>
             </td>
             <td>
                 <#if duplicaterule.active>

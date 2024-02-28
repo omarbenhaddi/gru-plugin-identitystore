@@ -38,6 +38,16 @@
             </td>
         </tr>
         <tr>
+            <th>#i18n{identitystore.create_duplicaterule.labelDetectionLimit}</th>
+            <td>
+                <#if duplicaterule.detectionLimit == -1 >
+                    #i18n{identitystore.create_duplicaterule.labelDetectionDeactivated}
+                <#else>
+                    ${duplicaterule.detectionLimit}
+                </#if>
+            </td>
+        </tr>
+        <tr>
             <th>#i18n{identitystore.create_duplicaterule.labelActive}</th>
             <td>
                 <#if duplicaterule.active>

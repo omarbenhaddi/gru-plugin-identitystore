@@ -63,10 +63,13 @@ public interface ISearchIdentityService
      *            defines the maximum number of attributes that can be absent in the response (vs the request)
      * @param connected
      *            defines if the identity should be connected or not
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
      * @return a list of identities satisfying the criteria of the {@link SearchAttribute} list
      */
     QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
-            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected ) throws IdentityStoreException;
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected, final List<String> attributesFilter )
+            throws IdentityStoreException;
 
     /**
      * returns a list of qualified identities from combination of attributes
@@ -77,28 +80,34 @@ public interface ISearchIdentityService
      *            list of values to search for some attributes with strict or fuzzy mode
      * @param connected
      *            defines if the identity should be connected or not
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
      * @return a list of identities satisfying the criteria of the {@link SearchAttribute} list
      */
-    QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected )
-            throws IdentityStoreException;
+    QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected,
+            final List<String> attributesFilter ) throws IdentityStoreException;
 
     /**
      * returns a list of qualified identities from its customer ID
      *
      * @param customerId
      *            the customer ID
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
      * @return a list of identities satisfying the criteria of the {@link SearchAttribute} list
      */
-    QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId ) throws IdentityStoreException;
+    QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId, final List<String> attributesFilter ) throws IdentityStoreException;
 
     /**
      * returns a list of qualified identities from its customer ID
      *
      * @param customerIds
      *            the customer IDs
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
      * @return a list of identities satisfying the criteria of the {@link SearchAttribute} list
      */
-    QualifiedIdentitySearchResult getQualifiedIdentities( final List<String> customerIds ) throws IdentityStoreException;
+    QualifiedIdentitySearchResult getQualifiedIdentities( final List<String> customerIds, final List<String> attributesFilter ) throws IdentityStoreException;
 
     default List<SearchAttribute> computeOutputKeys( final List<SearchAttribute> attributes )
     {

@@ -82,26 +82,10 @@ public class IdentitySearcher implements IIdentitySearcher
         this._elasticClient = new ElasticClient( strServerUrl );
     }
 
-    /**
-     * Perform a multi search by generating several requests according to parameters.
-     * 
-     * @param attributes
-     *            the complete list of {@link SearchAttribute} defined in the client request
-     * @param specialTreatmentAttributes
-     *            a list of particular treatment on given attributes over attributes param
-     * @param nbEqualAttributes
-     *            number of attributes that must be strictly equal
-     * @param nbMissingAttributes
-     *            number of attributes that can be missing
-     * @param max
-     *            maximum number of identities in the response
-     * @param connected
-     *            search for a connected {@link IdentityDto} if true
-     * @return a list of {@link IdentityDto} matching the requests
-     */
     @Override
     public Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes,
-            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected ) throws IdentityStoreException
+            final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max, final boolean connected, final List<String> attributesFilter )
+            throws IdentityStoreException
     {
         final List<ASearchRequest> requests = new ArrayList<>( );
         /* Split attribute list into N combinations (list) of nbEqualAttributes */
@@ -121,13 +105,14 @@ public class IdentitySearcher implements IIdentitySearcher
                 {
                     final List<SearchAttribute> allAttributes = Stream.concat( currentCombinationOfEqualAttributes.stream( ), eligibleNuple.stream( ) )
                             .collect( Collectors.toList( ) );
-                    requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected, allAttributes ) );
+                    requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected, allAttributes,
+                            attributesFilter ) );
                 }
             }
             else
             {
                 requests.addAll( this.generateRequestsWithOrWithoutMissingAttributes( attributes, nbMissingAttributes, connected,
-                        currentCombinationOfEqualAttributes ) );
+                        currentCombinationOfEqualAttributes, attributesFilter ) );
             }
         }
         return this.getResponse( requests, max );
@@ -145,10 +130,12 @@ public class IdentitySearcher implements IIdentitySearcher
      *            search for a connected {@link IdentityDto}
      * @param workingAttributes
      *            the current list of attributes considered for the requests
+     * @param filterAttributes
+     *            set selected attribute list to attributes provided in the request
      * @return
      */
     private List<ASearchRequest> generateRequestsWithOrWithoutMissingAttributes( final List<SearchAttribute> baseAttributes, final Integer nbMissingAttributes,
-            final boolean connected, final List<SearchAttribute> workingAttributes )
+            final boolean connected, final List<SearchAttribute> workingAttributes, final List<String> attributesFilter )
     {
         final List<ASearchRequest> requests = new ArrayList<>( );
         if ( nbMissingAttributes != null && nbMissingAttributes > 0 )
@@ -165,34 +152,40 @@ public class IdentitySearcher implements IIdentitySearcher
                         .collect( Collectors.toList( ) );
                 final List<SearchAttribute> complete = Stream.concat( missingSearchAttributes.stream( ), workingAttributes.stream( ) )
                         .collect( Collectors.toList( ) );
-                requests.add( new ComplexSearchRequest( complete, connected ) );
+                requests.add( new ComplexSearchRequest( complete, connected, attributesFilter ) );
             }
         }
         else
         {
-            requests.add( new ComplexSearchRequest( workingAttributes, connected ) );
+            requests.add( new ComplexSearchRequest( workingAttributes, connected, attributesFilter ) );
         }
         return requests;
     }
 
     @Override
-    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected ) throws IdentityStoreException
+    public Response search( final List<SearchAttribute> attributes, final int max, final boolean connected, final List<String> attributesFilter )
+            throws IdentityStoreException
     {
-        final ASearchRequest request = new ComplexSearchRequest( attributes, connected );
+        final ASearchRequest request = new ComplexSearchRequest( attributes, connected, attributesFilter );
         return this.getResponse( request, max );
     }
 
     @Override
-    public Response search( final String customerId ) throws IdentityStoreException
+    public Response search( final String customerId, final List<String> attributesFilter ) throws IdentityStoreException
     {
-        final ASearchRequest request = new CustomerIdSearchRequest( customerId );
+        final ASearchRequest request = new CustomerIdSearchRequest( customerId, attributesFilter );
         return this.getResponse( request, 0 );
     }
 
     @Override
-    public Response search( final List<String> customerId ) throws IdentityStoreException
+    public Response search( final List<String> customerIds, final List<String> attributesFilter ) throws IdentityStoreException
     {
-        final List<ASearchRequest> request = customerId.stream( ).map( CustomerIdSearchRequest::new ).collect( Collectors.toList( ) );
+        final List<ASearchRequest> request = customerIds.stream( ).map( customerId -> {
+            final CustomerIdSearchRequest customerIdSearchRequest = new CustomerIdSearchRequest( customerId, attributesFilter );
+            customerIdSearchRequest.getSearchAttributes( ).addAll( attributesFilter.stream( )
+                    .map( filteredAttribute -> new SearchAttribute( filteredAttribute, null, null ) ).collect( Collectors.toList( ) ) );
+            return customerIdSearchRequest;
+        } ).collect( Collectors.toList( ) );
         return this.getResponse( request, 0 );
     }
 

@@ -66,7 +66,8 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     /**
      * {@inheritDoc }
      */
-    public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected )
+    public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes, final int max, final boolean connected,
+            final List<String> attributesFilter )
     {
         final Map<String, List<String>> mapAttributeValues = attributes.stream( )
                 .collect( Collectors.toMap( SearchAttribute::getKey, searchAttribute -> Lists.newArrayList( searchAttribute.getValue( ) ) ) );
@@ -86,7 +87,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId )
+    public QualifiedIdentitySearchResult getQualifiedIdentities( final String customerId, final List<String> attributesFilter )
     {
         try
         {
@@ -104,7 +105,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds )
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds, final List<String> attributesFilter )
     {
         // not to be used
         return new QualifiedIdentitySearchResult( );
@@ -113,7 +114,7 @@ public class DatabaseSearchIdentityService implements ISearchIdentityService
     @Override
     public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes,
             final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, int max,
-            boolean connected ) throws IdentityStoreException
+            boolean connected, final List<String> attributesFilter ) throws IdentityStoreException
     {
         if ( CollectionUtils.isNotEmpty( specialTreatmentAttributes ) || ( nbMissingAttributes != null && nbMissingAttributes != 0 ) )
         {

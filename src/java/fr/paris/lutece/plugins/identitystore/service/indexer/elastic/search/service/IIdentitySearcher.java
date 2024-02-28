@@ -47,12 +47,70 @@ import java.util.List;
 
 public interface IIdentitySearcher
 {
+    /**
+     * Performs a multi search in elastic search (_msearch) based on a list of attributes
+     * 
+     * @param attributes
+     *            the list of requested attribute keys and values
+     * @param specialTreatmentAttributes
+     *            the list of attribute treatment
+     * @param nbEqualAttributes
+     *            the number of attributes that must be equal amongst the requested attributes
+     * @param nbMissingAttributes
+     *            the numer of attributes that must be not present amongst the requested attributes
+     * @param max
+     *            the maximum of hits for each request
+     * @param connected
+     *            if true the hits must contain only connected identities
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
+     * @return a {@link Response}
+     * @throws IdentityStoreException
+     *             in case of error
+     */
     Response multiSearch( final List<SearchAttribute> attributes, final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes,
-            final Integer nbMissingAttributes, int max, boolean connected ) throws IdentityStoreException;
+            final Integer nbMissingAttributes, int max, boolean connected, final List<String> attributesFilter ) throws IdentityStoreException;
 
-    Response search( final List<SearchAttribute> attributes, final int max, final boolean connected ) throws IdentityStoreException;
+    /**
+     * Performs a search in elastic search (_search) based on a list of attributes
+     * 
+     * @param attributes
+     *            the list of requested attribute keys and values
+     * @param max
+     *            the maximum of hits for each request
+     * @param connected
+     *            if true the hits must contain only connected identities
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
+     * @return a {@link Response}
+     * @throws IdentityStoreException
+     */
+    Response search( final List<SearchAttribute> attributes, final int max, final boolean connected, final List<String> attributesFilter )
+            throws IdentityStoreException;
 
-    Response search( final String customerId ) throws IdentityStoreException;
+    /**
+     * Performs a search in elastic search (_search) based on customer ID
+     * 
+     * @param customerId
+     *            the customer ID to find
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
+     * @return a {@link Response}
+     * @throws IdentityStoreException
+     */
+    Response search( final String customerId, final List<String> attributesFilter ) throws IdentityStoreException;
+
+    /**
+     * Performs a multi search in elastic search (_msearch) based on a list of customer IDs
+     * 
+     * @param customerIds
+     *            the list of customer IDs to find
+     * @param attributesFilter
+     *            the list of attributes that must be included in the response
+     * @return a {@link Response}
+     * @throws IdentityStoreException
+     */
+    Response search( final List<String> customerIds, final List<String> attributesFilter ) throws IdentityStoreException;
 
     default Response emptyResponse( )
     {
@@ -77,6 +135,4 @@ public interface IIdentitySearcher
         response.setMetadata( new HashMap<>( ) );
         return response;
     }
-
-    Response search( List<String> customerId ) throws IdentityStoreException;
 }

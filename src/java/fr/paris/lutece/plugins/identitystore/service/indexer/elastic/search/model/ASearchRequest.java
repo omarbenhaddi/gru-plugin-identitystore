@@ -38,15 +38,42 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribut
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class ASearchRequest
 {
+    private static final String CUSTOMER_ID = "customerId";
     protected final List<SearchAttribute> searchAttributes = new ArrayList<>( );
+    protected final List<String> attributesFilter = new ArrayList<>( );
 
-    public abstract InnerSearchRequest body( );
+    public ASearchRequest( final List<String> attributesFilter )
+    {
+        this.getAttributesFilter( ).addAll( attributesFilter );
+    }
+
+    public InnerSearchRequest body( )
+    {
+        final InnerSearchRequest body = this.innerBody( );
+        if ( this.getAttributesFilter( ) != null && !this.getAttributesFilter( ).isEmpty( ) )
+        {
+            body.getSourceFilters( ).add( CUSTOMER_ID );
+            body.getSourceFilters( ).addAll( this.getAttributesFilter( ).stream( ).filter( attributeFilter -> !attributeFilter.equals( CUSTOMER_ID ) )
+                    .map( attributeFilter -> "attributes." + attributeFilter + ".key" ).collect( Collectors.toList( ) ) );
+            body.getSourceFilters( ).addAll( this.getAttributesFilter( ).stream( ).filter( attributeFilter -> !attributeFilter.equals( CUSTOMER_ID ) )
+                    .map( attributeFilter -> "attributes." + attributeFilter + ".value" ).collect( Collectors.toList( ) ) );
+        }
+        return body;
+    }
+
+    protected abstract InnerSearchRequest innerBody( );
 
     public List<SearchAttribute> getSearchAttributes( )
     {
         return searchAttributes;
+    }
+
+    public List<String> getAttributesFilter( )
+    {
+        return attributesFilter;
     }
 }

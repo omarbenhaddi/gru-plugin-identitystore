@@ -351,6 +351,7 @@ CREATE TABLE identitystore_duplicate_rule (
     active smallint NOT NULL DEFAULT 0,
     daemon smallint NOT NULL DEFAULT 0,
     daemon_last_exec_date TIMESTAMP(3) DEFAULT NULL,
+    detection_limit         int default -1,
     PRIMARY KEY (id_rule)
 );
 

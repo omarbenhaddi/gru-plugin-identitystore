@@ -912,7 +912,7 @@ public class IdentityService
         }
 
         final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
-                request.isConnected( ) );
+                request.isConnected( ), Collections.emptyList( ) );
         if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
         {
             final List<IdentityDto> filteredIdentities = this.getEnrichedIdentities( request.getSearch( ).getAttributes( ), clientCode,
@@ -1010,11 +1010,11 @@ public class IdentityService
      *            the customer ids to search for
      * @return a list of {@link IdentityDto}
      */
-    public List<IdentityDto> search( final List<String> customerIds )
+    public List<IdentityDto> search( final List<String> customerIds, final List<String> attributes )
     {
         try
         {
-            final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( customerIds );
+            final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( customerIds, attributes );
             if ( result != null && CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
             {
                 result.getQualifiedIdentities( ).forEach( identityDto -> {
@@ -1043,7 +1043,7 @@ public class IdentityService
     {
         try
         {
-            final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( customerId );
+            final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( customerId, Collections.emptyList( ) );
             if ( result != null && CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
             {
                 final IdentityDto identityDto = result.getQualifiedIdentities( ).get( 0 );
@@ -1293,6 +1293,7 @@ public class IdentityService
             return Batch.ofSize( Collections.emptyList( ), 0 );
         }
         final List<Integer> attributes = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) );
+        final List<String> attributesFilter = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
         final List<String> customerIdsList = IdentityHome.findByAttributeExisting( attributes, rule.getNbFilledAttributes( ), true, true );
         if ( customerIdsList.isEmpty( ) )
         {
@@ -1300,7 +1301,7 @@ public class IdentityService
         }
 
         final List<IdentityDto> identities = new ArrayList<>( );
-        Batch.ofSize( customerIdsList, batchSize ).forEach( cuids -> identities.addAll( this.search( cuids ) ) );
+        Batch.ofSize( customerIdsList, batchSize ).forEach( cuids -> identities.addAll( this.search( cuids, attributesFilter ) ) );
 
         return Batch.ofSize( identities.stream( ).filter( Objects::nonNull ).sorted( Comparator.comparingDouble( i -> i.getQuality( ).getQuality( ) ) )
                 .collect( Collectors.toList( ) ), batchSize );
@@ -1390,7 +1391,8 @@ public class IdentityService
             throws IdentityStoreException
     {
         final List<String> ruleCodes = Arrays.asList( AppPropertiesService.getProperty( ruleCodeProperty ).split( "," ) );
-        final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, customerId, ruleCodes );
+        final DuplicateSearchResponse esDuplicates = _duplicateServiceElasticSearch.findDuplicates( attributes, customerId, ruleCodes,
+                Collections.emptyList( ) );
         if ( esDuplicates != null )
         {
             return esDuplicates;
@@ -1398,7 +1400,7 @@ public class IdentityService
         final boolean checkDatabase = AppPropertiesService.getPropertyBoolean( PROPERTY_DUPLICATES_CHECK_DATABASE_ACTIVATED, false );
         if ( checkDatabase )
         {
-            return _duplicateServiceDatabase.findDuplicates( attributes, "", ruleCodes );
+            return _duplicateServiceDatabase.findDuplicates( attributes, "", ruleCodes, Collections.emptyList( ) );
         }
         return null;
     }

@@ -58,6 +58,7 @@ public class FullIndexTask extends AbstractIndexTask
 {
     private final int BATCH_SIZE = AppPropertiesService.getPropertyInt( "identitystore.task.reindex.batch.size", 1000 );
     private final int MAX_RETRY = AppPropertiesService.getPropertyInt( "identitystore.task.reindex.retry.max", 500 );
+    private final int TEMPO_RETRY = AppPropertiesService.getPropertyInt( "identitystore.task.reindex.retry.wait", 100 );
     private final boolean ACTIVE = AppPropertiesService.getPropertyBoolean( "identitystore.task.reindex.active", false );
     private final String ELASTIC_URL = AppPropertiesService.getProperty( "elasticsearch.url" );
     private final String ELASTIC_USER = AppPropertiesService.getProperty( "elasticsearch.user", "" );
@@ -126,7 +127,7 @@ public class FullIndexTask extends AbstractIndexTask
                         }
                         try
                         {
-                            Thread.sleep( 1000 );
+                            Thread.sleep( TEMPO_RETRY );
                         }
                         catch( InterruptedException e )
                         {

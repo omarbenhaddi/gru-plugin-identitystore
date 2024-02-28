@@ -235,12 +235,14 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
                     {
                         if ( datasource.equals( DATASOURCE_DB ) )
                         {
-                            _identities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                            _identities.addAll( _searchIdentityServiceDB.getQualifiedIdentities( atttributes, 0, false, Collections.emptyList( ) )
+                                    .getQualifiedIdentities( ) );
                         }
                         else
                             if ( datasource.equals( DATASOURCE_ES ) )
                             {
-                                _identities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false ).getQualifiedIdentities( ) );
+                                _identities.addAll( _searchIdentityServiceES.getQualifiedIdentities( atttributes, 0, false, Collections.emptyList( ) )
+                                        .getQualifiedIdentities( ) );
                             }
                     }
                 }

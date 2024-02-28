@@ -41,6 +41,6 @@ import java.util.Map;
 
 public interface IDuplicateService
 {
-    DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues, final String customerId, final List<String> ruleCodes )
-            throws IdentityStoreException;
+    DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues, final String customerId, final List<String> ruleCodes,
+            final List<String> attributesFilter ) throws IdentityStoreException;
 }

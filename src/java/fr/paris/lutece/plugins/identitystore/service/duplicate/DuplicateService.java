@@ -92,8 +92,8 @@ public class DuplicateService implements IDuplicateService
      *         {@link DuplicateRule} definition and the given list of attributes.
      */
     @Override
-    public DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues, final String customerId, final List<String> ruleCodes )
-            throws IdentityStoreException
+    public DuplicateSearchResponse findDuplicates( final Map<String, String> attributeValues, final String customerId, final List<String> ruleCodes,
+            final List<String> attributesFilter ) throws IdentityStoreException
     {
         final DuplicateSearchResponse response = new DuplicateSearchResponse( );
         if ( CollectionUtils.isEmpty( ruleCodes ) )
@@ -145,7 +145,7 @@ public class DuplicateService implements IDuplicateService
         final Set<String> matchingRuleCodes = new HashSet<>( );
         for ( final DuplicateRule duplicateRule : duplicateRules )
         {
-            final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule );
+            final QualifiedIdentitySearchResult identitySearchResult = this.findDuplicates( attributeValues, customerId, duplicateRule, attributesFilter );
             if ( !identitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
             {
                 identitySearchResult.getQualifiedIdentities( ).forEach( identityDto -> {
@@ -176,15 +176,15 @@ public class DuplicateService implements IDuplicateService
         return response;
     }
 
-    private QualifiedIdentitySearchResult findDuplicates( final Map<String, String> attributeValues, final String customerId,
-            final DuplicateRule duplicateRule ) throws IdentityStoreException
+    private QualifiedIdentitySearchResult findDuplicates( final Map<String, String> attributeValues, final String customerId, final DuplicateRule duplicateRule,
+            final List<String> attributesFilter ) throws IdentityStoreException
     {
         if ( CollectionUtils.isNotEmpty( duplicateRule.getCheckedAttributes( ) ) && this.canApplyRule( attributeValues, duplicateRule ) )
         {
             final List<SearchAttribute> searchAttributes = this.mapBaseAttributes( attributeValues, duplicateRule );
             final List<List<SearchAttribute>> specialTreatmentAttributes = this.mapSpecialTreatmentAttributes( attributeValues, duplicateRule );
             final QualifiedIdentitySearchResult result = _searchIdentityService.getQualifiedIdentities( searchAttributes, specialTreatmentAttributes,
-                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false );
+                    duplicateRule.getNbEqualAttributes( ), duplicateRule.getNbMissingAttributes( ), 0, false, attributesFilter );
             result.getQualifiedIdentities( ).removeIf( qualifiedIdentity -> SuspiciousIdentityHome.excluded( qualifiedIdentity.getCustomerId( ), customerId ) );
             result.getQualifiedIdentities( ).removeIf( identity -> ( identity.getMerge( ) != null && identity.getMerge( ).isMerged( ) )
                     || Objects.equals( identity.getCustomerId( ), customerId ) );

@@ -37,17 +37,20 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.Match;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.request.MatchContainer;
 
+import java.util.List;
+
 public class CustomerIdSearchRequest extends ASearchRequest
 {
     private final String customerId;
 
-    public CustomerIdSearchRequest( final String customerId )
+    public CustomerIdSearchRequest( final String customerId, final List<String> attributesFilter )
     {
+        super( attributesFilter );
         this.customerId = customerId;
     }
 
     @Override
-    public InnerSearchRequest body( )
+    public InnerSearchRequest innerBody( )
     {
         final InnerSearchRequest body = new InnerSearchRequest( );
 
@@ -56,6 +59,7 @@ public class CustomerIdSearchRequest extends ASearchRequest
         match.setQuery( this.getCustomerId( ) );
         final MatchContainer matchContainer = new MatchContainer( match );
         body.getQuery( ).getBool( ).getMust( ).add( matchContainer );
+
         return body;
     }
 

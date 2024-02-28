@@ -102,6 +102,7 @@ public class DuplicateRule implements Serializable
     private boolean _bActive;
     private boolean _bDaemon;
     private Timestamp _dateDaemonLastExecDate;
+    private int _nDetectionLimit = -1;
 
     public void validate( ) throws IdentityStoreException
     {
@@ -256,5 +257,18 @@ public class DuplicateRule implements Serializable
     public void setDaemonLastExecDate( Timestamp _dateDaemonLastExecDate )
     {
         this._dateDaemonLastExecDate = _dateDaemonLastExecDate;
+    }
+
+    /**
+     * Default value -1 means unlimited detection.
+     */
+    public int getDetectionLimit( )
+    {
+        return _nDetectionLimit;
+    }
+
+    public void setDetectionLimit( int _nDetectionLimit )
+    {
+        this._nDetectionLimit = _nDetectionLimit;
     }
 }

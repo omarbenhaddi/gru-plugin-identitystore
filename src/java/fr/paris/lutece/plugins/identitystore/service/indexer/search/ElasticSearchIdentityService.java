@@ -68,39 +68,41 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
     @Override
     public QualifiedIdentitySearchResult getQualifiedIdentities( final List<SearchAttribute> attributes,
             final List<List<SearchAttribute>> specialTreatmentAttributes, final Integer nbEqualAttributes, final Integer nbMissingAttributes, final int max,
-            final boolean connected ) throws IdentityStoreException
+            final boolean connected, final List<String> attributesFilter ) throws IdentityStoreException
     {
         final List<SearchAttribute> searchAttributes = this.computeOutputKeys( attributes );
         final List<List<SearchAttribute>> specialAttributes = specialTreatmentAttributes == null ? null
                 : specialTreatmentAttributes.stream( ).map( this::computeOutputKeys ).collect( Collectors.toList( ) );
 
-        final Response search = _identitySearcher.multiSearch( searchAttributes, specialAttributes, nbEqualAttributes, nbMissingAttributes, max, connected );
+        final Response search = _identitySearcher.multiSearch( searchAttributes, specialAttributes, nbEqualAttributes, nbMissingAttributes, max, connected,
+                attributesFilter );
 
         return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected ) throws IdentityStoreException
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<SearchAttribute> attributes, int max, boolean connected,
+            final List<String> attributesFilter ) throws IdentityStoreException
     {
         final List<SearchAttribute> searchAttributes = this.computeOutputKeys( attributes );
 
-        final Response search = _identitySearcher.search( searchAttributes, max, connected );
+        final Response search = _identitySearcher.search( searchAttributes, max, connected, attributesFilter );
 
         return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( String customerId ) throws IdentityStoreException
+    public QualifiedIdentitySearchResult getQualifiedIdentities( String customerId, final List<String> attributesFilter ) throws IdentityStoreException
     {
-        final Response search = _identitySearcher.search( customerId );
+        final Response search = _identitySearcher.search( customerId, attributesFilter );
 
         return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }
 
     @Override
-    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds ) throws IdentityStoreException
+    public QualifiedIdentitySearchResult getQualifiedIdentities( List<String> customerIds, final List<String> attributesFilter ) throws IdentityStoreException
     {
-        final Response search = _identitySearcher.search( customerIds );
+        final Response search = _identitySearcher.search( customerIds, attributesFilter );
 
         return new QualifiedIdentitySearchResult( this.getEntities( search ), search.getMetadata( ) );
     }

@@ -74,7 +74,7 @@ public final class ElasticConnexion
     private static final int CONNECTION_POOL_MAX_TOTAL = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connection.pool.max.total", 20 );
     private static final long RESPONSE_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.response.timeout", 30 );
     private static final long CONNECT_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connect.timeout", 30 );
-    private static final ObjectMapper _mapper = new ObjectMapper();
+    private static final ObjectMapper _mapper = new ObjectMapper( );
     private final CloseableHttpClient _httpClient;
     private final AbstractHttpClientResponseHandler<String> _simpleResponseHandler = buildSimpleResponseHandler( );
     private final AbstractHttpClientResponseHandler<Response> _searchResponseHandler = buildSearchResponseHandler( );
@@ -114,7 +114,7 @@ public final class ElasticConnexion
      */
     public String GET( final String strURI ) throws IOException
     {
-        return _httpClient.execute( new HttpGet( strURI ), _simpleResponseHandler);
+        return _httpClient.execute( new HttpGet( strURI ), _simpleResponseHandler );
     }
 
     /**
@@ -160,9 +160,9 @@ public final class ElasticConnexion
      */
     public Response SEARCH( final String strURI, final String strJSON ) throws IOException
     {
-        final HttpPost request = new HttpPost( strURI );
+        final HttpGet request = new HttpGet( strURI );
         request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
-        return this._httpClient.execute( request, _searchResponseHandler);
+        return this._httpClient.execute( request, _searchResponseHandler );
     }
 
     /**
@@ -176,9 +176,9 @@ public final class ElasticConnexion
      */
     public Responses MSEARCH( final String strURI, final String strJSON ) throws IOException
     {
-        final HttpPost request = new HttpPost( strURI );
+        final HttpGet request = new HttpGet( strURI );
         request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
-        return this._httpClient.execute( request, _mSearchResponseHandler);
+        return this._httpClient.execute( request, _mSearchResponseHandler );
     }
 
     /**
@@ -222,7 +222,7 @@ public final class ElasticConnexion
             @Override
             public Response handleEntity( HttpEntity httpEntity ) throws IOException
             {
-                final Response response = _mapper.readValue(httpEntity.getContent(), Response.class);
+                final Response response = _mapper.readValue( httpEntity.getContent( ), Response.class );
                 EntityUtils.consume( httpEntity );
                 return response;
             }
@@ -236,7 +236,7 @@ public final class ElasticConnexion
             @Override
             public Responses handleEntity( HttpEntity httpEntity ) throws IOException
             {
-                final Responses response = _mapper.readValue(httpEntity.getContent(), Responses.class);
+                final Responses response = _mapper.readValue( httpEntity.getContent( ), Responses.class );
                 EntityUtils.consume( httpEntity );
                 return response;
             }
