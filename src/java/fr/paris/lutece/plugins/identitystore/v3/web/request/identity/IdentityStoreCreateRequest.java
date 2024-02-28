@@ -95,7 +95,7 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
                     if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
                             || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
                     {
-                        // if request is accepted and treatment successfull, add the formatting statuses
+                        // if request is accepted and treatment successful, add the formatting statuses
                         response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
                     }
                 }

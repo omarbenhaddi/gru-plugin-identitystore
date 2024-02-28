@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
+import fr.paris.lutece.plugins.identitystore.cache.IdentityDtoCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeFormatterService;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeValidationService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
@@ -40,12 +41,17 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class represents an update request for IdentityStoreRestServive
@@ -55,6 +61,7 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
 
     private final IdentityChangeRequest _identityChangeRequest;
     private final String _strCustomerId;
+    private final IdentityDtoCache _identityDtoCache = SpringContextService.getBean( "identitystore.identityDtoCache" );
 
     /**
      * Constructor of IdentityStoreUpdateRequest
@@ -86,28 +93,46 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
     @Override
     public IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
+        // quality checks
         final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityChange( _identityChangeRequest, _strClientCode );
+        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+        {
+        	return response;
+        }
+        
+        // data content checks
+        final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
+                .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
 
+        IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
+        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+        {
+        	return response;
+        }
+        
+        // integrity checks
+       	final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( _strCustomerId,
+                    ServiceContractService.instance( ).getActiveServiceContract( _strClientCode ) );
+        
+        // identity dto does not exists
+        if ( existingIdentityDto == null ) 
+        {
+    		 response.setStatus( ResponseStatusFactory.failure( )
+                     .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_NOT_FOUND )
+                     .setMessage( "Identity not found" ) );
+             return response;
+        } 
+        	
+    	IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( existingIdentityDto, _strClientCode,
+                _identityChangeRequest.getIdentity( ), response );
         if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
         {
-            final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
-                    .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
-
-            IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
-            if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+            IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
+            if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
+                    || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
             {
-                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( _strCustomerId, _strClientCode,
-                        _identityChangeRequest.getIdentity( ), response );
-                if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
-                {
-                    IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
-                    if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
-                            || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
-                    {
-                        // if request is accepted and treatment successfull, add the formatting statuses
-                        response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
-                    }
-                }
+                // if request is accepted and treatment successful, add the formatting statuses
+                response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
             }
         }
 

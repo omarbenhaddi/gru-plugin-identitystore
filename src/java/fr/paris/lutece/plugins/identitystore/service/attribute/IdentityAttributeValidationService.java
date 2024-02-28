@@ -60,6 +60,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +74,7 @@ import java.util.stream.Collectors;
  */
 public class IdentityAttributeValidationService
 {
-    private final IdentityDtoCache _identityDtoCache = SpringContextService.getBean( "identitystore.identityDtoCache" );
+    
     private final IdentityAttributeValidationCache _cache = SpringContextService.getBean( "identitystore.identityAttributeValidationCache" );
     private final int pivotCertificationLevelThreshold = AppPropertiesService
             .getPropertyInt( "identitystore.identity.attribute.pivot.certification.level.threshold", 400 );
@@ -85,7 +86,6 @@ public class IdentityAttributeValidationService
         {
             _instance = new IdentityAttributeValidationService( );
             _instance._cache.refresh( );
-            _instance._identityDtoCache.refresh( );
         }
         return _instance;
     }
@@ -160,123 +160,169 @@ public class IdentityAttributeValidationService
      * @param response
      *            the response
      */
-    public void validatePivotAttributesIntegrity( final String cuid, final String clientCode, final IdentityDto identityRequest, final ChangeResponse response )
+    public void validatePivotAttributesIntegrity( final IdentityDto existingIdentityDto, final String clientCode, final IdentityDto identity, final ChangeResponse response )
             throws IdentityStoreException
     {
+    	// get pivot attributes
         final List<String> pivotKeys = IdentityAttributeService.instance( ).getPivotAttributeKeys( ).stream( ).map( AttributeKey::getKeyName )
                 .collect( Collectors.toList( ) );
-        final Map<String, AttributeDto> pivotAttrs = identityRequest.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
-                .peek( a -> a.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( a.getCertifier( ), a.getKey( ) ) ) )
+        
+        // get attributes to update, and add certification levels
+        final Map<String, AttributeDto> pivotUpdatedAttrs = identity.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
+        		.peek( a -> a.setCertificationLevel( AttributeCertificationDefinitionService.instance( ).getLevelAsInteger( a.getCertifier( ), a.getKey( ) ) ) )
                 .collect( Collectors.toMap( AttributeDto::getKey, Function.identity( ) ) );
-
-        if ( pivotAttrs.isEmpty( ) )
+        
+        // If the request does not contains at least one pivot attribute, we skip this validation rule
+        if ( pivotUpdatedAttrs.isEmpty( ) )
         {
-            // On ne fait le contrôle que si la requête contient au moins un attribut pivot
             return;
         }
-
-        // Vérification des codes INSEE.
-        // Si non vides et invalides, on considère qu'ils sont absents de la requète
-     
-        // get birth date
-        Date birthdate;                
-        final AttributeDto birthdateAttr = pivotAttrs.get( Constants.PARAM_BIRTH_DATE );
+                
+        // consolidate targeted list of pivot attributes with new or updated and existing attributes
+        final Map<String, AttributeDto> pivotTargetAttrs = new HashMap<>();
+        pivotTargetAttrs.putAll( pivotUpdatedAttrs );
+        
+        // in case of update, we include the existing attributes for the check
+        if ( existingIdentityDto != null )
+        {
+    		// Get the targeted pivot attributes from updated pivot attributes 
+    		// and pivot attributes that exist and are not present in request.
+    		// If there is an existing attribute with a higher certification level, we ignore the request attribute
+    		pivotTargetAttrs.putAll( existingIdentityDto.getAttributes( ).stream( )
+    				.filter( a -> pivotKeys.contains( a.getKey( ) ) )
+    				.filter( a -> ( !pivotUpdatedAttrs.containsKey( a.getKey( ) ) 
+    								|| pivotUpdatedAttrs.get( a.getKey( ) ).getCertificationLevel( ) < a.getCertificationLevel( ) ) )
+    				.collect( Collectors.toMap( AttributeDto::getKey, Function.identity( ) ) )
+    				);        	
+        }
+        
+        
+        // *** Geocode checks ***
+        
+        // get birth date for Geocode checks
+        final List<AttributeStatus> geocodeStatuses = new ArrayList<>( );
+        Date birthdate = null;                
+        final AttributeDto birthdateAttr = pivotTargetAttrs.get( Constants.PARAM_BIRTH_DATE );
         try
         {
-            birthdate = DateUtils.parseDate( birthdateAttr.getValue( ), "dd/MM/yyyy" );
+            if ( birthdateAttr != null )
+            {
+            	birthdate = DateUtils.parseDate( birthdateAttr.getValue( ), "dd/MM/yyyy" );
+            }
         }
         catch( final ParseException e )
         {
             birthdate = null;
+            pivotUpdatedAttrs.remove( Constants.PARAM_BIRTH_DATE );
+            
+            final AttributeStatus birthplaceCodeStatus = new AttributeStatus( );
+            birthplaceCodeStatus.setKey( Constants.PARAM_BIRTH_DATE );
+            birthplaceCodeStatus.setStatus( AttributeChangeStatus.INVALID_VALUE );
+            birthplaceCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_NOT_UPDATED);
+            geocodeStatuses.add( birthplaceCodeStatus );
+            
+            // birthdate is mandatory for birthplace and birthcountry codes
+            // we won't consider those values either (if present)
+            pivotUpdatedAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
+            pivotUpdatedAttrs.remove( Constants.PARAM_BIRTH_COUNTRY_CODE );
         }
-                
-        final List<AttributeStatus> inseeCodeStatuses = new ArrayList<>( );
-        if ( pivotAttrs.containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) )
+        
+        // Vérification des codes INSEE.
+        // Si invalides, on considère qu'ils sont absents 
+        if ( pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) && birthdate != null )
         {
-            final AttributeDto birthPlaceCodeAttr = pivotAttrs.get( Constants.PARAM_BIRTH_PLACE_CODE );
+            final AttributeDto birthPlaceCodeAttr = pivotUpdatedAttrs.get( Constants.PARAM_BIRTH_PLACE_CODE );
             if ( StringUtils.isNotBlank( birthPlaceCodeAttr.getValue( ) ) )
             {
                 final Optional<City> city = GeoCodesService.getInstance( ).getCityByDateAndCode( birthdate, birthPlaceCodeAttr.getValue( ) );
                 if ( city == null || !city.isPresent( ) )
                 {
-                    pivotAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
+                    pivotUpdatedAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
                     final AttributeStatus birthplaceCodeStatus = new AttributeStatus( );
                     birthplaceCodeStatus.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                     birthplaceCodeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
                     birthplaceCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_VALIDATION_ERROR_UNKNOWN_GEOCODES_CODE );
-                    inseeCodeStatuses.add( birthplaceCodeStatus );
+                    geocodeStatuses.add( birthplaceCodeStatus );
                 }
             }
         }
-        if ( pivotAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) )
+        
+        if ( pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) && birthdate != null )
         {
-            final AttributeDto birthcountryCodeAttr = pivotAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE );
+            final AttributeDto birthcountryCodeAttr = pivotUpdatedAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE );
             if ( StringUtils.isNotBlank( birthcountryCodeAttr.getValue( ) ) )
             {
             	// TODO : use GeoCodesService.getInstance( ).getCountryByDateAndCode() when available ...
                 final Optional<Country> country = GeoCodesService.getInstance( ).getCountryByCode( birthcountryCodeAttr.getValue( ) );
                 if ( country == null || !country.isPresent( ) )
                 {
-                    pivotAttrs.remove( Constants.PARAM_BIRTH_COUNTRY_CODE );
+                    pivotUpdatedAttrs.remove( Constants.PARAM_BIRTH_COUNTRY_CODE );
                     final AttributeStatus birthcountryCodeStatus = new AttributeStatus( );
                     birthcountryCodeStatus.setKey( Constants.PARAM_BIRTH_COUNTRY_CODE );
                     birthcountryCodeStatus.setStatus( AttributeChangeStatus.UNKNOWN_GEOCODES_CODE );
                     birthcountryCodeStatus.setMessageKey( Constants.PROPERTY_ATTRIBUTE_STATUS_VALIDATION_ERROR_UNKNOWN_GEOCODES_CODE );
-                    inseeCodeStatuses.add( birthcountryCodeStatus );
+                    geocodeStatuses.add( birthcountryCodeStatus );
                 }
             }
         }
 
-
-        if ( StringUtils.isNotBlank( cuid ) )
+        // if the birth country is not the main Geocode country, the birth place code is ignored
+        if ( pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE )
+                && !pivotUpdatedAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ).equals( Constants.GEOCODE_MAIN_COUNTRY_CODE ) )
         {
-            final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( cuid,
-                    ServiceContractService.instance( ).getActiveServiceContract( clientCode ) );
-            final List<AttributeDto> existingPivotAttrs = existingIdentityDto.getAttributes( ).stream( ).filter( a -> pivotKeys.contains( a.getKey( ) ) )
-                    .collect( Collectors.toList( ) );
-            for ( final AttributeDto existingPivotAttr : existingPivotAttrs )
-            {
-                // On prend en priorité l'attribut qui vient de la requête, sauf si l'attribut existant possède un niveau de certif + élevé
-                final AttributeDto requestAttr = pivotAttrs.get( existingPivotAttr.getKey( ) );
-                if ( requestAttr == null || requestAttr.getCertificationLevel( ) < existingPivotAttr.getCertificationLevel( ) )
-                {
-                    pivotAttrs.put( existingPivotAttr.getKey( ), existingPivotAttr );
-                }
-            }
-        }
-
-        if ( pivotAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE )
-                && !pivotAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ).equals( "99100" ) )
-        {
-            // Si on est sur un pays étranger, l'attribut "birthplace_code" n'est pas un pivot.
             pivotKeys.remove( Constants.PARAM_BIRTH_PLACE_CODE );
-            pivotAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
+            pivotUpdatedAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
         }
-
-        final AttributeDto highestCertifiedPivot = pivotAttrs.values( ).stream( ).max( Comparator.comparing( AttributeDto::getCertificationLevel ) )
+        
+        
+        // ** Main checks on target Attributes **
+        
+        // get highest certification level for pivot attributes (as reference)
+        final AttributeDto highestCertifiedPivot = pivotTargetAttrs.values( ).stream( ).max( Comparator.comparing( AttributeDto::getCertificationLevel ) )
                 .orElse( null );
-        if ( highestCertifiedPivot != null && highestCertifiedPivot.getCertificationLevel( ) >= pivotCertificationLevelThreshold )
+        
+        // if the highest certification level is below the treshold, we wont carry out the check 
+        if ( highestCertifiedPivot.getCertificationLevel( ) < pivotCertificationLevelThreshold )
         {
-            // Si le pivot avec la plus haute certification dépasse le niveau défini en properties, on exige que tous les pivots soient présents et avec la même
-            // certification
-            if ( pivotKeys.size( ) != pivotAttrs.size( )
-                    || pivotAttrs.values( ).stream( ).anyMatch( a -> !a.getCertifier( ).equals( highestCertifiedPivot.getCertifier( ) ) ) )
-            {
-                response.setStatus( ResponseStatusFactory.failure( )
-                        .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
-                        .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
-                response.getStatus( ).getAttributeStatuses( ).addAll( inseeCodeStatuses );
-                return;
-            }
-
-            // On vérifie qu'aucun des attributs pivots envoyé n'a de valeur vide
-            // Si c'est le cas, on rejete (suppression non autorisée)
-            if ( pivotAttrs.values( ).stream( ).anyMatch( a -> StringUtils.isBlank( a.getValue( ) ) ) )
-            {
-                response.setStatus( ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_FORBIDDEN_PIVOT_ATTRIBUTE_DELETION )
-                        .setMessage( "Deleting pivot attribute is forbidden for this identity." ) );
-            }
+        	return;
         }
+        
+        // check that we have the 6 pivot attributes (or 5 if birth country is not the geocode main country)
+        if ( ! (   ( pivotTargetAttrs.size( ) == pivotKeys.size( ) ) 
+        		|| ( pivotTargetAttrs.size( ) >= pivotKeys.size( )
+        				&& !Constants.GEOCODE_MAIN_COUNTRY_CODE.equals( pivotTargetAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ) ) ) ) )
+    	{
+	    	response.setStatus( ResponseStatusFactory.failure( )
+	                .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
+	                .setMessage( "Above level " + pivotCertificationLevelThreshold + ", all pivot attributes must be present and have the same certification level." ) );
+	        return ;
+    	}
+        
+        // we check that each pivot attribute has the same certification level
+        if ( pivotTargetAttrs.values( ).stream( ).anyMatch( a -> !a.getCertifier( ).equals( highestCertifiedPivot.getCertifier( ) ) ) )
+        {
+            response.setStatus( ResponseStatusFactory.failure( )
+                    .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_ALL_PIVOT_ATTRIBUTE_SAME_CERTIFICATION )
+                    .setMessage( "All pivot attributes must be set and certified with the '" + highestCertifiedPivot.getCertifier( ) + "' certifier" ) );
+            response.getStatus( ).getAttributeStatuses( ).addAll( geocodeStatuses );
+            return;
+        }
+
+        // On vérifie qu'aucun des attributs pivots envoyé n'a de valeur vide
+        // Si c'est le cas, on refuse la mise à jour (suppression d'attribut non autorisée)
+        
+        // *exception : on ne contrôle pas le code commune si pays étranger
+        if ( !Constants.GEOCODE_MAIN_COUNTRY_CODE.equals( pivotTargetAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE ).getValue( ) ) ) 
+        {
+        	pivotTargetAttrs.remove( Constants.PARAM_BIRTH_PLACE_CODE );
+        }
+        
+        if ( pivotTargetAttrs.values( ).stream( ).anyMatch( a -> StringUtils.isBlank( a.getValue( ) ) ) )
+        {
+            response.setStatus( ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_FORBIDDEN_PIVOT_ATTRIBUTE_DELETION )
+                    .setMessage( "Deleting pivot attribute is forbidden for this identity." ) );
+        }
+        
     }
 
 }
