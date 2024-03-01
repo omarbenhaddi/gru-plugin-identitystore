@@ -90,10 +90,10 @@ public final class IdentityDAO implements IIdentityDAO
             + COLUMNS + " from identity_tree a where a.is_merged = 0;";
 
     private static final String SQL_QUERY_SELECT_ID_BY_CONNECTION_ID = "SELECT id_identity, is_deleted, is_merged FROM identitystore_identity WHERE lower(connection_id) = lower(?)";
-    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT DISTINCT " + COLUMNS
+    private static final String SQL_QUERY_SELECT_BY_ATTRIBUTES_FOR_API_SEARCH = "SELECT " + COLUMNS
             + " FROM identitystore_identity a, identitystore_identity_attribute b, identitystore_ref_attribute c"
             + " WHERE a.id_identity = b.id_identity AND b.id_attribute = c.id_attribute AND (${filter})"
-            + " GROUP BY a.id_identity HAVING COUNT(DISTINCT b.id_attribute) >= ? LIMIT ${limit}";
+            + " GROUP BY a.id_identity HAVING COUNT(b.id_attribute) >= ? LIMIT ${limit}";
     private static final String SQL_QUERY_FILTER_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND LOWER(b.attribute_value) IN (${list}))";
     private static final String SQL_QUERY_FILTER_NORMALIZED_ATTRIBUTE_FOR_API_SEARCH = "(c.key_name = ? AND TRANSLATE(REPLACE(REPLACE(LOWER(b.attribute_value), 'œ', 'oe'), 'æ', 'ae'), 'àâäéèêëîïôöùûüÿçñ', 'aaaeeeeiioouuuycn') IN (${list}))";
     private static final String SQL_QUERY_SOFT_DELETE = "UPDATE identitystore_identity SET is_deleted = 1, date_delete = now( ), is_mon_paris_active = 0, expiration_date=now( ), last_update_date=now( )  WHERE customer_id = ?";
