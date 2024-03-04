@@ -60,6 +60,7 @@ CREATE TABLE identitystore_ref_attribute
     certifiable  smallint              default 0,
     pivot        smallint              default 0,
     mandatory_for_creation smallint NOT NULL DEFAULT 0,
+    common_search_key VARCHAR(100) NULL, 
     validation_regex varchar(510) DEFAULT '^[A-Za-zÀ-Üà-ü\d\s''-]+$',
     validation_error_message varchar(255) DEFAULT 'uniquement caractères alphanumériques, apostrophe, espace et tirets.',
     validation_error_message_key varchar(128) NOT NULL DEFAULT 'identitystore.attribute.status.validation.error.only.alphanum.apostrophe.space.dash',
