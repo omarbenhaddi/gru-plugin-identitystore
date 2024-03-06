@@ -77,30 +77,43 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreRequest
     @Override
     public IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
+    	// quality checks
         final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityChange( _identityChangeRequest, _strClientCode );
-
-        if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
         {
-            final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
-                    .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
-
-            IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
-            if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
-            {
-                IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( null, _strClientCode, _identityChangeRequest.getIdentity( ),
-                        response );
-                if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
-                {
-                    IdentityService.instance( ).create( _identityChangeRequest, _author, _strClientCode, response );
-                    if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
-                            || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
-                    {
-                        // if request is accepted and treatment successful, add the formatting statuses
-                        response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
-                    }
-                }
-            }
+        	return response;
         }
+        
+        // data content checks
+        final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
+                    .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
+        
+        IdentityAttributeValidationService.instance( ).validateIdentityAttributeValues( _identityChangeRequest.getIdentity( ), response );
+        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+        {
+        	return response;
+        }
+        
+        // Integrity checks
+        IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( null, _strClientCode, _identityChangeRequest.getIdentity( ),
+               true, response );
+        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+        {
+        	return response;
+        }
+        
+        // perform create
+        IdentityService.instance( ).create( _identityChangeRequest, _author, _strClientCode, response );
+        
+        // if request is accepted and treatment successful, add the formatting statuses
+        if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
+                || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
+        {
+            response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
+        }
+        
+        
+        
 
         return response;
     }

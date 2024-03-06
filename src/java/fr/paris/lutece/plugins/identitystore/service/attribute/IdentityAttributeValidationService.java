@@ -160,7 +160,7 @@ public class IdentityAttributeValidationService
      * @param response
      *            the response
      */
-    public void validatePivotAttributesIntegrity( final IdentityDto existingIdentityDto, final String clientCode, final IdentityDto identity, final ChangeResponse response )
+    public void validatePivotAttributesIntegrity( final IdentityDto existingIdentityDto, final String clientCode, final IdentityDto identity, boolean geocodesCheck, final ChangeResponse response )
             throws IdentityStoreException
     {
     	// get pivot attributes
@@ -229,7 +229,7 @@ public class IdentityAttributeValidationService
         
         // Vérification des codes INSEE.
         // Si invalides, on considère qu'ils sont absents 
-        if ( pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) && birthdate != null )
+        if ( geocodesCheck && pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_PLACE_CODE ) && birthdate != null )
         {
             final AttributeDto birthPlaceCodeAttr = pivotUpdatedAttrs.get( Constants.PARAM_BIRTH_PLACE_CODE );
             if ( StringUtils.isNotBlank( birthPlaceCodeAttr.getValue( ) ) )
@@ -247,7 +247,7 @@ public class IdentityAttributeValidationService
             }
         }
         
-        if ( pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) && birthdate != null )
+        if ( geocodesCheck && pivotUpdatedAttrs.containsKey( Constants.PARAM_BIRTH_COUNTRY_CODE ) && birthdate != null )
         {
             final AttributeDto birthcountryCodeAttr = pivotUpdatedAttrs.get( Constants.PARAM_BIRTH_COUNTRY_CODE );
             if ( StringUtils.isNotBlank( birthcountryCodeAttr.getValue( ) ) )

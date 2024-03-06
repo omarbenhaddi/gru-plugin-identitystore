@@ -93,14 +93,14 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
     @Override
     public IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
-        // quality checks
+        // Quality checks
         final IdentityChangeResponse response = ServiceContractService.instance( ).validateIdentityChange( _identityChangeRequest, _strClientCode );
         if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
         {
         	return response;
         }
         
-        // data content checks
+        // Data content checks
         final List<AttributeStatus> formatStatuses = IdentityAttributeFormatterService.instance( )
                 .formatIdentityChangeRequestAttributeValues( _identityChangeRequest );
 
@@ -110,13 +110,13 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
         	return response;
         }
         
-        // integrity checks
+        // Integrity checks
        	final IdentityDto existingIdentityDto = _identityDtoCache.getByCustomerId( _strCustomerId,
                     ServiceContractService.instance( ).getActiveServiceContract( _strClientCode ) );
         
-        // identity dto does not exists
         if ( existingIdentityDto == null ) 
         {
+        	// updated identity dto should exist
     		 response.setStatus( ResponseStatusFactory.failure( )
                      .setMessageKey( Constants.PROPERTY_REST_ERROR_IDENTITY_NOT_FOUND )
                      .setMessage( "Identity not found" ) );
@@ -124,17 +124,22 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreRequest
         } 
         	
     	IdentityAttributeValidationService.instance( ).validatePivotAttributesIntegrity( existingIdentityDto, _strClientCode,
-                _identityChangeRequest.getIdentity( ), response );
-        if ( !ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
+                _identityChangeRequest.getIdentity( ), true, response );
+        if ( ResponseStatusFactory.failure( ).equals( response.getStatus( ) ) )
         {
-            IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
-            if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
-                    || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
-            {
-                // if request is accepted and treatment successful, add the formatting statuses
-                response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
-            }
+        	return response;
         }
+        
+        // perform update
+        IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author, _strClientCode, response );
+        
+        // if request is accepted and treatment successful, add the formatting statuses
+        if ( ResponseStatusFactory.success( ).equals( response.getStatus( ) )
+                || ResponseStatusFactory.incompleteSuccess( ).equals( response.getStatus( ) ) )
+        {
+            response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
+        }
+
 
         return response;
     }
