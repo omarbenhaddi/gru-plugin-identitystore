@@ -44,7 +44,7 @@ import java.util.List;
 public class IndexActionDao implements IIndexActionDao
 {
 
-    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_index_action ( customer_id, action_type, date_index ) VALUES ( ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT = "INSERT INTO identitystore_index_action ( customer_id, action_type, date_index ) VALUES ( ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE = "DELETE FROM identitystore_index_action WHERE id_index_action = ? ";
     private static final String SQL_QUERY_SELECTALL = "SELECT id_index_action, customer_id, action_type, date_index FROM identitystore_index_action ORDER BY date_index asc";
     private static final String SQL_QUERY_SELECTALL_WITH_LIMIT = SQL_QUERY_SELECTALL + " LIMIT ?";
