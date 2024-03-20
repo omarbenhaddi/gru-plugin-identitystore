@@ -103,7 +103,12 @@ public class IdentityStoreControlsTest extends LuteceTestCase
 		udpatedIdentity = getMockIdentityDto( null, 0, null, 0, null, 0, null, 0, "", NUM1, "99109", NUM1);
 		tryPivotAttributesIntegrity( existingIdentity_NUM1, udpatedIdentity, "2.4. Update birthcountry of existing Identity with all attributes at level 400");
 
+		udpatedIdentity = getMockIdentityDto( null, 0, null, 0, null, 0, "01/01/2000", NUM1, "", NUM1, "99109", NUM1);
 		tryPivotAttributesIntegrity( existingIncompleteIdentity_NUM1, udpatedIdentity, "2.5. Update birthcountry of existing incomplete Identity with all attributes at level 400");
+		
+		udpatedIdentity = getMockIdentityDto( null, 0, null, 0, null, 0, null, 0, "", DEC, null, 0);
+		tryPivotAttributesIntegrity( existingIdentity_NUM1, udpatedIdentity, "2.6. Update birthplace code country of existing Identity at level 400 and a foreign birthcountry (this update should be ignored)");
+
 
 	}
 	
