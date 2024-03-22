@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClient;
@@ -59,6 +60,7 @@ import java.util.stream.Collectors;
 public class IdentityIndexer implements IIdentityIndexer
 {
 
+    private final static ObjectMapper _mapper = new ObjectMapper( ).disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
     private final ElasticClient _elasticClient;
 
     public IdentityIndexer( final String strServerUrl, final String strLogin, final String strPassword )
@@ -211,8 +213,7 @@ public class IdentityIndexer implements IIdentityIndexer
         try
         {
             final String response = this._elasticClient.getAlias( alias );
-            final ObjectMapper mapper = new ObjectMapper( );
-            final JsonNode node = mapper.readTree( response );
+            final JsonNode node = _mapper.readTree( response );
 
             if ( node != null )
             {

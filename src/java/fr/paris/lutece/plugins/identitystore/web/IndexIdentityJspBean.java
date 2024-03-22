@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.identitystore.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.IdentityManagementResourceIdService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.task.FullIndexTask;
@@ -57,6 +58,7 @@ import java.util.Map;
 @Controller( controllerJsp = "IndexIdentities.jsp", controllerPath = "jsp/admin/plugins/identitystore/", right = "IDENTITYSTORE_MANAGEMENT" )
 public class IndexIdentityJspBean extends ManageIdentitiesJspBean
 {
+    private final static ObjectMapper _mapper = new ObjectMapper( ).disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
     /**
      * 
      */
@@ -143,7 +145,6 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
      */
     private String getJsonStatus( IndexStatus indexStatus )
     {
-        final ObjectMapper _mapper = new ObjectMapper( );
         try
         {
             String jsonStatus = _mapper.writeValueAsString( indexStatus );

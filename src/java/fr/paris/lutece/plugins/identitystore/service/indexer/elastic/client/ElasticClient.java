@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.Constants;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
@@ -46,7 +47,7 @@ import java.util.List;
 
 public class ElasticClient
 {
-    private static final ObjectMapper _mapper = new ObjectMapper( );
+    private static final ObjectMapper _mapper = new ObjectMapper( ).disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
     private final ElasticConnexion _connexion;
     private final String _strServerUrl;
 

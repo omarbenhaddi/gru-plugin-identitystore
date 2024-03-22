@@ -33,6 +33,7 @@
  */
 package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Response;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.model.inner.response.Responses;
@@ -74,7 +75,7 @@ public final class ElasticConnexion
     private static final int CONNECTION_POOL_MAX_TOTAL = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connection.pool.max.total", 20 );
     private static final long RESPONSE_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.response.timeout", 30 );
     private static final long CONNECT_TIMEOUT = AppPropertiesService.getPropertyInt( "identitystore.elastic.client.connect.timeout", 30 );
-    private static final ObjectMapper _mapper = new ObjectMapper( );
+    private static final ObjectMapper _mapper = new ObjectMapper( ).disable( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES );
     private final CloseableHttpClient _httpClient;
     private final AbstractHttpClientResponseHandler<String> _simpleResponseHandler = buildSimpleResponseHandler( );
     private final AbstractHttpClientResponseHandler<Response> _searchResponseHandler = buildSearchResponseHandler( );
