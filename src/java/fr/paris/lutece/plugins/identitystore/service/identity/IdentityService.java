@@ -805,19 +805,28 @@ public class IdentityService
         {
             if ( certitudeDuplicates.getIdentities( ).size( ) == 1 )
             {
-                return this.update( certitudeDuplicates.getIdentities( ).get( 0 ).getCustomerId( ), identityChangeRequest, author, clientCode, response );
+                final IdentityDto strictDuplicate = certitudeDuplicates.getIdentities( ).get( 0 );
+                identityChangeRequest.getIdentity( ).setLastUpdateDate( strictDuplicate.getLastUpdateDate( ) );
+                return this.update( strictDuplicate.getCustomerId( ), identityChangeRequest, author, clientCode, response );
             }
-        }
-
-        final DuplicateSearchResponse suspicionDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION, "" );
-        if ( suspicionDuplicates != null && CollectionUtils.isNotEmpty( suspicionDuplicates.getIdentities( ) ) )
-        {
-            response.setStatus( ResponseStatusFactory.conflict( ).setMessage( suspicionDuplicates.getStatus( ).getMessage( ) )
-                    .setMessageKey( suspicionDuplicates.getStatus( ).getMessageKey( ) ) );
+            else
+            {
+                response.setStatus( ResponseStatusFactory.conflict( ).setMessage( certitudeDuplicates.getStatus( ).getMessage( ) )
+                        .setMessageKey( certitudeDuplicates.getStatus( ).getMessageKey( ) ) );
+            }
         }
         else
         {
-            return this.create( identityChangeRequest, author, clientCode, response );
+            final DuplicateSearchResponse suspicionDuplicates = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION, "" );
+            if ( suspicionDuplicates != null && CollectionUtils.isNotEmpty( suspicionDuplicates.getIdentities( ) ) )
+            {
+                response.setStatus( ResponseStatusFactory.conflict( ).setMessage( suspicionDuplicates.getStatus( ).getMessage( ) )
+                        .setMessageKey( suspicionDuplicates.getStatus( ).getMessageKey( ) ) );
+            }
+            else
+            {
+                return this.create( identityChangeRequest, author, clientCode, response );
+            }
         }
 
         return null;
