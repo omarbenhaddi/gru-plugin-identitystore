@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactor
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -85,7 +86,16 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
     {
         final ClientsSearchResponse response = new ClientsSearchResponse( );
 
-        final List<ClientApplication> clientApplications = ClientApplicationHome.findByApplicationCode( _strApplicationCode );
+        final List<ClientApplication> clientApplications;
+        
+        if ( !StringUtils.isEmpty( _strApplicationCode ) )
+        {
+        	clientApplications = ClientApplicationHome.findByApplicationCode( _strApplicationCode );
+        }
+        else
+        {
+        	clientApplications = ClientApplicationHome.selectApplicationList( );
+        }
 
         if ( clientApplications == null || CollectionUtils.isEmpty( clientApplications ) )
         {

@@ -64,7 +64,35 @@ import static fr.paris.lutece.plugins.rest.service.mapper.GenericUncaughtExcepti
 public class ClientRestService
 {
     /**
-     * Get Clients
+     * Get all Clients
+     *
+     * @param applicationCode
+     *            application code
+     * @return the Client
+     */
+    @Path( Constants.CLIENTS_PATH )
+    @GET
+    @Produces( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Get all Clients", response = ClientSearchResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
+    } )
+    public Response getClients(
+            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
+            @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
+            throws IdentityStoreException
+    {
+        final String trustedClientCode = IdentityStoreService.getTrustedClientCode( clientCode, StringUtils.EMPTY, strHeaderAppCode );
+        final ClientsGetRequest request = new ClientsGetRequest( trustedClientCode, null, authorName, authorType );
+        final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
+        return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
+    }
+
+    /**
+     * Get Clients by app code
      *
      * @param applicationCode
      *            application code
@@ -73,12 +101,12 @@ public class ClientRestService
     @Path( Constants.CLIENTS_PATH + "/{" + Constants.PARAM_APPLICATION_CODE + "}" )
     @GET
     @Produces( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Get the active service contract associated to the given application client code", response = ClientSearchResponse.class )
+    @ApiOperation( value = "Get Clients by app code", response = ClientSearchResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 200, message = "Identity Found" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 404, message = ERROR_NO_SERVICE_CONTRACT_FOUND )
     } )
-    public Response getClients(
+    public Response getClientsByAppCode(
             @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.CLIENT_APPLICATION_CODE_DESCRIPTION ) @PathParam( Constants.PARAM_APPLICATION_CODE ) String applicationCode,
             @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
             @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
@@ -91,7 +119,7 @@ public class ClientRestService
         final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
-
+    
     /**
      * Get Client
      *
@@ -120,21 +148,21 @@ public class ClientRestService
         final ClientSearchResponse entity = (ClientSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
-
+    
     /**
-     * Creates a service contract.<br/>
-     * The service contract is created from the provided {@link ClientApplicationDto}.<br/>
+     * Creates a client<br/>
+     * The client is created from the provided {@link ClientApplicationDto}.<br/>
      * <br/>
      * </ul>
      *
      * @param clientDto
-     *            the service contract to create
+     *            the client to create
      * @return http 200 if creation is ok with {@link ClientChangeResponse}
      */
     @POST
     @Path( Constants.CLIENT_PATH )
     @Consumes( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Create a new Service Contract", response = ClientChangeResponse.class )
+    @ApiOperation( value = "Create a new Client", response = ClientChangeResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
@@ -153,8 +181,8 @@ public class ClientRestService
     }
 
     /**
-     * Updates a service contract.<br/>
-     * The service contract is updated from the provided {@link ClientApplicationDto}.<br/>
+     * Updates a client.<br/>
+     * The client is updated from the provided {@link ClientApplicationDto}.<br/>
      * <br/>
      * </ul>
      *
@@ -167,7 +195,7 @@ public class ClientRestService
     @PUT
     @Path( Constants.CLIENT_PATH + "/{" + Constants.PARAM_CLIENT_CODE + "}" )
     @Consumes( MediaType.APPLICATION_JSON )
-    @ApiOperation( value = "Update an existing Service Contract", response = ClientChangeResponse.class )
+    @ApiOperation( value = "Update an existing client", response = ClientChangeResponse.class )
     @ApiResponses( value = {
             @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
             @ApiResponse( code = 403, message = "Failure" ), @ApiResponse( code = 409, message = "Conflict" )
