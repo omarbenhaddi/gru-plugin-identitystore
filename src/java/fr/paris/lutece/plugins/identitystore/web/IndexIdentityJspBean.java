@@ -49,6 +49,9 @@ import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -150,11 +153,11 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
             String jsonStatus = _mapper.writeValueAsString( indexStatus );
             if ( StringUtils.isNotEmpty( jsonStatus ) )
             {
-                jsonStatus = jsonStatus.replaceAll( "\\n", "\\\n" );
+                jsonStatus = URLEncoder.encode(jsonStatus, StandardCharsets.UTF_8.toString());
             }
             return jsonStatus;
         }
-        catch( JsonProcessingException e )
+        catch(JsonProcessingException | UnsupportedEncodingException e )
         {
             AppLogService.error( "Unable to serialize index status", e );
             return StringUtils.EMPTY;
