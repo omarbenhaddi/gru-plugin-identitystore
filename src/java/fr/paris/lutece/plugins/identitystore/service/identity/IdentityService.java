@@ -1324,25 +1324,15 @@ public class IdentityService
      *            the rule used to get matching identities
      * @return the list of identities
      */
-    public Batch<IdentityDto> getIdentitiesBatchForPotentialDuplicate( final DuplicateRule rule, final int batchSize )
+    public Batch<String> getCUIDsBatchForPotentialDuplicate(final DuplicateRule rule, final int batchSize )
     {
-        if ( rule == null || !rule.isActive( ) )
-        {
-            return Batch.ofSize( Collections.emptyList( ), 0 );
-        }
         final List<Integer> attributes = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) );
-        final List<String> attributesFilter = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getKeyName ).collect( Collectors.toList( ) );
         final List<String> customerIdsList = IdentityHome.findByAttributeExisting( attributes, rule.getNbFilledAttributes( ), true, true );
         if ( customerIdsList.isEmpty( ) )
         {
             return Batch.ofSize( Collections.emptyList( ), 0 );
         }
-
-        final List<IdentityDto> identities = new ArrayList<>( );
-        Batch.ofSize( customerIdsList, batchSize ).forEach( cuids -> identities.addAll( this.search( cuids, attributesFilter ) ) );
-
-        return Batch.ofSize( identities.stream( ).filter( Objects::nonNull ).sorted( Comparator.comparingDouble( i -> i.getQuality( ).getQuality( ) ) )
-                .collect( Collectors.toList( ) ), batchSize );
+        return Batch.ofSize( customerIdsList, batchSize );
     }
 
     /**
