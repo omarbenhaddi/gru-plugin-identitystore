@@ -125,7 +125,7 @@ public final class AttributeKeyHome
     public static AttributeKey findByKey( String strKey, final boolean loadValues )
     {
         final AttributeKey attributeKey = _dao.selectByKey( strKey, _plugin );
-        if ( loadValues )
+        if ( loadValues && attributeKey != null )
         {
             attributeKey.getAttributeValues( ).addAll( _dao.loadAttributeValues( attributeKey.getId( ), _plugin ) );
         }

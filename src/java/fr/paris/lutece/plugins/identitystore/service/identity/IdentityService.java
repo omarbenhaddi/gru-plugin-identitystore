@@ -96,17 +96,7 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class IdentityService
@@ -862,7 +852,7 @@ public class IdentityService
         AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
                 _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( request.toString( ) ), SPECIFIC_ORIGIN );
         final List<SearchAttribute> providedAttributes = request.getSearch( ).getAttributes( );
-        final Set<String> providedKeys = providedAttributes.stream( ).map( SearchAttribute::getKey ).collect( Collectors.toSet( ) );
+        final Set<String> providedKeys = commonKeytoKey( providedAttributes.stream( ).map( SearchAttribute::getKey ).collect( Collectors.toSet( ) ) );
 
         boolean hasRequirements = false;
         final List<IdentitySearchRule> searchRules = IdentitySearchRuleHome.findAll( );
@@ -953,6 +943,35 @@ public class IdentityService
         {
             response.setStatus( ResponseStatusFactory.noResult( ).setMessageKey( Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND ) );
         }
+    }
+
+    /***
+     * Check if the attributes are commonKeys, in that case it change them to the attributeKeys it refer
+     *
+     * @param providedAttributes
+     * @return the list of keys
+     */
+    private Set<String> commonKeytoKey(Set<String> providedAttributes)
+    {
+        Set<String> returnKeys = new HashSet<>();
+        for(String attribute : providedAttributes)
+        {
+            if(attribute.equals("common_lastname"))
+            {
+                returnKeys.add("family_name");
+                returnKeys.add("preferred_username");
+            }
+            else if(attribute.equals("common_email"))
+            {
+                returnKeys.add("email");
+                returnKeys.add("login");
+            }
+            else
+            {
+                returnKeys.add(attribute);
+            }
+        }
+        return returnKeys;
     }
 
     /**
