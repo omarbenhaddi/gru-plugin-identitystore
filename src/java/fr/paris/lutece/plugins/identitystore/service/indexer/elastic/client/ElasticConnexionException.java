@@ -31,43 +31,21 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.service;
+package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client;
 
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.client.ElasticClientException;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
-import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.internal.BulkAction;
+import fr.paris.lutece.portal.service.util.AppLogService;
 
-import java.util.List;
-
-public interface IIdentityIndexer
+public class ElasticConnexionException extends Exception
 {
+    public ElasticConnexionException(final String strMessage )
+    {
+        super( strMessage );
+        AppLogService.error( strMessage );
+    }
 
-    /* Documents API */
-    void create( final IdentityObject identity, final String index );
-
-    boolean bulk( final List<BulkAction> bulkActions, final String index );
-
-    void update( final IdentityObject identity, final String index );
-
-    void delete( final String documentId, final String index );
-
-    void addAliasOnIndex(String newIndex, String alias);
-
-    String getIndexBehindAlias(String alias );
-
-    /* Cluster API */
-    boolean isAlive( );
-
-    /* Index API */
-    boolean indexExists( final String index );
-    boolean isIndexWriteable(final String index );
-    boolean aliasExists( final String index );
-
-    void initIndex( final String index ) throws ElasticClientException;
-
-    void deleteIndex( String index ) throws ElasticClientException;
-
-    void makeIndexReadOnly( final String index ) throws ElasticClientException;
-
-    void removeIndexReadOnly( final String index ) throws ElasticClientException;
+    public ElasticConnexionException(final String strMessage, final Throwable exception )
+    {
+        super( strMessage, exception );
+        AppLogService.error( strMessage, exception );
+    }
 }

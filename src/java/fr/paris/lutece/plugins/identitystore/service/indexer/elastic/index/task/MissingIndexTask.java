@@ -55,6 +55,7 @@ import java.util.List;
 
 public class MissingIndexTask extends Daemon
 {
+    private final String CURRENT_INDEX_ALIAS = AppPropertiesService.getProperty( "identitystore.elastic.client.identities.alias", "identities-alias" );
     private final IIdentityIndexer _identityIndexer = SpringContextService.getBean( "identitystore.elasticsearch.identityIndexer" );
     private final RetryService _retryService = SpringContextService.getBean( "identitystore.elasticsearch.retryService" );
 
@@ -66,7 +67,7 @@ public class MissingIndexTask extends Daemon
         stopWatch.start( );
         final int batchSize = AppPropertiesService.getPropertyInt( "task.missingindex.batch.size", 1000 );
         final List<BulkAction> bulkActions = new ArrayList<>( );
-        if ( _identityIndexer.isAlive( ) )
+        if ( _identityIndexer.isIndexWriteable( CURRENT_INDEX_ALIAS ) )
         {
             AppLogService.debug( "ES available :: indexing" );
             final List<IndexAction> indexActions = IndexActionHome.selectAll( );
@@ -95,7 +96,7 @@ public class MissingIndexTask extends Daemon
             {
                 AppLogService.debug( "Processing batch : " + ++batchCounter );
                 // TODO handle bulk error
-                _retryService.callBulkWithRetry( batchActions, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                _retryService.callBulkWithRetry( batchActions, CURRENT_INDEX_ALIAS );
             }
 
             // Clean processed actions

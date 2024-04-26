@@ -41,12 +41,14 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.servi
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class IdentityIndexListener implements IdentityChangeListener
 {
+    private static final String CURRENT_INDEX_ALIAS = AppPropertiesService.getProperty( "identitystore.elastic.client.identities.alias", "identities-alias" );
     private static final String SERVICE_NAME = "Elastic Search identity change listener";
 
     private final IIdentityIndexer _identityIndexer;
@@ -69,17 +71,17 @@ public class IdentityIndexListener implements IdentityChangeListener
             case CREATE:
             case MERGE_CANCELLED:
                 AppLogService.debug( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
-                this._identityIndexer.create( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                this._identityIndexer.create( identityObject, CURRENT_INDEX_ALIAS );
                 break;
             case UPDATE:
             case CONSOLIDATED:
                 AppLogService.debug( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
-                this._identityIndexer.update( identityObject, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                this._identityIndexer.update( identityObject, CURRENT_INDEX_ALIAS );
                 break;
             case DELETE:
             case MERGED:
                 AppLogService.debug( "Indexing identity change (" + identityChangeType.name( ) + ") with customerId = " + identity.getCustomerId( ) );
-                this._identityIndexer.delete( identityObject.getCustomerId( ), IIdentityIndexer.CURRENT_INDEX_ALIAS );
+                this._identityIndexer.delete( identityObject.getCustomerId( ), CURRENT_INDEX_ALIAS );
                 break;
             case READ:
             case EXCLUDED:
