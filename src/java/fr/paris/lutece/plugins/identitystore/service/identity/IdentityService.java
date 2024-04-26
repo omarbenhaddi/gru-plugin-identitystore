@@ -211,7 +211,7 @@ public class IdentityService
         }
 
         final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
-                .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
+                .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue, ( a, b ) -> a ) );
         final DuplicateSearchResponse duplicateSearchResponse = this.checkDuplicates( attributes, PROPERTY_DUPLICATES_CREATION_RULES, "" );
         if ( duplicateSearchResponse != null && CollectionUtils.isNotEmpty( duplicateSearchResponse.getIdentities( ) ) )
         {
@@ -368,7 +368,7 @@ public class IdentityService
         {
             // collect all non blank attributes from request
             final Map<String, String> attributes = request.getIdentity( ).getAttributes( ).stream( ).filter( a -> StringUtils.isNotBlank( a.getValue( ) ) )
-                    .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
+                    .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue, ( a, b ) -> a ) );
             // add other existing identity attributes
             identity.getAttributes( ).forEach( ( key, attr ) -> attributes.putIfAbsent( key, attr.getValue( ) ) );
             // remove attributes that have blank values in the request
