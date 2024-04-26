@@ -20,7 +20,7 @@ public class RetryService
     {
         final IIdentityIndexer identityIndexer = this.createIdentityIndexer( );
         final AtomicInteger failedCalls = new AtomicInteger( 0 );
-        boolean processed = identityIndexer.bulk( bulkActions, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+        boolean processed = identityIndexer.bulk( bulkActions, index );
         while ( !processed )
         {
             final int nbRetry = failedCalls.getAndIncrement( );
@@ -38,7 +38,7 @@ public class RetryService
             {
                 AppLogService.error( "Could thread sleep.. + " + e.getMessage( ) );
             }
-            processed = identityIndexer.bulk( bulkActions, IIdentityIndexer.CURRENT_INDEX_ALIAS );
+            processed = identityIndexer.bulk( bulkActions, index );
         }
         return true;
     }
