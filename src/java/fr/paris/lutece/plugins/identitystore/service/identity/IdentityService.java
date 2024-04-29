@@ -954,17 +954,15 @@ public class IdentityService
     private Set<String> commonKeytoKey(Set<String> providedAttributes)
     {
         Set<String> returnKeys = new HashSet<>();
+
         for(String attribute : providedAttributes)
         {
-            if(attribute.equals("common_lastname"))
+            List<AttributeKey> keys = IdentityAttributeService.instance( ).getCommonAttributeKeys(attribute);
+            if( keys != null && !keys.isEmpty())
             {
-                returnKeys.add("family_name");
-                returnKeys.add("preferred_username");
-            }
-            else if(attribute.equals("common_email"))
-            {
-                returnKeys.add("email");
-                returnKeys.add("login");
+                for (AttributeKey key : keys) {
+                    returnKeys.add(key.getKeyName());
+                }
             }
             else
             {
