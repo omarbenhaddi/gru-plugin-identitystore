@@ -47,8 +47,8 @@ import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertifica
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityAttributeNotFoundException;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
-import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -59,7 +59,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,7 +90,7 @@ public class IdentityAttributeService
      * @return
      * @throws IdentityAttributeNotFoundException
      */
-    public List<AttributeKey> getAllAtributeKeys( ) throws IdentityAttributeNotFoundException
+    public List<AttributeKey> getAllAtributeKeys( )
     {
         return _cache.getAll( );
     }
@@ -134,33 +133,16 @@ public class IdentityAttributeService
      * 
      * @return {@link List<AttributeKey>}
      */
-    public List<AttributeKey> getPivotAttributeKeys( ) throws IdentityAttributeNotFoundException
+    public List<AttributeKey> getPivotAttributeKeys( )
     {
         return _cache.getAll( ).stream( ).filter( AttributeKey::getPivot ).collect( Collectors.toList( ) );
     }
 
-    public List<AttributeKey> getCommonAttributeKeys( final String keyName ) {
-        List<AttributeKey> allAttributes = null;
-        try {
-            allAttributes = _cache.getAll();
-        } catch (IdentityAttributeNotFoundException e) {
-            throw new RuntimeException( e.getMessage( ), e );
-        }
-        List<AttributeKey> validAttributes = new ArrayList<>();
-        if(!allAttributes.isEmpty())
-        {
-            for ( AttributeKey attributeKey : allAttributes)
-            {
-                if (attributeKey.getCommonSearchKeyName() != null)
-                {
-                    if ( attributeKey.getCommonSearchKeyName().equals(keyName) )
-                    {
-                        validAttributes.add(attributeKey);
-                    }
-                }
-            }
-        }
-        return validAttributes;
+    public List<AttributeKey> getCommonAttributeKeys( final String keyName )
+    {
+        return _cache.getAll( ).stream( )
+                .filter( attributeKey -> attributeKey.getCommonSearchKeyName( ) != null && Objects.equals( attributeKey.getCommonSearchKeyName( ), keyName ) )
+                .collect( Collectors.toList( ) );
     }
 
     public void createAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException

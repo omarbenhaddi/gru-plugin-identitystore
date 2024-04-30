@@ -78,7 +78,7 @@ public class AttributeKeyCache extends AbstractCacheableService
         AppLogService.debug( "AttributeKey removed from cache: " + keyName );
     }
 
-    public List<AttributeKey> getAll( ) throws IdentityAttributeNotFoundException
+    public List<AttributeKey> getAll( )
     {
         final List<AttributeKey> allAttributeKeys = new ArrayList<>( );
         if ( this.getKeys( ).isEmpty( ) )
@@ -87,7 +87,14 @@ public class AttributeKeyCache extends AbstractCacheableService
         }
         for ( final String key : this.getKeys( ) )
         {
-            allAttributeKeys.add( this.get( key ) );
+            try
+            {
+                allAttributeKeys.add( this.get( key ) );
+            }
+            catch( final IdentityAttributeNotFoundException e )
+            {
+                // Do nothing
+            }
         }
         // If cache is not activated, get from db
         if ( allAttributeKeys.isEmpty( ) )
