@@ -59,6 +59,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -138,15 +139,28 @@ public class IdentityAttributeService
         return _cache.getAll( ).stream( ).filter( AttributeKey::getPivot ).collect( Collectors.toList( ) );
     }
 
-    public List<AttributeKey> getCommonAttributeKeys( final String keyName )
-    {
-        if ( _cache.getKeys( ).isEmpty( ) )
-        {
-            _cache.refresh( );
+    public List<AttributeKey> getCommonAttributeKeys( final String keyName ) {
+        List<AttributeKey> allAttributes = null;
+        try {
+            allAttributes = _cache.getAll();
+        } catch (IdentityAttributeNotFoundException e) {
+            throw new RuntimeException( e.getMessage( ), e );
         }
-        return _cache.getKeys( ).stream( ).map( this::getAttributeKeySafe ).filter( Objects::nonNull )
-                .filter( attributeKey -> attributeKey.getCommonSearchKeyName( ) != null && Objects.equals( attributeKey.getCommonSearchKeyName( ), keyName ) )
-                .collect( Collectors.toList( ) );
+        List<AttributeKey> validAttributes = new ArrayList<>();
+        if(!allAttributes.isEmpty())
+        {
+            for ( AttributeKey attributeKey : allAttributes)
+            {
+                if (attributeKey.getCommonSearchKeyName() != null)
+                {
+                    if ( attributeKey.getCommonSearchKeyName().equals(keyName) )
+                    {
+                        validAttributes.add(attributeKey);
+                    }
+                }
+            }
+        }
+        return validAttributes;
     }
 
     public void createAttributeKey( final AttributeKey attributeKey ) throws IdentityStoreException
