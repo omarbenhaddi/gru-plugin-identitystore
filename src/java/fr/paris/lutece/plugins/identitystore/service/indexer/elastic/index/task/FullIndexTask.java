@@ -127,7 +127,7 @@ public class FullIndexTask extends AbstractIndexTask
                         if ( oldIndex != null )
                         {
                             this.getStatus( ).log( "Delete old index : " + oldIndex );
-                            identityIndexer.removeIndexReadOnly(oldIndex);
+                            identityIndexer.removeIndexReadOnly( oldIndex );
                             identityIndexer.deleteIndex( oldIndex );
                         }
                     }
@@ -157,7 +157,7 @@ public class FullIndexTask extends AbstractIndexTask
 
     private void process( final List<Integer> identityIdList, final String newIndex )
     {
-        final RetryService _retryService = new RetryService();
+        final RetryService _retryService = new RetryService( );
         final List<IdentityObject> identityObjects = IdentityObjectHome.loadEligibleIdentitiesForIndex( identityIdList );
         final List<BulkAction> actions = identityObjects.stream( )
                 .map( identityObject -> new BulkAction( identityObject.getCustomerId( ), identityObject, BulkActionType.INDEX ) )

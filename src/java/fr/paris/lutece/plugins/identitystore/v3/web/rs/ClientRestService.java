@@ -119,7 +119,7 @@ public class ClientRestService
         final ClientsSearchResponse entity = (ClientsSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
-    
+
     /**
      * Get Client
      *
@@ -148,7 +148,7 @@ public class ClientRestService
         final ClientSearchResponse entity = (ClientSearchResponse) request.doRequest( );
         return Response.status( entity.getStatus( ).getHttpCode( ) ).entity( entity ).type( MediaType.APPLICATION_JSON_TYPE ).build( );
     }
-    
+
     /**
      * Creates a client<br/>
      * The client is created from the provided {@link ClientApplicationDto}.<br/>

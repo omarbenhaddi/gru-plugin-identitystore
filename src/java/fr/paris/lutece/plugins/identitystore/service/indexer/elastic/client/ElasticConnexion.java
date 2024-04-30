@@ -109,11 +109,15 @@ public final class ElasticConnexion
      *            The URI
      * @return The response
      */
-    public String GET( final String strURI ) throws ElasticConnexionException {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
+    public String GET( final String strURI ) throws ElasticConnexionException
+    {
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
             return _httpClient.execute( new HttpGet( strURI ), _simpleResponseHandler );
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during GET call to Elastic Search: ", e);
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during GET call to Elastic Search: ", e );
         }
     }
 
@@ -124,11 +128,15 @@ public final class ElasticConnexion
      *            The URI
      * @return The response
      */
-    public String HEAD( final String strURI ) throws ElasticConnexionException {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
+    public String HEAD( final String strURI ) throws ElasticConnexionException
+    {
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
             return _httpClient.execute( new HttpHead( strURI ), _simpleResponseHandler );
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during HEAD call to Elastic Search: ", e);
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during HEAD call to Elastic Search: ", e );
         }
     }
 
@@ -141,16 +149,21 @@ public final class ElasticConnexion
      *            the json
      * @return the string
      */
-    public void PUT( final String strURI, final String strJSON ) throws ElasticConnexionException {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
-            final HttpPut request = new HttpPut(strURI);
-            request.setEntity(new StringEntity(strJSON, ContentType.APPLICATION_JSON, null, false));
-            final Integer code = _httpClient.execute(request, HttpResponse::getCode);
-            if(code >= 300) {
-                throw new ElasticConnexionException("An error occurred during PUT call to Elastic Search with status code: " + code);
+    public void PUT( final String strURI, final String strJSON ) throws ElasticConnexionException
+    {
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
+            final HttpPut request = new HttpPut( strURI );
+            request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+            final Integer code = _httpClient.execute( request, HttpResponse::getCode );
+            if ( code >= 300 )
+            {
+                throw new ElasticConnexionException( "An error occurred during PUT call to Elastic Search with status code: " + code );
             }
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during PUT call to Elastic Search: ", e);
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during PUT call to Elastic Search: ", e );
         }
     }
 
@@ -163,16 +176,21 @@ public final class ElasticConnexion
      *            the json
      * @return the string
      */
-    public void POST( final String strURI, final String strJSON ) throws ElasticConnexionException {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
-            final HttpPost request = new HttpPost(strURI);
-            request.setEntity(new StringEntity(strJSON, ContentType.APPLICATION_JSON, null, false));
-            final Integer code = _httpClient.execute(request, HttpResponse::getCode);
-            if(code >= 300) {
-                throw new ElasticConnexionException("An error occurred during POST call to Elastic Search with status code: " + code);
+    public void POST( final String strURI, final String strJSON ) throws ElasticConnexionException
+    {
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
+            final HttpPost request = new HttpPost( strURI );
+            request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+            final Integer code = _httpClient.execute( request, HttpResponse::getCode );
+            if ( code >= 300 )
+            {
+                throw new ElasticConnexionException( "An error occurred during POST call to Elastic Search with status code: " + code );
             }
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during POST call to Elastic Search: ", e);
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during POST call to Elastic Search: ", e );
         }
     }
 
@@ -185,13 +203,17 @@ public final class ElasticConnexion
      *            the json
      * @return the string
      */
-    public Response SEARCH( final String strURI, final String strJSON ) throws ElasticConnexionException {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
-            final HttpGet request = new HttpGet(strURI);
-            request.setEntity(new StringEntity(strJSON, ContentType.APPLICATION_JSON, null, false));
-            return _httpClient.execute(request, _searchResponseHandler);
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during SEARCH call to Elastic Search: ", e);
+    public Response SEARCH( final String strURI, final String strJSON ) throws ElasticConnexionException
+    {
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
+            final HttpGet request = new HttpGet( strURI );
+            request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+            return _httpClient.execute( request, _searchResponseHandler );
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during SEARCH call to Elastic Search: ", e );
         }
     }
 
@@ -204,13 +226,17 @@ public final class ElasticConnexion
      *            the json
      * @return the string
      */
-    public Responses MSEARCH( final String strURI, final String strJSON ) throws ElasticConnexionException {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
-            final HttpGet request = new HttpGet(strURI);
-            request.setEntity(new StringEntity(strJSON, ContentType.APPLICATION_JSON, null, false));
-            return _httpClient.execute(request, _mSearchResponseHandler);
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during MSEARCH call to Elastic Search: ", e);
+    public Responses MSEARCH( final String strURI, final String strJSON ) throws ElasticConnexionException
+    {
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
+            final HttpGet request = new HttpGet( strURI );
+            request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
+            return _httpClient.execute( request, _mSearchResponseHandler );
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during MSEARCH call to Elastic Search: ", e );
         }
     }
 
@@ -223,14 +249,18 @@ public final class ElasticConnexion
      */
     public void DELETE( final String strURI ) throws ElasticConnexionException
     {
-        try ( final CloseableHttpClient _httpClient = buildHttpClient() ) {
-            final HttpDelete request = new HttpDelete(strURI);
-            final Integer code = _httpClient.execute(request, HttpResponse::getCode);
-            if(code >= 300) {
-                throw new ElasticConnexionException("An error occurred during DELETE call to Elastic Search with status code: " + code);
+        try ( final CloseableHttpClient _httpClient = buildHttpClient( ) )
+        {
+            final HttpDelete request = new HttpDelete( strURI );
+            final Integer code = _httpClient.execute( request, HttpResponse::getCode );
+            if ( code >= 300 )
+            {
+                throw new ElasticConnexionException( "An error occurred during DELETE call to Elastic Search with status code: " + code );
             }
-        } catch (final IOException e) {
-            throw new ElasticConnexionException("An error occurred during DELETE call to Elastic Search: ", e);
+        }
+        catch( final IOException e )
+        {
+            throw new ElasticConnexionException( "An error occurred during DELETE call to Elastic Search: ", e );
         }
     }
 
@@ -288,8 +318,7 @@ public final class ElasticConnexion
     {
         final RequestConfig requestConfig = RequestConfig.custom( ).setResponseTimeout( Timeout.ofSeconds( RESPONSE_TIMEOUT ) )
                 .setConnectTimeout( Timeout.ofSeconds( CONNECT_TIMEOUT ) ).setConnectionRequestTimeout( Timeout.ofSeconds( CONNECT_TIMEOUT ) ).build( );
-        return HttpClients.custom( ).setDefaultHeaders( this.buildDefaultHeaders( ) )
-                .setDefaultRequestConfig( requestConfig ).build( );
+        return HttpClients.custom( ).setDefaultHeaders( this.buildDefaultHeaders( ) ).setDefaultRequestConfig( requestConfig ).build( );
     }
 
     private List<Header> buildDefaultHeaders( )

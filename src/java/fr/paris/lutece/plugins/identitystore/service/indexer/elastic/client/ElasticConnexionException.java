@@ -37,13 +37,13 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 
 public class ElasticConnexionException extends Exception
 {
-    public ElasticConnexionException(final String strMessage )
+    public ElasticConnexionException( final String strMessage )
     {
         super( strMessage );
         AppLogService.error( strMessage );
     }
 
-    public ElasticConnexionException(final String strMessage, final Throwable exception )
+    public ElasticConnexionException( final String strMessage, final Throwable exception )
     {
         super( strMessage, exception );
         AppLogService.error( strMessage, exception );

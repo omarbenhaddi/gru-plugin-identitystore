@@ -96,7 +96,18 @@ import fr.paris.lutece.util.sql.TransactionManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class IdentityService
@@ -951,22 +962,23 @@ public class IdentityService
      * @param providedAttributes
      * @return the list of keys
      */
-    private Set<String> commonKeytoKey(Set<String> providedAttributes)
+    private Set<String> commonKeytoKey( Set<String> providedAttributes )
     {
-        Set<String> returnKeys = new HashSet<>();
+        Set<String> returnKeys = new HashSet<>( );
 
-        for(String attribute : providedAttributes)
+        for ( String attribute : providedAttributes )
         {
-            List<AttributeKey> keys = IdentityAttributeService.instance( ).getCommonAttributeKeys(attribute);
-            if( keys != null && !keys.isEmpty())
+            List<AttributeKey> keys = IdentityAttributeService.instance( ).getCommonAttributeKeys( attribute );
+            if ( keys != null && !keys.isEmpty( ) )
             {
-                for (AttributeKey key : keys) {
-                    returnKeys.add(key.getKeyName());
+                for ( AttributeKey key : keys )
+                {
+                    returnKeys.add( key.getKeyName( ) );
                 }
             }
             else
             {
-                returnKeys.add(attribute);
+                returnKeys.add( attribute );
             }
         }
         return returnKeys;

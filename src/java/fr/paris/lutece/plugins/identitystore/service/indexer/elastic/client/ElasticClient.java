@@ -250,8 +250,10 @@ public class ElasticClient
     }
 
     /**
-     * @param strIndex the index of the document
-     * @param strId the id of the document
+     * @param strIndex
+     *            the index of the document
+     * @param strId
+     *            the id of the document
      * @return the document if any
      * @throws ElasticClientException
      */
@@ -299,17 +301,19 @@ public class ElasticClient
      *            The index
      * @return true if the index exists and is writable
      */
-    public boolean isWriteable(final String strIndex )
+    public boolean isWriteable( final String strIndex )
     {
         try
         {
             final String strURI = getURI( strIndex ) + SETTINGS_PATH;
-            final String response = _connexion.GET(strURI);
-            final JsonNode rootNode = _mapper.readTree(response);
+            final String response = _connexion.GET( strURI );
+            final JsonNode rootNode = _mapper.readTree( response );
 
-            if (rootNode != null) {
-                final JsonNode readOnlyNode = rootNode.path("settings").path("index").path("blocks").path("read_only");
-                if (readOnlyNode != null && readOnlyNode.asBoolean()) {
+            if ( rootNode != null )
+            {
+                final JsonNode readOnlyNode = rootNode.path( "settings" ).path( "index" ).path( "blocks" ).path( "read_only" );
+                if ( readOnlyNode != null && readOnlyNode.asBoolean( ) )
+                {
                     return false;
                 }
             }
@@ -432,7 +436,7 @@ public class ElasticClient
      * @return
      * @throws ElasticClientException
      */
-    public void addAliasOnIndex(final AliasActions aliasActions) throws ElasticClientException
+    public void addAliasOnIndex( final AliasActions aliasActions ) throws ElasticClientException
     {
         try
         {
@@ -475,11 +479,12 @@ public class ElasticClient
      *            The indexThe alias
      * @return if th index exists
      */
-    public boolean aliasExists( final String strAlias ) {
+    public boolean aliasExists( final String strAlias )
+    {
         try
         {
             final String strURI = getURI( "" ) + "_alias" + Constants.URL_PATH_SEPARATOR + strAlias;
-            _connexion.HEAD(strURI);
+            _connexion.HEAD( strURI );
         }
         catch( final ElasticConnexionException ex )
         {
@@ -536,7 +541,7 @@ public class ElasticClient
         }
         catch( Exception ex )
         {
-            AppLogService.error("ElasticClient : Error checking if ElasticSearch is alive", ex );
+            AppLogService.error( "ElasticClient : Error checking if ElasticSearch is alive", ex );
             return false;
         }
         return true;

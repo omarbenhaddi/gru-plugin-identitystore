@@ -51,16 +51,18 @@ public interface IIdentityIndexer
 
     void delete( final String documentId, final String index );
 
-    void addAliasOnIndex(String newIndex, String alias);
+    void addAliasOnIndex( String newIndex, String alias );
 
-    String getIndexBehindAlias(String alias );
+    String getIndexBehindAlias( String alias );
 
     /* Cluster API */
     boolean isAlive( );
 
     /* Index API */
     boolean indexExists( final String index );
-    boolean isIndexWriteable(final String index );
+
+    boolean isIndexWriteable( final String index );
+
     boolean aliasExists( final String index );
 
     void initIndex( final String index ) throws ElasticClientException;

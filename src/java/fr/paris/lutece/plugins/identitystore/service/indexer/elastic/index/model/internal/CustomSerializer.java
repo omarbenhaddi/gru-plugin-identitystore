@@ -45,16 +45,18 @@ public class CustomSerializer extends JsonSerializer<List<AliasAction>>
 {
 
     @Override
-    public void serialize(List<AliasAction> o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
+    public void serialize( List<AliasAction> o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider ) throws IOException
     {
-        if(o != null && !o.isEmpty()) {
-            jsonGenerator.writeStartArray();
-            for (final AliasAction aliasAction : o) {
-                jsonGenerator.writeStartObject();
-                jsonGenerator.writeObjectField(aliasAction.getName(), aliasAction);
-                jsonGenerator.writeEndObject();
+        if ( o != null && !o.isEmpty( ) )
+        {
+            jsonGenerator.writeStartArray( );
+            for ( final AliasAction aliasAction : o )
+            {
+                jsonGenerator.writeStartObject( );
+                jsonGenerator.writeObjectField( aliasAction.getName( ), aliasAction );
+                jsonGenerator.writeEndObject( );
             }
-            jsonGenerator.writeEndArray();
+            jsonGenerator.writeEndArray( );
         }
     }
 }

@@ -153,11 +153,11 @@ public class IndexIdentityJspBean extends ManageIdentitiesJspBean
             String jsonStatus = _mapper.writeValueAsString( indexStatus );
             if ( StringUtils.isNotEmpty( jsonStatus ) )
             {
-                jsonStatus = URLEncoder.encode(jsonStatus, StandardCharsets.UTF_8.toString());
+                jsonStatus = URLEncoder.encode( jsonStatus, StandardCharsets.UTF_8.toString( ) );
             }
             return jsonStatus;
         }
-        catch(JsonProcessingException | UnsupportedEncodingException e )
+        catch( JsonProcessingException | UnsupportedEncodingException e )
         {
             AppLogService.error( "Unable to serialize index status", e );
             return StringUtils.EMPTY;

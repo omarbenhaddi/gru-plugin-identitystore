@@ -405,7 +405,7 @@ public final class IdentityDAO implements IIdentityDAO
     @Override
     public int selectIdByCustomerId( final String strCustomerId, final Plugin plugin )
     {
-        try ( final DAOUtil daoUtil = new DAOUtil(SQL_QUERY_SELECT_ID_BY_CUSTOMER_ID, plugin ) )
+        try ( final DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ID_BY_CUSTOMER_ID, plugin ) )
         {
             daoUtil.setString( 1, strCustomerId );
             daoUtil.executeQuery( );

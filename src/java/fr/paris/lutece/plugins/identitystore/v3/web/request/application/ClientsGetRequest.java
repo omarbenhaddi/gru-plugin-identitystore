@@ -87,14 +87,14 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
         final ClientsSearchResponse response = new ClientsSearchResponse( );
 
         final List<ClientApplication> clientApplications;
-        
+
         if ( !StringUtils.isEmpty( _strApplicationCode ) )
         {
-        	clientApplications = ClientApplicationHome.findByApplicationCode( _strApplicationCode );
+            clientApplications = ClientApplicationHome.findByApplicationCode( _strApplicationCode );
         }
         else
         {
-        	clientApplications = ClientApplicationHome.selectApplicationList( );
+            clientApplications = ClientApplicationHome.selectApplicationList( );
         }
 
         if ( clientApplications == null || CollectionUtils.isEmpty( clientApplications ) )

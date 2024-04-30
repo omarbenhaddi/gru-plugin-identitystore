@@ -94,7 +94,7 @@ public class IdentityIndexer implements IIdentityIndexer
         catch( final ElasticClientException e )
         {
             this.handleError( identity.getCustomerId( ), IndexActionType.CREATE );
-            AppLogService.error( "Failed to index (creation) identity " + identity.getCustomerId(), e );
+            AppLogService.error( "Failed to index (creation) identity " + identity.getCustomerId( ), e );
         }
     }
 
@@ -131,7 +131,7 @@ public class IdentityIndexer implements IIdentityIndexer
         catch( final ElasticClientException e )
         {
             this.handleError( identity.getCustomerId( ), IndexActionType.UPDATE );
-            AppLogService.error( "Failed to index (update) identity " + identity.getCustomerId(), e );
+            AppLogService.error( "Failed to index (update) identity " + identity.getCustomerId( ), e );
         }
     }
 
@@ -181,29 +181,28 @@ public class IdentityIndexer implements IIdentityIndexer
     }
 
     @Override
-    public void addAliasOnIndex(final String newIndex, final String alias)
+    public void addAliasOnIndex( final String newIndex, final String alias )
     {
         try
         {
-            final AliasActions actions = new AliasActions();
-            final AliasAction remove = new AliasAction();
-            remove.setName("remove");
-            remove.setAlias(alias);
-            remove.setIndex("*");
-            actions.addAction(remove);
+            final AliasActions actions = new AliasActions( );
+            final AliasAction remove = new AliasAction( );
+            remove.setName( "remove" );
+            remove.setAlias( alias );
+            remove.setIndex( "*" );
+            actions.addAction( remove );
 
-            final AliasAction add = new AliasAction();
-            add.setName("add");
-            add.setAlias(alias);
-            add.setIndex(newIndex);
-            actions.addAction(add);
-
+            final AliasAction add = new AliasAction( );
+            add.setName( "add" );
+            add.setAlias( alias );
+            add.setIndex( newIndex );
+            actions.addAction( add );
 
             this._elasticClient.addAliasOnIndex( actions );
         }
         catch( final ElasticClientException e )
         {
-            AppLogService.error("Unexpected error occurred while managing ES alias.", e );
+            AppLogService.error( "Unexpected error occurred while managing ES alias.", e );
             throw new AppException( "Unexpected error occurred while managing ES alias.", e );
         }
     }
@@ -227,7 +226,7 @@ public class IdentityIndexer implements IIdentityIndexer
         }
         catch( ElasticClientException | JsonProcessingException e )
         {
-            AppLogService.error("Failed to get index behind alias", e );
+            AppLogService.error( "Failed to get index behind alias", e );
             return null;
         }
         return null;
@@ -248,18 +247,20 @@ public class IdentityIndexer implements IIdentityIndexer
         }
         catch( final ElasticClientException e )
         {
-            AppLogService.error("Failed to check index existence", e );
+            AppLogService.error( "Failed to check index existence", e );
             return false;
         }
     }
 
     @Override
-    public boolean isIndexWriteable(String index) {
+    public boolean isIndexWriteable( String index )
+    {
         return _elasticClient.isWriteable( index );
     }
 
     @Override
-    public boolean aliasExists(String index) {
+    public boolean aliasExists( String index )
+    {
         return false;
     }
 
