@@ -96,7 +96,7 @@ public abstract class AbstractIdentityStoreTestCase extends LuteceTestCase
         /* Inject ES url to identitystore_context.xml template and save it to App destination */
         final Map<String, String> contextParams = new HashMap<>( );
 
-        contextParams.put( "es_url", esUrl.contains( "http" ) ? esUrl : "http://" + esUrl );
+        contextParams.put( "elasticsearch.url", esUrl.contains( "http" ) ? esUrl : "http://" + esUrl );
         IdentitystoreTestUtils.generateFileFromTemplate( basePath, contextTemplatePath, contextParams, CONTEXT_XML_PATH );
 
         System.out.println( "-------------resourcesDir------------" + basePath );
