@@ -157,7 +157,7 @@ public final class ElasticConnexion
             final HttpPut request = new HttpPut( strURI );
             request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
             final Integer code = _httpClient.execute( request, HttpResponse::getCode );
-            if ( code >= ERROR_CODE_START)
+            if ( code >= ERROR_CODE_START )
             {
                 throw new ElasticConnexionException( "An error occurred during PUT call to Elastic Search with status code: " + code );
             }
@@ -184,7 +184,7 @@ public final class ElasticConnexion
             final HttpPost request = new HttpPost( strURI );
             request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
             final Integer code = _httpClient.execute( request, HttpResponse::getCode );
-            if ( code >= ERROR_CODE_START)
+            if ( code >= ERROR_CODE_START )
             {
                 throw new ElasticConnexionException( "An error occurred during POST call to Elastic Search with status code: " + code );
             }
@@ -211,7 +211,7 @@ public final class ElasticConnexion
             final HttpGet request = new HttpGet( strURI );
             request.setEntity( new StringEntity( strJSON, ContentType.APPLICATION_JSON, null, false ) );
             final Response execute = _httpClient.execute( request, _searchResponseHandler );
-            if ( execute.getStatus( ) != null && execute.getStatus( ) >= ERROR_CODE_START)
+            if ( execute.getStatus( ) != null && execute.getStatus( ) >= ERROR_CODE_START )
             {
                 throw new ElasticConnexionException( "An error occurred during SEARCH call to Elastic Search with status code: " + execute.getStatus( ) );
             }
@@ -273,7 +273,7 @@ public final class ElasticConnexion
         {
             final HttpDelete request = new HttpDelete( strURI );
             final Integer code = _httpClient.execute( request, HttpResponse::getCode );
-            if ( code >= ERROR_CODE_START)
+            if ( code >= ERROR_CODE_START )
             {
                 throw new ElasticConnexionException( "An error occurred during DELETE call to Elastic Search with status code: " + code );
             }
