@@ -72,7 +72,6 @@ public class ClientsGetRequest extends AbstractIdentityStoreRequest
     @Override
     protected void validateSpecificRequest( ) throws IdentityStoreException
     {
-        IdentityRequestValidator.instance( ).checkApplicationCode( _strApplicationCode );
     }
 
     /**
