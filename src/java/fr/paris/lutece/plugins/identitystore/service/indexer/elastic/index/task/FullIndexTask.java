@@ -136,7 +136,7 @@ public class FullIndexTask extends AbstractIndexTask
                 {
                     this.getStatus( ).log( "Failed to reindex " + e.getMessage( ) );
                     final String oldIndex = identityIndexer.getIndexBehindAlias( CURRENT_INDEX_ALIAS );
-                    rollbackIndexCreation( oldIndex, newIndex, identityIndexer );
+                    this.rollbackIndexCreation( oldIndex, newIndex, identityIndexer );
                 }
             }
             else
@@ -193,6 +193,9 @@ public class FullIndexTask extends AbstractIndexTask
         catch( ElasticClientException e )
         {
             this.getStatus( ).log( "Failed to rollback " + e.getMessage( ) );
+        }
+        finally {
+            this.close();
         }
     }
 }
