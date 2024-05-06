@@ -169,14 +169,14 @@ public class IdentityIndexer implements IIdentityIndexer
     @Override
     public void makeIndexReadOnly( final String index ) throws ElasticClientException
     {
-        final String settings = "{ \"index.blocks.read_only\": true }";
+        final String settings = "{ \"index.blocks.write\": true }";
         this._elasticClient.updateSettings( index, settings );
     }
 
     @Override
     public void removeIndexReadOnly( final String index ) throws ElasticClientException
     {
-        final String settings = "{ \"index.blocks.read_only\": false }";
+        final String settings = "{ \"index.blocks.write\": false }";
         this._elasticClient.updateSettings( index, settings );
     }
 
