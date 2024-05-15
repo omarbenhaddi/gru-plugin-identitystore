@@ -46,16 +46,18 @@ public class IdentityObject
     private String customerId;
     private Timestamp creationDate;
     private Timestamp lastUpdateDate;
+    private Timestamp expirationDate;
     private boolean monParisActive;
     private Map<String, AttributeObject> attributes = new HashMap<>( );
 
-    public IdentityObject( String connectionId, String customerId, Timestamp creationDate, Timestamp lastUpdateDate, boolean monParisActive,
-            Map<String, AttributeObject> attributes )
+    public IdentityObject(String connectionId, String customerId, Timestamp creationDate, Timestamp lastUpdateDate, Timestamp expirationDate, boolean monParisActive,
+                          Map<String, AttributeObject> attributes)
     {
         this.connectionId = connectionId;
         this.customerId = customerId;
         this.creationDate = creationDate;
         this.lastUpdateDate = lastUpdateDate;
+        this.expirationDate = expirationDate;
         this.attributes.putAll( attributes );
         this.monParisActive = monParisActive;
     }
@@ -103,6 +105,14 @@ public class IdentityObject
     public void setLastUpdateDate( Timestamp lastUpdateDate )
     {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public Timestamp getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Timestamp expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public boolean isMonParisActive( )

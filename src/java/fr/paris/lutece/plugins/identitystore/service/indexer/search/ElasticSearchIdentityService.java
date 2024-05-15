@@ -40,6 +40,7 @@ import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.mode
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.search.service.IIdentitySearcher;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ExpirationDefinition;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
@@ -127,6 +128,13 @@ public class ElasticSearchIdentityService implements ISearchIdentityService
         identity.setCustomerId( identityObject.getCustomerId( ) );
         identity.setCreationDate( identityObject.getCreationDate( ) );
         identity.setLastUpdateDate( identityObject.getLastUpdateDate( ) );
+        if( identityObject.getExpirationDate( ) != null )
+        {
+            identity.setExpiration( new ExpirationDefinition());
+            identity.getExpiration().setExpirationDate(identityObject.getExpirationDate());
+            identity.getExpiration().setDeleted(false);
+            identity.getExpiration().setDeleteDate(null);
+        }
         identity.setMonParisActive( identityObject.isMonParisActive( ) );
         for ( final Map.Entry<String, AttributeObject> entry : identityObject.getAttributes( ).entrySet( ) )
         {

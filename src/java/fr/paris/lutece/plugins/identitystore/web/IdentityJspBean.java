@@ -112,11 +112,6 @@ public class IdentityJspBean extends ManageIdentitiesJspBean
     private static final String MARK_IDENTITY_IS_SUSPICIOUS = "identity_is_suspicious";
     private static final String MARK_IDENTITY_CHANGE_LIST = "identity_change_list";
     private static final String MARK_ATTRIBUTES_CHANGE_LIST = "attributes_change_list";
-    private static final String MARK_ATTRIBUTES_CURRENT_MAP = "attributes_current_map";
-    private static final String MARK_CERTIFIERS_MAP = "certifiers_map";
-    private static final String MARK_QUERY = "query";
-    private static final String MARK_QUERY_FILTER = "query_filter";
-    private static final String MARK_QUERY_FILTER_REFLIST = "query_filter_list";
     private static final String MARK_HAS_CREATE_ROLE = "createIdentityRole";
     private static final String MARK_HAS_MODIFY_ROLE = "modifyIdentityRole";
     private static final String MARK_HAS_DELETE_ROLE = "deleteIdentityRole";
