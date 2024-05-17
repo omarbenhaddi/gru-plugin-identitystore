@@ -56,7 +56,7 @@ public final class DuplicateRuleDAO implements IDuplicateRuleDAO
     private static final String SQL_QUERY_SELECT_RULE = "SELECT " + SELECT_ATTRIBUTES + " FROM identitystore_duplicate_rule WHERE id_rule = ? ";
     private static final String SQL_QUERY_SELECT_RULE_BY_NAME = "SELECT " + SELECT_ATTRIBUTES + " FROM identitystore_duplicate_rule WHERE name = ? ";
     private static final String SQL_QUERY_SELECT_RULE_BY_CODE = "SELECT " + SELECT_ATTRIBUTES + " FROM identitystore_duplicate_rule WHERE code = ? ";
-    private static final String SQL_QUERY_INSERT_RULE = "INSERT INTO identitystore_duplicate_rule ( name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon, detection_limit ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+    private static final String SQL_QUERY_INSERT_RULE = "INSERT INTO identitystore_duplicate_rule ( name, code, description, nb_filled_attributes, nb_equal_attributes, nb_missing_attributes, priority, active, daemon, detection_limit ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
     private static final String SQL_QUERY_DELETE_RULE = "DELETE FROM identitystore_duplicate_rule WHERE id_rule = ?";
     private static final String SQL_QUERY_UPDATE_RULE = "UPDATE identitystore_duplicate_rule SET name = ?,  code = ?, description = ?, nb_filled_attributes = ?, nb_equal_attributes = ?, nb_missing_attributes = ?, priority = ?, active = ?, daemon = ?, daemon_last_exec_date = ?, detection_limit = ? WHERE id_rule = ? ";
     private static final String SQL_QUERY_SELECTALL_RULE = "SELECT " + SELECT_ATTRIBUTES + " FROM identitystore_duplicate_rule";
