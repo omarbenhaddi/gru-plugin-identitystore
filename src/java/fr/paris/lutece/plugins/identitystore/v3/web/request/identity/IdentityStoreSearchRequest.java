@@ -39,6 +39,7 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreAppCodeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.validator.IdentitySearchRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.validator.IdentityValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
@@ -116,7 +117,6 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
     @Override
     protected void formatRequestContent( ) throws RequestContentFormattingException
     {
-        //TODO vérifier que les attributs de la requête sont bien formattés
         formatStatuses.addAll( IdentityAttributeFormatterService.instance( ).formatIdentitySearchRequestAttributeValues( _identitySearchRequest ) );
     }
 
@@ -141,11 +141,10 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
         {
             final IdentityDto identityDto = IdentityService.instance().search(StringUtils.EMPTY, _identitySearchRequest.getConnectionId(), serviceContract, _author);
             response.getIdentities( ).add(identityDto);
-            //TODO commonaliser dans une méthode
-            // #27998 : Dans le cas d'une interrogation sur un CUID/GUID rapproché, ajouter une ligne dans le bloc "Alerte" dans la réponse de l'identité consolidée
-            if (identityDto != null && StringUtils.isNotBlank(_identitySearchRequest.getConnectionId()) && !Objects.equals(identityDto.getConnectionId(), _identitySearchRequest.getConnectionId())) {
-                final IdentitySearchMessage alert = new IdentitySearchMessage();
-                alert.setMessage("Le CUID ou GUID demandé correspond à une identité rapprochée. Cette réponse contient l'identité consilidée.");
+
+            final IdentitySearchMessage alert =
+                    IdentityValidator.instance().verifyIfConsolidatedIdentitySearchResult(identityDto, null, _identitySearchRequest.getConnectionId());
+            if (alert != null) {
                 response.getAlerts().add(alert);
             }
         }

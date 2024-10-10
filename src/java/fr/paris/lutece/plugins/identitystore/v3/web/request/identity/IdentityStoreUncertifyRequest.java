@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttribute
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreAppCodeRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.request.validator.IdentityAttributeValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.AbstractIdentityStoreRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
@@ -95,6 +96,9 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreAppCodeR
     protected void validateRequestFormat( ) throws RequestFormatException
     {
         IdentityRequestValidator.instance( ).checkCustomerId( _strCustomerId );
+        if (request != null && request.getAttributeKeyList() != null) {
+            IdentityAttributeValidator.instance().checkAttributeExistence(request.getAttributeKeyList());
+        }
     }
 
     @Override
@@ -126,24 +130,9 @@ public class IdentityStoreUncertifyRequest extends AbstractIdentityStoreAppCodeR
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
         final List<AttributeKey> attributeKeys = new ArrayList<>( );
-        if(request != null && !request.getAttributeKeyList().isEmpty()) {
-            final List<AttributeStatus> statusList = new ArrayList<>();
+        if (request != null && !request.getAttributeKeyList().isEmpty()) {
             for( final String key : request.getAttributeKeyList( ) ) {
-                final AttributeKey attributeKey = IdentityAttributeService.instance().getAttributeKey(key);
-                if (attributeKey == null) {
-                    final AttributeStatus attributeStatus = new AttributeStatus( );
-                    attributeStatus.setKey( key );
-                    attributeStatus.setStatus( AttributeChangeStatus.NOT_FOUND );
-                    statusList.add( attributeStatus );
-                }else{
-                    attributeKeys.add( attributeKey );
-                }
-            }
-            if (!statusList.isEmpty()) {
-                response.setStatus(ResponseStatusFactory.notFound().setMessage("Unknown attribute key.")
-                        .setMessageKey(Constants.PROPERTY_REST_ERROR_UNKNOWN_ATTRIBUTE_KEY)
-                        .setAttributeStatuses(statusList));
-                return response;
+                attributeKeys.add(IdentityAttributeService.instance().getAttributeKey(key));
             }
         }
 

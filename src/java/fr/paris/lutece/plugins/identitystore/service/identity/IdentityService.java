@@ -712,7 +712,6 @@ public class IdentityService
             throws IdentityStoreException
     {
         final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
-        //TODO déplacer ce code conformément au refactoring en cours depuis un millénaire
         final Collection<IdentityAttribute> attributesToDecertify;
         if (!requestedAttributesKeys.isEmpty()) {
             final List<String> requestedAttributeKeysStr = requestedAttributesKeys.stream().map(AttributeKey::getKeyName).collect(Collectors.toList());

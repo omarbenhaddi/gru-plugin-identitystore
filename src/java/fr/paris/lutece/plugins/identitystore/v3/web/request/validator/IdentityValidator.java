@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
 import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceConsistencyException;
@@ -191,6 +192,24 @@ public class IdentityValidator
                     Constants.PROPERTY_REST_ERROR_IDENTITIES_NOT_MERGED_TOGETHER );
         }
 
+    }
+
+    /**
+     * #27998 : Dans le cas d'une interrogation sur un CUID/GUID rapproché, ajouter une ligne dans le bloc "Alerte" dans la réponse de l'identité consolidée
+     * @param result
+     * @param cuid
+     * @param guid
+     * @return
+     */
+    public IdentitySearchMessage verifyIfConsolidatedIdentitySearchResult(final IdentityDto result, final String cuid, final String guid) {
+        if (result != null) {
+            if ((cuid != null && !Objects.equals(result.getCustomerId(), cuid)) || (guid != null && !Objects.equals(result.getConnectionId(), guid))) {
+                final IdentitySearchMessage alert = new IdentitySearchMessage();
+                alert.setMessage("Le CUID ou GUID demandé correspond à une identité rapprochée. Cette réponse contient l'identité consilidée.");
+                return alert;
+            }
+        }
+        return null;
     }
 
 }
