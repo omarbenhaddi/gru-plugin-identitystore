@@ -152,8 +152,8 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
         {
             response.getIdentities( ).addAll( IdentityService.instance( ).search( _identitySearchRequest, _author, serviceContract ) );
         }
-        response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
         response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+        response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
 
         return response;
     }
