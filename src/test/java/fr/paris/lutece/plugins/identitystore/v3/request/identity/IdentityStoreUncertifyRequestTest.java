@@ -8,11 +8,14 @@ import fr.paris.lutece.plugins.identitystore.v3.web.request.identity.IdentitySto
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.ResponseStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.UncertifyIdentityRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
 import fr.paris.lutece.plugins.identitystore.web.exception.RequestFormatException;
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceNotFoundException;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+
+import java.util.ArrayList;
 
 public class IdentityStoreUncertifyRequestTest extends AbstractIdentityRequestTest {
 
@@ -23,7 +26,7 @@ public class IdentityStoreUncertifyRequestTest extends AbstractIdentityRequestTe
         final String decertificationProcessus = AppPropertiesService.getProperty("identitystore.identity.uncertify.processus", "dec");
         assertTrue(strTestCase + " : mock identity was created with the decertification processus for its attributes. Please choose a higher certification", mockIdentity.getAttributes().values().stream().noneMatch(a -> a.getCertificate().getCertifierCode().equals(decertificationProcessus)));
         try {
-            final IdentityStoreUncertifyRequest request = new IdentityStoreUncertifyRequest(mockIdentity.getCustomerId(), H_CLIENT_CODE, H_APP_CODE, H_AUTHOR_NAME, H_AUTHOR_TYPE);
+            final IdentityStoreUncertifyRequest request = new IdentityStoreUncertifyRequest( this.createRequest(), mockIdentity.getCustomerId(), H_CLIENT_CODE, H_APP_CODE, H_AUTHOR_NAME, H_AUTHOR_TYPE);
             final IdentityChangeResponse response = (IdentityChangeResponse) this.executeRequestOK(request, strTestCase, ResponseStatusType.SUCCESS);
             assertNotNull(strTestCase + " : attribute status list in response is null", response.getStatus().getAttributeStatuses());
             assertFalse(strTestCase + " : attribute status list in response is empty", response.getStatus().getAttributeStatuses().isEmpty());
@@ -43,7 +46,7 @@ public class IdentityStoreUncertifyRequestTest extends AbstractIdentityRequestTe
     public void test_2_RequestKO() throws Exception {
         String strTestCase = "2.1. Uncertify identity without customer ID";
         try {
-            final IdentityStoreUncertifyRequest request = new IdentityStoreUncertifyRequest(null, H_CLIENT_CODE, H_APP_CODE, H_AUTHOR_NAME, H_AUTHOR_TYPE);
+            final IdentityStoreUncertifyRequest request = new IdentityStoreUncertifyRequest( this.createRequest(), null, H_CLIENT_CODE, H_APP_CODE, H_AUTHOR_NAME, H_AUTHOR_TYPE);
             this.executeRequestKO(request, strTestCase, RequestFormatException.class, Constants.PROPERTY_REST_ERROR_MISSING_CUSTOMER_ID);
         } catch (final IdentityStoreException e) {
             fail(strTestCase + " : FAIL : " + e.getMessage());
@@ -51,10 +54,18 @@ public class IdentityStoreUncertifyRequestTest extends AbstractIdentityRequestTe
 
         strTestCase = "2.2. Uncertify identity with unknown customer ID";
         try {
-            final IdentityStoreUncertifyRequest request = new IdentityStoreUncertifyRequest("unknown-cuid", H_CLIENT_CODE, H_APP_CODE, H_AUTHOR_NAME, H_AUTHOR_TYPE);
+            final IdentityStoreUncertifyRequest request = new IdentityStoreUncertifyRequest( this.createRequest(), "unknown-cuid", H_CLIENT_CODE, H_APP_CODE, H_AUTHOR_NAME, H_AUTHOR_TYPE);
             this.executeRequestKO(request, strTestCase, ResourceNotFoundException.class, Constants.PROPERTY_REST_ERROR_NO_MATCHING_IDENTITY);
         } catch (final IdentityStoreException e) {
             fail(strTestCase + " : FAIL : " + e.getMessage());
         }
+    }
+
+    private UncertifyIdentityRequest createRequest( )
+    {
+        final UncertifyIdentityRequest request = new UncertifyIdentityRequest();
+        //TODO handle cases with attributes filter
+        request.setAttributeKeyList(new ArrayList<>());
+        return request;
     }
 }

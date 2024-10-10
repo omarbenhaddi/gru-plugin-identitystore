@@ -292,7 +292,7 @@ public class IdentityAttributeGeocodesAdjustmentService
             else
             {
                 // city exists in Geocodes for provided code, or provided code is FC certified - adjust city label attribute if needed
-                final String cityGeocodesLabel = city != null ? city.getValue( ) : "commune inconnue";
+                final String cityGeocodesLabel = city != null ? city.getValueMinComplete( ) : "commune inconnue";
 
                 // If sent label is different than the Geocodes label, modify the request to override with the Geocodes value
                 if ( sentCityLabel != null && !cityGeocodesLabel.equals( sentCityLabel.getValue( ) ) )

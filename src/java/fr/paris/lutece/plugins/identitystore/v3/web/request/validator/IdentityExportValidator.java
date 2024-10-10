@@ -33,10 +33,15 @@
  */
 package fr.paris.lutece.plugins.identitystore.v3.web.request.validator;
 
+import fr.paris.lutece.plugins.identitystore.business.contract.AttributeRight;
+import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.exporting.IdentityExportRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.web.exception.RequestFormatException;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
 
 public class IdentityExportValidator
 {
@@ -57,12 +62,28 @@ public class IdentityExportValidator
     {
     }
 
-    public void validateExportRequest( final IdentityExportRequest request ) throws RequestFormatException
-    {
+    public void validateExportRequest( final IdentityExportRequest request, final ServiceContract serviceContract ) throws RequestFormatException {
         if ( request.getCuidList( ).size( ) > exportLimit )
         {
             throw new RequestFormatException( "Provided CUID list exceeds the allowed export limit of " + exportLimit,
                     Constants.PROPERTY_REST_ERROR_EXPORT_LIMIT_EXCEEDED );
+        }
+
+        if (request.getAttributeKeyList() != null && !request.getAttributeKeyList().isEmpty()) {
+
+            for (final String searchAttributeKey : request.getAttributeKeyList()) {
+                final Optional<AttributeRight> attributeRight = serviceContract.getAttributeRights().stream()
+                        .filter(a -> StringUtils.equals(a.getAttributeKey().getKeyName(), searchAttributeKey)).findFirst();
+                if (attributeRight.isPresent()) {
+                    boolean canReadAttribute = attributeRight.get().isReadable();
+
+                    if (!canReadAttribute) {
+                        throw new RequestFormatException(searchAttributeKey + " key is not readable in service contract definition.", Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION);
+                    }
+                } else {
+                    throw new RequestFormatException(searchAttributeKey + " key does not exist in service contract definition.", Constants.PROPERTY_REST_ERROR_SERVICE_CONTRACT_VIOLATION);
+                }
+            }
         }
     }
 

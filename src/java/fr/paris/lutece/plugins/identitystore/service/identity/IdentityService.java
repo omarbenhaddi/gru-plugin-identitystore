@@ -46,6 +46,7 @@ import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.cache.IdentityDtoCache;
 import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeService;
+import fr.paris.lutece.plugins.identitystore.service.contract.AttributeCertificationDefinitionService;
 import fr.paris.lutece.plugins.identitystore.service.listeners.IdentityStoreNotifyListenerService;
 import fr.paris.lutece.plugins.identitystore.service.search.ISearchIdentityService;
 import fr.paris.lutece.plugins.identitystore.service.user.InternalUserService;
@@ -84,17 +85,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class IdentityService
 {
+    // Conf
+    private static final String PIVOT_UNCERTIF_LEVEL_THRESHOLD = "identitystore.identity.uncertify.attribute.pivot.level.threshold";
+
     // EVENTS FOR ACCESS LOGGING
     public static final String CREATE_IDENTITY_EVENT_CODE = "CREATE_IDENTITY";
     public static final String UPDATE_IDENTITY_EVENT_CODE = "UPDATE_IDENTITY";
@@ -171,9 +170,7 @@ public class IdentityService
             TransactionManager.commitTransaction( null );
 
             /* Historique des modifications */
-            final List<AttributeStatus> createdAttributes = attrStatusList.stream( ).filter( s -> s.getStatus( ).equals( AttributeChangeStatus.CREATED ) )
-                    .collect( Collectors.toList( ) );
-            for ( AttributeStatus attributeStatus : createdAttributes )
+            for ( final AttributeStatus attributeStatus : attrStatusList )
             {
                 _identityStoreNotifyListenerService.notifyListenersAttributeChange( AttributeChangeType.CREATE, identity, attributeStatus, author, clientCode );
             }
@@ -241,7 +238,7 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
-            if ( !StringUtils.equals( identity.getConnectionId( ), request.getIdentity( ).getConnectionId( ) )
+            if ( !StringUtils.equalsIgnoreCase( identity.getConnectionId( ), request.getIdentity( ).getConnectionId( ) )
                     && StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) ) )
             {
                 identity.setConnectionId( request.getIdentity( ).getConnectionId( ) );
@@ -424,6 +421,106 @@ public class IdentityService
     }
 
     /**
+     * Perform an identity research over a list of attributes (key and values) specified in the {@link IdentitySearchRequest}
+     *
+     * @param request
+     *            the {@link IdentitySearchRequest} holding the parameters of the research
+     * @param author
+     *            the author of the request
+     * @param serviceContract
+     *            service contract of the client requesting the change
+     * @throws ResourceNotFoundException
+     *             in case of {@link AttributeKey} management error
+     * @throws IdentityStoreException
+     *             in case of unpredicted error
+     * @return list of matching identities
+     */
+    public List<IdentityDto> search( final IdentitySearchRequest request, final RequestAuthor author, final ServiceContract serviceContract )
+            throws IdentityStoreException
+    {
+        final String clientCode = serviceContract.getClientCode( );
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( request.toString( ) ), SPECIFIC_ORIGIN );
+        final List<SearchAttribute> providedAttributes = request.getSearch( ).getAttributes( );
+        final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
+                request.isConnected( ), Collections.emptyList( ) );
+        if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
+        {
+            final List<IdentityDto> filteredIdentities = this.getEnrichedIdentities( request.getSearch( ).getAttributes( ), serviceContract,
+                    result.getQualifiedIdentities( ) );
+            if ( CollectionUtils.isNotEmpty( filteredIdentities ) )
+            {
+                for ( final IdentityDto identity : filteredIdentities )
+                {
+                    AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                            _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identity.getCustomerId( ) ),
+                            SPECIFIC_ORIGIN );
+                    if ( author.getType( ).equals( AuthorType.agent ) )
+                    {
+                        /* Indexation et historique */
+                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ,
+                                DtoConverter.convertDtoToIdentity( identity ), ResponseStatusType.OK.name( ), "Operation completed successfully", author,
+                                clientCode, new HashMap<>( ) );
+                    }
+                }
+                return filteredIdentities;
+            }
+        }
+
+        throw new ResourceNotFoundException( "No identity found", Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
+    }
+
+    /**
+     * Perform an identity research by customer or connection ID.
+     *
+     * @param customerId
+     * @param connectionId
+     * @param serviceContract
+     * @param author
+     *            the author of the request
+     * @throws ResourceNotFoundException
+     */
+    public IdentityDto search( final String customerId, final String connectionId, final ServiceContract serviceContract, final RequestAuthor author )
+            throws IdentityStoreException
+    {
+        final String clientCode = serviceContract.getClientCode( );
+        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
+                SecurityUtil.logForgingProtect( StringUtils.isNotBlank( customerId ) ? customerId : connectionId ), SPECIFIC_ORIGIN );
+
+        final IdentityDto identityDto = StringUtils.isNotBlank( customerId ) ? _identityDtoCache.getByCustomerId( customerId, serviceContract )
+                : _identityDtoCache.getByConnectionId( connectionId, serviceContract );
+        if ( identityDto == null )
+        {
+            // #345 : If the identity doesn't exist, make an extra search in the history (only for CUID search).
+            // If there is a record, it means the identity has been deleted => send back a specific message
+            if ( StringUtils.isNotBlank( customerId ) && !IdentityHome.findHistoryByCustomerId( customerId ).isEmpty( ) )
+            {
+                throw new ResourceNotFoundException( "The requested identity has been deleted.", Constants.PROPERTY_REST_ERROR_IDENTITY_DELETED );
+            }
+            else
+            {
+                throw new ResourceNotFoundException( "The requested identity could not be found.", Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
+            }
+        }
+        else
+        {
+            if ( author != null )
+            {
+                AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
+                        _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identityDto.getCustomerId( ) ),
+                        SPECIFIC_ORIGIN );
+            }
+            if ( author != null && author.getType( ).equals( AuthorType.agent ) )
+            {
+                /* Indexation et historique */
+                _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, DtoConverter.convertDtoToIdentity( identityDto ),
+                        ResponseStatusType.OK.name( ), "Operation completed successfully", author, clientCode, new HashMap<>( ) );
+            }
+            return identityDto;
+        }
+    }
+
+    /**
      * Performs a search of a list of {@link IdentityDto}, providing a list of customer ids
      * 
      * @param customerIds
@@ -554,12 +651,14 @@ public class IdentityService
      *
      * @param rule
      *            the rule used to get matching identities
+     * @param batchSize the size of the batches
+     * @param includeSuspicions filter CUIDs, to include or not, the CUIDs that are identified as suspicions
      * @return the list of identities
      */
-    public Batch<String> getCUIDsBatchForPotentialDuplicate(final DuplicateRule rule, final int batchSize )
+    public Batch<String> getCUIDsBatchForPotentialDuplicate(final DuplicateRule rule, final int batchSize, final boolean includeSuspicions )
     {
         final List<Integer> attributes = rule.getCheckedAttributes( ).stream( ).map( AttributeKey::getId ).collect( Collectors.toList( ) );
-        final List<String> customerIdsList = IdentityHome.findByAttributeExisting( attributes, rule.getNbFilledAttributes( ), true, true );
+        final List<String> customerIdsList = IdentityHome.findByAttributeExisting( attributes, rule.getNbFilledAttributes( ), true, !includeSuspicions, rule.getPriority() );
         if ( customerIdsList.isEmpty( ) )
         {
             return Batch.ofSize( Collections.emptyList( ), 0 );
@@ -577,34 +676,28 @@ public class IdentityService
      * @param author
      *            the author of the request
      */
-    public void deleteRequest( final String customerId, final String clientCode, final RequestAuthor author ) throws IdentityStoreException
-    {
-        final Identity identity = IdentityHome.findByCustomerId( customerId );
+    public void deleteRequest( final String customerId, final String clientCode, final RequestAuthor author ) throws IdentityStoreException {
+        final Identity identity = IdentityHome.findByCustomerId(customerId);
 
-        TransactionManager.beginTransaction( null );
-        try
-        {
+        TransactionManager.beginTransaction(null);
+        try {
             // expire identity (the deletion is managed by the dedicated Daemon)
-            IdentityHome.softRemove( customerId );
-            TransactionManager.commitTransaction( null );
+            IdentityHome.softRemove(customerId);
+            TransactionManager.commitTransaction(null);
 
             /* Notify listeners for indexation, history, ... */
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.DELETE, identity, ResponseStatusType.SUCCESS.name( ),
-                    ResponseStatusType.SUCCESS.name( ), author, clientCode, new HashMap<>( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange(IdentityChangeType.DELETE, identity, ResponseStatusType.SUCCESS.name(),
+                    ResponseStatusType.SUCCESS.name(), author, clientCode, new HashMap<>());
 
-            AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
-                    _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( customerId ), SPECIFIC_ORIGIN );
-        }
-        catch( final Exception e )
-        {
-            TransactionManager.rollBack( null );
-            if ( e instanceof IdentityStoreException )
-            {
+            AccessLogService.getInstance().info(AccessLoggerConstants.EVENT_TYPE_DELETE, DELETE_IDENTITY_EVENT_CODE,
+                    _internalUserService.getApiUser(author, clientCode), SecurityUtil.logForgingProtect(customerId), SPECIFIC_ORIGIN);
+        } catch (final Exception e) {
+            TransactionManager.rollBack(null);
+            if (e instanceof IdentityStoreException) {
                 throw e;
             }
-            throw new IdentityStoreException( e.getMessage( ), e, Constants.PROPERTY_REST_ERROR_DURING_TREATMENT );
+            throw new IdentityStoreException(e.getMessage(), e, Constants.PROPERTY_REST_ERROR_DURING_TREATMENT);
         }
-
     }
 
     /**
@@ -615,15 +708,37 @@ public class IdentityService
      * @return the response
      * @see IdentityAttributeService#uncertifyAttribute
      */
-    public Pair<Identity, List<AttributeStatus>> uncertifyIdentity( final String strCustomerId, final String strClientCode, final RequestAuthor author )
+    public Pair<Identity, List<AttributeStatus>> uncertifyIdentity( final String strCustomerId, final List<AttributeKey> requestedAttributesKeys, final String strClientCode, final RequestAuthor author )
             throws IdentityStoreException
     {
         final Identity identity = IdentityHome.findByCustomerId( strCustomerId );
+        //TODO déplacer ce code conformément au refactoring en cours depuis un millénaire
+        final Collection<IdentityAttribute> attributesToDecertify;
+        if (!requestedAttributesKeys.isEmpty()) {
+            final List<String> requestedAttributeKeysStr = requestedAttributesKeys.stream().map(AttributeKey::getKeyName).collect(Collectors.toList());
+            // #27794 - if pivot requested to be decertified, and one of them is leveled >= PIVOT_UNCERTIF_LEVEL_THRESHOLD
+            //          -> decertify all pivots
+            final int pivotUncertifyLevelThreshold = AppPropertiesService.getPropertyInt(PIVOT_UNCERTIF_LEVEL_THRESHOLD, 400);
+            final List<IdentityAttribute> pivotAttributes =
+                    identity.getAttributes().values().stream().filter(a -> a.getAttributeKey().getPivot()).collect(Collectors.toList());
+            if (requestedAttributesKeys.stream().anyMatch(AttributeKey::getPivot) && pivotAttributes.stream().anyMatch(a -> AttributeCertificationDefinitionService.instance().getLevelAsInteger( a.getCertificate( ).getCertifierCode( ), a.getAttributeKey().getKeyName() ) >= pivotUncertifyLevelThreshold)) {
+                attributesToDecertify = identity.getAttributes().values().stream().filter(a -> a.getAttributeKey().getPivot() || requestedAttributeKeysStr.contains(a.getAttributeKey().getKeyName())).collect(Collectors.toList());
+            } else {
+                attributesToDecertify = identity.getAttributes().values().stream().filter(a -> requestedAttributeKeysStr.contains(a.getAttributeKey().getKeyName())).collect(Collectors.toList());
+            }
+        } else {
+            attributesToDecertify = identity.getAttributes().values();
+        }
+
+        if (attributesToDecertify.isEmpty()) {
+            throw new IdentityStoreException( "No attributes to decertify", Constants.PROPERTY_REST_ERROR_DURING_TREATMENT);
+        }
+
         TransactionManager.beginTransaction( null );
         try
         {
             final List<AttributeStatus> attrStatusList = new ArrayList<>( );
-            for ( final IdentityAttribute attribute : identity.getAttributes( ).values( ) )
+            for ( final IdentityAttribute attribute : attributesToDecertify)
             {
                 final AttributeStatus status = _identityAttributeService.uncertifyAttribute( attribute );
                 attrStatusList.add( status );
@@ -709,108 +824,8 @@ public class IdentityService
     }
 
     /**
-     * Perform an identity research by customer or connection ID.
-     *
-     * @param customerId
-     * @param connectionId
-     * @param serviceContract
-     * @param author
-     *            the author of the request
-     * @throws ResourceNotFoundException
-     */
-    public IdentityDto search( final String customerId, final String connectionId, final ServiceContract serviceContract, final RequestAuthor author )
-            throws IdentityStoreException
-    {
-        final String clientCode = serviceContract.getClientCode( );
-        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, GET_IDENTITY_EVENT_CODE, _internalUserService.getApiUser( clientCode ),
-                SecurityUtil.logForgingProtect( StringUtils.isNotBlank( customerId ) ? customerId : connectionId ), SPECIFIC_ORIGIN );
-
-        final IdentityDto identityDto = StringUtils.isNotBlank( customerId ) ? _identityDtoCache.getByCustomerId( customerId, serviceContract )
-                : _identityDtoCache.getByConnectionId( connectionId, serviceContract );
-        if ( identityDto == null )
-        {
-            // #345 : If the identity doesn't exist, make an extra search in the history (only for CUID search).
-            // If there is a record, it means the identity has been deleted => send back a specific message
-            if ( StringUtils.isNotBlank( customerId ) && !IdentityHome.findHistoryByCustomerId( customerId ).isEmpty( ) )
-            {
-                throw new ResourceNotFoundException( "The requested identity has been deleted.", Constants.PROPERTY_REST_ERROR_IDENTITY_DELETED );
-            }
-            else
-            {
-                throw new ResourceNotFoundException( "The requested identity could not be found.", Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
-            }
-        }
-        else
-        {
-            if ( author != null )
-            {
-                AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                        _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identityDto.getCustomerId( ) ),
-                        SPECIFIC_ORIGIN );
-            }
-            if ( author != null && author.getType( ).equals( AuthorType.agent ) )
-            {
-                /* Indexation et historique */
-                _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ, DtoConverter.convertDtoToIdentity( identityDto ),
-                        ResponseStatusType.OK.name( ), "Operation completed successfully", author, clientCode, new HashMap<>( ) );
-            }
-            return identityDto;
-        }
-    }
-
-    /**
-     * Perform an identity research over a list of attributes (key and values) specified in the {@link IdentitySearchRequest}
-     *
-     * @param request
-     *            the {@link IdentitySearchRequest} holding the parameters of the research
-     * @param author
-     *            the author of the request
-     * @param serviceContract
-     *            service contract of the client requesting the change
-     * @throws ResourceNotFoundException
-     *             in case of {@link AttributeKey} management error
-     * @throws IdentityStoreException
-     *             in case of unpredicted error
-     * @return list of matching identities
-     */
-    public List<IdentityDto> search( final IdentitySearchRequest request, final RequestAuthor author, final ServiceContract serviceContract )
-            throws IdentityStoreException
-    {
-        final String clientCode = serviceContract.getClientCode( );
-        AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( request.toString( ) ), SPECIFIC_ORIGIN );
-        final List<SearchAttribute> providedAttributes = request.getSearch( ).getAttributes( );
-        final QualifiedIdentitySearchResult result = _elasticSearchIdentityService.getQualifiedIdentities( providedAttributes, request.getMax( ),
-                request.isConnected( ), Collections.emptyList( ) );
-        if ( CollectionUtils.isNotEmpty( result.getQualifiedIdentities( ) ) )
-        {
-            final List<IdentityDto> filteredIdentities = this.getEnrichedIdentities( request.getSearch( ).getAttributes( ), serviceContract,
-                    result.getQualifiedIdentities( ) );
-            if ( CollectionUtils.isNotEmpty( filteredIdentities ) )
-            {
-                for ( final IdentityDto identity : filteredIdentities )
-                {
-                    AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_READ, SEARCH_IDENTITY_EVENT_CODE,
-                            _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identity.getCustomerId( ) ),
-                            SPECIFIC_ORIGIN );
-                    if ( author.getType( ).equals( AuthorType.agent ) )
-                    {
-                        /* Indexation et historique */
-                        _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.READ,
-                                DtoConverter.convertDtoToIdentity( identity ), ResponseStatusType.OK.name( ), "Operation completed successfully", author,
-                                clientCode, new HashMap<>( ) );
-                    }
-                }
-                return filteredIdentities;
-            }
-        }
-
-        throw new ResourceNotFoundException( "No identity found", Constants.PROPERTY_REST_ERROR_NO_IDENTITY_FOUND );
-    }
-
-    /**
      * Search for updated identities according to the provided request
-     * 
+     *
      * @param request
      *            the request
      * @return the updated identities, along with the pagination (or null if none requested)

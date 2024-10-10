@@ -34,11 +34,15 @@
 package fr.paris.lutece.plugins.identitystore.v3.web.request.identity;
 
 import fr.paris.lutece.plugins.identitystore.business.contract.ServiceContract;
+import fr.paris.lutece.plugins.identitystore.service.attribute.IdentityAttributeFormatterService;
 import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractService;
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreAppCodeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.validator.IdentitySearchRequestValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
@@ -53,6 +57,10 @@ import fr.paris.lutece.plugins.identitystore.web.exception.ResourceNotFoundExcep
 import fr.paris.lutece.portal.service.util.AppException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * This class represents a get request for IdentityStoreRestServive
  *
@@ -60,6 +68,7 @@ import org.apache.commons.lang3.StringUtils;
 public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequest
 {
     private final IdentitySearchRequest _identitySearchRequest;
+    private final List<AttributeStatus> formatStatuses;
     private ServiceContract serviceContract;
 
     public IdentityStoreSearchRequest( final IdentitySearchRequest identitySearchRequest, final String strClientCode, final String strAppCode,
@@ -67,6 +76,7 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
     {
         super( strClientCode, strAppCode, authorName, authorType );
         this._identitySearchRequest = identitySearchRequest;
+        this.formatStatuses = new ArrayList<>( );
     }
 
     @Override
@@ -78,6 +88,7 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
     @Override
     protected void validateRequestFormat( ) throws RequestFormatException
     {
+        // Vérification de la consistence des paramètres
         IdentityRequestValidator.instance( ).checkIdentitySearch( _identitySearchRequest );
         IdentitySearchRequestValidator.instance( ).checkRequiredAttributes( _identitySearchRequest );
     }
@@ -105,7 +116,8 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
     @Override
     protected void formatRequestContent( ) throws RequestContentFormattingException
     {
-        // do nothing because GET request does not create or update any resource
+        //TODO vérifier que les attributs de la requête sont bien formattés
+        formatStatuses.addAll( IdentityAttributeFormatterService.instance( ).formatIdentitySearchRequestAttributeValues( _identitySearchRequest ) );
     }
 
     @Override
@@ -127,13 +139,21 @@ public class IdentityStoreSearchRequest extends AbstractIdentityStoreAppCodeRequ
         final IdentitySearchResponse response = new IdentitySearchResponse( );
         if ( guidSearch )
         {
-            response.getIdentities( )
-                    .add( IdentityService.instance( ).search( StringUtils.EMPTY, _identitySearchRequest.getConnectionId( ), serviceContract, _author ) );
+            final IdentityDto identityDto = IdentityService.instance().search(StringUtils.EMPTY, _identitySearchRequest.getConnectionId(), serviceContract, _author);
+            response.getIdentities( ).add(identityDto);
+            //TODO commonaliser dans une méthode
+            // #27998 : Dans le cas d'une interrogation sur un CUID/GUID rapproché, ajouter une ligne dans le bloc "Alerte" dans la réponse de l'identité consolidée
+            if (identityDto != null && StringUtils.isNotBlank(_identitySearchRequest.getConnectionId()) && !Objects.equals(identityDto.getConnectionId(), _identitySearchRequest.getConnectionId())) {
+                final IdentitySearchMessage alert = new IdentitySearchMessage();
+                alert.setMessage("Le CUID ou GUID demandé correspond à une identité rapprochée. Cette réponse contient l'identité consilidée.");
+                response.getAlerts().add(alert);
+            }
         }
         else
         {
             response.getIdentities( ).addAll( IdentityService.instance( ).search( _identitySearchRequest, _author, serviceContract ) );
         }
+        response.getStatus( ).getAttributeStatuses( ).addAll( formatStatuses );
         response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
         return response;

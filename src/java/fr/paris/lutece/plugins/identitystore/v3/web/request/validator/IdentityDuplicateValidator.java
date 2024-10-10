@@ -240,7 +240,9 @@ public class IdentityDuplicateValidator
         try
         {
             final List<DuplicateRule> rules = new ArrayList<>();
-            for( final String ruleCode : AppPropertiesService.getProperty(ruleCodeProperty).split(",")){
+            final List<String> ruleCodes = Arrays.stream(AppPropertiesService.getProperty( ruleCodeProperty, "" ).split( "," ))
+                    .filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+            for( final String ruleCode : ruleCodes){
                 final DuplicateRule rule = DuplicateRuleService.instance().get(ruleCode);
                 DuplicateRuleValidator.instance().validateActive(rule);
                 rules.add(rule);
@@ -280,7 +282,9 @@ public class IdentityDuplicateValidator
         try
         {
             final List<DuplicateRule> rules = new ArrayList<>();
-            for( final String ruleCode : AppPropertiesService.getProperty(ruleCodeProperty).split(",")){
+            final List<String> ruleCodes = Arrays.stream(AppPropertiesService.getProperty( ruleCodeProperty, "" ).split( "," ))
+                    .filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+            for( final String ruleCode : ruleCodes){
                 final DuplicateRule rule = DuplicateRuleService.instance().get(ruleCode);
                 DuplicateRuleValidator.instance().validateActive(rule);
                 rules.add(rule);

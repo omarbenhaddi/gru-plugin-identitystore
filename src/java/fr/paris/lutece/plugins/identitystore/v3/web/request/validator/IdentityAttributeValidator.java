@@ -94,6 +94,17 @@ public class IdentityAttributeValidator
     }
 
     /**
+     * Validate if the given attribute value matches the regexp defined for the given attribute key
+     * @param key
+     * @param value
+     * @return
+     * @throws ResourceNotFoundException
+     */
+    public boolean validateAttribute( final String key, final String value) throws ResourceNotFoundException {
+        return _cache.get( key ).matcher( value ).matches( );
+    }
+
+    /**
      * Checks if the request identity contains valid attributes that exist in the referential
      *
      * @param identity

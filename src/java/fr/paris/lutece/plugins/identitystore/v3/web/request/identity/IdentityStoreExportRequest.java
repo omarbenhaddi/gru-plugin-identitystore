@@ -81,7 +81,7 @@ public class IdentityStoreExportRequest extends AbstractIdentityStoreAppCodeRequ
     protected void validateRequestFormat( ) throws RequestFormatException
     {
         IdentityRequestValidator.instance( ).checkExportRequest( _request );
-        IdentityExportValidator.instance( ).validateExportRequest( _request );
+        IdentityExportValidator.instance( ).validateExportRequest( _request, serviceContract );
         IdentityAttributeValidator.instance().checkAttributeExistence(_request.getAttributeKeyList());
     }
 

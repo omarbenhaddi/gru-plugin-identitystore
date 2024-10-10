@@ -38,6 +38,8 @@ import fr.paris.lutece.plugins.identitystore.service.contract.ServiceContractSer
 import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.AbstractIdentityStoreAppCodeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.Constants;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactory;
@@ -49,6 +51,8 @@ import fr.paris.lutece.plugins.identitystore.web.exception.RequestFormatExceptio
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceConsistencyException;
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 /**
  * This class represents a get request for IdentityStoreRestServive
@@ -124,7 +128,15 @@ public class IdentityStoreGetRequest extends AbstractIdentityStoreAppCodeRequest
         final IdentitySearchResponse response = new IdentitySearchResponse( );
 
         // renvoie un ResourceNotFoundException si pas d'identité trouvée
-        response.getIdentities( ).add( IdentityService.instance( ).search( _strCustomerId, StringUtils.EMPTY, serviceContract, _author ) );
+        IdentityDto identityDto = IdentityService.instance().search(_strCustomerId, StringUtils.EMPTY, serviceContract, _author);
+        response.getIdentities( ).add(identityDto);
+        //TODO commonaliser dans une méthode
+        // #27998 : Dans le cas d'une interrogation sur un CUID/GUID rapproché, ajouter une ligne dans le bloc "Alerte" dans la réponse de l'identité consolidée
+        if (identityDto != null && !Objects.equals(identityDto.getCustomerId(), _strCustomerId)) {
+            final IdentitySearchMessage alert = new IdentitySearchMessage();
+            alert.setMessage("Le CUID ou GUID demandé correspond à une identité rapprochée. Cette réponse contient l'identité consilidée.");
+            response.getAlerts().add(alert);
+        }
         response.setStatus( ResponseStatusFactory.ok( ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
 
         return response;

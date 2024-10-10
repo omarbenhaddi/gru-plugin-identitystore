@@ -33,8 +33,11 @@
  */
 package fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions;
 
+import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.identity.IdentityHome;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.SearchAttribute;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.plugins.identitystore.web.exception.ResourceNotFoundException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
@@ -297,19 +300,48 @@ public final class SuspiciousIdentityHome
         return _dao.countSuspiciousIdentities( ruleId, _plugin );
     }
 
-    public static boolean manageLock( final SuspiciousIdentity suspiciousIdentity, final String authorName, final String authorType, final boolean lock ) throws IdentityStoreException
+    public static boolean manageLock( String customerId, String authorName, String authorType, boolean lock ) throws IdentityStoreException
     {
+        final Identity identity = IdentityHome.findByCustomerId( customerId );
+        if ( identity == null )
+        {
+            throw new IdentityStoreException( "Could not find identity with customerId " + customerId );
+        }
+
+        final SuspiciousIdentity suspiciousIdentity = SuspiciousIdentityHome.selectByCustomerID( customerId );
+        if ( suspiciousIdentity == null )
+        {
+            throw new IdentityStoreException( "Could not find suspicious identity with customerId " + customerId );
+        }
+
         final boolean isAlreadyLocked = suspiciousIdentity.getLock( ).isLocked( );
         final boolean sameAuthorName = Objects.equals( suspiciousIdentity.getLock( ).getAuthorName( ), authorName );
         final boolean sameAuthorType = Objects.equals( suspiciousIdentity.getLock( ).getAuthorType( ), authorType );
+        final boolean sameAuthor = sameAuthorName && sameAuthorType;
+        if ( lock && isAlreadyLocked && !sameAuthor )
+        {
+            throw new IdentityStoreException(
+                    "Suspicious identity with customerId " + customerId + " is locked by " + suspiciousIdentity.getLock( ).getAuthorName( ) + "." );
+        }
 
-        if ( lock && isAlreadyLocked && sameAuthorName && sameAuthorType )
+        if ( !lock && !isAlreadyLocked )
+        {
+            throw new IdentityStoreException( "Suspicious identity with customerId " + customerId + " is already unlocked." );
+        }
+
+        if ( !lock && isAlreadyLocked && !sameAuthor )
+        {
+            throw new IdentityStoreException( "Suspicious identity with customerId " + customerId + " is locked by "
+                    + suspiciousIdentity.getLock( ).getAuthorName( ) + ". User" + authorName + " is not allowed to unlock." );
+        }
+
+        if ( lock && isAlreadyLocked && sameAuthor )
         {
             // the request user has already locked the resource, do nothing.
             return true;
         }
 
-        return _dao.manageLock(suspiciousIdentity.getCustomerId(), lock, authorType, authorName, _plugin );
+        return _dao.manageLock( customerId, lock, authorType, authorName, _plugin );
     }
 
     public static void purgeLocks( )

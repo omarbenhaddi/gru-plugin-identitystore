@@ -51,6 +51,8 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.IdentityDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.contract.ServiceContractDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.crud.IdentityChangeResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.exporting.IdentityExportRequest;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.exporting.IdentityExportResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeRequest;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.merge.IdentityMergeResponse;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.IdentitySearchMessage;
@@ -203,7 +205,7 @@ public class ServiceContractService
             }
             TransactionManager.commitTransaction( null );
         }
-        catch( final Exception e )
+        catch( Exception e )
         {
             TransactionManager.rollBack( null );
             throw new IdentityStoreException( e.getMessage( ), e );
@@ -212,20 +214,21 @@ public class ServiceContractService
     }
 
     /**
-     * Closes an existing {@link ServiceContract}
+     * Closes an existing {@link ServiceContract} (if possible) and adds it to cache if active.
      *
      * @param serviceContract
      * @return
      */
     public ServiceContract close( final ServiceContract serviceContract ) throws IdentityStoreException
     {
+
         TransactionManager.beginTransaction( null );
         try
         {
             ServiceContractHome.close( serviceContract );
             TransactionManager.commitTransaction( null );
         }
-        catch( final Exception e )
+        catch( Exception e )
         {
             TransactionManager.rollBack( null );
             throw new IdentityStoreException( e.getMessage( ), e );
@@ -372,7 +375,7 @@ public class ServiceContractService
 
     /**
      * Validates that the {@link ServiceContract} associated to the {@link ClientApplication} requesting the search, is authorizing searching.
-     * 
+     *
      * @param serviceContract
      *            the service contract
      * @throws ClientAuthorizationException
@@ -566,7 +569,7 @@ public class ServiceContractService
 
     /**
      * checks if the service contract grants the right to delete identities
-     * 
+     *
      * @param serviceContract
      *            the service contract
      * @throws ClientAuthorizationException
@@ -610,7 +613,7 @@ public class ServiceContractService
 
     /**
      * Checks if the service contract grants the right to uncertify an identity
-     * 
+     *
      * @param serviceContract
      *            the service contract
      * @throws ClientAuthorizationException
@@ -625,7 +628,7 @@ public class ServiceContractService
 
     /**
      * Checks if the service contract grants the right to export identities
-     * 
+     *
      * @param serviceContract
      *            the service contract
      * @throws ClientAuthorizationException
@@ -677,7 +680,7 @@ public class ServiceContractService
 
     /**
      * Exports all service contracts
-     * 
+     *
      * @throws IdentityStoreException
      *             in case of error
      */
@@ -688,7 +691,7 @@ public class ServiceContractService
 
     /**
      * Exports all service contracts associated with the provided client code
-     * 
+     *
      * @param clientCode
      *            the client code
      * @throws IdentityStoreException
