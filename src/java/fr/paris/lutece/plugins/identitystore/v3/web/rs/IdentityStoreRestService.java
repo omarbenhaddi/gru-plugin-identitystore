@@ -124,8 +124,7 @@ public final class IdentityStoreRestService implements IRestService
             @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
             throws IdentityStoreException
     {
-        final IdentityStoreGetRequest request = new IdentityStoreGetRequest( strCustomerId, strHeaderClientCode, strHeaderAppCode, strHeaderAuthorType,
-                strHeaderAuthorName );
+        final IdentityStoreGetRequest request = new IdentityStoreGetRequest( strCustomerId, strHeaderClientCode, strHeaderAppCode, strHeaderAuthorName, strHeaderAuthorType );
         return this.buildJsonResponse( request.doRequest( ) );
     }
 
