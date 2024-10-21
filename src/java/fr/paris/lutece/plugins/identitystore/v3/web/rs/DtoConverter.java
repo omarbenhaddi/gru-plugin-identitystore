@@ -117,7 +117,7 @@ public final class DtoConverter
             final MergeDefinition merge = new MergeDefinition( );
             merge.setMerged( identity.isMerged( ) );
             merge.setMergeDate( identity.getMergeDate( ) );
-            if ( identity.getMasterIdentityId( ) != null )
+            if ( identity.getMasterIdentityId( ) != null && identity.getMasterIdentityId( ) > 0 )
             {
                 merge.setMasterCustomerId( IdentityHome.findByPrimaryKey( identity.getMasterIdentityId( ) ).getCustomerId( ) );
             }
