@@ -314,7 +314,7 @@ public class IdentityService
         try
         {
             final List<AttributeStatus> attrStatusList = new ArrayList<>( );
-            if ( identityForConsolidate != null )
+            if ( identityForConsolidate != null && CollectionUtils.isNotEmpty( identityForConsolidate.getAttributes( ) ) )
             {
                 attrStatusList.addAll( this.updateIdentity( primaryIdentity, identityForConsolidate, clientCode ) );
             }

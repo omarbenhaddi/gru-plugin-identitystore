@@ -61,6 +61,7 @@ import fr.paris.lutece.plugins.identitystore.web.exception.RequestFormatExceptio
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceConsistencyException;
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceNotFoundException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreAppCodeReque
     protected void validateRequestFormat( ) throws RequestFormatException
     {
         IdentityRequestValidator.instance( ).checkMergeRequest( _identityMergeRequest );
-        if ( _identityMergeRequest.getIdentity( ) != null )
+        if ( _identityMergeRequest.getIdentity( ) != null && CollectionUtils.isNotEmpty( _identityMergeRequest.getIdentity( ).getAttributes( ) ) )
         {
             IdentityAttributeValidator.instance( ).checkAttributeExistence( _identityMergeRequest.getIdentity( ) );
             IdentityAttributeValidator.instance( ).validatePivotAttributesIntegrity( primaryIdentity, _identityMergeRequest.getIdentity( ), true );
@@ -131,7 +132,7 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreAppCodeReque
     protected void validateClientAuthorization( ) throws ClientAuthorizationException
     {
         ServiceContractService.instance( ).validateMergeAuthorization( _identityMergeRequest, serviceContract );
-        if ( _identityMergeRequest.getIdentity( ) != null )
+        if ( _identityMergeRequest.getIdentity( ) != null && CollectionUtils.isNotEmpty( _identityMergeRequest.getIdentity( ).getAttributes( ) ) )
         {
             // If identity is connected and service contract doesn't allow unrestricted update, do a bunch of additionnal checks
             if ( primaryIdentity.getMonParisActive( ) && !serviceContract.getAuthorizedAccountUpdate( ) )
@@ -158,8 +159,12 @@ public class IdentityStoreMergeRequest extends AbstractIdentityStoreAppCodeReque
     @Override
     protected void formatRequestContent( ) throws RequestContentFormattingException
     {
-        formatStatuses.addAll( IdentityAttributeFormatterService.instance( ).formatIdentityMergeRequestAttributeValues( _identityMergeRequest ) );
-        IdentityAttributeValidator.instance( ).validateIdentityAttributeValues( _identityMergeRequest.getIdentity( ) );
+        if ( _identityMergeRequest.getIdentity( ) != null && CollectionUtils.isNotEmpty( _identityMergeRequest.getIdentity( ).getAttributes( ) ) )
+        {
+            formatStatuses.addAll( IdentityAttributeFormatterService.instance( ).formatIdentityMergeRequestAttributeValues( _identityMergeRequest ) );
+            IdentityAttributeValidator.instance( ).validateIdentityAttributeValues( _identityMergeRequest.getIdentity( ) );
+        }
+
     }
 
     @Override
