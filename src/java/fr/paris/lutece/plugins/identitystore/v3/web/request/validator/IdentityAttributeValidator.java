@@ -60,6 +60,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -77,6 +78,7 @@ import java.util.stream.Collectors;
 public class IdentityAttributeValidator
 {
     private static final String PIVOT_CERTIF_LEVEL_THRESHOLD = "identitystore.identity.attribute.update.pivot.certif.level.threshold";
+    private static final String IDENTITY_CONNECTED_ALLOWED_ATTRIBUTES_MODIFICATION = "identitystore.identity.connected.allowed.attributes.modification";
 
     private final IdentityAttributeValidationCache _cache = SpringContextService.getBean( "identitystore.identityAttributeValidationCache" );
     private final int pivotCertificationLevelThreshold = AppPropertiesService
@@ -393,7 +395,7 @@ public class IdentityAttributeValidator
     /**
      * Makes a bunch of checks regarding the validity of this update or merge request on this connected identity.
      * <ul>
-     * <li>Authorise update on "PIVOT" attributes only</li>
+     * <li>Authorise update on attributes in property only</li>
      * <li>For new attributes, certification level must be > 100 (better than self-declare)</li>
      * <li>For existing attributes, certification level must be >= than the existing level</li>
      * <li>If one "PIVOT" attribute is certified at a certain level N (conf) :
@@ -426,12 +428,13 @@ public class IdentityAttributeValidator
         final Map<String, AttributeKey> allAttributesByKey = IdentityAttributeService.instance( ).getAllAtributeKeys( ).stream( )
                 .collect( Collectors.toMap( AttributeKey::getKeyName, Function.identity( ) ) );
 
-        // - Authorize update on "PIVOT" attributes only
-        final boolean requestOnNonPivot = requestAttributes.stream( ).map( a -> allAttributesByKey.get( a.getKey( ) ) ).anyMatch( a -> !a.getPivot( ) );
-        if ( requestOnNonPivot )
+        // LUT-28919 - Authorize update on attributes in property only
+        final List<String> allowedAttrKeys = Arrays.asList(AppPropertiesService.getProperty(IDENTITY_CONNECTED_ALLOWED_ATTRIBUTES_MODIFICATION).split(","));
+        final boolean requestOnAllowedAttributes = requestAttributes.stream().allMatch(a -> allowedAttrKeys.contains(a.getKey()));
+        if ( !requestOnAllowedAttributes )
         {
-            throw new ClientAuthorizationException( "Identity is connected, updating non 'pivot' attributes is forbidden.",
-                    Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_NON_PIVOT );
+            throw new ClientAuthorizationException( "Identity is connected, updating attributes is restricted. Allowed attributes to modify are : " + allowedAttrKeys,
+                    Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_RESTRICTED_ATTRIBUTE_UPDATE );
         }
 
         // - For new attributes, certification level must be > 100 (better than self-declare)
@@ -440,8 +443,8 @@ public class IdentityAttributeValidator
                 .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) <= 100 );
         if ( newAttrSelfDeclare )
         {
-            throw new ClientAuthorizationException( "Identity is connected, adding 'pivot' attributes with self-declarative certification level is forbidden.",
-                    Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_PIVOT_SELF_DECLARE );
+            throw new ClientAuthorizationException( "Identity is connected, adding attributes with self-declarative certification level is forbidden.",
+                    Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_SELF_DECLARE );
         }
 
         // - For existing attributes, certification level must be >= than the existing level
@@ -457,27 +460,27 @@ public class IdentityAttributeValidator
                 } );
         if ( lesserWantedLvl )
         {
-            throw new ClientAuthorizationException( "Identity is connected, updating existing 'pivot' attributes with lesser certification level is forbidden.",
-                    Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_PIVOT_LESSER_CERTIFICATION );
+            throw new ClientAuthorizationException( "Identity is connected, updating existing attributes with lesser certification level is forbidden.",
+                    Constants.PROPERTY_REST_ERROR_CONNECTED_IDENTITY_FORBIDDEN_UPDATE_LESSER_CERTIFICATION );
         }
 
         // - If one "PIVOT" attribute is certified at a certain level N (conf), all "PIVOT" attributes must be set and certified with level >= N.
         final int threshold = AppPropertiesService.getPropertyInt( PIVOT_CERTIF_LEVEL_THRESHOLD, 400 );
+        // get all pivot attributes from database
+        final List<String> pivotAttributeKeys = allAttributesByKey.values( ).stream( ).filter( AttributeKey::getPivot ).map( AttributeKey::getKeyName )
+                                                                  .collect( Collectors.toList( ) );
         final boolean breakingThreshold = existingIdentityToUpdate.getAttributes( ).stream( ).filter( a -> allAttributesByKey.get( a.getKey( ) ).getPivot( ) )
                 .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertifier( ), a.getKey( ) ) )
                 .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) >= threshold )
                 || requestAttributes.stream( )
+                        .filter(a -> pivotAttributeKeys.contains(a.getKey()))
                         .map( a -> RefAttributeCertificationLevelHome.findByProcessusAndAttributeKeyName( a.getCertifier( ), a.getKey( ) ) )
                         .anyMatch( c -> Integer.parseInt( c.getRefCertificationLevel( ).getLevel( ) ) >= threshold );
         if ( breakingThreshold )
         {
-            // get all pivot attributes from database
-            final List<String> pivotAttributeKeys = allAttributesByKey.values( ).stream( ).filter( AttributeKey::getPivot ).map( AttributeKey::getKeyName )
-                    .collect( Collectors.toList( ) );
-
             // if any pivot is missing from request + existing -> unauthorized
             final Collection<String> unionOfExistingAndRequestedPivotKeys = CollectionUtils
-                    .union( requestAttributes.stream( ).map( AttributeDto::getKey ).collect( Collectors.toSet( ) ), existingIdentityToUpdate.getAttributes( )
+                    .union( requestAttributes.stream( ).map( AttributeDto::getKey ).filter( pivotAttributeKeys::contains ).collect( Collectors.toSet( ) ), existingIdentityToUpdate.getAttributes( )
                             .stream( ).map( AttributeDto::getKey ).filter( key -> allAttributesByKey.get( key ).getPivot( ) ).collect( Collectors.toSet( ) ) );
             if ( !CollectionUtils.isEqualCollection( pivotAttributeKeys, unionOfExistingAndRequestedPivotKeys ) )
             {
