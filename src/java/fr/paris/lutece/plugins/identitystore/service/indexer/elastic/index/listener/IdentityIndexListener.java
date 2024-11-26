@@ -36,7 +36,9 @@ package fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.list
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentity;
 import fr.paris.lutece.plugins.identitystore.business.duplicates.suspicions.SuspiciousIdentityHome;
 import fr.paris.lutece.plugins.identitystore.business.identity.Identity;
+import fr.paris.lutece.plugins.identitystore.business.rules.duplicate.DuplicateRule;
 import fr.paris.lutece.plugins.identitystore.service.IdentityChangeListener;
+import fr.paris.lutece.plugins.identitystore.service.duplicate.DuplicateRuleService;
 import fr.paris.lutece.plugins.identitystore.service.duplicate.IDuplicateService;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.AttributeObject;
 import fr.paris.lutece.plugins.identitystore.service.indexer.elastic.index.model.IdentityObject;
@@ -46,6 +48,7 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.RequestAuthor;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.history.IdentityChangeType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.DuplicateSearchResponse;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.search.QualifiedIdentitySearchResult;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.sql.TransactionManager;
@@ -140,9 +143,11 @@ public class IdentityIndexListener implements IdentityChangeListener
             {
                 final Map<String, String> attributeMap = DtoConverter.convertIdentityToDto( identity ).getAttributes( ).stream( )
                         .collect( Collectors.toMap( AttributeDto::getKey, AttributeDto::getValue ) );
-                final DuplicateSearchResponse duplicates =  _duplicateServiceElasticSearch.findDuplicates( attributeMap, identity.getCustomerId( ), Collections.singletonList( suspiciousIdentity.getDuplicateRuleCode( ) ), Collections.emptyList( ) );
+                final DuplicateRule duplicateRule = DuplicateRuleService.instance().get(suspiciousIdentity.getDuplicateRuleCode());
+                final Map<String, QualifiedIdentitySearchResult> duplicates = _duplicateServiceElasticSearch.findDuplicates(attributeMap, identity.getCustomerId(), Collections.singletonList(duplicateRule), Collections.emptyList());
+                final QualifiedIdentitySearchResult qualifiedIdentitySearchResult = duplicates.get(suspiciousIdentity.getDuplicateRuleCode());
 
-                if ( duplicates.getIdentities( ).isEmpty( ) )
+                if ( qualifiedIdentitySearchResult.getQualifiedIdentities( ).isEmpty( ) )
                 {
                     TransactionManager.beginTransaction( null );
                     SuspiciousIdentityHome.remove( identity.getCustomerId( ) );
