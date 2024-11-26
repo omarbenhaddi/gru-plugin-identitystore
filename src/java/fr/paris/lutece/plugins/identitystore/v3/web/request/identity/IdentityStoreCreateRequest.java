@@ -68,6 +68,7 @@ import java.util.List;
  */
 public class IdentityStoreCreateRequest extends AbstractIdentityStoreAppCodeRequest
 {
+    private final boolean controlsOnly;
 
     private final IdentityChangeRequest _identityChangeRequest;
     private final List<AttributeStatus> formatStatuses;
@@ -82,8 +83,15 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreAppCodeRequ
     public IdentityStoreCreateRequest( final IdentityChangeRequest identityChangeRequest, final String strClientCode, final String strAppCode,
             final String authorName, final String authorType ) throws IdentityStoreException
     {
+        this(identityChangeRequest, strClientCode, strAppCode, authorName, authorType, false);
+    }
+
+    public IdentityStoreCreateRequest( final IdentityChangeRequest identityChangeRequest, final String strClientCode, final String strAppCode,
+                                       final String authorName, final String authorType, final boolean controlsOnly ) throws IdentityStoreException
+    {
         super( strClientCode, strAppCode, authorName, authorType );
         this._identityChangeRequest = identityChangeRequest;
+        this.controlsOnly = controlsOnly;
         this.formatStatuses = new ArrayList<>( );
     }
 
@@ -133,6 +141,11 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreAppCodeRequ
     protected IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
+        if (controlsOnly) {
+            // if we are here, it means that all the controls were successful.
+            response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( formatStatuses ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            return response;
+        }
 
         final Pair<Identity, List<AttributeStatus>> result = IdentityService.instance( ).create( _identityChangeRequest, _author, serviceContract,
                 formatStatuses );

@@ -64,7 +64,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -193,6 +192,37 @@ public final class IdentityStoreRestService implements IRestService
     }
 
     /**
+     * Test the data validity for the creation of a new Identity<br/>
+     * Send the data through all the controls. Even if all the controls are passing correctly, an identity will NOT be created.
+     *
+     * @param identityChangeRequest
+     *            the identity creation request to test
+     * @param clientCode
+     *            the application code in the HTTP header
+     * @return http 200 if creation is ok with {@link IdentityChangeResponse}
+     */
+    @POST
+    @Path( Constants.CONTROL_PATH )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Test the data validity for the creation of a new Identity", notes = "Send the data through all the controls. If all the controls are passing correctly, an identity will NOT be created.", response = IdentityChangeResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 403, message = "Forbidden" ), @ApiResponse( code = 404, message = ERROR_RESOURCE_NOT_FOUND ),
+            @ApiResponse( code = 409, message = "Conflict" )
+    } )
+    public Response testCreateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
+                                        @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+                                        @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+                                        @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
+                                        @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
+            throws IdentityStoreException
+    {
+        final IdentityStoreCreateRequest request = new IdentityStoreCreateRequest( identityChangeRequest, clientCode, strHeaderAppCode, authorName,
+                                                                                   authorType, true );
+        return this.buildJsonResponse( request.doRequest( ) );
+    }
+
+    /**
      * update identity method
      *
      * @param identityChangeRequest
@@ -211,15 +241,47 @@ public final class IdentityStoreRestService implements IRestService
             @ApiResponse( code = 409, message = "Conflict" )
     } )
     public Response updateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
-            @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
-            @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
-            @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
-            @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
-            @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
+                                    @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+                                    @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+                                    @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+                                    @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
+                                    @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
             throws IdentityStoreException
     {
         final IdentityStoreUpdateRequest request = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest, clientCode, strHeaderAppCode,
-                authorName, authorType );
+                                                                                   authorName, authorType );
+        return this.buildJsonResponse( request.doRequest( ) );
+    }
+
+    /**
+     * Test the data validity for the update of an Identity<br/>
+     * Send the data through all the controls. Even if all the controls are passing correctly, the identity will NOT be updated.
+     *
+     * @param identityChangeRequest
+     *            the identity update request
+     * @param clientCode
+     *            the header client app code
+     * @return http 200 if update is ok with ResponseDto
+     */
+    @PUT
+    @Path( "{" + Constants.PARAM_ID_CUSTOMER + "}" + Constants.CONTROL_PATH )
+    @Consumes( MediaType.APPLICATION_JSON )
+    @ApiOperation( value = "Test the data validity for the update of an Identity", notes = "Send the data through all the controls. Even if all the controls are passing correctly, the identity will NOT be updated.", response = IdentityChangeResponse.class )
+    @ApiResponses( value = {
+            @ApiResponse( code = 201, message = "Success" ), @ApiResponse( code = 400, message = ERROR_DURING_TREATMENT + " with explanation message" ),
+            @ApiResponse( code = 403, message = "Forbidden" ), @ApiResponse( code = 404, message = ERROR_RESOURCE_NOT_FOUND ),
+            @ApiResponse( code = 409, message = "Conflict" )
+    } )
+    public Response testUpdateIdentity( @ApiParam( name = "Request body", value = "An Identity Change Request" ) IdentityChangeRequest identityChangeRequest,
+                                        @ApiParam( name = Constants.PARAM_ID_CUSTOMER, value = "Customer ID of the updated identity" ) @PathParam( Constants.PARAM_ID_CUSTOMER ) String strCustomerId,
+                                        @ApiParam( name = Constants.PARAM_CLIENT_CODE, value = SwaggerConstants.PARAM_CLIENT_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_CLIENT_CODE ) String clientCode,
+                                        @ApiParam( name = Constants.PARAM_AUTHOR_NAME, value = SwaggerConstants.PARAM_AUTHOR_NAME_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_NAME ) String authorName,
+                                        @ApiParam( name = Constants.PARAM_AUTHOR_TYPE, value = SwaggerConstants.PARAM_AUTHOR_TYPE_DESCRIPTION ) @HeaderParam( Constants.PARAM_AUTHOR_TYPE ) String authorType,
+                                        @ApiParam( name = Constants.PARAM_APPLICATION_CODE, value = SwaggerConstants.PARAM_APPLICATION_CODE_DESCRIPTION ) @HeaderParam( Constants.PARAM_APPLICATION_CODE ) @DefaultValue( "" ) String strHeaderAppCode )
+            throws IdentityStoreException
+    {
+        final IdentityStoreUpdateRequest request = new IdentityStoreUpdateRequest( strCustomerId, identityChangeRequest, clientCode, strHeaderAppCode,
+                                                                                   authorName, authorType, true );
         return this.buildJsonResponse( request.doRequest( ) );
     }
 

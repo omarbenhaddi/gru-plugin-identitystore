@@ -76,6 +76,7 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
 {
     private final IdentityDtoCache _identityDtoCache = SpringContextService.getBean( "identitystore.identityDtoCache" );
 
+    private final boolean controlsOnly;
     private final IdentityChangeRequest _identityChangeRequest;
     private final String _strCustomerId;
     private final List<AttributeStatus> formatStatuses;
@@ -92,9 +93,16 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
     public IdentityStoreUpdateRequest( final String _strCustomerId, final IdentityChangeRequest identityChangeRequest, final String strClientCode,
             final String strAppCode, final String authorName, final String authorType ) throws RequestFormatException
     {
+        this(_strCustomerId, identityChangeRequest, strClientCode, strAppCode, authorName, authorType, false );
+    }
+
+    public IdentityStoreUpdateRequest( final String _strCustomerId, final IdentityChangeRequest identityChangeRequest, final String strClientCode,
+                                       final String strAppCode, final String authorName, final String authorType, final boolean controlsOnly ) throws RequestFormatException
+    {
         super( strClientCode, strAppCode, authorName, authorType );
         this._identityChangeRequest = identityChangeRequest;
         this._strCustomerId = _strCustomerId;
+        this.controlsOnly = controlsOnly;
         this.formatStatuses = new ArrayList<>( );
     }
 
@@ -166,6 +174,11 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
     protected IdentityChangeResponse doSpecificRequest( ) throws IdentityStoreException
     {
         final IdentityChangeResponse response = new IdentityChangeResponse( );
+        if (controlsOnly) {
+            // if we are here, it means that all the controls were successful.
+            response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( formatStatuses ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
+            return response;
+        }
 
         // perform update
         final Pair<Identity, List<AttributeStatus>> result = IdentityService.instance( ).update( _strCustomerId, _identityChangeRequest, _author,
