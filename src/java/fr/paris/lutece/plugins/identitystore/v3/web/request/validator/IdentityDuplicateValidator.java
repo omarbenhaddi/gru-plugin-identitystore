@@ -73,6 +73,7 @@ public class IdentityDuplicateValidator
     private static final String PROPERTY_DUPLICATES_IMPORT_RULES_SUSPICION = "identitystore.identity.duplicates.import.rules.suspicion";
     private static final String PROPERTY_DUPLICATES_IMPORT_RULES_STRICT = "identitystore.identity.duplicates.import.rules.strict";
     private static final String PROPERTY_DUPLICATES_CHECK_DATABASE_ACTIVATED = "identitystore.identity.duplicates.check.database";
+    private static final String PROPERTY_DUPLICATES_RULES_STRICT = "identitystore.identity.duplicates.rules.strict";
 
     private static IdentityDuplicateValidator instance;
 
@@ -272,8 +273,19 @@ public class IdentityDuplicateValidator
             final List<String> matchingRuleCodes =
                     duplicates.entrySet().stream().filter(e -> !e.getValue().getQualifiedIdentities().isEmpty()).map(Map.Entry::getKey)
                                 .collect(Collectors.toList());
-            throw new DuplicatesConsistencyException("Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ),
-                                                     Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND );
+            final List<String> strictRuleCodes = Arrays.asList(AppPropertiesService.getProperty(PROPERTY_DUPLICATES_RULES_STRICT, "").split(","));
+            final List<String> strictCUIDs = duplicates.entrySet()
+                                                       .stream()
+                                                       .filter(e -> !e.getValue().getQualifiedIdentities().isEmpty() && strictRuleCodes.contains(e.getKey()))
+                                                       .map(Map.Entry::getValue)
+                                                       .flatMap(r -> r.getQualifiedIdentities().stream())
+                                                       .map(IdentityDto::getCustomerId)
+                                                       .distinct().collect(Collectors.toList());
+            String errMsg = "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes );
+            if (!strictCUIDs.isEmpty()) {
+                errMsg += ". Strict duplicate CUIDs : " + strictCUIDs;
+            }
+            throw new DuplicatesConsistencyException(errMsg, Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND );
         }
     }
 
