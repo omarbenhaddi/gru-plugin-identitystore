@@ -238,15 +238,18 @@ public class IdentityService
         TransactionManager.beginTransaction( null );
         try
         {
+            final Map<String, String> metadata = new HashMap<>();
             if ( !StringUtils.equalsIgnoreCase( identity.getConnectionId( ), request.getIdentity( ).getConnectionId( ) )
                     && StringUtils.isNotEmpty( request.getIdentity( ).getConnectionId( ) ) )
             {
+                metadata.put(Constants.METADATA_NEW_GUID, request.getIdentity( ).getConnectionId( ) );
+                metadata.put(Constants.METADATA_OLD_GUID, identity.getConnectionId( ) );
                 identity.setConnectionId( request.getIdentity( ).getConnectionId( ) );
                 IdentityHome.update( identity );
             }
 
             // => process update :
-            final List<AttributeStatus> attrStatusList = this.updateIdentity( identity, request.getIdentity( ), clientCode );
+            final List<AttributeStatus> attrStatusList = this.updateIdentity( identity, request.getIdentity( ), clientCode, metadata );
 
             TransactionManager.commitTransaction( null );
 
@@ -261,8 +264,8 @@ public class IdentityService
                     .allMatch( status -> status.getType( ) == AttributeChangeStatusType.SUCCESS );
             final ResponseStatusType statusType = allAttrCreatedOrUpdated ? ResponseStatusType.SUCCESS : ResponseStatusType.INCOMPLETE_SUCCESS;
             final String statusMessage = allAttrCreatedOrUpdated ? "success" : "incomplete success";
-            _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.UPDATE, identity, statusType.name( ), statusMessage, author,
-                    clientCode, new HashMap<>( ) );
+            _identityStoreNotifyListenerService.notifyListenersIdentityChange(IdentityChangeType.UPDATE, identity, statusType.name( ), statusMessage, author,
+                    clientCode, metadata);
             AccessLogService.getInstance( ).info( AccessLoggerConstants.EVENT_TYPE_MODIFY, UPDATE_IDENTITY_EVENT_CODE,
                     _internalUserService.getApiUser( author, clientCode ), SecurityUtil.logForgingProtect( identity.getCustomerId( ) ), SPECIFIC_ORIGIN );
 
@@ -314,9 +317,10 @@ public class IdentityService
         try
         {
             final List<AttributeStatus> attrStatusList = new ArrayList<>( );
+            final Map<String, String> primaryMetadata = new HashMap<>( );
             if ( identityForConsolidate != null && CollectionUtils.isNotEmpty( identityForConsolidate.getAttributes( ) ) )
             {
-                attrStatusList.addAll( this.updateIdentity( primaryIdentity, identityForConsolidate, clientCode ) );
+                attrStatusList.addAll( this.updateIdentity( primaryIdentity, identityForConsolidate, clientCode, primaryMetadata ) );
             }
 
             /* Tag de l'identité secondaire */
@@ -340,7 +344,6 @@ public class IdentityService
             final ResponseStatusType statusType = allAttrCreatedOrUpdated ? ResponseStatusType.SUCCESS : ResponseStatusType.INCOMPLETE_SUCCESS;
             final String statusMessage = allAttrCreatedOrUpdated ? "success" : "incomplete success";
 
-            final Map<String, String> primaryMetadata = new HashMap<>( );
             primaryMetadata.put( Constants.METADATA_MERGED_MASTER_IDENTITY_CUID, primaryIdentity.getCustomerId( ) );
             primaryMetadata.put( Constants.METADATA_DUPLICATE_RULE_CODE, duplicateRuleCode );
             _identityStoreNotifyListenerService.notifyListenersIdentityChange( IdentityChangeType.MERGED, secondaryIdentity, statusType.name( ), statusMessage,
@@ -600,7 +603,7 @@ public class IdentityService
                 .collect( Collectors.toList( ) );
     }
 
-    private List<AttributeStatus> updateIdentity( final Identity identity, final IdentityDto requestIdentity, final String clientCode )
+    private List<AttributeStatus> updateIdentity( final Identity identity, final IdentityDto requestIdentity, final String clientCode, final Map<String, String> metadata )
             throws IdentityStoreException
     {
         final List<AttributeStatus> attrStatusList = new ArrayList<>( );
@@ -630,6 +633,8 @@ public class IdentityService
         boolean monParisUpdated = false;
         if ( requestIdentity.getMonParisActive( ) != null && requestIdentity.getMonParisActive( ) != identity.isMonParisActive( ) )
         {
+            metadata.put(Constants.METADATA_NEW_MON_PARIS_ACTIF, String.valueOf( requestIdentity.getMonParisActive( ) ) );
+            metadata.put(Constants.METADATA_OLD_MON_PARIS_ACTIF, String.valueOf( identity.isMonParisActive( ) ) );
             monParisUpdated = true;
             identity.setMonParisActive( requestIdentity.isMonParisActive( ) );
         }
