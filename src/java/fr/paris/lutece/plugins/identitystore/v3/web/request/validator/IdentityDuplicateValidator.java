@@ -281,11 +281,11 @@ public class IdentityDuplicateValidator
                                                        .flatMap(r -> r.getQualifiedIdentities().stream())
                                                        .map(IdentityDto::getCustomerId)
                                                        .distinct().collect(Collectors.toList());
-            String errMsg = "Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes );
-            if (!strictCUIDs.isEmpty()) {
-                errMsg += ". Strict duplicate CUIDs : " + strictCUIDs;
-            }
-            throw new DuplicatesConsistencyException(errMsg, Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND );
+            final DuplicatesConsistencyException exception =
+                    new DuplicatesConsistencyException("Potential duplicate(s) found with rule(s) : " + String.join( ",", matchingRuleCodes ),
+                                                       Constants.PROPERTY_REST_INFO_POTENTIAL_DUPLICATE_FOUND);
+            exception.getResponse().getMetadata().put(Constants.METADATA_DUPLICATE_CUID_LIST, String.join(",", strictCUIDs));
+            throw exception;
         }
     }
 
