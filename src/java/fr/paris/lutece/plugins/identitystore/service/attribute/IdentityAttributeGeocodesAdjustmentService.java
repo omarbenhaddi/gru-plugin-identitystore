@@ -57,7 +57,7 @@ import java.util.Objects;
 public class IdentityAttributeGeocodesAdjustmentService
 {
 
-    private static final String FRANCE_COUNTRY_CODE = "99110";
+    private static final String FRANCE_COUNTRY_CODE = "99100";
 
     private static IdentityAttributeGeocodesAdjustmentService instance;
 
@@ -97,7 +97,7 @@ public class IdentityAttributeGeocodesAdjustmentService
         }
         else
         {
-            statuses.addAll( adjustForeignCity( request ) );
+            statuses.addAll( adjustForeignCity( request, existingIdentityToUpdate ) );
         }
 
         if ( existingIdentityToUpdate != null )
@@ -106,6 +106,7 @@ public class IdentityAttributeGeocodesAdjustmentService
             if ( existingCountryCode != null && requestCountryCode != null
                     && !Objects.equals( existingCountryCode.getValue( ), requestCountryCode.getValue( ) ) )
             {
+                // Country change
                 final AttributeDto existingBirthplace = existingIdentityToUpdate.getAttributes( ).stream( )
                         .filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE ) ).findFirst( ).orElse( null );
                 final AttributeDto requestBirthplace = request.getIdentity( ).getAttributes( ).stream( )
@@ -311,7 +312,7 @@ public class IdentityAttributeGeocodesAdjustmentService
                 if ( sentCityLabel == null )
                 {
                     sentCityLabel = new AttributeDto( );
-                    sentCityLabel.setKey( Constants.PARAM_BIRTH_COUNTRY );
+                    sentCityLabel.setKey( Constants.PARAM_BIRTH_PLACE );
                     sentCityLabel.setValue( cityGeocodesLabel );
                     sentCityLabel.setCertifier( sentCityCode.getCertifier( ) );
                     sentCityLabel.setCertificationDate( sentCityCode.getCertificationDate( ) );
@@ -369,15 +370,41 @@ public class IdentityAttributeGeocodesAdjustmentService
         return attrStatusList;
     }
 
-    private List<AttributeStatus> adjustForeignCity( final IdentityChangeRequest request )
+    private List<AttributeStatus> adjustForeignCity( final IdentityChangeRequest request, final IdentityDto existingIdentityToUpdate )
     {
+        final List<AttributeStatus> attrStatusList = new ArrayList<>( );
+        final AttributeDto existingCityCode = existingIdentityToUpdate == null ? null :
+                existingIdentityToUpdate.getAttributes().stream().filter(a -> a.getKey().equals(Constants.PARAM_BIRTH_PLACE_CODE)).findFirst().orElse(null);
+        final AttributeDto sentCityCode = request.getIdentity( ).getAttributes( ).stream( )
+                .filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( ).orElse( null );
+
+        // City code is not supported for foreign countries
+        if ( existingCityCode != null )
         {
-            final List<AttributeStatus> attrStatusList = new ArrayList<>( );
-            final AttributeDto sentCityCode = request.getIdentity( ).getAttributes( ).stream( )
-                    .filter( a -> a.getKey( ).equals( Constants.PARAM_BIRTH_PLACE_CODE ) ).findFirst( ).orElse( null );
+            // If a city code exists for the identity, put a blank one in the request to order a deletion
+            if ( sentCityCode != null )
+            {
+                // If a city code is sent in the request, discard it
+                request.getIdentity( ).getAttributes( ).remove( sentCityCode );
+            }
+            final AttributeDto cityCodeToDelete = new AttributeDto();
+            cityCodeToDelete.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
+            cityCodeToDelete.setValue( StringUtils.EMPTY );
+            cityCodeToDelete.setCertifier( existingCityCode.getCertifier( ) );
+            cityCodeToDelete.setCertificationDate( existingCityCode.getCertificationDate( ) );
+            cityCodeToDelete.setCertificationLevel( existingCityCode.getCertificationLevel( ) );
+            cityCodeToDelete.setType( existingCityCode.getType( ) );
+            cityCodeToDelete.setLastUpdateClientCode( existingCityCode.getLastUpdateClientCode( ) );
+            cityCodeToDelete.setLastUpdateDate( existingCityCode.getLastUpdateDate( ) );
+
+            request.getIdentity( ).getAttributes( ).add( cityCodeToDelete );
+        }
+        else
+        {
+            // If the identity doesn't have a city code already
             if ( sentCityCode != null && StringUtils.isNotBlank( sentCityCode.getValue( ) ) )
             {
-                // City code is not supported for foreign countries : if city code is sent for a foreign country, discard the attribute
+                // If a non-blank city code is sent in the request, discard it and mark it as "not created"
                 request.getIdentity( ).getAttributes( ).remove( sentCityCode );
 
                 final AttributeStatus cityCodeStatus = new AttributeStatus( );
@@ -386,11 +413,11 @@ public class IdentityAttributeGeocodesAdjustmentService
                 cityCodeStatus.setKey( Constants.PARAM_BIRTH_PLACE_CODE );
                 attrStatusList.add( cityCodeStatus );
             }
-
-            // No adjuments are made on the city label for foreign country : if it was sent, it will be created like this
-
-            return attrStatusList;
         }
+
+        // No adjuments are made on the city label for foreign country : if it was sent, it will be created or updated like this
+
+        return attrStatusList;
     }
 
 }
