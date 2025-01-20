@@ -45,6 +45,7 @@ import fr.paris.lutece.plugins.identitystore.service.identity.IdentityService;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.validator.IdentityDuplicateValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.request.validator.IdentityValidator;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.IdentityRequestValidator;
+import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeDto;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatus;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeChangeStatusType;
 import fr.paris.lutece.plugins.identitystore.v3.web.rs.dto.common.AttributeStatus;
@@ -57,14 +58,19 @@ import fr.paris.lutece.plugins.identitystore.v3.web.rs.util.ResponseStatusFactor
 import fr.paris.lutece.plugins.identitystore.web.exception.ClientAuthorizationException;
 import fr.paris.lutece.plugins.identitystore.web.exception.DuplicatesConsistencyException;
 import fr.paris.lutece.plugins.identitystore.web.exception.IdentityStoreException;
+import fr.paris.lutece.portal.business.datastore.DataEntity;
+import fr.paris.lutece.portal.business.datastore.DataEntityHome;
 import fr.paris.lutece.plugins.identitystore.web.exception.RequestContentFormattingException;
 import fr.paris.lutece.plugins.identitystore.web.exception.RequestFormatException;
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceConsistencyException;
 import fr.paris.lutece.plugins.identitystore.web.exception.ResourceNotFoundException;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,6 +85,7 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
     private final boolean controlsOnly;
     private final IdentityChangeRequest _identityChangeRequest;
     private final String _strCustomerId;
+    private static final String PROPERTY_EMAIL_FORBIDDEN_DOMAINS = AppPropertiesService.getProperty("identitystore.identity.attribute.email.forbidden_domains");
     private final List<AttributeStatus> formatStatuses;
 
     private ServiceContract serviceContract;
@@ -178,6 +185,31 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
             // if we are here, it means that all the controls were successful.
             response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( formatStatuses ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             return response;
+        }
+
+        DataEntity dataEntity = DataEntityHome.findByPrimaryKey(PROPERTY_EMAIL_FORBIDDEN_DOMAINS);
+        List<String> listForbiddenDomains = new ArrayList<>(Arrays.asList(dataEntity.getValue().split(";")));
+        for ( AttributeDto attributeDto : _identityChangeRequest.getIdentity().getAttributes())
+        {
+            if(StringUtils.equals(attributeDto.getKey(),Constants.PARAM_EMAIL) ||
+                    ( StringUtils.equals(attributeDto.getKey(),Constants.PARAM_LOGIN) && attributeDto.getValue().contains("@") ) )
+            {
+                boolean forbiddenDomain = false;
+                for(String domain : listForbiddenDomains)
+                {
+                    if(attributeDto.getValue().contains(domain))
+                    {
+                        forbiddenDomain = true;
+                        break;
+                    }
+                }
+                if(forbiddenDomain)
+                {
+                    response.setStatus(
+                            ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_EMAIL_DOMAIN ).setMessage( "Forbidden domain" ) );
+                    return response;
+                }
+            }
         }
 
         // perform update
