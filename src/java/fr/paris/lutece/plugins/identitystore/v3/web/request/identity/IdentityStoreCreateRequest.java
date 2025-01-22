@@ -79,7 +79,6 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreAppCodeRequ
     private final IdentityChangeRequest _identityChangeRequest;
     private final List<AttributeStatus> formatStatuses;
     private ServiceContract serviceContract;
-    private static final String PROPERTY_EMAIL_FORBIDDEN_DOMAINS = AppPropertiesService.getProperty("identitystore.identity.attribute.email.forbidden_domains");
 
     /**
      * Constructor of IdentityStoreCreateRequest
@@ -152,31 +151,6 @@ public class IdentityStoreCreateRequest extends AbstractIdentityStoreAppCodeRequ
             // if we are here, it means that all the controls were successful.
             response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( formatStatuses ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             return response;
-        }
-
-        DataEntity dataEntity = DataEntityHome.findByPrimaryKey(PROPERTY_EMAIL_FORBIDDEN_DOMAINS);
-        List<String> listForbiddenDomains = new ArrayList<>(Arrays.asList(dataEntity.getValue().split(";")));
-        for ( AttributeDto attributeDto : _identityChangeRequest.getIdentity().getAttributes())
-        {
-            if(StringUtils.equals(attributeDto.getKey(), Constants.PARAM_EMAIL) ||
-                    ( StringUtils.equals(attributeDto.getKey(),Constants.PARAM_LOGIN) && attributeDto.getValue().contains("@") ) )
-            {
-                boolean forbiddenDomain = false;
-                for(String domain : listForbiddenDomains)
-                {
-                    if(attributeDto.getValue().contains(domain))
-                    {
-                        forbiddenDomain = true;
-                        break;
-                    }
-                }
-                if(forbiddenDomain)
-                {
-                    response.setStatus(
-                            ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_EMAIL_DOMAIN ).setMessage( "Forbidden domain" ) );
-                    return response;
-                }
-            }
         }
 
         final Pair<Identity, List<AttributeStatus>> result = IdentityService.instance( ).create( _identityChangeRequest, _author, serviceContract,

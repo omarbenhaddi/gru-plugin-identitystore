@@ -85,7 +85,6 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
     private final boolean controlsOnly;
     private final IdentityChangeRequest _identityChangeRequest;
     private final String _strCustomerId;
-    private static final String PROPERTY_EMAIL_FORBIDDEN_DOMAINS = AppPropertiesService.getProperty("identitystore.identity.attribute.email.forbidden_domains");
     private final List<AttributeStatus> formatStatuses;
 
     private ServiceContract serviceContract;
@@ -185,31 +184,6 @@ public class IdentityStoreUpdateRequest extends AbstractIdentityStoreAppCodeRequ
             // if we are here, it means that all the controls were successful.
             response.setStatus( ResponseStatusFactory.success( ).setAttributeStatuses( formatStatuses ).setMessageKey( Constants.PROPERTY_REST_INFO_SUCCESSFUL_OPERATION ) );
             return response;
-        }
-
-        DataEntity dataEntity = DataEntityHome.findByPrimaryKey(PROPERTY_EMAIL_FORBIDDEN_DOMAINS);
-        List<String> listForbiddenDomains = new ArrayList<>(Arrays.asList(dataEntity.getValue().split(";")));
-        for ( AttributeDto attributeDto : _identityChangeRequest.getIdentity().getAttributes())
-        {
-            if(StringUtils.equals(attributeDto.getKey(),Constants.PARAM_EMAIL) ||
-                    ( StringUtils.equals(attributeDto.getKey(),Constants.PARAM_LOGIN) && attributeDto.getValue().contains("@") ) )
-            {
-                boolean forbiddenDomain = false;
-                for(String domain : listForbiddenDomains)
-                {
-                    if(attributeDto.getValue().contains(domain))
-                    {
-                        forbiddenDomain = true;
-                        break;
-                    }
-                }
-                if(forbiddenDomain)
-                {
-                    response.setStatus(
-                            ResponseStatusFactory.failure( ).setMessageKey( Constants.PROPERTY_REST_ERROR_FORBIDDEN_EMAIL_DOMAIN ).setMessage( "Forbidden domain" ) );
-                    return response;
-                }
-            }
         }
 
         // perform update
