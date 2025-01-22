@@ -59,11 +59,15 @@ public class IdentityHistoryService
 {
     private static IdentityHistoryService _instance;
 
+    private final IdentityHistoryStatusCache _identityHistoryCache = SpringContextService.getBean( "identitystore.identityHistoryCache" );
+    private final String HISTORY_STATUS_LIST = "historyStatusList";
+
     public static IdentityHistoryService instance( )
     {
         if ( _instance == null )
         {
             _instance = new IdentityHistoryService( );
+            _instance._identityHistoryCache.refresh();
         }
         return _instance;
     }
@@ -132,5 +136,10 @@ public class IdentityHistoryService
                     history.getAttributeHistories( ).add( attributeHistory );
                 } );
         return history;
+    }
+
+    public List<String> getStatusList()
+    {
+        return _identityHistoryCache.getStatusList(HISTORY_STATUS_LIST);
     }
 }
