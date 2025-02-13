@@ -211,7 +211,7 @@ public class IdentityAttributeGeocodesAdjustmentService
                     birthdate = null;
                 }
 
-                final List<Country> countries = GeoCodesService.getInstance( ).getCountriesListByName( sentCountryLabel.getValue( ), birthdate );
+                final List<Country> countries = GeoCodesService.getInstance( ).getCountriesListByNameAndDate( sentCountryLabel.getValue( ), birthdate );
                 if ( CollectionUtils.isEmpty( countries ) )
                 {
                     // Country doesn't exist in Geocodes for provided label : discard attribute and notify with an AttributeStatus
