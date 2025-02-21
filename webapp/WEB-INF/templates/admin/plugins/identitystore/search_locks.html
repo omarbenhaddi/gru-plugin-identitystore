@@ -1,0 +1,31 @@
+<@pageContainer>
+    <@pageColumn>
+        <@pageHeader title="#i18n{identitystore.search_all_locks.title}" />
+        <@table id="locks-table" bordered=true>
+            <thead>
+                <tr>
+                    <@th>#i18n{identitystore.search_all_locks.cuid}</@th>
+                    <@th>#i18n{identitystore.search_all_locks.lock_end_date}</@th>
+                    <@th>#i18n{identitystore.search_all_locks.author.name}</@th>
+                    <@th>#i18n{identitystore.search_all_locks.author.type}</@th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <#if suspicious_identities_list?has_content>
+                    <#list suspicious_identities_list as identity>
+                        <tr>
+                            <@td>${identity.customerId}</@td>
+                            <@td>${identity.lock.lockEndDate}</@td>
+                            <@td>${identity.lock.authorName}</@td>
+                            <@td>${identity.lock.authorType}</@td>
+                            <td>
+                                <@aButton href='jsp/admin/plugins/identitystore/IdentityLocks.jsp?action=confirmRemoveLockedIdentity&customer_id=${identity.customerId}' title='#i18n{portal.util.labelDelete}' buttonIcon='trash' hideTitle=['all'] color='btn-danger'  />
+                            </td>
+                        </tr>
+                    </#list>
+                </#if>
+            </tbody>
+        </@table>
+    </@pageColumn>
+</@pageContainer>
